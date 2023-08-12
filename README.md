@@ -1,17 +1,16 @@
-# python-as3lib
+<h1>python-as3lib</h1>
 A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides.
-<br><br>There are currently two modules in this library, toplevel and interface_tk. Toplevel, imported using as3lib.toplevel, is a module that contains top level functions from actionscript. Interface_tk, imported using as3lib.interface_tk, is a module that tries to get a usable interface that functions similar to actionscript.
+<br><br>There are currently two modules in this library, toplevel and interface_tk. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript.
 <h3>toplevel</h3> 
 The types (Array, Boolean, Int, Number, and String) are actual types so you can use them as such. They include almost everything that they did in ActionScript3. The length method in each type can only be used to get the length, I didn't implement the length assignment for Arrays.
 <br><br>Most of the inherited properties would be too hard to implement so I didn't bother with them.
 <br><br>I implemented the type conversion functions inside the types themselves (ex: instead of String(expression) use String.String(expression)).
 <br><br>For functions that needed a placeholder value for input(s) that aren't easily definable, like multiple possible types or they relied on other factors to be set, I use an empty dictionary as a placeholder. The values that these empty dictionaries represent aren't actually dictionaries, I just used something that would never be used in these functions so that I could detect it.
 <br><br>I have no way as of current to test the accuracy of these functions as I can't find a compiler for actionscript that I could get to work so if anything doesn't work or there is undocumented functionality please let me know on the github page.
-<h3>toplevel</h3> 
+<h3>interface_tk</h3> 
 Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector.
-<br><br>Currently it uses eval and exec a lot because that was the easiest way to implement things. I will reduce the amount of eval and exec statements later on when I experiment with other ways of doing things but some of them will have to stay. The functions to do with html text and images are currently very slow. I am working on optimizing them.
 <h3>Config Files</h3>
-&lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined [here](https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html) with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value if 1 to match the behavior in actionscript.
+&lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">here</a> with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value is 1 to match the behavior in actionscript.
 <h2>Currently Implemented</h2>
 <h3>toplevel</h3>
 ArgumentError(Error Class)
@@ -122,8 +121,6 @@ Date(Data Type)
 <br>String(Data Type)
 <br>&emsp;substr(Function) - Don't know what happens when startIndex is outside of string (not documented)
 <br>unescape(Function)
-<h3>interface_tk</h3>
-Anything to do with images - images can currently only be used for one object. I will have to come up with a workaround since this is a tkinter problem
 <h2>Future Plans<h2>
 <h3>toplevel</h3>
 Array(Data Type)

@@ -7,7 +7,95 @@ from numpy import base_repr
 from textwrap import wrap
 from time import time, strftime
 from datetime import datetime
+from os import getuid
+from os.path import dirname
+from pwd import getpwuid
+from pathlib import Path
+from platform import system
+import configparser
 
+def defaultTraceFilePath():
+   """
+   Outputs the default file path for trace in this library
+   """
+   path = dirname(__file__) + "/flashlog.txt"
+   return path
+def defaultTraceFilePath_Flash():
+   """
+   Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
+   Since anything earlier than Windows 7 isn't supported by python 3.8, I didn't include the Windows 95/98/ME/2000/XP file path because it shouldn't be needed.
+   """
+   pt = system()
+   username = getpwuid(getuid())[0]
+   if pt == "Linux":
+      return r"/home/" + username + "/.macromedia/Flash_Player/Logs/flashlog.txt"
+   elif pt == "Windows":
+      return r"C:\Users\\" + username + "\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
+   elif pt == "Darwin":
+      return r"/Users/" + username + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
+
+as3DebugEnable = False
+ErrorReportingEnable = 0
+MaxWarnings = 100
+TraceOutputFileEnable = 0
+TraceOutputFileName = defaultTraceFilePath()
+CurrentWarnings = 0
+MaxWarningsReached = False
+ClearLogsOnStartup = 1
+
+pt = system()
+if pt == "Linux" or pt == "Darwin":
+   configpath = dirname(__file__) + "/mm.cfg"
+   if Path(configpath).is_file() == True:
+      with open(configpath, 'r') as f:
+         configwithheader = '[dummy_section]\n' + f.read()
+      config = configparser.ConfigParser()
+      config.read_string(configwithheader)
+      actual_config = config["dummy_section"]
+      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+      if existing_options[0] == True:
+         ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+      if existing_options[1] == True:
+         MaxWarnings = int(actual_config["MaxWarnings"])
+      if existing_options[2] == True:
+         TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+      if existing_options[3] == True:
+         TraceOutputFileName = actual_config["TraceOutputFileName"]
+      if existing_options[4] == True:
+         ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+elif pt == "Windows":
+   configpath = dirname(__file__) + "\mm.cfg"
+   if Path(configpath).is_file() == True:
+      with open(configpath, 'r') as f:
+         configwithheader = '[dummy_section]\n' + f.read()
+      config = configparser.ConfigParser()
+      config.read_string(configwithheader)
+      actual_config = config["dummy_section"]
+      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+      if existing_options[0] == True:
+         ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+      if existing_options[1] == True:
+         MaxWarnings = int(actual_config["MaxWarnings"])
+      if existing_options[2] == True:
+         TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+      if existing_options[3] == True:
+         TraceOutputFileName = actual_config["TraceOutputFileName"]
+      if existing_options[4] == True:
+         ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+if Path(TraceOutputFileName).is_dir() == True:
+   print("Path provided is a directory, writing to defualt location instead.")
+   TraceOutputFileName = defaultTraceFilePath()
+if ClearLogsOnStartup == 1:
+   if Path(TraceOutputFileName).exists() == True:
+      with open(TraceOutputFileName, "w") as f: 
+         f.write("")
+   
+def EnableDebug():
+   global as3DebugEnable
+   as3DebugEnable = True
+def DisableDebug():
+   global as3DebugEnable
+   as3DebugEnable = False
 def listtoarray(l:list):
    """
    A function to convert a python list to an Array.
@@ -16,26 +104,16 @@ def listtoarray(l:list):
    for i in range(0,len(l)):
       tempArray[i] = l[i]
    return tempArray
-
-def escapeFullConvert(Str):
-   """
-   Converts the parameter to a string and encodes it in a URL-encoded format, where characters are replaced with % hexadecimal sequences. When used in a URL-encoded string, the percentage symbol (%) is used to introduce escape characters, and is not equivalent to the modulo operator (%). 
-   """
-   tempdict1 = [' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', '\x7f', '€', '\x81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', '\x8d', 'Ž', '‘', '\X8f', '\x90', '’', '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ', 'ž', 'Ÿ', '!', '\xa0', '¡', '¢', '£', '¤', '¥', '¦', '§', '¨', '©', 'ª', '«', '¬', '\xad', '®', '¯', '°', '±', '²', '³', '´', 'µ', '¶', '·', '¸', '¹', 'º', '»', '¼', '½', '¾', '¿', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', '×', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'Þ', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ð', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', '÷', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'þ', 'ÿ']
-   tempdict2 = ['%20', '%21', '%22', '%23', '%24', '%25', '%26', '%27', '%28', '%29', '%2A', '%2B', '%2C', '%2D', '%2E', '%2F', '%30', '%31', '%32', '%33', '%34', '%35', '%36', '%37', '%38', '%39', '%3A', '%3B', '%3C', '%3D', '%3E', '%3F', '%40', '%41', '$42', '%43', '%44', '%45', '%46', '%47', '%48', '%49', '%4A', '%4B', '%4C', '%4D', '%4E', '%4F', '%50', '%51', '%52', '%53', '%54', '%55', '%56', '%57', '%58', '%59', '%5A', '%5B', '%5C', '%5D', '%5E', '%5F', '%60', '%61', '%62', '%63', '%64', '%65', '%66', '%67', '%68', '%69', '%6A', '%6B', '%6C', '%6D', '%6E', '%6F', '%70', '%71', '%72', '%73', '%74', '%75', '%76', '%77', '%78', '%79', '%7A', '%7B', '%7C', '%7D', '%7E', '%7F', '%80', '%81', '%82', '%83', '%84', '%85', '%86', '%87', '%88', '%89', '%8A', '%8B', '%8C', '%8D', '%8E', '%8f', '%90', '%91', '%92', '%93', '%94', '%95', '%96', '%97', '%98', '%99', '%9A', '%9B', '%9C', '%9D', '%9E', '%9F', '%A0', '%A1', '%A2', '%A3', '%A4', '%A5', '%A6', '%A7', '%A8', '%A9', '%AA', '%AB', '%AC', '%AD', '%AE', '%AF', '%B0', '%B1', '%B2', '%B3', '%B4', '%B5', '%B6', '%B7', '%B8', '%B9', '%BA', '%BB', '%BC', '%BD', '%BE', '%BF', '%C0', '%C1', '%C2', '%C3', '%C4', '%C5', '%C6', '%C7', '%C8', '%C9', '%CA', '%CB', '%CC', '%CD', '%CE', '%CF', '%D0', '%D1', '%D2', '%D3', '%D4', '%D5', '%D6', '%D7', '%D8', '%D9', '%DA', '%DB', '%DC', '%DD', '%DE', '%DF', '%E0', '%E1', '%E2', '%E3', '%E4', '%E5', '%E6', '%E7', '%E8', '%E9', '%EA', '%EB', '%EC', '%ED', '%EE', '%EF', '%F0', '%F1', '%F2', '%F3', '%F4', '%F5', '%F6', '%F7', '%F8', '%F9', '%FA', '%FB', '%FC', '%FD', '%FE', '%FF']
-   tempString1 = str(Str)
-   templist = wrap(tempString1, 1)
-   tempString2 = String()
-   for i in range(0,len(templist)):
-      try:
-         tempi = tempdict1.index(templist[i])
-      except:
-         tempi = -1
-      if tempi == -1:
-         tempString2 += ""
-      else:
-         tempString2 += tempdict2[tempi]
-   return tempString2
+def formatTypeToName(arg:type):
+   tempStr = str(arg)
+   if tempStr.find(".") != -1:
+      tempStr = tempStr.split(".")
+      tempStr = tempStr[1].split("'")
+      tempStr = tempStr[0]
+   else:
+      tempStr = tempStr.split("'")
+      tempStr = tempStr[1]
+   return tempStr
 
 class NInfinity:
    def __init__(self):
@@ -66,9 +144,12 @@ class undefined:
       self.value = "undefined"
    def __str__(self):
       return self.value
+   def __repr__(self):
+      return self.value
 
-class ArgumentError(Exception):
+class ArgumentError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class Array:
    """
@@ -113,8 +194,10 @@ class Array:
             self.pop()
       elif len(self) < numElements:
          while len(self) < numElements:
-            self.push(None)
-   def length(self):
+            self.push(undefined())
+   def length(self, value:int={}):
+      if value != {} and value != len(self.array):
+         self.toSize(value)
       return len(self.array)
    def concat(self, *args):
       """
@@ -127,17 +210,16 @@ class Array:
       if len(args) == 0:
          raise Exception("Must have at least 1 arguments")
       else:
+         tempArray = listtoarray(self.array)
          for i in range(0,len(args)):
-            if self.array == []:
-               self.array = args[i]
+            if type(args[i]) == list or type(args[i]) == tuple or type(args[i]) == Array():
+               b = args[i]
+               c = 0
+               for c in range(0,len(b)):
+                  self.push(b[c])
             else:
-               if type(args[i]) == list or type(args[i]) == tuple or type(args[i]) == Array:
-                  b = args[i]
-                  c = 0
-                  for c in range(0,len(b)):
-                     self.push(b[c])
-               else:
-                  self.push(args[i])
+               self.push(args[i])
+         return tempArray
    def every(self, callback):
       """
       Executes a test function on each item in the array until an item is reached that returns False for the specified function. You use this method to determine whether all items in an array meet a criterion, such as having values less than a particular number.
@@ -594,8 +676,9 @@ class Date:
       pass
    def valueOf(self):
       return self.time
-class DefinitionError(Exception):
+class DefinitionError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 def decodeURI():
    pass
@@ -605,8 +688,9 @@ def encodeURI():
    pass
 def encodeURIComponent():
    pass
-class Error(Exception):
+class Error():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 def escape(Str):
    """
@@ -629,8 +713,9 @@ def escape(Str):
       else:
          tempString2 += tempdict2[tempi]
    return tempString2
-class EvalError(Exception):
+class EvalError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class Int:
    MAX_VALUE = 2147483647
@@ -763,11 +848,17 @@ class Math:
    def log(val):
       return m.log(val)
    def max(*values):
-      return max(values)
+      if len(values) == 1:
+         return values[0]
+      else:
+         return max(values)
    def min(*values):
-      return min(values)
-   def pow(base, pow):
-      return m.pow(base,pow)
+      if len(values) == 1:
+         return values[0]
+      else:
+         return min(values)
+   def pow(base, power):
+      return m.pow(base,power)
    def random():
       return r.random()
    def round(val):
@@ -872,16 +963,19 @@ def parseFloat():
    pass
 def parseInt():
    pass
-class RangeError(Exception):
+class RangeError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
-class ReferenceError(Exception):
+class ReferenceError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class RegExp:
    pass
-class SecurityError(Exception):
+class SecurityError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class String:
    def __init__(self, value=""):
@@ -1013,22 +1107,63 @@ class String:
       return self.string.upper()
    def valueOf(self):
       return self.string
-class SyntaxError(Exception):
+class SyntaxError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
-def trace(*args):
-   output = ""
-   for i in range(0, len(args)):
-      if len(args) == 1:
-         output = str(args[0])
-      else:
-         if i == len(args) - 1:
-            output += str(args[i])
+def trace(*args, isError=False):
+   global as3DebugEnable, TraceOutputFileEnable, TraceOutputFileName, ErrorReportingEnable, MaxWarnings, CurrentWarnings, MaxWarningsReached
+   if as3DebugEnable == True:
+      if isError == True and ErrorReportingEnable == 1:
+         if MaxWarningsReached == False:
+            if CurrentWarnings < MaxWarnings:
+               ErrName = formatTypeToName(args[0])
+               output = ErrName + ": " + args[1]
+               CurrentWarnings += 1
+            else:
+               output = "Maximum number of errors has been reached. All further errors will be suppressed."
+               MaxWarningsReached = True
          else:
-            output += str(args[i]) + " "
-   print(output)
-class TypeError(Exception):
+            pass
+      else:
+         output = ""
+         for i in range(0, len(args)):
+            if len(args) == 1:
+               output = str(args[0])
+            else:
+               if i == len(args) - 1:
+                  output += str(args[i])
+               else:
+                  output += str(args[i]) + " "
+      if TraceOutputFileEnable == 1:
+         if TraceOutputFileName == defaultTraceFilePath():
+            if Path(TraceOutputFileName).exists() == True:
+               with open(TraceOutputFileName, "r") as f:
+                  tempread = f.read()
+               with open(TraceOutputFileName, "w") as f:
+                  output = tempread + output + "\n" 
+                  f.write(output)
+            else:
+               with open(TraceOutputFileName, "w") as f:
+                  output += "\n" 
+                  f.write(output)
+         else:
+            if Path(TraceOutputFileName).exists() == True:
+               if Path(TraceOutputFileName).is_file() == True:
+                  with open(TraceOutputFileName, "r") as f:
+                     tempread = f.read()
+                  with open(TraceOutputFileName, "w") as f:
+                     output = tempread + output + "\n"
+                     f.write(output)
+            else:
+               with open(TraceOutputFileName, "w") as f:
+                  output += "\n"
+                  f.write(output)
+      else:
+         print(output)
+class TypeError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class uint:
    pass
@@ -1051,11 +1186,14 @@ def unescape(Str):
       else:
          tempString2 += templist.pop(0)
    return tempString2
-class URIError(Exception):
+class URIError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
 class Vector:
    pass
-class VerifyError(Exception):
+class VerifyError():
    def __init__(self, message=""):
+      trace(type(self), message, isError=True)
       self.error = message
+
