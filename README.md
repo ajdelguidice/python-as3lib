@@ -1,14 +1,39 @@
 <h1>python-as3lib</h1>
 A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides.
-<br><br>There are currently two modules in this library, toplevel and interface_tk. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript.
-<h3>toplevel</h3> 
+<br><br>There are currently five modules in this library, toplevel, interface_tk, keyConversions, com.adobe, and flash.ui. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. com.adobe is the classes from the origional com.adobe. flash.ui is the classes from the origional flash.ui.
+<h3>Requirements</h3>
+tkinter (Built-in)
+<br>re (Built-in)
+<br>math (Built-in)
+<br>io (Built-in)
+<br>platform (Built-in)
+<br>subprocess (Built-in)
+<br>random (Built-in)
+<br>time (Built-in)
+<br>datetime (Built-in)
+<br>os (Built-in)
+<br>pwd (Built-in)
+<br>pathlib (Built-in)
+<br>configparser (Built-in)
+<br>webbrowser (Built-in)
+<br>textwrap (Built-in)
+<br><a href="https://pypi.org/project/numpy">numpy</a>
+<br><a href="https://pypi.org/project/Pillow">Pillow</a>
+<br><a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+<h3>toplevel</h3>
 The types (Array, Boolean, Int, Number, and String) are actual types so you can use them as such. They include almost everything that they did in ActionScript3. The length method in each type can only be used to get the length, I didn't implement the length assignment for Arrays.
 <br><br>Most of the inherited properties would be too hard to implement so I didn't bother with them.
 <br><br>I implemented the type conversion functions inside the types themselves (ex: instead of String(expression) use String.String(expression)).
 <br><br>For functions that needed a placeholder value for input(s) that aren't easily definable, like multiple possible types or they relied on other factors to be set, I use an empty dictionary as a placeholder. The values that these empty dictionaries represent aren't actually dictionaries, I just used something that would never be used in these functions so that I could detect it.
 <br><br>I have no way as of current to test the accuracy of these functions as I can't find a compiler for actionscript that I could get to work so if anything doesn't work or there is undocumented functionality please let me know on the github page.
 <h3>interface_tk</h3> 
-Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector.
+Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector. I will try to make one with similar syntax to actionscript later (no promises).
+<h3>keyConversions</h3>
+This module is a module that includes cross-platform key conversion functions for tkinter events, javascript (actionscript) keycodes, and mouse buttons.
+<h3>com.adobe</h3>
+This module contains the things from the origional com.adobe module. There wasn't much in this module but it's here.
+<h3>flash.ui</h3>
+This module contains the things from the origional flash.ui module. Currently only the context menu. 
 <h3>Config Files</h3>
 &lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">here</a> with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value is 1 to match the behavior in actionscript.
 <h2>Currently Implemented</h2>
@@ -167,3 +192,6 @@ listtoarray - converts a given list to an Array. Returns the Array.
 <br>EnableDebug - enables "debug mode". Debug mode is something from actionscript that was enabled by using the debug version of the interpreter. Since python doesn't have a debug interpreter, this function is used to enable the debug capabilities of things in this library (only the documented ones).
 <br>DisableDebug - disables "debug mode"
 <br>formatTypeToName - takes a type object and converts it to a string without the name of the package it came from (&lt;class 'as3.Array'&gt; becomes "Array")
+<br>U29(class) - <a href="https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf">U29specs</a> on page 3
+<br>&emsp;decodeU29int(Function) - decodes a u29int value from binary bits. Must have an input of either 8, 16, 24, or 32 bits as a string
+<br>&emsp;decodeU29str(Function) - decodes a u29str value
