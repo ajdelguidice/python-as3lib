@@ -108,7 +108,8 @@ def formatTypeToName(arg:type):
    tempStr = str(arg)
    if tempStr.find(".") != -1:
       tempStr = tempStr.split(".")
-      tempStr = tempStr[1].split("'")
+      tempNum = len(tempStr) - 1
+      tempStr = tempStr[tempNum].split("'")
       tempStr = tempStr[0]
    else:
       tempStr = tempStr.split("'")
@@ -1165,6 +1166,128 @@ class TypeError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
+class U29:
+   def decodeU29int(_type, data):
+      """
+      Must have an input of the data type ("h" or "b" for hexidecimal or binary) and the data as a string.
+      Binary data must be either 8, 16, 32, or 48 bits.
+      The first bit if each byte, aside from the 4th, determines if there is another byte afterwards (1xxxxxxx means there is another). This leaves a maximum of 29 bits for actual data, hence u29int.
+      The specs of u29int can be found at https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf on page 3
+      This function returns a list. Value 0 is the number it translates to, value 1 is the type of u29int value (1, 2, 3, or 4). The types basically mean how many bytes the u29int was (this is a part of the spec)
+      """
+      dat = data.replace(" ", "")
+      r = ""
+      if _type == "h":
+         bindat = bin(int(dat, 16))[2:].zfill(len(dat) * 4)
+         x=0
+      elif _type == "b":
+         bindat = dat
+      if bindat[0] == "1":
+         if bindat[8] == "1":
+            if bindat[16] == "1":
+               rtype = 4
+               for i in range(0,32):
+                  if i == 0 or i == 8 or i == 16:
+                     continue
+                  else:
+                     r += bindat[i]
+               result = int(r,2)
+            else:
+               rtype = 3
+               for i in range(0,24):
+                  if i == 0 or i == 8 or i == 16:
+                     continue
+                  else:
+                     r += bindat[i]
+               result = int(r,2)
+         else:
+            rtype = 2
+            for i in range(0,16):
+               if i == 0 or i == 8:
+                  continue
+               else:
+                  r += bindat[i]
+            result = int(r,2)
+      else:
+         rtype = 1
+         for i in range(0,8):
+            if i == 0:
+               continue
+            else:
+               r += bindat[i]
+         result = int(r,2)
+      return [result, rtype]
+   def decodeU29str(_type, data):
+      """
+      Must have an input of the data type ("h" or "b" for hexidecimal or binary) and the data as a string.
+      A u29str value is an encoded string which is preceded by (a) u29str length byte(s).
+      The u29str length byte(s) is, in all the cases I've seen, the length in bits of the string times 2 plus 1 (for some stupid reason).
+      """
+      dat = data.replace(" ", "")
+      if _type == "h":
+         bindat = bin(int(dat, 16))[2:].zfill(len(dat) * 4)
+         x=0
+      elif _type == "b":
+         bindat = dat
+      length1 = u29._decodeU29str(bindat)
+      temp = u29.read_byte_destructive(bindat)
+      bindat = temp[0]
+      length = int((length1[0] - 1) / 2)
+      result = ''
+      for i in range(0, length):
+         temp = u29.read_byte_destructive(bindat)
+         bindat = temp[0]
+         result += bytes.fromhex('%0*X' % ((len(temp[1]) + 3) // 4, int(temp[1], 2))).decode('utf-8')
+      return result
+   def read_byte_destructive(binary_data):
+      temp = u29.remove_byte(binary_data)
+      return temp[0], temp[1]
+   def remove_byte(binary_data):
+      temp1 = wrap(binary_data, 8)
+      temp2 = temp1.pop(0)
+      temp1 = ''.join(temp1)
+      return temp1, temp2
+   def _decodeU29str(binary_data):
+      numlist = binary_data.replace(" ", "")
+      numlist = numlist[:32]
+      r = ""
+      if numlist[0] == '1':
+         if numlist[1] == '1':
+            if numlist[2] == '1':
+               if numlist[3] == '1':
+                  for i in range(0,16):
+                     if i == 0 or i == 1 or i == 2 or i == 3 or i == 4 or i == 8 or i == 9 or i == 16 or i == 17 or i == 24 or i == 25:
+                        continue
+                     else:
+                        r += numlist[i]
+                  number = int(r,2)
+                  return [number,4]
+               else:
+                  for i in range(0,16):
+                     if i == 0 or i == 1 or i == 2 or i == 3 or i == 8 or i == 9 or i == 16 or i == 17:
+                        continue
+                     else:
+                        r += numlist[i]
+                  number = int(r,2)
+                  return [number,3]
+            else:
+               for i in range(0,16):
+                  if i == 0 or i == 1 or i == 2 or i == 8 or i == 9:
+                     continue
+                  else:
+                     r += numlist[i]
+               number = int(r,2)
+               return [number,2]
+         else:
+            raise Exception("Not U29 string/utf-8 value")
+      else:
+         for i in range(0,8):
+            if i == 0:
+               continue
+            else:
+               r += numlist[i]
+         number = int(r,2)
+         return [number,1]
 class uint:
    pass
 def unescape(Str):
@@ -1196,4 +1319,3 @@ class VerifyError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-

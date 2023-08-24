@@ -1,1 +1,1 @@
-from . import toplevel, interface_tk
+from . import *
