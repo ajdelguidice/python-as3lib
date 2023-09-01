@@ -1,6 +1,6 @@
 <h1>python-as3lib</h1>
-A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides.
-<br><br>There are currently five modules in this library, toplevel, interface_tk, keyConversions, com.adobe, and flash.ui. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. com.adobe is the classes from the origional com.adobe. flash.ui is the classes from the origional flash.ui.
+A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides. Once I learn how to make python c modules, I plan on offloading some of this stuff to c or c++ modules to speed things up.
+<br><br>There are currently 10 modules in this library, toplevel, interface_tk, keyConversions, configmodule, initconfig, com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. configmodule is the module that holds all of the things that this module needs globally or that need to be used many times so I only have to fetch them once (this includes things like the platform and screen resolution). initconfig is the module that is called when this module initializes and its only purpose is to set the variables in configmodule. com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils are module that contain their respective functions and classes from actionscript (none of these modules are complete yet).
 <h3>Requirements</h3>
 tkinter (Built-in)
 <br>re (Built-in)
@@ -30,10 +30,8 @@ The types (Array, Boolean, Int, Number, and String) are actual types so you can 
 Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector. I will try to make one with similar syntax to actionscript later (no promises).
 <h3>keyConversions</h3>
 This module is a module that includes cross-platform key conversion functions for tkinter events, javascript (actionscript) keycodes, and mouse buttons.
-<h3>com.adobe</h3>
-This module contains the things from the origional com.adobe module. There wasn't much in this module but it's here.
-<h3>flash.ui</h3>
-This module contains the things from the origional flash.ui module. Currently only the context menu. 
+<h3>com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils</h3>
+These modules contain things from their respective actionscript modules. None of them are complete yet since many actionscript module rely on each other to function. I have to go back and forth between modules coding things here and there so these are taking much longer than previous modules.
 <h3>Config Files</h3>
 &lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">here</a> with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value is 1 to match the behavior in actionscript.
 <h2>Currently Implemented</h2>
