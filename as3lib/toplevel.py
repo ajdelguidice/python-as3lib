@@ -118,35 +118,300 @@ def formatTypeToName(arg:type):
 
 class NInfinity:
    def __init__(self):
-      self.string = "-Infinity"
       self.value = NINF
    def __str__(self):
-      return self.string
+      return "-Infinity"
    def __repr__(self):
       return self.value
+   def __lt__(self, value):
+      if fomatTypeToName(type(value)) == "NInfinity":
+         return False
+      else:
+         return True
+   def __le__(self, value):
+      if fomatTypeToName(type(value)) == "NInfinity":
+         return True
+      else:
+         return False
+   def __eq__(self, value):
+      if fomatTypeToName(type(value)) == "NInfinity":
+         return True
+      else:
+         return False
+   def __ne__(self, value):
+      if fomatTypeToName(type(value)) == "NInfinity":
+         return False
+      else:
+         return True
+   def __gt__(self, value):
+      return False
+   def __ge__(self, value):
+      if fomatTypeToName(type(value)) == "NInfinity":
+         return True
+      else:
+         return False
+   def __bool__(self):
+      return True
+   def __getattr__(self, value):
+      return "NInfinity"
+   def __getattribute__(self, value):
+      return "NInfinity"
+   def __setattr__(self, *value):
+      pass
+   def __add__(self, value):
+      return self
+   def __radd__(self, value):
+      return self
+   def __iadd__(self, value):
+      return self
+   def __sub__(self, value):
+      return self
+   def __mul__(self, value):
+      return self
+   def __matmul__(self, value):
+      return self
+   def __truediv__(self, value):
+      return self
+   def __floordiv__(self, value):
+      return self
+   def __mod__(self, value):
+      return self
+   def __divmod__(self, value):
+      return self
+   def __pow__(self, value):
+      return self
+   def __lshift__(self, value):
+      return self
+   def __rshift__(self, value):
+      return self
+   def __and__(self, value):
+      if bool(value) == True:
+         return True
+      else:
+         return False
+   def __or__(self, value):
+      return True
+   def __xor__(self, value):
+      if bool(value) == True:
+         return False
+      else:
+         return True
+   def __neg__(self):
+      return self
+   def __pos__(self):
+      return NInfinity()
+   def __abs__(self):
+      return Infinity()
+   def __invert__(self):
+      return Infinity()
+   def __complex__(self):
+      return self
+   def __int__(self):
+      return self
+   def __float__(self):
+      return self
+   def __round__(self):
+      return self
+   def __floor__(self):
+      return self
+   def __ceil__(self):
+      return self
 class Infinity:
    def __init__(self):
-      self.string = "Infinity"
       self.value = inf
    def __str__(self):
-      return self.string
+      return "Infinity"
    def __repr__(self):
       return self.value
+   def __lt__(self, value):
+      return False
+   def __le__(self, value):
+      if fomatTypeToName(type(value)) == "Infinity":
+         return True
+      else:
+         return False
+   def __eq__(self, value):
+      if fomatTypeToName(type(value)) == "Infinity":
+         return True
+      else:
+         return False
+   def __ne__(self, value):
+      if fomatTypeToName(type(value)) == "Infinity":
+         return False
+      else:
+         return True
+   def __gt__(self, value):
+      if fomatTypeToName(type(value)) == "Infinity":
+         return False
+      else:
+         return True
+   def __ge__(self, value):
+      return True
+   def __bool__(self):
+      return True
+   def __getattr__(self, value):
+      return "Infinity"
+   def __getattribute__(self, value):
+      return "Infinity"
+   def __setattr__(self, *value):
+      pass
+   def __add__(self, value):
+      return self
+   def __radd__(self, value):
+      return self
+   def __iadd__(self, value):
+      return self
+   def __sub__(self, value):
+      return self
+   def __mul__(self, value):
+      return self
+   def __matmul__(self, value):
+      return self
+   def __truediv__(self, value):
+      return self
+   def __floordiv__(self, value):
+      return self
+   def __mod__(self, value):
+      return self
+   def __divmod__(self, value):
+      return self
+   def __pow__(self, value):
+      return self
+   def __lshift__(self, value):
+      return self
+   def __rshift__(self, value):
+      return self
+   def __and__(self, value):
+      if bool(value) == True:
+         return True
+      else:
+         return False
+   def __or__(self, value):
+      return True
+   def __xor__(self, value):
+      if bool(value) == True:
+         return False
+      else:
+         return True
+   def __neg__(self):
+      return NInfinity()
+   def __pos__(self):
+      return self
+   def __abs__(self):
+      return self
+   def __invert__(self):
+      return NInfinity()
+   def __complex__(self):
+      return self
+   def __int__(self):
+      return self
+   def __float__(self):
+      return self
+   def __round__(self):
+      return self
+   def __floor__(self):
+      return self
+   def __ceil__(self):
+      return self
 class NaN:
    def __init__(self):
-      self.string = "NaN"
       self.value = nan
    def __str__(self):
-      return self.string
+      return "NaN"
    def __repr__(self):
-      return self.value
+      return f"{self.value}"
+   def __lt__(self, value):
+      return False
+   def __le__(self, value):
+      return False
+   def __eq__(self, value):
+      return False
+   def __ne__(self, value):
+      return True
+   def __gt__(self, value):
+      return False
+   def __ge__(self, value):
+      return False
+   def __bool__(self):
+      return False
+   def __getattr__(self, value):
+      return "NaN"
+   def __getattribute__(self, value):
+      return "NaN"
+   def __setattr__(self, *value):
+      pass
+   def __contains__(self, value):
+      return False
+   def __add__(self, value):
+      return self
+   def __radd__(self, value):
+      return self
+   def __iadd__(self, value):
+      return self
+   def __sub__(self, value):
+      return self
+   def __mul__(self, value):
+      return self
+   def __matmul__(self, value):
+      return self
+   def __truediv__(self, value):
+      return self
+   def __floordiv__(self, value):
+      return self
+   def __mod__(self, value):
+      return self
+   def __divmod__(self, value):
+      return self
+   def __pow__(self, value):
+      return self
+   def __lshift__(self, value):
+      return self
+   def __rshift__(self, value):
+      return self
+   def __and__(self, value):
+      return False
+   def __xor__(self, value):
+      return False
+   def __or__(self, value):
+      return False
+   def __neg__(self):
+      return self
+   def __pos__(self):
+      return self
+   def __abs__(self):
+      return self
+   def __invert__(self):
+      return
+   def __complex__(self):
+      return self
+   def __int__(self):
+      return self
+   def _uint(self):
+      return 0
+   def __float__(self):
+      return self
+   def __round__(self):
+      return self
+   def __trunc__(self):
+      return self
+   def __floor__(self):
+      return self
+   def __ceil__(self):
+      return self
 class undefined:
    def __init__(self):
-      self.value = "undefined"
+      self.value = None
    def __str__(self):
-      return self.value
+      return "undefined"
    def __repr__(self):
-      return self.value
+      return "None"
+class null:
+   def __init__(self):
+      self.value = None
+   def __str__(self):
+      return "null"
+   def __repr__(self):
+      return "None"
 
 class ArgumentError():
    def __init__(self, message=""):
@@ -815,7 +1080,7 @@ def isFinite(num):
    else:
       return True
 def isNaN(num):
-   if num == nan:
+   if formatTypeToName(type(num)) == "NaN":
       return True
    else:
       return False

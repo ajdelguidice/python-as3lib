@@ -1,19 +1,14 @@
-import platform
-import subprocess
+from . import configmodule
 import re
 def mouseButtonNameToTkname(name):
-   pt = platform.system()
-   if pt == "Linux":
-      dmtype = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)
-      dmtype = str(dmtype).split("=")[1]
-      dmtype = dmtype.replace("\\n'","")
-      if dmtype == "x11":
+   if configmodule.platform == "Linux":
+      if configmodule.windowmanagertype == "x11":
          return Linux_X11.mouseButtonNameToTkname(name)
-      elif dmtype == "wayland":
+      elif configmodule.windowmanagertype == "wayland":
          pass
-   elif pt == "Windows":
+   elif configmodule.platform == "Windows":
       pass
-   elif pt == "Darwin":
+   elif configmodule.platform == "Darwin":
       pass
 class Linux_X11:
    def mouseButtonNameToTkname(name):
