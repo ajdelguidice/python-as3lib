@@ -23,7 +23,7 @@ tkinter (Built-in)
 <h3>toplevel</h3>
 The types (Array, Boolean, Int, Number, and String) are actual types so you can use them as such. They include almost everything that they did in ActionScript3. The length method in each type can only be used to get the length, I didn't implement the length assignment for Arrays.
 <br><br>Most of the inherited properties would be too hard to implement so I didn't bother with them.
-<br><br>I implemented the type conversion functions inside the types themselves (ex: instead of String(expression) use String.String(expression)).
+<br><br>I implemented the type conversion functions inside the types themselves (ex: instead of String(expression) use String.String(expression)). I plan on merging these back into the constructor (__init__) funcitons later.
 <br><br>For functions that needed a placeholder value for input(s) that aren't easily definable, like multiple possible types or they relied on other factors to be set, I use an empty dictionary as a placeholder. The values that these empty dictionaries represent aren't actually dictionaries, I just used something that would never be used in these functions so that I could detect it.
 <br><br>I have no way as of current to test the accuracy of these functions as I can't find a compiler for actionscript that I could get to work so if anything doesn't work or there is undocumented functionality please let me know on the github page.
 <h3>interface_tk</h3> 
