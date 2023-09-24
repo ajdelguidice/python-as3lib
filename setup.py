@@ -4,7 +4,7 @@ with open("README.md", "r") as ld:
       long_desc = ld.read()
 
 setup(name="as3lib",
-      version="0.0.4",
+      version="0.0.5",
       author="ajdelguidice",
       author_email="ajdelguidice@gmail.com",
       url="https://github.com/ajdelguidice/python-as3lib",
