@@ -1,6 +1,7 @@
-from . import configmodule
+from . import configmodule, toplevel
 import re
-def mouseButtonNameToTkname(name):
+from typing import Union
+def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
    if configmodule.platform == "Linux":
       if configmodule.windowmanagertype == "x11":
          return Linux_X11.mouseButtonNameToTkname(name)
@@ -11,7 +12,7 @@ def mouseButtonNameToTkname(name):
    elif configmodule.platform == "Darwin":
       pass
 class Linux_X11:
-   def mouseButtonNameToTkname(name):
+   def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
          return "<Button-1>"
       elif name == "Middle":
@@ -26,7 +27,7 @@ class Linux_Wayland:
 class Windows:
    pass
 class Darwin_X11:
-   def mouseButtonNameToTkname(name):
+   def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
          return "<Button-1>"
       elif name == "Middle":
@@ -36,7 +37,7 @@ class Darwin_X11:
    def tkeventToJavascriptKeycode(event):
       pass
 class Darwin_Aqua:
-   def mouseButtonNameToTkname(name):
+   def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
          return "<Button-1>"
       elif name == "Middle":

@@ -303,9 +303,9 @@ class window:
       if rt == False:
          self.ftext[f"{child}"] = re.sub("(\t)", "    ", self.otext[f"{child}"])
       text = self.ftext[f"{child}"]
+      text = "<pre style=\"color: " + self.hstfg[f"{child}"] + "; background-color: " + self.hstbg[f"{child}"] + f"; font-size: {int(fontsize*self.oldmult/100)}px; font-family: {font[0]}\">{text}</pre>"
       if self.stfontbold[child] == True:
          text = "<b>" + text + "</b>"
-      text = f"<pre style=\"color: " + self.hstfg[f"{child}"] + "; background-color: " + self.hstbg[f"{child}"] + f"; font-size: {int(fontsize*self.oldmult/100)}px; font-family: {font[0]}\">{text}</pre>"
       self.children[child].set_html(text)
       self.children[child]["state"] = "disabled"
    def addImage(self, image_name:str, image_data, size:tuple=""):

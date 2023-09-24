@@ -7,96 +7,15 @@ from numpy import base_repr
 from textwrap import wrap
 from time import time, strftime
 from datetime import datetime
-from os import getuid
-from os.path import dirname
-from pwd import getpwuid
 from pathlib import Path
-from platform import system
-import configparser
+from . import configmodule
+from typing import Union
 
-def defaultTraceFilePath():
-   """
-   Outputs the default file path for trace in this library
-   """
-   path = dirname(__file__) + "/flashlog.txt"
-   return path
-def defaultTraceFilePath_Flash():
-   """
-   Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
-   Since anything earlier than Windows 7 isn't supported by python 3.8, I didn't include the Windows 95/98/ME/2000/XP file path because it shouldn't be needed.
-   """
-   pt = system()
-   username = getpwuid(getuid())[0]
-   if pt == "Linux":
-      return r"/home/" + username + "/.macromedia/Flash_Player/Logs/flashlog.txt"
-   elif pt == "Windows":
-      return r"C:\Users\\" + username + "\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
-   elif pt == "Darwin":
-      return r"/Users/" + username + "/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
-
-as3DebugEnable = False
-ErrorReportingEnable = 0
-MaxWarnings = 100
-TraceOutputFileEnable = 0
-TraceOutputFileName = defaultTraceFilePath()
-CurrentWarnings = 0
-MaxWarningsReached = False
-ClearLogsOnStartup = 1
-
-pt = system()
-if pt == "Linux" or pt == "Darwin":
-   configpath = dirname(__file__) + "/mm.cfg"
-   if Path(configpath).is_file() == True:
-      with open(configpath, 'r') as f:
-         configwithheader = '[dummy_section]\n' + f.read()
-      config = configparser.ConfigParser()
-      config.read_string(configwithheader)
-      actual_config = config["dummy_section"]
-      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-      if existing_options[0] == True:
-         ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-      if existing_options[1] == True:
-         MaxWarnings = int(actual_config["MaxWarnings"])
-      if existing_options[2] == True:
-         TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-      if existing_options[3] == True:
-         TraceOutputFileName = actual_config["TraceOutputFileName"]
-      if existing_options[4] == True:
-         ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
-elif pt == "Windows":
-   configpath = dirname(__file__) + "\mm.cfg"
-   if Path(configpath).is_file() == True:
-      with open(configpath, 'r') as f:
-         configwithheader = '[dummy_section]\n' + f.read()
-      config = configparser.ConfigParser()
-      config.read_string(configwithheader)
-      actual_config = config["dummy_section"]
-      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-      if existing_options[0] == True:
-         ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-      if existing_options[1] == True:
-         MaxWarnings = int(actual_config["MaxWarnings"])
-      if existing_options[2] == True:
-         TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-      if existing_options[3] == True:
-         TraceOutputFileName = actual_config["TraceOutputFileName"]
-      if existing_options[4] == True:
-         ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
-if Path(TraceOutputFileName).is_dir() == True:
-   print("Path provided is a directory, writing to defualt location instead.")
-   TraceOutputFileName = defaultTraceFilePath()
-if ClearLogsOnStartup == 1:
-   if Path(TraceOutputFileName).exists() == True:
-      with open(TraceOutputFileName, "w") as f: 
-         f.write("")
-   
 def EnableDebug():
-   global as3DebugEnable
-   as3DebugEnable = True
+   configmodule.as3DebugEnable = True
 def DisableDebug():
-   global as3DebugEnable
-   as3DebugEnable = False
-def listtoarray(l:list):
+   configmodule.as3DebugEnable = False
+def listtoarray(l:Union[list, tuple]):
    """
    A function to convert a python list to an Array.
    """
@@ -104,6 +23,8 @@ def listtoarray(l:list):
    for i in range(0,len(l)):
       tempArray[i] = l[i]
    return tempArray
+def typeName(obj:object):
+   return formatTypeToName(type(obj))
 def formatTypeToName(arg:type):
    tempStr = str(arg)
    if tempStr.find(".") != -1:
@@ -486,7 +407,7 @@ class Array:
             else:
                self.push(args[i])
          return tempArray
-   def every(self, callback):
+   def every(self, callback:object):
       """
       Executes a test function on each item in the array until an item is reached that returns False for the specified function. You use this method to determine whether all items in an array meet a criterion, such as having values less than a particular number.
       Parameters:
@@ -501,7 +422,7 @@ class Array:
             tempBool == False
             break
       return tempBool
-   def filter(self, callback):
+   def filter(self, callback:object):
       """
       Executes a test function on each item in the array and constructs a new array for all items that return True for the specified function. If an item returns False, it is not included in the new array.
       Parameters:
@@ -515,7 +436,7 @@ class Array:
          if callback(self[i], i, self) == True:
             tempArray.push(self[i])
       return tempArray
-   def forEach(self, callback):
+   def forEach(self, callback:object):
       """
       Executes a function on each item in the array.
       Parameters:
@@ -524,7 +445,7 @@ class Array:
       """
       for i in range(0, len(self)):
          self[i] = callback(self[i], i, self)
-   def indexOf(self, searchElement, fromIndex=0):
+   def indexOf(self, searchElement, fromIndex:int=0):
       """
       Searches for an item in an array using == and returns the index position of the item.
       Parameters:
@@ -542,7 +463,7 @@ class Array:
          else:
             i += 1
       return index
-   def insertAt(self, index, element):
+   def insertAt(self, index:int, element):
       """
       Insert a single element into an array.
       Parameters
@@ -553,7 +474,7 @@ class Array:
          self.array.insert((len(l1) - abs(index)), element)
       else:
          self.array.insert(index, element)
-   def join(self, sep=","):
+   def join(self, sep:str=","):
       """
       Converts the elements in an array to strings, inserts the specified separator between the elements, concatenates them, and returns the resulting string. A nested array is always separated by a comma (,), not by the separator passed to the join() method.
       Parameters:
@@ -570,7 +491,7 @@ class Array:
             result += str(self[i])
          i += 1
       return result
-   def lastIndexOf(self, searchElement, fromIndex=99*10^99):
+   def lastIndexOf(self, searchElement, fromIndex:int=99*10^99):
       """
       Searches for an item in an array, working backward from the last item, and returns the index position of the matching item using ==.
       Parameters:
@@ -586,7 +507,7 @@ class Array:
             index = l
             break
       return index
-   def map(self, callback):
+   def map(self, callback:object):
       """
       Executes a function on each item in an array, and constructs a new array of items corresponding to the results of the function on each item in the original array.
       Parameters:
@@ -620,7 +541,7 @@ class Array:
       while i < len(args):
          self.array.append(args[i])
          i += 1
-   def removeAt(self, index):
+   def removeAt(self, index:int):
       """
       Remove a single element from an array. This method modifies the array without making a copy.
       Parameters:
@@ -660,7 +581,7 @@ class Array:
          else:
             self.pop()
       return value
-   def slice(self, startIndex=0, endIndex=99*10^99):
+   def slice(self, startIndex:int=0, endIndex:int=99*10^99):
       """
       Returns a new array that consists of a range of elements from the original array, without modifying the original array. The returned array includes the startIndex element and all elements up to, but not including, the endIndex element.
       If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
@@ -680,7 +601,7 @@ class Array:
          result.push(self[i])
          i += 1
       return result
-   def some(self, callback):
+   def some(self, callback:object):
       """
       Executes a test function on each item in the array until an item is reached that returns True. Use this method to determine whether any items in an array meet a criterion, such as having a value less than a particular number.
       Parameters:
@@ -713,7 +634,7 @@ class Array:
          self.array.sort()
    def sortOn():
       pass
-   def splice(self, startIndex, deleteCount, *values):
+   def splice(self, startIndex:int, deleteCount:int, *values):
       """
       Adds elements to and removes elements from an array. This method modifies the array without making a copy.
       Parameters:
@@ -740,19 +661,22 @@ class Array:
 	      String — A string of array elements. 
       """
       return self.toString()
-   def toString(self):
+   def toString(self, formatLikePython=False):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
       Returns:
 	      String — A string of array elements. 
       """
-      a = ""
-      for i in range(0, len(l1)):
-         if i == len(l1) - 1:
-            a += str(self[i])
-         else:
-            a += str(self[i]) + ","
-      return a
+      if formatLikePython == True:
+         return str(self)
+      else:
+         a = ""
+         for i in range(0, len(self)):
+            if i == len(self) - 1:
+               a += str(self[i])
+            else:
+               a += str(self[i]) + ","
+         return a
    def unshift(self, *args):
       """
       Adds one or more elements to the beginning of an array and returns the new length of the array. The other elements in the array are moved from their original position, i, to i+1.
@@ -790,7 +714,7 @@ class Boolean:
             result = False
          else:
             result = True
-      if expression == "NaN":
+      if isNaN(expression) == True:
          result = False
       if type(expresssion) == str or type(expression) == String:
          if exression == "":
@@ -802,8 +726,11 @@ class Boolean:
       if expression == "undefined":
          result = False
       return result
-   def toString(self):
-      return str(self.bool)
+   def toString(self, formatLikePython=False):
+      if formatLikePython == True:
+         return str(self.bool)
+      else:
+         return str(self.bool).lower()
    def valueOf(self):
       if self.bool == True:
          return True
@@ -1029,7 +956,7 @@ class Int:
             raise TypeError("Can not convert " + str(value) + " to integer")
       else:
          raise TypeError("Can not convert " + str(value) + " to integer")
-   def toExponential(self, fractionDigits):
+   def toExponential(self, fractionDigits:int):
       if fractionDigits < 0 or fractionDigits > 20:
          raise Exception("RangeError: fractionDigits is outside of acceptable range")
       else:
@@ -1050,7 +977,7 @@ class Int:
                tempString2 += templist.pop(0)
                i += 1
             return tempString2 + "e+" + str(exponent)
-   def toFixed(self,fractionDigits):
+   def toFixed(self, fractionDigits:int):
       if fractionDigits < 0 or fractionDigits > 20:
          raise Exception("RangeError: fractionDigits is outside of acceptable range")
       else:
@@ -1066,7 +993,7 @@ class Int:
             return tempString
    def toPrecision():
       pass
-   def toString(self, radix=10):
+   def toString(self, radix:int=10):
       #!
       if radix > 36 or radix < 2:
          pass
@@ -1075,12 +1002,12 @@ class Int:
    def valueOf(self):
       return self.value
 def isFinite(num):
-   if num == inf or num == NINF:
+   if num == inf or num == NINF or typeName(num) == "NInfinity" or typeName(num) == "Infinity" or typeName(num) == "NaN":
       return False
    else:
       return True
 def isNaN(num):
-   if formatTypeToName(type(num)) == "NaN":
+   if typeName(num) == "NaN":
       return True
    else:
       return False
@@ -1298,9 +1225,9 @@ class String:
       return tempString
    def fromCharCode():
       pass
-   def indexOf(self, val, startIndex=0):
+   def indexOf(self, val, startIndex:int=0):
       return self.string.find(val, startIndex)
-   def lastIndexOf(self, val, startIndex={}):
+   def lastIndexOf(self, val, startIndex:int={}):
       tempInt = len(self.string) - 1
       if startIndex == {} or startIndex > tempInt:
          return self.string.rfind(val,0,tempInt)
@@ -1318,7 +1245,7 @@ class String:
       pass
    def split():
       pass
-   def substr(self, startIndex=0, Len={}):
+   def substr(self, startIndex:int=0, Len:int={}):
       tempInt = len(self.string)
       tempString1 = wrap(self.string,1)
       if startIndex > tempInt - 1:
@@ -1344,7 +1271,7 @@ class String:
             tempString2 += tempString1[i]
             i += 1
       return tempString2
-   def substring(self, startIndex=0, endIndex={}):
+   def substring(self, startIndex:int=0, endIndex:int={}):
       tempInt = len(self.string)
       si = startIndex
       ei = endIndex
@@ -1378,17 +1305,16 @@ class SyntaxError():
       trace(type(self), message, isError=True)
       self.error = message
 def trace(*args, isError=False):
-   global as3DebugEnable, TraceOutputFileEnable, TraceOutputFileName, ErrorReportingEnable, MaxWarnings, CurrentWarnings, MaxWarningsReached
-   if as3DebugEnable == True:
-      if isError == True and ErrorReportingEnable == 1:
-         if MaxWarningsReached == False:
-            if CurrentWarnings < MaxWarnings:
+   if configmodule.as3DebugEnable == True:
+      if isError == True and configmodule.ErrorReportingEnable == 1:
+         if configmodule.MaxWarningsReached == False:
+            if configmodule.CurrentWarnings < configmodule.MaxWarnings:
                ErrName = formatTypeToName(args[0])
                output = ErrName + ": " + args[1]
-               CurrentWarnings += 1
+               configmodule.CurrentWarnings += 1
             else:
                output = "Maximum number of errors has been reached. All further errors will be suppressed."
-               MaxWarningsReached = True
+               configmodule.MaxWarningsReached = True
          else:
             pass
       else:
@@ -1401,28 +1327,28 @@ def trace(*args, isError=False):
                   output += str(args[i])
                else:
                   output += str(args[i]) + " "
-      if TraceOutputFileEnable == 1:
-         if TraceOutputFileName == defaultTraceFilePath():
-            if Path(TraceOutputFileName).exists() == True:
-               with open(TraceOutputFileName, "r") as f:
+      if configmodule.TraceOutputFileEnable == 1:
+         if configmodule.TraceOutputFileName == configmodule.defaultTraceFilePath:
+            if Path(configmodule.TraceOutputFileName).exists() == True:
+               with open(configmodule.TraceOutputFileName, "r") as f:
                   tempread = f.read()
-               with open(TraceOutputFileName, "w") as f:
+               with open(configmodule.TraceOutputFileName, "w") as f:
                   output = tempread + output + "\n" 
                   f.write(output)
             else:
-               with open(TraceOutputFileName, "w") as f:
+               with open(configmodule.TraceOutputFileName, "w") as f:
                   output += "\n" 
                   f.write(output)
          else:
-            if Path(TraceOutputFileName).exists() == True:
-               if Path(TraceOutputFileName).is_file() == True:
-                  with open(TraceOutputFileName, "r") as f:
+            if Path(configmodule.TraceOutputFileName).exists() == True:
+               if Path(configmodule.TraceOutputFileName).is_file() == True:
+                  with open(configmodule.TraceOutputFileName, "r") as f:
                      tempread = f.read()
-                  with open(TraceOutputFileName, "w") as f:
+                  with open(configmodule.TraceOutputFileName, "w") as f:
                      output = tempread + output + "\n"
                      f.write(output)
             else:
-               with open(TraceOutputFileName, "w") as f:
+               with open(configmodule.TraceOutputFileName, "w") as f:
                   output += "\n"
                   f.write(output)
       else:

@@ -1,8 +1,9 @@
 import subprocess
-from as3lib import configmodule
+from as3lib import configmodule, toplevel
+from typing import Union
 
 class as3totk:
-   def anchors(flashalign:str):
+   def anchors(flashalign:Union[str, toplevel.String]):
       if flashalign == "B":
          return "s"
       elif flashalign == "BL":
