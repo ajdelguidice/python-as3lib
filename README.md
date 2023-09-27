@@ -1,6 +1,8 @@
 <h1>python-as3lib</h1>
-A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides. Once I learn how to make python c modules, I plan on offloading some of this stuff to c or c++ modules to speed things up.
-<br><br>There are currently 10 modules in this library, toplevel, interface_tk, keyConversions, configmodule, initconfig, com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. configmodule is the module that holds all of the things that this module needs globally or that need to be used many times so I only have to fetch them once (this includes things like the platform and screen resolution). initconfig is the module that is called when this module initializes and its only purpose is to set the variables in configmodule. com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils are module that contain their respective functions and classes from actionscript (none of these modules are complete yet).
+A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides. Once I learn how to make python c modules, I plan on offloading some of this stuff to c or c++ modules to speed things up. If I can figure out how to do it in this context, I might implement the interface in OpenGL or Vulkan to make it more customizable.
+<br><br>Please note that versions containing the configmodule before 0.0.6 are broken on windows becuase I forgot to escape the file paths and the imports were broken.
+<br><br><b>If you are using wayland, this module will have a first time init message because wayland does not support fetching some values automatically.</b> These values are stored in &lt;library-directory&gt;/wayland.cfg. They are only needed if you are using any part of the interface.
+<br><br>There are currently 12 modules in this library, toplevel, interface_tk, keyConversions, configmodule, initconfig, com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, and flash.display3D. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. configmodule is the module that holds all of the things that this module needs globally or that need to be used many times so I only have to fetch them once (this includes things like the platform and screen resolution). initconfig is the module that is called when this module initializes and its only purpose is to set the variables in configmodule. com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils are module that contain their respective functions and classes from actionscript (none of these modules are complete yet).
 <h3>Requirements</h3>
 tkinter (Built-in)
 <br>re (Built-in)
@@ -17,6 +19,7 @@ tkinter (Built-in)
 <br>configparser (Built-in)
 <br>webbrowser (Built-in)
 <br>textwrap (Built-in)
+<br>typing (Built-in)
 <br><a href="https://pypi.org/project/numpy">numpy</a>
 <br><a href="https://pypi.org/project/Pillow">Pillow</a>
 <br><a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
@@ -30,10 +33,13 @@ The types (Array, Boolean, Int, Number, and String) are actual types so you can 
 Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector. I will try to make one with similar syntax to actionscript later (no promises).
 <h3>keyConversions</h3>
 This module is a module that includes cross-platform key conversion functions for tkinter events, javascript (actionscript) keycodes, and mouse buttons.
-<h3>com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils</h3>
-These modules contain things from their respective actionscript modules. None of them are complete yet since many actionscript module rely on each other to function. I have to go back and forth between modules coding things here and there so these are taking much longer than previous modules.
+<h3>com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, and flash.display3D</h3>
+These modules contain things from their respective actionscript modules. None of them are complete yet since many actionscript modules rely on each other to function. I have to go back and forth between modules coding things here and there so these are taking much longer than previous modules.
 <h3>Config Files</h3>
 &lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">here</a> with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value is 1 to match the behavior in actionscript.
+<br>&lt;library-directory&gt;/configmodule.py - this file "stores" all of the variables needed by many modules while the program is running. It is also used to optimize things by calculating them once and then storing them instead of calculating over and over.
+<br>&lt;library-directory&gt;/initconfig.py - initializes the configmodule with the required information. This information includes the current platform, the module directory, the config for the trace function, and details about the screen (width, hight, dpi, and color depth) for the display module.
+<br>&lt;library-directory&gt;/wayland.cfg - generated on the first use of this module if you are using wayland. Stores all of the values that can't be fetch automatically so you only have to input them once.
 <h2>Currently Implemented</h2>
 <h3>toplevel</h3>
 ArgumentError(Error Class)
@@ -133,7 +139,12 @@ ArgumentError(Error Class)
 basic things to get it working but nothing substantial
 <h2>Partially Implemented</h2>
 <h3>toplevel</h3>
-Date(Data Type)
+NInfinity(Data Type)
+<br>Infinity(Data Type)
+<br>NaN(Data Type) - I have set overrides for most of the defualt python functions that can used on this type so it should work like it is supposed to (not being equal to anything, even itself).
+<br>undefined(Data Type)
+<br>null(Data Type)
+<br>Date(Data Type)
 <br>escape(Function)
 <br>Number(Data Type)
 <br>&emsp;toString(Function)
@@ -185,11 +196,12 @@ more types of images objects
 listtoarray - converts a given list to an Array. Returns the Array.
 <br>Array.toSize - Creates an Array to specified size. If nothing is specified, assumes 0 elements
 <br>Dunder methods to relavent data types
-<br>defaultTraceFilePath - returns the default file path for logs
-<br>defaultTraceFilePath_Flash - returns the default file path for logs in actionscript
+<br><strike>defaultTraceFilePath - returns the default file path for logs</strike> - Moved to initconfig
+<br><strike>defaultTraceFilePath_Flash - returns the default file path for logs in actionscript</strike> - Moved to initconfig
 <br>EnableDebug - enables "debug mode". Debug mode is something from actionscript that was enabled by using the debug version of the interpreter. Since python doesn't have a debug interpreter, this function is used to enable the debug capabilities of things in this library (only the documented ones).
 <br>DisableDebug - disables "debug mode"
 <br>formatTypeToName - takes a type object and converts it to a string without the name of the package it came from (&lt;class 'as3.Array'&gt; becomes "Array")
+<br>typeName - Same as formatTypeToName but takes in any obect instead of just type objects
 <br>U29(class) - <a href="https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf">U29specs</a> on page 3
 <br>&emsp;decodeU29int(Function) - decodes a u29int value from binary bits. Must have an input of either 8, 16, 24, or 32 bits as a string
 <br>&emsp;decodeU29str(Function) - decodes a u29str value
