@@ -1,25 +1,25 @@
-import subprocess
 from as3lib import configmodule, toplevel
 from typing import Union
 
 class as3totk:
    def anchors(flashalign:Union[str, toplevel.String]):
-      if flashalign == "B":
-         return "s"
-      elif flashalign == "BL":
-         return "sw"
-      elif flashalign == "BR":
-         return "se"
-      elif flashalign == "L":
-         return "w"
-      elif flashalign == "R":
-         return "e"
-      elif flashalign == "T":
-         return "n"
-      elif flashalign == "TL":
-         return "nw"
-      elif flashalign == "TR":
-         return "ne"
+      match flashalign:
+         case "B":
+            return "s"
+         case "BL":
+            return "sw"
+         case "BR":
+            return "se"
+         case "L":
+            return "w"
+         case "R":
+            return "e"
+         case "T":
+            return "n"
+         case "TL":
+            return "nw"
+         case "TR":
+            return "ne"
 
 class ActionScriptVersion:
    ACTIONSCRIPT2 = 2

@@ -5,16 +5,17 @@ import PIL
 import math
 from io import BytesIO as btio
 """
-Temporary interface to get things working. A bit slow when too many things are defined.
+Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will stay for compatibility purposes.
 Notes:
 - Canvas is not supported yet even though there is an option for it
 - When setting commands, they must be accessible from the scope of where they are called
 - When grouping windows together, the object that should be used is <windowobject>.root
 Todo:
+- Fix minimum size calculation
 - Optimize refresh for HTMLScrolledText
 - Properly support canvas mode
 """
-#Adobe flash minimum size is 262x0
+#Adobe flash minimum size is 262x0 for a window that starts out at 1176x662
 
 def help():
    print("If you are confused about how to use this module, please run this module by itself and look at the test code at the bottom.")
@@ -41,7 +42,6 @@ class _ScrolledListbox(tkinter.Listbox):
             setattr(self, m, getattr(self.frame, m))
       def __str__(self):
          return str(self.frame)
-
 class ScrolledListbox(_ScrolledListbox):
    def __init__(self, *args, **kwargs):
       super().__init__(*args, **kwargs)
@@ -50,18 +50,12 @@ class window:
    def __init__(self, width, height, title="Python",_type="frame",color="#FFFFFF",mainwindow=True,defaultmenu=True):
       self.oldmult = 100
       self.aboutwindowtext = "placeholdertext"
-      self.oimagedict = {}
-      self.rimagedict = {}
-      self.oimgsize = {}
-      self.hstfg = {}
-      self.hstbg = {}
-      self.otext = {}
-      self.ftext = {}
       self.children = {}
-      self.childpreferences = {}
+      self.childproperties = {}
+      self.imagedict = {} # "imagename":{"oimage":data,"rimage":data,"osize":[width,height]}
+      self.hstproperties = {}
       self.sbsettings = {} # "name":[scalingenable:bool,defaultsize:int]
       self.fs = False
-      self.stfontbold = {}
       if width < 262:
          width = 262
       self.startwidth = width
@@ -107,36 +101,14 @@ class window:
       self.root.bind("<Escape>",self.outfullscreen)
    def __getattr__(self, key):
       return self.children[key]
-   """
-   def contextMenu(self, font:tuple=("TkTextFont",8)):
-      self.ctmenusub = {}
-      self.ctmenufont = font
-      self.ctmenu = tkinter.Menu(self.root, tearoff = 0)
-      self.root.bind("<Button-3>", self.do_contextMenu)
-   def contextAddMenu(self, master:str, child:str, label:str, tearoff:int=0):
-      if master == "ctmenu":
-         self.ctmenusub[child] = tkinter.Menu(self.ctmenu,tearoff=tearoff)
-         self.ctmenu.add_cascade(label=label,font=self.ctmenufont,menu=self.ctmenusub[child])
-      else:
-         self.ctmenusub[child] = tkinter.Menu(self.ctmenusub[master],tearoff=tearoff)
-         self.ctmenusub[master].add_cascade(label=label,font=self.ctmenufont,menu=self.ctmenusub[child])
-   def contextAddItem(self, master:str, label:str, command):
-      if master == "ctmenu":
-         self.ctmenu.add_command(label=label,font=self.ctmenufont,command=command)
-      else:
-         self.ctmenusub[master].add_command(label=label,font=self.ctmenufont,command=command)
-   def do_contextMenu(self, e):
-      try:
-         self.pumenu.tk_popup(e.x_root, e.y_root)
-      finally:
-         self.pumenu.grab_release()
-   """
    def resetSize(self):
       self.root.geometry(f"{self.startwidth}x{self.startheight}")
    def group(self, objectName:object):
       self.root.group(objectName)
    def toTop(self):
       self.root.lift()
+   def forceFocus(self, child:str):
+      self.children[child].focus_force()
    def round(self, num):
       tempList = str(num).split(".")
       tempList[1] = f".{tempList[1]}"
@@ -144,55 +116,43 @@ class window:
          return math.ceil(num)
       else:
          return math.floor(num)
-   def tupletolist(self, tup):
-      templist = []
-      for i in tup:
-         templist.append(i)
-      return templist
-   def listtotuple(self, li):
-      return tuple(li)
    def minimumSize(self,_type:str="b",**kwargs):
       """
-      _type must be either 'w','h',or 'b' (meaning width, height, or both). if nothing is passed, assumed to be 'b' (both)
+      _type must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
       kwargs must include width, height, or both depending on what you chose for _type
       if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
       """
-      if _type == "w":
-         if self.mw == True:
-            self.root.minsize(kwargs["width"],int((kwargs["width"]*self.startheight)/self.startwidth) + 28)
-         else:
-            self.root.minsize(kwargs["width"],int((kwargs["width"]*self.startheight)/self.startwidth))
-      elif _type == "h":
-         if self.mw == True:
-            self.root.minsize(int((self.startwidth*kwargs["height"])/self.startheight) - 52,kwargs["height"])
-         else:
-            self.root.minsize(int((self.startwidth*kwargs["height"])/self.startheight),kwargs["height"])
-      elif _type == "b":
-         self.root.minsize(kwargs["width"],kwargs["height"])
-      else:
-         print("Invalid type")
+      match _type:
+         case "w":
+            if self.mw == True:
+               self.root.minsize(kwargs["width"],int((kwargs["width"]*self.startheight)/self.startwidth) + 28)
+            else:
+               self.root.minsize(kwargs["width"],int((kwargs["width"]*self.startheight)/self.startwidth))
+         case "h":
+            if self.mw == True:
+               self.root.minsize(int((self.startwidth*kwargs["height"])/self.startheight) - 52,kwargs["height"])
+            else:
+               self.root.minsize(int((self.startwidth*kwargs["height"])/self.startheight),kwargs["height"])
+         case "b":
+            self.root.minsize(kwargs["width"],kwargs["height"])
+         case _:
+            print("Invalid type")
    def minimumSizeReset(self):
       if self.mw == True:
          self.root.minsize(262,int((262*self.startheight)/self.startwidth) + 28)
       else:
          self.root.minsize(262,int((262*self.startheight)/self.startwidth))
    def resizefont(self, font:tuple, mult):
-      tempfont = self.tupletolist(font)
-      tempfont[1] = self.round(font[1]*mult/100)
-      tempfont = self.listtotuple(tempfont)
-      return tempfont
+      return (font[0],self.round(font[1]*mult/100))
    def _checkName(self, name:str):
       blacklist = ["(",")","{","}","[","]","!","@","#","$","%","^","&","*",",",".","<",">","/","\\","|","'","\"",":",";","-","+","=","~","`"]
       if name[0].isalpha():
          array = [i in name for i in blacklist]
          try:
             i = array.index(True)
-         except:
-            i = -1
-         if i == -1:
-            return True
-         else:
             return False
+         except:
+            return True
       else:
          return False
    def mainloop(self):
@@ -205,20 +165,20 @@ class window:
    def endProcess(self):
       self.root.destroy()
    def togglefullscreen(self):
-      if self.fs == True:
-         self.outfullscreen("")
-      elif self.fs == False:
+      if self.fs == False:
          self.gofullscreen()
+      else:
+         self.outfullscreen()
    def gofullscreen(self):
       self.fs = True
       self.root.attributes("-fullscreen", True)
-   def outfullscreen(self, useless):
+   def outfullscreen(self, useless=""):
       self.fs = False
       self.root.attributes("-fullscreen", False)
    def setAboutWindowText(self, text):
       self.aboutwindowtext = text
    def aboutwin(self):
-      self.aboutwindow = tkinter.Toplevel(borderwidth=1)
+      self.aboutwindow = tkinter.Toplevel()
       self.aboutwindow.geometry("350x155")
       self.aboutwindow.resizable(False,False)
       self.aboutwindow.group(self.root)
@@ -244,7 +204,7 @@ class window:
          else:
             self.children[name] = tkinter.Button(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.childpreferences[name] = [None,"Button",x,y,width,height,font,anchor]
+         self.childproperties[name] = [None,"Button",x,y,width,height,font,anchor]
          self.resizeChild(name, self.oldmult)
    def addLabel(self, master:str, name:str, x, y, width, height, font, anchor:str="nw"):
       if master == "root":
@@ -261,7 +221,7 @@ class window:
          else:
             self.children[name] = tkinter.Label(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.childpreferences[name] = [None,"Label",x,y,width,height,font,anchor]
+         self.childproperties[name] = [None,"Label",x,y,width,height,font,anchor]
          self.resizeChild(name, self.oldmult)
    def addnwhLabel(self, master:str, name:str, x, y, font, anchor:str="nw"):
       if master == "root":
@@ -278,7 +238,7 @@ class window:
          else:
             self.children[name] = tkinter.Label(self.children[master])
          self.children[name].place(x=x,y=y,anchor=anchor)
-         self.childpreferences[name] = [None,"nwhLabel",x,y,None,None,font,anchor]
+         self.childproperties[name] = [None,"nwhLabel",x,y,None,None,font,anchor]
          self.resizeChild(name, self.oldmult)
    def addFrame(self, master:str, name:str, x, y, width, height, anchor:str="nw"):
       if master == "root":
@@ -295,7 +255,7 @@ class window:
          else:
             self.children[name] = tkinter.Frame(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.childpreferences[name] = [None,"Frame",x,y,width,height,None,anchor]
+         self.childproperties[name] = [None,"Frame",x,y,width,height,None,anchor]
          self.resizeChild(name, self.oldmult)
    def addHTMLScrolledText(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", sbscaling:bool=True, sbwidth:int=12):
       if master == "root":
@@ -307,48 +267,44 @@ class window:
          print("Invalid Name")
          pass
       else:
-         self.sbsettings[name] = [sbscaling,sbwidth]
-         self.stfontbold[name] = False
          if master == "display":
             self.children[name] = tkhtmlview.HTMLScrolledText(self.display)
          else:
             self.children[name] = tkhtmlview.HTMLScrolledText(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.hstfg[name] = '#000000'
-         self.hstbg[name] = '#FFFFFF'
-         self.otext[name] = ""
-         self.ftext[name] = ""
-         self.childpreferences[name] = [None,"HTMLScrolledText",x,y,width,height,font,anchor]
+         self.hstproperties[name] = {"fg":'#000000',"bg":'#FFFFFF',"otext":"","ftext":"","fontbold":False,"sbsettings":[sbscaling,sbwidth]}
+         self.childproperties[name] = [None,"HTMLScrolledText",x,y,width,height,font,anchor]
          self.resizeChild(name, self.oldmult)
    def prepareHTMLST(self, child:str, text:str):
-      if self.otext[f"{child}"] == text:
+      if self.hstproperties[f"{child}"]["otext"] == text:
          self.HTMLSTUpdateText(child, True)
       else:
-         self.otext[f"{child}"] = text
+         self.hstproperties[f"{child}"]["otext"] = text
          self.HTMLSTUpdateText(child)
    def HTMLSTUpdateText(self, child:str, rt=False):
       self.children[child]["state"] = "normal"
-      font = self.childpreferences[child][6]
+      font = self.childproperties[child][6]
       fontsize = font[1]
       if rt == False:
-         self.ftext[f"{child}"] = re.sub("(\t)", "    ", self.otext[f"{child}"])
-      text = self.ftext[f"{child}"]
-      text = "<pre style=\"color: " + self.hstfg[f"{child}"] + "; background-color: " + self.hstbg[f"{child}"] + f"; font-size: {int(fontsize*self.oldmult/100)}px; font-family: {font[0]}\">{text}</pre>"
-      if self.stfontbold[child] == True:
+         self.hstproperties[f"{child}"]["ftext"] = re.sub("(\t)", "    ",self.hstproperties[f"{child}"]["otext"])
+      text = self.hstproperties[f"{child}"]["ftext"]
+      text = "<pre style=\"color: " + self.hstproperties[f"{child}"]["fg"] + "; background-color: " + self.hstproperties[f"{child}"]["bg"] + f"; font-size: {int(fontsize*self.oldmult/100)}px; font-family: {font[0]}\">{text}</pre>"
+      if self.hstproperties[child]["fontbold"] == True:
          text = "<b>" + text + "</b>"
       self.children[child].set_html(text)
       self.children[child]["state"] = "disabled"
    def addImage(self, image_name:str, image_data, size:tuple=""):
       """
-      size the target (display) size of the image before resizing
+      size - the target (display) size of the image before resizing
       if size is not defined it is assumed to be the actual image size
       """
-      self.oimagedict[f"{image_name}"] = image_data
+      self.imagedict[f"{image_name}"] = {}
+      self.imagedict[f"{image_name}"]["oimage"] = image_data
       if size != "":
-         self.oimgsize[image_name] = [size[0],size[1]]
+         self.imagedict[f"{image_name}"]["osize"] = [size[0],size[1]]
       else:
          ims = PIL.Image.open(btio(image_data)).size
-         self.oimgsize[image_name] = [ims[0],ims[1]]
+         self.imagedict[f"{image_name}"]["osize"] = [ims[0],ims[1]]
    def addImageLabel(self, master:str, name:str, x, y, width, height, anchor:str="nw", image_name:str=""):
       if master == "root":
          master = "display"
@@ -368,8 +324,8 @@ class window:
          if image_name == "":
             self.children[name]["image"] = ""
          else:
-            self.children[name]["image"] = self.rimagedict[f'{image_name}']
-         self.childpreferences[name] = [None,"ImageLabel",x,y,width,height,None,anchor,image_name]
+            self.children[name]["image"] = self.imagedict[f'{image_name}']["rimage"]
+         self.childproperties[name] = [None,"ImageLabel",x,y,width,height,None,anchor,image_name]
          self.resizeChild(name, self.oldmult)
    def addScrolledListbox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", sbscaling:bool=True, sbwidth:int=12):
       if master == "root":
@@ -387,66 +343,68 @@ class window:
          else:
             self.children[name] = ScrolledListbox(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.childpreferences[name] = [None,"ScrolledListbox",x,y,width,height,font,anchor]
+         self.childproperties[name] = [None,"ScrolledListbox",x,y,width,height,font,anchor]
          self.resizeChild(name, self.oldmult)
    def slb_Insert(self, child:str, position, item):
-      self.children[child].insert(position,i)
+      self.children[child].insert(position,item)
    def slb_Delete(self, child:str, start, end):
       self.children[child].delete(start, end)
    def resizeImage(self, size:tuple, image_name):
-      img = PIL.Image.open(btio(self.oimagedict[f"{image_name}"]))
+      img = PIL.Image.open(btio(self.imagedict[f"{image_name}"]["oimage"]))
       img.thumbnail(size)
-      self.rimagedict[f"{image_name}"] = PIL.ImageTk.PhotoImage(img)
+      self.imagedict[f"{image_name}"]["rimage"] = PIL.ImageTk.PhotoImage(img)
    def resizeChildren(self, mult):
-      for i in self.oimagedict.keys():
-         self.resizeImage((int(self.oimgsize[i][0]*mult/100),int(self.oimgsize[i][1]*mult/100)),i)
-      for i in self.childpreferences.keys():
-         cl = self.childpreferences[i]
-         if cl[1] == "nwhLabel":
-            self.children[i].place(x=cl[2]*mult/100,y=cl[3]*mult/100,anchor=cl[7])
-         else:
-            self.children[i].place(x=cl[2]*mult/100,y=cl[3]*mult/100,width=cl[4]*mult/100,height=cl[5]*mult/100,anchor=cl[7])
+      for i in self.imagedict:
+         self.resizeImage((int(self.imagedict[i]["osize"][0]*mult/100),int(self.imagedict[i]["osize"][1]*mult/100)),i)
+      for i in self.childproperties:
+         cl = self.childproperties[i]
+         match cl[1]:
+            case "nwhLabel":
+               self.children[i].place(x=cl[2]*mult/100,y=cl[3]*mult/100,anchor=cl[7])
+            case _:
+               self.children[i].place(x=cl[2]*mult/100,y=cl[3]*mult/100,width=cl[4]*mult/100,height=cl[5]*mult/100,anchor=cl[7])
          match cl[1]:
             case "HTMLScrolledText":
-               if self.sbsettings[i][0] == True:
-                  self.children[i].vbar["width"] = self.sbsettings[i][1]*mult/100
-               self.HTMLSTUpdateText(i)
+               if self.hstproperties[i]["sbsettings"][0] == True:
+                  self.children[i].vbar["width"] = self.hstproperties[i]["sbsettings"][1]*mult/100
+               self.HTMLSTUpdateText(i,True)
             case "ScrolledListbox":
                if self.sbsettings[i][0] == True:
                   self.children[i].vbar["width"] = self.sbsettings[i][1]*mult/100
-               font = self.childpreferences[i][6]
+               font = self.childproperties[i][6]
                self.children[i]["font"] = (font[0],int(font[1]*self.oldmult/100))
             case "ImageLabel":
                if cl[8] == "":
                   self.children[i]["image"] = ""
                else:
-                  self.children[i]["image"] = self.rimagedict[f"{cl[8]}"]
+                  self.children[i]["image"] = self.imagedict[f"{cl[8]}"]["rimage"]
             case _:
                if cl[1] != "Frame":
                   f = cl[6]
                   self.children[i]["font"] = self.resizefont(f,mult)
    def resizeChild(self, child:str, mult):
-      cl = self.childpreferences[child]
-      if cl[1] == "nwhLabel":
-         self.children[child].place(x=cl[2]*mult/100,y=cl[3]*mult/100,anchor=cl[7])
-      else:
-         self.children[child].place(x=cl[2]*mult/100,y=cl[3]*mult/100,width=cl[4]*mult/100,height=cl[5]*mult/100,anchor=cl[7])
+      cl = self.childproperties[child]
+      match cl[1]:
+         case "nwhLabel":
+            self.children[child].place(x=cl[2]*mult/100,y=cl[3]*mult/100,anchor=cl[7])
+         case _:
+            self.children[child].place(x=cl[2]*mult/100,y=cl[3]*mult/100,width=cl[4]*mult/100,height=cl[5]*mult/100,anchor=cl[7])
       match cl[1]:
          case "HTMLScrolledText":
-            if self.sbsettings[child][0] == True:
-               self.children[child].vbar["width"] = self.sbsettings[child][1]*mult/100
-            self.HTMLSTUpdateText(child)
+            if self.hstproperties[child]["sbsettings"][0] == True:
+               self.children[child].vbar["width"] = self.hstproperties[child]["sbsettings"][1]*mult/100
+            self.HTMLSTUpdateText(child,True)
          case "ScrolledListbox":
             if self.sbsettings[child][0] == True:
                self.children[child].vbar["width"] = self.sbsettings[child][1]*mult/100
-            font = self.childpreferences[child][6]
+            font = self.childproperties[child][6]
             self.children[child]["font"] = (font[0],int(font[1]*self.oldmult/100))
          case "ImageLabel":
             if cl[8] == "":
                self.children[child]["image"] = ""
             else:
                self.resizeImage((int(cl[4]*mult/100),int(cl[5]*mult/100)),cl[8])
-               self.children[child]["image"] = self.rimagedict[f"{cl[8]}"]
+               self.children[child]["image"] = self.imagedict[f"{cl[8]}"]["rimage"]
          case _:
             if cl[1] != "Frame":
                f = cl[6]
@@ -464,27 +422,28 @@ class window:
       while i < len(k):
          match k[i]:
             case "x" | "y" | "width" | "height" | "font"| "anchor":
-               newlist = self.childpreferences[child]
-               if k[i] == "x":
-                  newlist[2] = v[i]
-               elif k[i] == "y":
-                  newlist[3] = v[i]
-               elif k[i] == "width":
-                  newlist[4] = v[i]
-               elif k[i] == "height":
-                  newlist[5] = v[i]
-               elif k[i] == "font":
-                  newlist[6] = v[i]
-               elif k[i] == "anchor":
-                  newlist[7] = v[i]
-               self.childpreferences[child] = newlist
+               newlist = self.childproperties[child]
+               match k[i]:
+                  case "x":
+                     newlist[2] = v[i]
+                  case "y":
+                     newlist[3] = v[i]
+                  case "width":
+                     newlist[4] = v[i]
+                  case "height":
+                     newlist[5] = v[i]
+                  case "font":
+                     newlist[6] = v[i]
+                  case "anchor":
+                     newlist[7] = v[i]
+               self.childproperties[child] = newlist
                self.resizeChild(child, self.oldmult)
             case "text" | "textadd":
-               if self.childpreferences[child][1] == "HTMLScrolledText":
+               if self.childproperties[child][1] == "HTMLScrolledText":
                   if k[i] == "text":
                      text = v[i]
                   else:
-                     text = self.otext[f"{child}"] + v[i]
+                     text = self.hstproperties[f"{child}"]["otext"] + v[i]
                   self.prepareHTMLST(child, text)
                else:
                   self.children[child][k[i]] = v[i]
@@ -492,37 +451,40 @@ class window:
                if child == "display":
                   if k[i] == "background":
                      self.display["bg"] = v[i]
-               elif self.childpreferences[child][1] == "Frame":
+               elif self.childproperties[child][1] == "Frame":
                   if k[i] == "background":
                      self.children[child]["bg"] = v[i]
-               elif self.childpreferences[child][1] == "HTMLScrolledText":
+               elif self.childproperties[child][1] == "HTMLScrolledText":
                   self.children[child][k[i]] = v[i]
                   if k[i] == "background":
-                     self.hstbg[f"{child}"] = v[i]
+                     self.hstproperties[f"{child}"]["bg"] = v[i]
                   else:
-                     self.hstfg[f"{child}"] = v[i]
-                  self.prepareHTMLST(child, self.otext[f"{child}"])
+                     self.hstproperties[f"{child}"]["fg"] = v[i]
+                  self.prepareHTMLST(child, self.hstproperties[f"{child}"]["otext"])
                else:
                   self.children[child][k[i]] = v[i]
             case "image":
-               self.childpreferences[child][8] = v[i]
+               self.childproperties[child][8] = v[i]
                self.resizeChildren(self.oldmult)
             case _:
-               if k[i] == "stfontbold" and self.childpreferences[child][1] == "HTMLScrolledText":
-                  self.stfontbold[child] = v[i]
-                  self.prepareHTMLST(child, self.otext[f"{child}"])
-               elif k[i] == "sbwidth" and self.childpreferences[child][1] == "HTMLScrolledText":
-                  self.sbsettings[child][1] = int(v[i])
+               if k[i] == "stfontbold" and self.childproperties[child][1] == "HTMLScrolledText":
+                  self.hstproperties[child]["fontbold"] = v[i]
+                  self.prepareHTMLST(child, self.hstproperties[f"{child}"]["otext"])
+               elif k[i] == "sbwidth":
+                  if self.childproperties[child][1] == "HTMLScrolledText":
+                     self.hstproperties[child]["sbsettings"][1] = int(v[i])
+                  elif self.childproperties[child][1] == "HTMLScrolledText":
+                     self.sbsettings[child][1] = int(v[i])
                else:
                   self.children[child][k[i]] = v[i]
          i += 1
    def destroyChild(self, child:str):
-      temppref = self.childpreferences.pop(child)
-      if temppref[1] == "HTMLScrolledText":
-         self.otext.pop(child)
-         self.ftext.pop(child)
-         self.sbsettings.pop(child)
-         self.stfontbold.pop(child)
+      temppref = self.childproperties.pop(child)
+      match temppref[1]:
+         case "HTMLScrolledText":
+            self.hstproperties.pop(child)
+         case "ScrolledListbox":
+            self.sbsettings.pop(child)
       self.children[child].destroy()
       self.children.pop(child)
    def getChildAttribute(self, child:str, attribute:str):
@@ -583,7 +545,7 @@ if __name__ == "__main__":
       if testcolor >= 3:
          testcolor = 0
       return testcolorlist[testcolor]
-   root = window(1176,662,title="Adobe Flash Projector-like Window Test")
+   root = window(1176,662,title="Adobe Flash Projector-like Window Demo")
    root.setAboutWindowText(f"Adobe Flash Projector-like window demo.\n\nPython {python_version()}")
    root.addButton("root","testbutton1",130,0,130,30,("Times New Roman",12))
    root.configureChild("testbutton1",command=lambda: root.configureChild("testtext", background=test_cyclecolor()))

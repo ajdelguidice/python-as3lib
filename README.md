@@ -1,207 +1,32 @@
 <h1>python-as3lib</h1>
-A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides. Once I learn how to make python c modules, I plan on offloading some of this stuff to c or c++ modules to speed things up. If I can figure out how to do it in this context, I might implement the interface in OpenGL or Vulkan to make it more customizable.
+A python implementation of some of the ActionScript3 functions and classes. They are as close as I could get them with my knowledge and the very limited documentation that adobe provides. Once I learn how to make python c modules, I plan on offloading some of this stuff to c or c++ modules to speed things up. If I can figure out how to do it in this context, I might implement the interface in OpenGL or Vulkan to make it work better and more customizable.
 <br><br>Please note that versions containing the configmodule before 0.0.6 are broken on windows becuase I forgot to escape the file paths and the imports were broken.
-<br><br><b>If you are using wayland, this module will have a first time init message because wayland does not support fetching some values automatically.</b> These values are stored in &lt;library-directory&gt;/wayland.cfg. They are only needed if you are using any part of the interface.
-<br><br>There are currently 12 modules in this library, toplevel, interface_tk, keyConversions, configmodule, initconfig, com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, and flash.display3D. Toplevel is a module that contains top level functions from actionscript. Interface_tk is a module that tries to get a usable interface that functions similar to actionscript. KeyConversions is a module for cross-platform key conversions and recognition. configmodule is the module that holds all of the things that this module needs globally or that need to be used many times so I only have to fetch them once (this includes things like the platform and screen resolution). initconfig is the module that is called when this module initializes and its only purpose is to set the variables in configmodule. com.adobe, flash.ui, flash.display, flash.filesystem, and flash.utils are module that contain their respective functions and classes from actionscript (none of these modules are complete yet).
+<br><br><b>If you are using wayland, this module will have a first time init message because wayland does not support fetching some values automatically.</b> These values are stored in &lt;library-directory&gt;/wayland.cfg. They are only needed if you are using any of the graphical elements of this library.
+<br><br>I have no way as of current to test the accuracy of these functions as I can't find a compiler for actionscript that I could get to work so if anything doesn't work or there is undocumented functionality please let me know on the github issues page. DO NOT EMAIL ME, I will not respond and nothing will get fixed.
 <h3>Requirements</h3>
-tkinter (Built-in)
-<br>re (Built-in)
-<br>math (Built-in)
-<br>io (Built-in)
-<br>platform (Built-in)
-<br>subprocess (Built-in)
-<br>random (Built-in)
-<br>time (Built-in)
-<br>datetime (Built-in)
-<br>os (Built-in)
-<br>pwd (Built-in)
-<br>pathlib (Built-in)
-<br>configparser (Built-in)
-<br>webbrowser (Built-in)
-<br>textwrap (Built-in)
-<br>typing (Built-in)
-<br><a href="https://pypi.org/project/numpy">numpy</a>
-<br><a href="https://pypi.org/project/Pillow">Pillow</a>
-<br><a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
-<h3>toplevel</h3>
-The types (Array, Boolean, Int, Number, and String) are actual types so you can use them as such. They include almost everything that they did in ActionScript3. The length method in each type can only be used to get the length, I didn't implement the length assignment for Arrays.
-<br><br>Most of the inherited properties would be too hard to implement so I didn't bother with them.
-<br><br>I implemented the type conversion functions inside the types themselves (ex: instead of String(expression) use String.String(expression)). I plan on merging these back into the constructor (__init__) funcitons later.
+Built-in:
+<br>tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (linux), pathlib, configparser, webbrowser, textwrap, typing
+<br>External:
+<br><a href="https://pypi.org/project/numpy">numpy</a>, <a href="https://pypi.org/project/Pillow">Pillow</a>, <a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+<h3>Modules</h3>
+There are currently 13 modules in this library, toplevel, interface_tk, keyConversions, configmodule, initconfig, com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, flash.display3D, and flash.net.
+<h4>toplevel</h4>
+Most of the functions and classes are implemented but there are some things missing. The inherited properties of many of the classes would be a pain to implement so I left them out for now.
+<br><br>As of version 0.0.7 I reimplemented the Array and String class as extensions of the their conterparts from python instead of how I was doing it. I also implemented creating an array to a specified size in the constructor and implemented the length assignment feature (length is a function now not a property). Array.toSize has been merged into length and no longer exists. Unfortunately I can't implement length assignment into an override for the built in __len__ function because it can only take one arguement no matter what. I also added the ability to specify what to fill the empty slots with when using length assignment (not in actionscript).
+<br><br>I implemented the type conversions inside a separate function in some of the dataclasses (ex: String._String(exression)). These are used as part of the constructor (__init__ function) but are separate in case they need to be used multiple times or the people using this library want to use it separately. They return values in python types instead of in the types of this module because they are meant to be used internally.
 <br><br>For functions that needed a placeholder value for input(s) that aren't easily definable, like multiple possible types or they relied on other factors to be set, I use an empty dictionary as a placeholder. The values that these empty dictionaries represent aren't actually dictionaries, I just used something that would never be used in these functions so that I could detect it.
-<br><br>I have no way as of current to test the accuracy of these functions as I can't find a compiler for actionscript that I could get to work so if anything doesn't work or there is undocumented functionality please let me know on the github page.
-<h3>interface_tk</h3> 
+<h4>interface_tk</h4> 
 Unlike the toplevel module, this one has completely different syntax than actionscript had. This module implements dynamic scaling and other things like the adobe flash projector. I will try to make one with similar syntax to actionscript later (no promises).
-<h3>keyConversions</h3>
-This module is a module that includes cross-platform key conversion functions for tkinter events, javascript (actionscript) keycodes, and mouse buttons.
-<h3>com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, and flash.display3D</h3>
+<h4>keyConversions</h4>
+This module is a module that includes cross-platform key conversion functions for tkinter events, javascript (actionscript) keycodes, and mouse buttons (currently only supports united states standard keyboard on linux and windows).
+<h4>configmodule</h4>
+The module that holds all of the things that this module needs globally or that need to be used many times so I only have to fetch them once (this includes things like the platform and screen resolution).
+<h4>initconfig</h4>
+The module that is called when this module initializes and its only purpose is to set the variables in configmodule.
+<h4>com.adobe, flash.ui, flash.display, flash.filesystem, flash.utils, flash.events, flash.display3D, and flash.net</h4>
 These modules contain things from their respective actionscript modules. None of them are complete yet since many actionscript modules rely on each other to function. I have to go back and forth between modules coding things here and there so these are taking much longer than previous modules.
 <h3>Config Files</h3>
 &lt;library-directory&gt;/mm.cfg - this file is the same as it was in actionscript with the same options as defined <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">here</a> with the exception of "ClearLogsOnStartup" which I added to configure what it says. Its defualt value is 1 to match the behavior in actionscript.
 <br>&lt;library-directory&gt;/configmodule.py - this file "stores" all of the variables needed by many modules while the program is running. It is also used to optimize things by calculating them once and then storing them instead of calculating over and over.
-<br>&lt;library-directory&gt;/initconfig.py - initializes the configmodule with the required information. This information includes the current platform, the module directory, the config for the trace function, and details about the screen (width, hight, dpi, and color depth) for the display module.
+<br>&lt;library-directory&gt;/initconfig.py - initializes the configmodule with the required information. This information includes the current platform, the module directory, the config for the trace function, and details about the screen (width, hight, refresh rate, and color depth) for the display module. Note: use of multiple displays has not been tested yet.
 <br>&lt;library-directory&gt;/wayland.cfg - generated on the first use of this module if you are using wayland. Stores all of the values that can't be fetch automatically so you only have to input them once.
-<h2>Currently Implemented</h2>
-<h3>toplevel</h3>
-ArgumentError(Error Class)
-<br>Array(Function) - Moved to Array.Array()
-<br>Array(Data Type)
-<br>&emsp;Array(Constructor) - Create from values moved to class init function, create to size moved to toSize(Function).
-<br>&emsp;length(Property) - Moved to length(Function).
-<br>&emsp;concat(Function)
-<br>&emsp;every(Function)
-<br>&emsp;filter(Function)
-<br>&emsp;forEach(Function)
-<br>&emsp;indexOf(Function)
-<br>&emsp;insertAt(Function)
-<br>&emsp;join(Function)
-<br>&emsp;lastIndexOf(Function)
-<br>&emsp;map(Function)
-<br>&emsp;pop(Function)
-<br>&emsp;push(Function)
-<br>&emsp;removeAt(Function)
-<br>&emsp;reverse(Function)
-<br>&emsp;shift(Function)
-<br>&emsp;slice(Function)
-<br>&emsp;some(Function)
-<br>&emsp;splice(Function)
-<br>&emsp;toLocaleString(Function)
-<br>&emsp;toString(Function)
-<br>&emsp;unshift(Function)
-<br>Boolean(Function) - Moved to Boolean.Boolean()
-<br>Boolean(Data Type) - Data representation changed from "true" and "false" to "True" and "False"
-<br>&emsp;Boolean(Constructor) - Moved to class init function
-<br>&emsp;toString(Function)
-<br>&emsp;valueOf(Function)
-<br>DefinitionError(Error Class)
-<br>Error(Error Class)
-<br>EvalError(Error Class)
-<br>int(Data Type) - Moved to Int
-<br>&emsp;toExponential(Function)
-<br>&emsp;toFixed(Function)
-<br>isFinite(Function)
-<br>isNaN(Function)
-<br>valueOf(Function)
-<br><br>Math(Class) - All functions in this class had corresponding functions in python
-<br>&emsp;E(Constant)
-<br>&emsp;LN10(Constant)
-<br>&emsp;LN2(Constant)
-<br>&emsp;LOG10E(Constant)
-<br>&emsp;LOG2E(Constant)
-<br>&emsp;PI(Constant)
-<br>&emsp;SQRT1_2(Constant)
-<br>&emsp;SQRT2(Constant)
-<br>&emsp;abs(Function)
-<br>&emsp;acos(Function)
-<br>&emsp;asin(Function)
-<br>&emsp;atan(Function)
-<br>&emsp;atan2(Function)
-<br>&emsp;ceil(Function)
-<br>&emsp;cos(Function)
-<br>&emsp;exp(Function)
-<br>&emsp;floor(Function)
-<br>&emsp;log(Function)
-<br>&emsp;max(Function)
-<br>&emsp;min(Function)
-<br>&emsp;pow(Function)
-<br>&emsp;random(Function)
-<br>&emsp;round(Function)
-<br>&emsp;sin(Function)
-<br>&emsp;sqrt(Function)
-<br>&emsp;tan(Function)
-<br>Number(Function) - Moved to Number.Number()
-<br>Number(Data Type)
-<br>&emsp;Number(Constructor) - Moved to class init function
-<br>&emsp;valueOf(Function)
-<br>RangeError(Error Class)
-<br>ReferenceError(Error Class)
-<br>SecurityError(Error Class)
-<br>String(Function) - Moved to String.String()
-<br>String(Data Type)
-<br>&emsp;String(Constructor) - Moved to class init function
-<br>&emsp;length(Property) - Moved to length(Function)
-<br>&emsp;charAt(Function)
-<br>&emsp;charCodeAt(Function)
-<br>&emsp;concat(Function)
-<br>&emsp;indexOf(Function)
-<br>&emsp;lastIndexOf(Function)
-<br>&emsp;substring(Function)
-<br>&emsp;toLocaleLowerCase(Function)
-<br>&emsp;toLocaleUpperCase(Function)
-<br>&emsp;toLowerCase(Function)
-<br>&emsp;toUpperCase(Function)
-<br>&emsp;valueOf(Function)
-<br>SyntaxError(Error Class)
-<br>trace(Function) - To use trace first use the "EnableDebug" command that I added. I also changed the default file path to be flashlog.txt in the directory of this library. If you want the log file to be anywhere different, use the TraceOutputFileName definition in mm.cfg
-<br>TypeError(Error Class)
-<br>URIError(Error Class)
-<br>VerifyError(Error Class)
-<h3>interface_tk</h3>
-basic things to get it working but nothing substantial
-<h2>Partially Implemented</h2>
-<h3>toplevel</h3>
-NInfinity(Data Type)
-<br>Infinity(Data Type)
-<br>NaN(Data Type) - I have set overrides for most of the defualt python functions that can used on this type so it should work like it is supposed to (not being equal to anything, even itself).
-<br>undefined(Data Type)
-<br>null(Data Type)
-<br>Date(Data Type)
-<br>escape(Function)
-<br>Number(Data Type)
-<br>&emsp;toString(Function)
-<br>int(Data Type)
-<br>&emsp;toString(Function) - Don't know what is supposed to happen when radix is outside of the given range (not documented)
-<br>Number(Data Type)
-<br>&emsp;toExponential(Function)
-<br>String(Data Type)
-<br>&emsp;substr(Function) - Don't know what happens when startIndex is outside of string (not documented)
-<br>unescape(Function)
-<h2>Future Plans<h2>
-<h3>toplevel</h3>
-Array(Data Type)
-<br>&emsp;sort(Function)
-<br>&emsp;sortOn(Function)
-<br>Date(Function)
-<br>Date(Data Type)
-<br>decodeURI(Function)
-<br>decodeURIComponent(Function)
-<br>encodeURI(Function)
-<br>encodeURIComponent(Function)
-<br>int(Function)
-<br>int(Data Type)
-<br>&emsp;toPrecision(Function)
-<br>RegExp(Data Type)
-<br>Number(Data Type)
-<br>&emsp;toExponential(Function)
-<br>&emsp;toFixed(Function)
-<br>&emsp;toPrecision(Function)
-<br>&emsp;toString(Function)
-<br>parseFloat(Function)
-<br>parseInt(Function)
-<br>String(Data Type)
-<br>&emsp;localeCompare(Function)
-<br>&emsp;match(Function)
-<br>&emsp;replace(Function)
-<br>&emsp;search(Function)
-<br>&emsp;slice(Function)
-<br>&emsp;split(Function)
-<br>uint(Function)
-<br>uint(Data Type)
-<br>Vector(Function)
-<br>Vector(Data Type)
-<h3>interface_tk</h3>
-more types of images objects
-<br>proper canvas support
-<h2>Functions I added</h2>
-<h3>toplevel</h3>
-listtoarray - converts a given list to an Array. Returns the Array.
-<br>Array.toSize - Creates an Array to specified size. If nothing is specified, assumes 0 elements
-<br>Dunder methods to relavent data types
-<br><strike>defaultTraceFilePath - returns the default file path for logs</strike> - Moved to initconfig
-<br><strike>defaultTraceFilePath_Flash - returns the default file path for logs in actionscript</strike> - Moved to initconfig
-<br>EnableDebug - enables "debug mode". Debug mode is something from actionscript that was enabled by using the debug version of the interpreter. Since python doesn't have a debug interpreter, this function is used to enable the debug capabilities of things in this library (only the documented ones).
-<br>DisableDebug - disables "debug mode"
-<br>formatTypeToName - takes a type object and converts it to a string without the name of the package it came from (&lt;class 'as3.Array'&gt; becomes "Array")
-<br>typeName - Same as formatTypeToName but takes in any obect instead of just type objects
-<br>U29(class) - <a href="https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf">U29specs</a> on page 3
-<br>&emsp;decodeU29int(Function) - decodes a u29int value from binary bits. Must have an input of either 8, 16, 24, or 32 bits as a string
-<br>&emsp;decodeU29str(Function) - decodes a u29str value

@@ -25,7 +25,7 @@ class CMItemList:
    def indexOfItem(self, item:str):
       return self.itemorder.indexOf(item)
    def addContextMenuItem(self, obj:object, index:int=-1):
-      if as3.formatTypeToName(type(obj)) == "ContextMenuItem":
+      if as3.typeName(obj) == "ContextMenuItem":
          tempproperties = {"master":obj.master, "type":obj.type_, "command":obj.command, "caption":obj.caption, "separatorBefore":obj.separatorBefore, "enabled":obj.enabled, "visible":obj.visible}
          if index == -1:
             self.append(obj.name, tempproperties)
@@ -141,7 +141,7 @@ class ContextMenu:
    #def set(self, item:str, value):
    #   pass
    def addItemAt(self, item:object, index:int=-1):
-      if as3.formatTypeToName(type(item)) == "ContextMenuItem":
+      if as3.typeName(item) == "ContextMenuItem":
          self.customItems.addContextMenuItem(item, index)
          self._createAndBindMenu()
       else:
@@ -149,7 +149,7 @@ class ContextMenu:
    def clone(self):
       return self
    def containsItem(self, item:object):
-      if as3.formatTypeToName(type(item)) == "ContextMenuItem":
+      if as3.typeName(item) == "ContextMenuItem":
          temp = self.customItems.idexOfItem(item.name)
          if temp == -1:
             return False
@@ -198,39 +198,41 @@ class ContextMenuBuiltInItems:
       self.save:bool = True
       self.zoom:bool = True
    def get(self, item:str):
-      if item == "forwardAndBack":
-         return self.forwardAndBack
-      elif item == "loop":
-         return self.loop
-      elif item == "play":
-         return self.play
-      elif item == "print":
-         return self.print
-      elif item == "quality":
-         return self.quality
-      elif item == "rewind":
-         return self.rewind
-      elif item == "save":
-         return self.save
-      elif item == "zoom":
-         return self.zoom
+      match item:
+         case "forwardAndBack":
+            return self.forwardAndBack
+         case "loop":
+            return self.loop
+         case "play":
+            return self.play
+         case "print":
+            return self.print
+         case "quality":
+            return self.quality
+         case "rewind":
+            return self.rewind
+         case "save":
+            return self.save
+         case "zoom":
+            return self.zoom
    def set(self, item:str, value:bool):
-      if item == "forwardAndBack":
-         self.forwardAndBack = value
-      elif item == "loop":
-         self.loop = value
-      elif item == "play":
-         self.play = value
-      elif item == "print":
-         self.print = value
-      elif item == "quality":
-         self.quality = value
-      elif item == "rewind":
-         self.rewind = value
-      elif item == "save":
-         self.save = value
-      elif item == "zoom":
-         self.zoom = value
+      match item:
+         case "forwardAndBack":
+            self.forwardAndBack = value
+         case "loop":
+            self.loop = value
+         case "play":
+            self.play = value
+         case "print":
+            self.print = value
+         case "quality":
+            self.quality = value
+         case "rewind":
+            self.rewind = value
+         case "save":
+            self.save = value
+         case "zoom":
+            self.zoom = value
 class ContextMenuClipboardItems:
    def __init__(self):
       self.clear:bool = True
@@ -239,27 +241,29 @@ class ContextMenuClipboardItems:
       self.paste:bool = True
       self.selectAll:bool = True
    def get(self, item:str):
-      if item == "clear":
-         return self.clear
-      elif item == "copy":
-         return self.copy
-      elif item == "cut":
-         return self.cut
-      elif item == "paste":
-         return self.paste
-      elif item == "selectAll":
-         return self.selectAll
+      match item:
+         case "clear":
+            return self.clear
+         case "copy":
+            return self.copy
+         case "cut":
+            return self.cut
+         case "paste":
+            return self.paste
+         case "selectAll":
+            return self.selectAll
    def set(self, item:str, value:bool):
-      if item == "clear":
-         self.clear = value
-      elif item == "copy":
-         self.copy = value
-      elif item == "cut":
-         self.cut = value
-      elif item == "paste":
-         self.paste = value
-      elif item == "selectAll":
-         self.selectAll = value
+      match item:
+         case "clear":
+            self.clear = value
+         case "copy":
+            self.copy = value
+         case "cut":
+            self.cut = value
+         case "paste":
+            self.paste = value
+         case "selectAll":
+            self.selectAll = value
 class ContextMenuItem:
    def __init__(self, master:str, caption:str, name:str, separatorBefore:bool=False, enabled:bool=True, visible:bool=True, type_:str="Item", command:object=""):
       self.caption = caption

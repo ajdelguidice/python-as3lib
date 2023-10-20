@@ -8,25 +8,25 @@ def defaultTraceFilePath():
    """
    Outputs the default file path for trace in this library
    """
-   if configmodule.platform == "Windows":
-      path = fr"{configmodule.moduledirectory}\flashlog.txt"
-   else:
-      path = f"{configmodule.moduledirectory}/flashlog.txt"
+   match configmodule.platform:
+      case "Windows":
+         path = fr"{configmodule.moduledirectory}\flashlog.txt"
+      case "Linux" | "Darwin":
+         path = f"{configmodule.moduledirectory}/flashlog.txt"
    return path
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
    """
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
    """
-   if configmodule.platform == "Linux":
-      from os import getuid
-      from pwd import getpwuid
-      username = getpwuid(getuid())[0]
-   elif configmodule.platform == "Windows":
-      from os import getlogin
-      username = getlogin()
-   elif configmodule.platform == "Darwin":
-      pass
+   match configmodule.platform:
+      case "Linux" | "Darwin":
+         from os import getuid
+         from pwd import getpwuid
+         username = getpwuid(getuid())[0]
+      case "Windows":
+         from os import getlogin
+         username = getlogin()
    if versionOverride == True:
       match overrideSystem:
          case "Linux":
@@ -103,12 +103,12 @@ def sm_wayland():
       else:
          cd = 8
    else:
-      print("This seems to be your first time using the module as3lib. Since you are using wayland, some things could not be automatically detected. Please input them in the fields bellow. This information is a part of the flash display module, if you aren't planning to use that, you can put in whatever you want. This information can be configured later in the file <library directory>/wayland.cfg")
-      sw = input("Screen width (px): ")
-      sh = input("Screen height (px): ")
+      print("(The things that these answers controls is not implemented yet) This seems to be your first time using the module as3lib. Since you are using wayland, some things could not be automatically detected. Please input them in the fields bellow. This information is a part of the flash display module, if you aren't planning to use that, you can put in whatever you want. This information can be configured later in the file <library directory>/wayland.cfg")
+      sw = input("Maximum width (px), or -1 for no limit: ")
+      sh = input("Maximum height (px), or -1 for no limit: ")
       rr = input("Refresh rate (Hz): ")
       cd = input("Color depth (bits): ")
-      with open(configmodule.moduledirectory + "/wayland.cfg", "w") as cfg:
+      with open(f"{configmodule.moduledirectory}/wayland.cfg", "w") as cfg:
          cfg.write(f"['Screen']\nscreenwidth={int(sw)}\nscreenheight={int(sh)}\nrefreshrate={float(rr)}\ncolordepth={int(cd)}")
    return int(sw), int(sh), float(rr), int(cd)
 
@@ -125,104 +125,111 @@ def indexOf_String(string:str, find:str):
       return -1
 
 def initconfig():
-   #set up variables needed by mutiple submodules
+   #set up variables needed by mutiple modules
    configmodule.moduledirectory = dirname(__file__)
    configmodule.platform = platform.system()
    configmodule.defaultTraceFilePath = defaultTraceFilePath()
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
-   if configmodule.platform == "Linux":
-      dmtype = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)
-      dmtype = str(dmtype).split("=")[1]
-      dmtype = dmtype.replace("\\n'","")
-      configmodule.windowmanagertype = dmtype
-      if dmtype == "wayland":
-         comp = subprocess.check_output('lsof -t "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}"', shell=True)
-         compids = str(comp).replace("b'","").replace("'","").split("\\n")
-         compids.remove("")
-         psout = []
-         for i in compids:
-            temp = str(subprocess.check_output(f"ps {i}",shell=True)).split("\\n")[1].split(" ")
-            temp2 = ""
-            for i in temp:
+   configmodule.pythonversion = platform.python_version()
+   match configmodule.platform:
+      case "Linux":
+         dmtype = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)
+         dmtype = str(dmtype).split("=")[1]
+         dmtype = dmtype.replace("\\n'","")
+         configmodule.windowmanagertype = dmtype
+         if dmtype == "wayland":
+            comp = subprocess.check_output('lsof -t "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}"', shell=True)
+            compids = str(comp).replace("b'","").replace("'","").split("\\n")
+            compids.remove("")
+            psout = []
+            for i in compids:
+               temp = str(subprocess.check_output(f"ps {i}",shell=True)).split("\\n")[1].split(" ")
+               temp2 = ""
+               for i in temp:
+                  try:
+                     t = i.index("/bin/")
+                     temp2 = i
+                  except:
+                     continue
                try:
-                  t = i.index("/bin/")
-                  temp2 = i
+                  t = temp2.index("xwayland")
                except:
-                  continue
-            try:
-               t = temp2.index("xwayland")
-            except:
-               psout.append(temp2)
-         if indexOf_String(psout[0], "kwin") != -1:
-            configmodule.wlcompositor = "kwin"
-         elif indexOf_String(psout[0], "gnome-shell") != -1:
-            configmodule.wlcompositor = "gnome"
-         #elif indexOf_String(psout[0], "") != -1:
-         #   pass
-         else:
-            configmodule.wlcompositor = "ERROR: COMPOSITOR NOT ACCOUNTED FOR"
-      if configmodule.windowmanagertype == "x11":
-         temp = sm_x11()
-         configmodule.width = temp[0]
-         configmodule.height = temp[1]
-         configmodule.refreshrate = temp[2]
-         configmodule.colordepth = temp[3]
-      elif configmodule.windowmanagertype == "wayland":
-         temp = sm_wayland()
-         configmodule.width = temp[0]
-         configmodule.height = temp[1]
-         configmodule.refreshrate = temp[2]
-         configmodule.colordepth = temp[3]
-   elif configmodule.platform == "Windows":
-      #configmodule.width = temp[0]
-      #configmodule.height = temp[1]
-      #configmodule.refreshrate = temp[2]
-      #configmodule.colordepth = temp[3]
-      pass
-   elif configmodule.platform == "Darwin":
-      #configmodule.width = temp[0]
-      #configmodule.height = temp[1]
-      #configmodule.refreshrate = temp[2]
-      #configmodule.colordepth = temp[3]
-      pass
-   if configmodule.platform == "Linux" or configmodule.platform == "Darwin":
-      configpath = configmodule.moduledirectory + "/mm.cfg"
-      if Path(configpath).exists() == True:
-         with open(configpath, 'r') as f:
-            configwithheader = '[dummy_section]\n' + f.read()
-         config = configparser.ConfigParser()
-         config.read_string(configwithheader)
-         actual_config = config["dummy_section"]
-         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-         if existing_options[0] == True:
-            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-         if existing_options[1] == True:
-            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-         if existing_options[2] == True:
-            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-         if existing_options[3] == True:
-            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-         if existing_options[4] == True:
-            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
-   elif configmodule.platform == "Windows":
-      configpath = fr"{configmodule.moduledirectory}\mm.cfg"
-      if Path(configpath).exists() == True:
-         with open(configpath, 'r') as f:
-            configwithheader = '[dummy_section]\n' + f.read()
-         config = configparser.ConfigParser()
-         config.read_string(configwithheader)
-         actual_config = config["dummy_section"]
-         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-         if existing_options[0] == True:
-            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-         if existing_options[1] == True:
-            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-         if existing_options[2] == True:
-            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-         if existing_options[3] == True:
-            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-         if existing_options[4] == True:
-            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+                  psout.append(temp2)
+            if indexOf_String(psout[0], "kwin") != -1:
+               configmodule.wlcompositor = "kwin"
+            elif indexOf_String(psout[0], "gnome-shell") != -1:
+               configmodule.wlcompositor = "gnome"
+            #elif indexOf_String(psout[0], "") != -1:
+            #   pass
+            else:
+               configmodule.wlcompositor = "ERROR: COMPOSITOR NOT ACCOUNTED FOR"
+               configmodule.initerror.append({"errcode":2,"errdesc":f"Error fetching compositor name; Linux, Wayland; Compositor {psout[0]} not implemented"})
+         match configmodule.windowmanagertype:
+            case "x11":
+               temp = sm_x11()
+               configmodule.width = temp[0]
+               configmodule.height = temp[1]
+               configmodule.refreshrate = temp[2]
+               configmodule.colordepth = temp[3]
+            case "wayland":
+               temp = sm_wayland()
+               configmodule.width = temp[0]
+               configmodule.height = temp[1]
+               configmodule.refreshrate = temp[2]
+               configmodule.colordepth = temp[3]
+      case "Windows":
+         configmodule.initerror.append({"errcode":1,"errdesc":"Error fetching screen properties; Windows; Not Implemented Yet"})
+         #configmodule.width = temp[0]
+         #configmodule.height = temp[1]
+         #configmodule.refreshrate = temp[2]
+         #configmodule.colordepth = temp[3]
+         pass
+      case "Darwin":
+         configmodule.initerror.append({"errcode":1,"errdesc":"Error fetching screen properties; Darwin; Not Implemented Yet"})
+         #configmodule.width = temp[0]
+         #configmodule.height = temp[1]
+         #configmodule.refreshrate = temp[2]
+         #configmodule.colordepth = temp[3]
+         pass
+   match configmodule.platform:
+      case "Linux" | "Darwin":
+         configpath = f"{configmodule.moduledirectory}/mm.cfg"
+         if Path(configpath).exists() == True:
+            with open(configpath, 'r') as f:
+               configwithheader = '[dummy_section]\n' + f.read()
+            config = configparser.ConfigParser()
+            config.read_string(configwithheader)
+            actual_config = config["dummy_section"]
+            existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+            if existing_options[0] == True:
+               configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+            if existing_options[1] == True:
+               configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
+            if existing_options[2] == True:
+               configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+            if existing_options[3] == True:
+               configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
+            if existing_options[4] == True:
+               configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+      case "Windows":
+         configpath = fr"{configmodule.moduledirectory}\mm.cfg"
+         if Path(configpath).exists() == True:
+            with open(configpath, 'r') as f:
+               configwithheader = '[dummy_section]\n' + f.read()
+            config = configparser.ConfigParser()
+            config.read_string(configwithheader)
+            actual_config = config["dummy_section"]
+            existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+            if existing_options[0] == True:
+               configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+            if existing_options[1] == True:
+               configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
+            if existing_options[2] == True:
+               configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+            if existing_options[3] == True:
+               configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
+            if existing_options[4] == True:
+               configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
    if configmodule.TraceOutputFileName == "":
       configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
    if Path(configmodule.TraceOutputFileName).is_dir() == True:
@@ -233,5 +240,5 @@ def initconfig():
          with open(configmodule.TraceOutputFileName, "w") as f: 
             f.write("")
 
-   #Tell others that module has been initialized
+   #Tell others that library has been initialized
    configmodule.initdone = True

@@ -1,9 +1,6 @@
 import math as m
 import random as r
-from numpy import nan
-from numpy import inf
-from numpy import NINF
-from numpy import base_repr
+from numpy import nan, inf, NINF, base_repr
 from textwrap import wrap
 from time import time, strftime
 from datetime import datetime
@@ -11,32 +8,27 @@ from pathlib import Path
 from . import configmodule
 from typing import Union
 
-def EnableDebug():
-   configmodule.as3DebugEnable = True
-def DisableDebug():
-   configmodule.as3DebugEnable = False
-def listtoarray(l:Union[list, tuple]):
-   """
-   A function to convert a python list to an Array.
-   """
-   tempArray = Array()
-   for i in range(0,len(l)):
-      tempArray[i] = l[i]
-   return tempArray
-def typeName(obj:object):
-   return formatTypeToName(type(obj))
-def formatTypeToName(arg:type):
-   tempStr = str(arg)
-   if tempStr.find(".") != -1:
-      tempStr = tempStr.split(".")
-      tempNum = len(tempStr) - 1
-      tempStr = tempStr[tempNum].split("'")
-      tempStr = tempStr[0]
-   else:
-      tempStr = tempStr.split("'")
-      tempStr = tempStr[1]
-   return tempStr
-
+class Array:
+   #dummy class
+   pass
+class Boolean:
+   #dummy class
+   pass
+class Int:
+   #dummy class
+   pass
+class Number:
+   #dummy class
+   pass
+class String:
+   #dummy class
+   pass
+class uint:
+   #dummy class
+   pass
+class Vector:
+   #dummy class
+   pass
 class NInfinity:
    def __init__(self):
       self.value = NINF
@@ -45,29 +37,29 @@ class NInfinity:
    def __repr__(self):
       return self.value
    def __lt__(self, value):
-      if fomatTypeToName(type(value)) == "NInfinity":
+      if typeName(value) == "NInfinity":
          return False
       else:
          return True
    def __le__(self, value):
-      if fomatTypeToName(type(value)) == "NInfinity":
+      if typeName(value) == "NInfinity":
          return True
       else:
          return False
    def __eq__(self, value):
-      if fomatTypeToName(type(value)) == "NInfinity":
+      if typeName(value) == "NInfinity":
          return True
       else:
          return False
    def __ne__(self, value):
-      if fomatTypeToName(type(value)) == "NInfinity":
+      if typeName(value) == "NInfinity":
          return False
       else:
          return True
    def __gt__(self, value):
       return False
    def __ge__(self, value):
-      if fomatTypeToName(type(value)) == "NInfinity":
+      if typeName(value) == "NInfinity":
          return True
       else:
          return False
@@ -147,22 +139,22 @@ class Infinity:
    def __lt__(self, value):
       return False
    def __le__(self, value):
-      if fomatTypeToName(type(value)) == "Infinity":
+      if typeName(value) == "Infinity":
          return True
       else:
          return False
    def __eq__(self, value):
-      if fomatTypeToName(type(value)) == "Infinity":
+      if typeName(value) == "Infinity":
          return True
       else:
          return False
    def __ne__(self, value):
-      if fomatTypeToName(type(value)) == "Infinity":
+      if typeName(value) == "Infinity":
          return False
       else:
          return True
    def __gt__(self, value):
-      if fomatTypeToName(type(value)) == "Infinity":
+      if typeName(value) == "Infinity":
          return False
       else:
          return True
@@ -338,54 +330,45 @@ class ArgumentError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class Array:
-   """
-   Lets you create array objects similar to ActionScript3
-   Instead of making two different init functions, I made init create an array based on the values passed to it and another method called toSize to make the array a specific size. toSize fills all empty slots with the None object (since python doesn't have a null or undefined type) or deletes excess slots if there are more. WARNING: If nothing is passed to this method and it is called while there is data inside the array, all data in the array will be erased.
-   """
+class Array(list):
    CASEINSENSITIVE = 1
    DESCENDING = 2
    UNIQUESORT = 4
    RETURNINDEXEDARRAY =  8
    NUMERIC = 16
-   def __init__(self, *values):
-      self.array = []
-      for i in range(0,len(values)):
-         self.array.append(values[i])
-   def __str__(self):
-      return f'{self.array}'
-   def __len__(self):
-      return len(self.array)
+   def __init__(self,*args,numElements:Union[int,Int]=None):
+      if numElements == None:
+         super().__init__(args)
+      else:
+         if numElements < 0:
+            raise Exception("RangeError")
+         else:
+            tempList = []
+            for i in range(0,numElements):
+               tempList.append(undefined())
+            super().__init__(tempList)
    def __getitem__(self, item):
       try:
-         if self.array[item] == None:
-            return "undefined"
+         if super().__getitem__(item) == None:
+            return undefined()
          else:
-            return self.array[item]
+            return super().__getitem__(item)
       except:
          return ""
-   def __setitem__(self, item, value):
-      if item + 1 > len(self.array):
-         self.toSize(item + 1)
-      self.array[item] = value
-   def toSize(self, numElements=0):
-      """
-      Instead of making two different init functions, I made init create an array based on the values passed to it and this method to make the array a specific size. This method fills all empty slots with the None object (since python doesn't have a null or undefined type) or deletes excess slots if there are more. WARNING: If nothing is passed to this method and it is called while there is data inside the array, all data in the array will be erased.
-      """
-      if numElements < 0:
-         raise Exception("RangeError")
-      elif numElements == 0:
-         self.array = []
-      elif len(self) > numElements:
-         while len(self) > numElements:
-            self.pop()
-      elif len(self) < numElements:
-         while len(self) < numElements:
-            self.push(undefined())
-   def length(self, value:int={}):
-      if value != {} and value != len(self.array):
-         self.toSize(value)
-      return len(self.array)
+   def length(self,value=None,filler=undefined()):
+      if value == None:
+         return len(self)
+      else:
+         if value < 0:
+            raise Exception("RangeError")
+         elif value == 0:
+            self.clear()
+         elif len(self) > value:
+            while len(self) > value:
+               self.pop()
+         elif len(self) < value:
+            while len(self) < value:
+               self.append(filler)
    def concat(self, *args):
       """
       Concatenates the elements specified in the parameters with the elements in an array and creates a new array. If the parameters specify an array, the elements of that array are concatenated. If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
@@ -397,15 +380,17 @@ class Array:
       if len(args) == 0:
          raise Exception("Must have at least 1 arguments")
       else:
-         tempArray = listtoarray(self.array)
+         #possible replacement (needs testing)
+         ##tempArray = self
+         ##return tempArray.extend(args)
+         tempArray = self
          for i in range(0,len(args)):
-            if type(args[i]) == list or type(args[i]) == tuple or type(args[i]) == Array():
+            if type(args[i]) == list or type(args[i]) == tuple or type(args[i]) == Array:
                b = args[i]
-               c = 0
                for c in range(0,len(b)):
-                  self.push(b[c])
+                  tempArray.append(b[c])
             else:
-               self.push(args[i])
+               tempArray.append(args[i])
          return tempArray
    def every(self, callback:object):
       """
@@ -419,7 +404,7 @@ class Array:
       tempBool = True
       for i in range(0,len(self)):
          if callback(self[i], i, self) == False:
-            tempBool == False
+            tempBool = False
             break
       return tempBool
    def filter(self, callback:object):
@@ -445,7 +430,7 @@ class Array:
       """
       for i in range(0, len(self)):
          self[i] = callback(self[i], i, self)
-   def indexOf(self, searchElement, fromIndex:int=0):
+   def indexOf(self, searchElement, fromIndex:Union[int,Int]=0):
       """
       Searches for an item in an array using == and returns the index position of the item.
       Parameters:
@@ -455,15 +440,14 @@ class Array:
          index:int — A zero-based index position of the item in the array. If the searchElement argument is not found, the return value is -1.
       """
       index = -1
-      i = fromIndex
-      while i < len(self):
+      if fromIndex < 0:
+         fromIndex = 0
+      for i in range(fromIndex,len(self)):
          if self[i] == searchElement:
             index = i
-            i = len(self)
-         else:
-            i += 1
+            break
       return index
-   def insertAt(self, index:int, element):
+   def insertAt(self, index:Union[int,Int], element):
       """
       Insert a single element into an array.
       Parameters
@@ -471,10 +455,11 @@ class Array:
 	      element — The element to be inserted.
       """
       if index < 0:
-         self.array.insert((len(l1) - abs(index)), element)
+         self.insert((len(self) + index), element)
       else:
-         self.array.insert(index, element)
-   def join(self, sep:str=","):
+         self.insert(index, element)
+   def join(self, sep:Union[str,String]=","):
+      #!add support for nested arrays
       """
       Converts the elements in an array to strings, inserts the specified separator between the elements, concatenates them, and returns the resulting string. A nested array is always separated by a comma (,), not by the separator passed to the join() method.
       Parameters:
@@ -483,15 +468,13 @@ class Array:
 	      String — A string consisting of the elements of an array converted to strings and separated by the specified parameter.
       """
       result = ""
-      i = 0
       for i in range(0, len(self)):
          if i != len(self) - 1:
-            result += str(self[i]) + str(sep)
+            result += f"{self[i]}{sep}"
          else:
-            result += str(self[i])
-         i += 1
+            result += f"{self[i]}"
       return result
-   def lastIndexOf(self, searchElement, fromIndex:int=99*10^99):
+   def lastIndexOf(self, searchElement, fromIndex:Union[int,Int]=None):
       """
       Searches for an item in an array, working backward from the last item, and returns the index position of the matching item using ==.
       Parameters:
@@ -501,11 +484,18 @@ class Array:
 	      int — A zero-based index position of the item in the array. If the searchElement argument is not found, the return value is -1.
       """
       index = -1
-      for i in range(0,len(self)):
-         l = len(self) - i - 1
-         if self[l] == searchElement:
-            index = l
+      if fromIndex == None:
+         fromIndex = len(self)
+      elif fromIndex < 0:
+         raise Exception("Range Error")
+      else:
+         fromIndex = len(self) - 1 - fromIndex
+      i = fromIndex
+      while i >= 0:
+         if self[i] == searchElement:
+            index = i
             break
+         i -= 1
       return index
    def map(self, callback:object):
       """
@@ -517,7 +507,7 @@ class Array:
          Array — A new array that contains the results of the function on each item in the original array.
       """
       output = Array()
-      output.toSize(len(self))
+      output.length(len(self))
       for i in range(0,len(self)):
          output[i] = callback(self[i], i, self)
       return output
@@ -527,21 +517,16 @@ class Array:
       Returns:
          * — The value of the last element (of any data type) in the specified array.
       """
-      i = len(self) - 1
-      value = self[i]
-      self.array.pop(i)
-      return value
+      return super().pop(len(self) - 1)
    def push(self, *args):
       """
       Adds one or more elements to the end of an array and returns the new length of the array.
       Parameters:
-         *args — One or more values to append to the array. 
+         *args — One or more values to append to the array.
       """
-      i = 0
-      while i < len(args):
-         self.array.append(args[i])
-         i += 1
-   def removeAt(self, index:int):
+      for i in args:
+         self.append(i)
+   def removeAt(self, index:Union[int,Int]):
       """
       Remove a single element from an array. This method modifies the array without making a copy.
       Parameters:
@@ -549,14 +534,10 @@ class Array:
       Returns:
 	      * — The element that was removed from the original array.
       """
-      if index >= 0:
-         value = self[index]
-         self.array.pop(index)
+      if index < 0:
+         return super().pop(len(self) + index)
       else:
-         i = len(self) - 1 + index
-         value = self[i]
-         self.array.pop(i)
-      return value
+         return super().pop(index)
    def reverse(self):
       """
       Reverses the array in place.
@@ -565,9 +546,10 @@ class Array:
       """
       a = Array()
       for i in range(0, len(self)):
-         a.array.append(self[len(self) - 1 - i])
+         a.append(self[len(self) - 1 - i])
       for i in range(0, len(self)):
          self[i] = a[i]
+      return a
    def shift(self):
       """
       Removes the first element from an array and returns that element. The remaining array elements are moved from their original position, i, to i-1.
@@ -581,7 +563,8 @@ class Array:
          else:
             self.pop()
       return value
-   def slice(self, startIndex:int=0, endIndex:int=99*10^99):
+   def slice(self, startIndex:Union[int,Int]=0, endIndex:Union[int,Int]=99*10^99):
+      #!implement negative indicies
       """
       Returns a new array that consists of a range of elements from the original array, without modifying the original array. The returned array includes the startIndex element and all elements up to, but not including, the endIndex element.
       If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
@@ -591,13 +574,16 @@ class Array:
       Returns:
          Array — An array that consists of a range of elements from the original array.
       """
-      i = startIndex
+      
       result = Array()
+      if startIndex < 0:
+         startIndex = len(self) + startIndex
+      if endIndex < 0:
+         endIndex = len(self) + endIndex
       if endIndex > len(self):
-         ei = len(self)
-      else:
-         ei = endIndex
-      while i < ei:
+         endIndex = len(self)
+      i = startIndex
+      while i < endIndex:
          result.push(self[i])
          i += 1
       return result
@@ -612,29 +598,32 @@ class Array:
       """
       tempBool = False
       for i in range(0,len(self)):
-         if callback(self[i], i, self) == Ture:
+         if callback(self[i], i, self) == True:
             tempBool == True
             break
       return tempBool
-   def sort(sortOptions=0):
+   def sort(self, sortOptions=0, pythonsort=False):
       """
       """
-      if sortOptions == 0:
-         raise Exception("Not yet implemented")
-      elif sortOptions == 1:
-         raise Exception("Not yet implemented")
-      elif sortOptions == 2:
-         raise Exception("Not yet implemented")
-      elif sortOptions == 4:
-         raise Exception("Not yet implemented")
-         pass
-      elif sortOptions == 8:
-         raise Exception("Not yet implemented")
-      elif sortOptions == 16:
-         self.array.sort()
+      if pythonsort == True:
+         super().sort()
+      else:
+         match sortOptions:
+            case 0:
+               raise Exception("Not yet implemented")
+            case 1:
+               raise Exception("Not yet implemented")
+            case 2:
+               raise Exception("Not yet implemented")
+            case 4:
+               raise Exception("Not yet implemented")
+            case 8:
+               raise Exception("Not yet implemented")
+            case 16:
+               super().sort()
    def sortOn():
       pass
-   def splice(self, startIndex:int, deleteCount:int, *values):
+   def splice(self, startIndex:Union[int,Int], deleteCount:Union[int,Int], *values):
       """
       Adds elements to and removes elements from an array. This method modifies the array without making a copy.
       Parameters:
@@ -646,6 +635,8 @@ class Array:
       """
       removedValues = Array()
       i = deleteCount
+      if startIndex < 0:
+         startIndex = len(self) + startIndex
       while i > 0:
          removedValues.push(self[startIndex])
          self.removeAt(startIndex)
@@ -654,6 +645,8 @@ class Array:
          for i in range(0,len(values)):
             self.insertAt(startIndex + i, values[i])
       return removedValues
+   def toList(self):
+      return list(self)
    def toLocaleString(self):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. In the ActionScript 3.0 implementation, this method returns the same value as the Array.toString() method.
@@ -661,7 +654,7 @@ class Array:
 	      String — A string of array elements. 
       """
       return self.toString()
-   def toString(self, formatLikePython=False):
+   def toString(self, formatLikePython:Union[bool,Boolean]=False):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
       Returns:
@@ -673,9 +666,9 @@ class Array:
          a = ""
          for i in range(0, len(self)):
             if i == len(self) - 1:
-               a += str(self[i])
+               a += f"{self[i]}"
             else:
-               a += str(self[i]) + ","
+               a += f"{self[i]},"
          return a
    def unshift(self, *args):
       """
@@ -685,15 +678,13 @@ class Array:
       Returns:
 	      int — An integer representing the new length of the array.
       """
-      a = Array()
-      for i in range(0, len(args)):
-         a.push(args[i])
-      for i in range(0, len(self)):
-         a.push(self[i])
-      for i in range(0, len(self)):
-         self[i] = a[i]
-      for i in range(len(self), len(a)):
-         self.push(a[i])
+      tempArray = Array()
+      for i in args:
+         tempArray.push(i)
+      for i in self:
+         tempArray.push(i)
+      self.clear()
+      self.extend(tempArray.toList())
       return len(self)
 class Boolean:
    """
@@ -708,29 +699,39 @@ class Boolean:
       return self.bool
    def __setitem__(self, value):
       self.bool = value
-   def Boolean(self, expression):
-      if type(expression) == int or type(expression) == float or type(expression) == Number:
-         if expresssion == 0:
-            result = False
-         else:
-            result = True
-      if isNaN(expression) == True:
-         result = False
-      if type(expresssion) == str or type(expression) == String:
-         if exression == "":
-            result = False
-         else:
-            result = True
-      if expression == "null":
-         result = False
-      if expression == "undefined":
-         result = False
-      return result
-   def toString(self, formatLikePython=False):
+   def Boolean(self, expression, strrepbool:Union[bool,Boolean]=False):
+      match typeName(expression):
+         case "bool":
+            return expression
+         case "int" | "float" | "Int" | "uint" | "Number":
+            if expression == 0:
+               return False
+            else:
+               return True
+         case "NaN":
+            return False
+         case "str" | "String":
+            match expression:
+               case "false":
+                  if strrepbool == True:
+                     return False
+                  else:
+                     return True
+               case "true":
+                  return True
+               case "":
+                  return False
+               case _:
+                  return True
+         case "null":
+            return False
+         case "undefined":
+            return False
+   def toString(self, formatLikePython:Union[bool,Boolean]=False):
       if formatLikePython == True:
-         return str(self.bool)
+         return f"{self.bool}"
       else:
-         return str(self.bool).lower()
+         return f"{self.bool}".lower()
    def valueOf(self):
       if self.bool == True:
          return True
@@ -939,7 +940,7 @@ class Int:
          try:
             return Int(self.value / self.int(value))
          except:
-            raise TypeError("Can not divide Int by " + f'{type(value)}')
+            raise TypeError(f"Can not divide Int by {type(value)}")
    def __float__(self):
       return float(self.value)
    def __int__(self):
@@ -953,10 +954,10 @@ class Int:
          try:
             return int(value)
          except:
-            raise TypeError("Can not convert " + str(value) + " to integer")
+            raise TypeError(f"Can not convert string {value} to integer")
       else:
-         raise TypeError("Can not convert " + str(value) + " to integer")
-   def toExponential(self, fractionDigits:int):
+         raise TypeError(f"Can not convert type {type(value)} to integer")
+   def toExponential(self, fractionDigits:Union[int,Int]):
       if fractionDigits < 0 or fractionDigits > 20:
          raise Exception("RangeError: fractionDigits is outside of acceptable range")
       else:
@@ -965,10 +966,10 @@ class Int:
          if templist[0] == "-":
             templist.pop(0)
             exponent = len(templist) - 1
-            tempString2 = "-" + templist.pop(0) + "."
+            tempString2 = f"-{templist.pop(0)}."
          else:
             exponent = len(templist) - 1
-            tempString2 = templist.pop(0) + "."
+            tempString2 = f"{templist.pop(0)}."
          if exponent == 0:
             return self.value
          else:
@@ -976,8 +977,8 @@ class Int:
             while i < fractionDigits:
                tempString2 += templist.pop(0)
                i += 1
-            return tempString2 + "e+" + str(exponent)
-   def toFixed(self, fractionDigits:int):
+            return f"{tempString2}e+{exponent}"
+   def toFixed(self, fractionDigits:Union[int,Int]):
       if fractionDigits < 0 or fractionDigits > 20:
          raise Exception("RangeError: fractionDigits is outside of acceptable range")
       else:
@@ -993,7 +994,7 @@ class Int:
             return tempString
    def toPrecision():
       pass
-   def toString(self, radix:int=10):
+   def toString(self, radix:Union[int,Int]=10):
       #!
       if radix > 36 or radix < 2:
          pass
@@ -1011,6 +1012,28 @@ def isNaN(num):
       return True
    else:
       return False
+def isXMLName(str_:Union[str,String]):
+   #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
+   whitelist = "-_."
+   if len(str_) > 0:
+      if str_[0].isalpha() == False and str_[0] != "_":
+         return False
+   if len(str_) >= 3:
+      if f"{str_[0]}{str_[1]}{str_[2]}".lower() == "xml":
+         return False
+   for i in str_:
+      if i.isalnum() == True or i in whitelist:
+         continue
+      else:
+         return False
+   if str_.find(" ") != -1:
+      return False
+   return True
+class JSON:
+   def parse():
+      pass
+   def stringify():
+      pass
 class Math:
    E = 2.71828182845905
    LN10 = 2.302585092994046
@@ -1062,6 +1085,13 @@ class Math:
       return m.sqrt(val)
    def tan(angleRadians):
       return m.tan(angleRadians)
+class Namespace:
+   def __init__():
+      pass
+   def toString():
+      pass
+   def valueOf():
+      pass
 class Number:
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
@@ -1073,12 +1103,11 @@ class Number:
    def __str__(self):
       if self.number == self.NaN or self.number == self.POSITIVE_INFINITY or self.number == self.NEGATIVE_INFINITY:
          return str(self.number)
-      tempString = str(self.number)
-      templist = tempString.split(".")
-      if templist[1] == "0":
-         return f'{int(templist[0])}'
-      else:
-         return f'{self.number}'
+      match self.number.is_integer():
+         case True:
+            return f'{int(self.number)}'
+         case False:
+            return f'{self.number}'
    def __getitem__(self):
       return self.number
    def __setitem__(self, value):
@@ -1087,17 +1116,17 @@ class Number:
       try:
          return Number(self.number + float(value))
       except ValueError:
-         raise TypeError("can not add " + f'{type(value)}' + " to Number")
+         raise TypeError(f"can not add {type(value)} to Number")
    def __sub__(self, value):
       try:
          return Number(self.number - float(value))
       except ValueError:
-         raise TypeError("can not subtract " + f'{type(value)}' + " from Number")
+         raise TypeError(f"can not subtract {type(value)} from Number")
    def __mul__(self, value):
       try:
          return Number(self.number * float(value))
       except ValueError:
-         raise TypeError("can not multiply Number by " + f'{type(value)}')
+         raise TypeError(f"can not multiply Number by {type(value)}")
    def __truediv__(self, value):
       if value == 0:
          if self.number == 0:
@@ -1110,7 +1139,7 @@ class Number:
          try:
             return Number(self.number / float(value))
          except:
-            raise TypeError("Can not divide Number by " + f'{type(value)}')
+            raise TypeError(f"Can not divide Number by {type(value)}")
    def __float__(self):
       return float(self.number)
    def __int__(self):
@@ -1156,6 +1185,13 @@ def parseFloat():
    pass
 def parseInt():
    pass
+class QName:
+   def __init__():
+      pass
+   def toString():
+      pass
+   def valueOf():
+      pass
 class RangeError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
@@ -1170,69 +1206,55 @@ class SecurityError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class String:
+class String(str):
    def __init__(self, value=""):
-      self.string = self.String(value)
-   def __str__(self):
-      return self.string
-   def __getitem__(self, item={}):
-      if item == {}:
-         return self.string
-      else:
-         return self.string[item]
-   def __setitem__(self, value):
-      self.string = value
-   def __len__(self):
-      return len(self.string)
+      self._hiddeninit(self._String(value))
+   def _hiddeninit(self, value):
+      super().__init__()
+   def _String(self, expression):
+      match typeName(expression):
+         case "str" | "String":
+            return expression
+         case "bool":
+            if expression == True:
+               return "true"
+            elif expression == False:
+               return "false"
+         case "NaN":
+            return "NaN"
+         case "Array" | "Boolean" | "Number":
+            return expression.toString()
+         case _:
+            return str(expression)
    def __add__(self, value):
-      return String(self.string + self.String(value))
-   def __int__(self):
-      return int(self.string)
-   def __float__(self):
-      return float(self.string)
+      return String(f"{self}{self._String(value)}")
    def length(self):
-      return len(self.string)
-   def String(self, expression):
-      if type(expression) == str:
-         return expression
-      elif type(expression) == String:
-         return expression.string
-      elif type(expression) == bool:
-         if expression == True:
-            return "true"
-         elif expression == False:
-            return "false"
-      elif expression == nan:
-         return "NaN"
-      elif type(expression) == Array or type(expression) == Boolean or type(expression) == Number:
-         return expression.toString()
-      else:
-         return str(expression)
-   def charAt(self, index=0):
-      if index < 0 or index > len(self.string) - 1:
+      return len(self)
+   def charAt(self, index:Union[int,Int]=0):
+      if index < 0 or index > len(self) - 1:
          return ""
       else:
-         return self.string[index]
-   def charCodeAt(self, index=0):
-      if index < 0 or index > len(self.string) - 1:
-         return nan
+         return self[index]
+   def charCodeAt(self, index:Union[int,Int]=0):
+      if index < 0 or index > len(self) - 1:
+         return NaN
       else:
-         return r'\u{:04X}'.format(ord(self.string[index]))
+         return r'\u{:04X}'.format(ord(self[index]))
    def concat(self, *args):
-      tempString = self.string
-      for i in range(0, len(args)):
-         tempString += self.String(args[i])
+      tempString = self
+      for i in args:
+         tempString += self._String(i)
       return tempString
    def fromCharCode():
       pass
-   def indexOf(self, val, startIndex:int=0):
-      return self.string.find(val, startIndex)
-   def lastIndexOf(self, val, startIndex:int={}):
-      tempInt = len(self.string) - 1
-      if startIndex == {} or startIndex > tempInt:
-         return self.string.rfind(val,0,tempInt)
+   def indexOf(self, val, startIndex:Union[int,Int]=0):
+      return self.find(val, startIndex)
+   def lastIndexOf(self, val, startIndex:Union[int,Int]=None):
+      tempInt = len(self)
+      if startIndex == None or startIndex > tempInt:
+         return self.rfind(val,0,tempInt)
       else:
-         return self.string.rfind(val,0,startIndex)
+         return self.rfind(val,0,startIndex)
    def localeCompare():
       pass
    def match():
@@ -1245,61 +1267,53 @@ class String:
       pass
    def split():
       pass
-   def substr(self, startIndex:int=0, Len:int={}):
-      tempInt = len(self.string)
-      tempString1 = wrap(self.string,1)
+   def substr(self, startIndex:Union[int,Int]=0, Len:Union[int,Int]=None):
+      tempInt = len(self)
       if startIndex > tempInt - 1:
-         raise RangeError("startIndex is outside of the string")
-      if startIndex < 0 and abs(startIndex) > tempInt:
-         raise RangeError("startIndex is outside of the string")
-      if Len == {}:
-         length = tempInt
-      else:
-         length = Len
+         return String()
       if startIndex < 0:
-         tempIndex = tempInt - abs(startIndex)
-      else:
-         tempIndex = startIndex
-      i = tempIndex
-      tempString2 = ""
-      if tempIndex + length >= tempInt:
-         while i < tempInt:
-            tempString2 += tempString1[i]
-            i += 1
-      else:
-         while i < tempIndex + length:
-            tempString2 += tempString1[i]
-            i += 1
-      return tempString2
-   def substring(self, startIndex:int=0, endIndex:int={}):
-      tempInt = len(self.string)
-      si = startIndex
-      ei = endIndex
+         if startIndex > abs(tempInt) - 1:
+            startIndex = 0
+         else:
+            startIndex = tempInt + startIndex
+      if Len == None:
+         Len = tempInt
       tempString = String()
-      if si < 0:
-         si = 0
-      if ei != {}:
-         if ei < 0:
-            ei = 0
+      for i in range(startIndex, startIndex + Len):
+         try:
+            tempString += self[i]
+         except:
+            break
+      return tempString
+   def substring(self, startIndex:Union[int,Int]=0, endIndex:Union[int,Int]=None):
+      tempInt = len(self)
+      if startIndex < 0:
+         startIndex = 0
+      if endIndex != None:
+         if endIndex < 0:
+            endIndex = 0
+         elif endIndex > tempInt:
+            endIndex = tempInt
       else:
-         ei = tempInt
-      if si > ei:
-         temp = si
-         si = ei
-         ei = temp
-      for i in range(si,ei):
-         tempString += self.string[i]
+         endIndex = tempInt
+      if startIndex > endIndex:
+         temp = startIndex
+         startIndex = endIndex
+         endIndex = temp
+      tempString = String()
+      for i in range(startIndex,endIndex):
+         tempString += self[i]
       return tempString
    def toLocaleLowerCase(self):
       return self.toLowerCase()
    def toLocaleUpperCase(self):
       return self.toUpperCase()
    def toLowerCase(self):
-      return self.string.lower()
+      return self.lower()
    def toUpperCase(self):
-      return self.string.upper()
+      return self.upper()
    def valueOf(self):
-      return self.string
+      return f"{self}"
 class SyntaxError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
@@ -1370,7 +1384,6 @@ class U29:
       r = ""
       if _type == "h":
          bindat = bin(int(dat, 16))[2:].zfill(len(dat) * 4)
-         x=0
       elif _type == "b":
          bindat = dat
       if bindat[0] == "1":
@@ -1510,3 +1523,54 @@ class VerifyError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
+
+def EnableDebug():
+   """
+   Enables 'debug mode' for this module. This is a substitute for have an entire separate interpreter.
+   If you want to automatically enable debug mode based on the commandline arguements of a file, do something like:
+   if __name__ == "__main__":
+      import sys.argv
+      if "-debug" in sys.argv:
+         <this module>.EnableDebug()
+   """
+   configmodule.as3DebugEnable = True
+def DisableDebug():
+   configmodule.as3DebugEnable = False
+def listtoarray(l:Union[list, tuple]):
+   """
+   A function to convert a python list to an Array.
+   """
+   tempArray = Array()
+   for i in l:
+      tempArray.push(i)
+   return tempArray
+def typeName(obj:object):
+   return formatTypeToName(type(obj))
+def formatTypeToName(arg:type):
+   tempStr = f"{arg}"
+   if tempStr.find(".") != -1:
+      return tempStr.split(".")[-1].split("'")[0]
+   else:
+      return tempStr.split("'")[1]
+def isEven(Num:Union[int,float,Int,Number,uint,NaN,Infinity,NInfinity]):
+   match typeName(Num):
+      case "NaN" | "Infinity" | "NInfinity":
+         return False
+      case "int" | "Int" | "uint":
+         if Num % 2 == 0:
+            return True
+         else:
+            return False
+      case "float" | "Number":
+         pass
+def isOdd(Num:Union[int,float,Int,Number,uint,NaN,Infinity,NInfinity]):
+   match typeName(Num):
+      case "NaN" | "Infinity" | "NInfinity":
+         return False
+      case "int" | "Int" | "uint":
+         if Num % 2 == 0:
+            return False
+         else:
+            return True
+      case "float" | "Number":
+         pass
