@@ -10,10 +10,11 @@ def defaultTraceFilePath():
    """
    match configmodule.platform:
       case "Windows":
-         path = fr"{configmodule.moduledirectory}\flashlog.txt"
+         path = fr"{configmodule.librarydirectory}\flashlog.txt"
       case "Linux" | "Darwin":
-         path = f"{configmodule.moduledirectory}/flashlog.txt"
+         path = f"{configmodule.librarydirectory}/flashlog.txt"
    return path
+
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
    """
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
@@ -52,33 +53,33 @@ def sm_x11():
    """
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    """
-   xr = str(subprocess.check_output("xrandr --current", shell=True)).split("\\n")
+   xr = f'{subprocess.check_output("xrandr --current", shell=True)}'.split("\\n")
    for option in xr:
       if option.find("*") != -1:
-         curop = option
+         curop = option.split(" ")
          break
       else:
          continue
-   curop = curop.split(" ")
    ops = []
    for i in curop:
       if i == "":
          continue
       else:
          ops.append(i)
-   resandref = []
-   resandref.append(ops.pop(0))
+   ops.pop(0)
    for i in ops:
       if i.find("*") != -1:
-         resandref.append(i)
+         temprr = i.replace("*","").replace("+","")
+         break
       else:
          continue
-   tempres = resandref[0].split("x")
-   cdp = str(subprocess.check_output("xwininfo -root | grep Depth", shell=True)).replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
-   return int(tempres[0]),int(tempres[1]),float(resandref[1].replace("*","").replace("+","")),int(cdp)
+   cdp = f'{subprocess.check_output("xwininfo -root | grep Depth", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
+   tempwidth = f'{subprocess.check_output("xwininfo -root | grep Width", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
+   tempheight = f'{subprocess.check_output("xwininfo -root | grep Height", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
+   return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
-   configpath = configmodule.moduledirectory + "/wayland.cfg"
+   configpath = f"{configmodule.librarydirectory}/wayland.cfg"
    if Path(configpath).exists() == True:
       with open(configpath, 'r') as f:
          configwithheader = f.read()
@@ -108,8 +109,8 @@ def sm_wayland():
       sh = input("Maximum height (px), or -1 for no limit: ")
       rr = input("Refresh rate (Hz): ")
       cd = input("Color depth (bits): ")
-      with open(f"{configmodule.moduledirectory}/wayland.cfg", "w") as cfg:
-         cfg.write(f"['Screen']\nscreenwidth={int(sw)}\nscreenheight={int(sh)}\nrefreshrate={float(rr)}\ncolordepth={int(cd)}")
+      with open(f"{configmodule.librarydirectory}/wayland.cfg", "w") as cfg:
+         cfg.write(f"[Screen]\nscreenwidth={int(sw)}\nscreenheight={int(sh)}\nrefreshrate={float(rr)}\ncolordepth={int(cd)}")
    return int(sw), int(sh), float(rr), int(cd)
 
 def sm_windows():
@@ -124,46 +125,136 @@ def indexOf_String(string:str, find:str):
    except:
       return -1
 
+def getSeparator():
+   match configmodule.platform:
+      case "Windows":
+         return "\\"
+      case "Linux" | "Darwin":
+         return "/"
+
+def getUserDir():
+   match configmodule.platform:
+      case "Windows":
+         return f"{subprocess.check_output('echo %HOMEDRIVE%%HOMEPATH%',shell=True)}"[2:-5]
+      case "Linux":
+         return f"{subprocess.check_output('echo ~',shell=True)}"[2:-3]
+      case "Darwin":
+         pass
+
+def getDesktopDir():
+   match configmodule.platform:
+      case "Windows":
+         return fr"{configmodule.userdirectory}\Desktop"
+      case "Linux" | "Darwin":
+         return fr"{configmodule.userdirectory}/Desktop"
+
+def getDocumentsDir():
+   match configmodule.platform:
+      case "Windows":
+         return fr"{configmodule.userdirectory}\Documents"
+      case "Linux" | "Darwin":
+         return fr"{configmodule.userdirectory}/Documents"
+
+def getdmname():
+   return str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True)).split("=")[1].replace("\\n","")[:-1].lower()
+
+def getCPUAddressSize():
+   return platform.architecture()[0][:-3]
+
+def getCPUArchitecture():
+   #!support other architectures
+   match platform.machine():
+      case "x86" | "x86_64" | "AMD64":
+            return "x86"
+
+def getManufacturer():
+   match configmodule.platform:
+      case "Windows":
+         return "Adobe Windows"
+      case "Linux":
+         return "Adobe Linux"
+      case "Darwin":
+         return "Adobe Macintosh"
+
+def getOperatingSystem():
+   #!add others
+   match configmodule.platform:
+      case "Windows":
+         pass
+      case "Linux":
+         return f"Linux {platform.release()}"
+      case "Darwin":
+         pass
+
+def getVersion():
+   tempfv = configmodule.spoofedFlashVersion
+   match configmodule.platform:
+      case "Windows":
+         return f"Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+      case "Linux":
+         return f"LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+      case "Darwin":
+         return f"MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+      case "Android":
+         return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+
+def dependencyCheck():
+   #!Make checks functional and reliable
+   match configmodule.platform:
+      case "Linux":
+         wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
+         if wmt == "wayland":
+            x=0
+         else:
+            if str(subprocess.check_output("xwininfo -version",shell=True))[2:10] != "xwininfo":
+               raise Exception("xwininfo is required to use as3lib on xorg")
+            if str(subprocess.check_output("xrandr --version",shell=True))[2:8] != "xrandr":
+               raise Exception("xrandr is required to use as3lib on xorg")
+         if str(subprocess.check_output("bash --version",shell=True))[2:10] != "GNU bash":
+            raise Exception("bash is required to use as3lib on linux")
+         if str(subprocess.check_output("echo test",shell=True))[2:6] != "test":
+            raise Exception("echo is required to use as3lib on linux")
+         """
+         #grep
+         if str(subprocess.check_output("",shell=True))[2:\#] != "":
+            raise Exception(" is required to use as3lib on linux")
+         """
+         if str(subprocess.check_output("awk --version",shell=True))[2:9] != "GNU Awk":
+            raise Exception("awk is required to use as3lib on linux")
+         if str(subprocess.check_output("whoami --version",shell=True))[2:8] != "whoami":
+            raise Exception("whoami is required to use as3lib on linux")
+         if str(subprocess.check_output("loginctl --version",shell=True))[2:9] != "systemd":
+            raise Exception("loginctl (systemd) is required to use as3lib on linux")
+      case "Windows":
+         pass
+      case "Darwin":
+         pass
+      #<a href="https://pypi.org/project/numpy">numpy</a>
+      #<a href="https://pypi.org/project/Pillow">Pillow</a>
+      #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+
 def initconfig():
    #set up variables needed by mutiple modules
-   configmodule.moduledirectory = dirname(__file__)
+   configmodule.librarydirectory = dirname(__file__)
    configmodule.platform = platform.system()
+   dependencyCheck()
+   configmodule.separator = getSeparator()
+   configmodule.userdirectory = getUserDir()
+   configmodule.desktopdirectory = getDesktopDir()
+   configmodule.documentsdirectory = getDocumentsDir()
    configmodule.defaultTraceFilePath = defaultTraceFilePath()
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    configmodule.pythonversion = platform.python_version()
+   configmodule.cpuAddressSize = getCPUAddressSize()
+   configmodule.cpuArchitecture = getCPUArchitecture()
+   configmodule.manufacturer = getManufacturer()
+   configmodule.os = getOperatingSystem()
+   configmodule.version = getVersion()
    match configmodule.platform:
       case "Linux":
-         dmtype = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)
-         dmtype = str(dmtype).split("=")[1]
-         dmtype = dmtype.replace("\\n'","")
+         dmtype = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)).split("=")[1].replace("\\n'","")
          configmodule.windowmanagertype = dmtype
-         if dmtype == "wayland":
-            comp = subprocess.check_output('lsof -t "${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY:-wayland-0}"', shell=True)
-            compids = str(comp).replace("b'","").replace("'","").split("\\n")
-            compids.remove("")
-            psout = []
-            for i in compids:
-               temp = str(subprocess.check_output(f"ps {i}",shell=True)).split("\\n")[1].split(" ")
-               temp2 = ""
-               for i in temp:
-                  try:
-                     t = i.index("/bin/")
-                     temp2 = i
-                  except:
-                     continue
-               try:
-                  t = temp2.index("xwayland")
-               except:
-                  psout.append(temp2)
-            if indexOf_String(psout[0], "kwin") != -1:
-               configmodule.wlcompositor = "kwin"
-            elif indexOf_String(psout[0], "gnome-shell") != -1:
-               configmodule.wlcompositor = "gnome"
-            #elif indexOf_String(psout[0], "") != -1:
-            #   pass
-            else:
-               configmodule.wlcompositor = "ERROR: COMPOSITOR NOT ACCOUNTED FOR"
-               configmodule.initerror.append({"errcode":2,"errdesc":f"Error fetching compositor name; Linux, Wayland; Compositor {psout[0]} not implemented"})
+         configmodule.dmname = getdmname()
          match configmodule.windowmanagertype:
             case "x11":
                temp = sm_x11()
@@ -193,7 +284,7 @@ def initconfig():
          pass
    match configmodule.platform:
       case "Linux" | "Darwin":
-         configpath = f"{configmodule.moduledirectory}/mm.cfg"
+         configpath = f"{configmodule.librarydirectory}/mm.cfg"
          if Path(configpath).exists() == True:
             with open(configpath, 'r') as f:
                configwithheader = '[dummy_section]\n' + f.read()
@@ -212,7 +303,7 @@ def initconfig():
             if existing_options[4] == True:
                configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
       case "Windows":
-         configpath = fr"{configmodule.moduledirectory}\mm.cfg"
+         configpath = fr"{configmodule.librarydirectory}\mm.cfg"
          if Path(configpath).exists() == True:
             with open(configpath, 'r') as f:
                configwithheader = '[dummy_section]\n' + f.read()

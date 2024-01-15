@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from . import configmodule
 from typing import Union
+import builtins
 
 class Array:
    #dummy class
@@ -14,7 +15,7 @@ class Array:
 class Boolean:
    #dummy class
    pass
-class Int:
+class int:
    #dummy class
    pass
 class Number:
@@ -30,12 +31,13 @@ class Vector:
    #dummy class
    pass
 class NInfinity:
+   __slots__ = ("__value")
    def __init__(self):
-      self.value = NINF
+      self.__value = NINF
    def __str__(self):
       return "-Infinity"
    def __repr__(self):
-      return self.value
+      return self.__value
    def __lt__(self, value):
       if typeName(value) == "NInfinity":
          return False
@@ -130,12 +132,13 @@ class NInfinity:
    def __ceil__(self):
       return self
 class Infinity:
+   __slots__ = ("__value")
    def __init__(self):
-      self.value = inf
+      self.__value = inf
    def __str__(self):
       return "Infinity"
    def __repr__(self):
-      return self.value
+      return self.__value
    def __lt__(self, value):
       return False
    def __le__(self, value):
@@ -227,12 +230,13 @@ class Infinity:
    def __ceil__(self):
       return self
 class NaN:
+   __slots__ = ("__value")
    def __init__(self):
-      self.value = nan
+      self.__value = nan
    def __str__(self):
       return "NaN"
    def __repr__(self):
-      return f"{self.value}"
+      return f"{self.__value}"
    def __lt__(self, value):
       return False
    def __le__(self, value):
@@ -312,6 +316,7 @@ class NaN:
    def __ceil__(self):
       return self
 class undefined:
+   __slots__ = ("value")
    def __init__(self):
       self.value = None
    def __str__(self):
@@ -319,6 +324,7 @@ class undefined:
    def __repr__(self):
       return "None"
 class null:
+   __slots__ = ("value")
    def __init__(self):
       self.value = None
    def __str__(self):
@@ -327,21 +333,24 @@ class null:
       return "None"
 
 class ArgumentError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
 class Array(list):
+   __slots__ = ("filler")
    CASEINSENSITIVE = 1
    DESCENDING = 2
    UNIQUESORT = 4
    RETURNINDEXEDARRAY =  8
    NUMERIC = 16
-   def __init__(self,*args,numElements:Union[int,Int]=None):
+   def __init__(self,*args,numElements:Union[builtins.int,int]=None):
+      self.filler = undefined()
       if numElements == None:
          super().__init__(args)
       else:
          if numElements < 0:
-            raise Exception("RangeError")
+            RangeError(f"Array; numElements can not be less than 0. numElements is {numElements}")
          else:
             tempList = []
             for i in range(0,numElements):
@@ -355,21 +364,23 @@ class Array(list):
             return super().__getitem__(item)
       except:
          return ""
-   def length(self,value=None,filler=undefined()):
-      if value == None:
-         return len(self)
-      else:
-         if value < 0:
-            raise Exception("RangeError")
-         elif value == 0:
-            self.clear()
-         elif len(self) > value:
-            while len(self) > value:
-               self.pop()
-         elif len(self) < value:
-            while len(self) < value:
-               self.append(filler)
-   def concat(self, *args):
+   def _getLength(self):
+      return len(self)
+   def _setLength(self,value:Union[builtins.int,int]):
+      if value < 0:
+         trace("RangeError",f"Array; new length {value} is below zero",isError=True)
+      elif value == 0:
+         self.clear()
+      elif len(self) > value:
+         while len(self) > value:
+            self.pop()
+      elif len(self) < value:
+         while len(self) < value:
+            self.append(self.filler)
+   length = property(fget=_getLength,fset=_setLength)
+   def setFiller(self,newFiller):
+      self.filler = newFiller
+   def concat(self,*args):
       """
       Concatenates the elements specified in the parameters with the elements in an array and creates a new array. If the parameters specify an array, the elements of that array are concatenated. If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
       Parameters:
@@ -380,19 +391,18 @@ class Array(list):
       if len(args) == 0:
          raise Exception("Must have at least 1 arguments")
       else:
-         #possible replacement (needs testing)
-         ##tempArray = self
-         ##return tempArray.extend(args)
-         tempArray = self
-         for i in range(0,len(args)):
-            if type(args[i]) == list or type(args[i]) == tuple or type(args[i]) == Array:
-               b = args[i]
-               for c in range(0,len(b)):
-                  tempArray.append(b[c])
-            else:
-               tempArray.append(args[i])
-         return tempArray
-   def every(self, callback:object):
+         if len(args) == 0:
+            raise Exception("Must have at least 1 arguments")
+         else:
+            tempArray = Array(*self)
+            for i in args:
+               if type(i) in (list,tuple,Array):
+                  for c in i:
+                     tempArray.append(c)
+               else:
+                  tempArray.append(i)
+            return tempArray
+   def every(self, callback:callable):
       """
       Executes a test function on each item in the array until an item is reached that returns False for the specified function. You use this method to determine whether all items in an array meet a criterion, such as having values less than a particular number.
       Parameters:
@@ -401,13 +411,17 @@ class Array(list):
       Returns:
          Boolean — A Boolean value of True if all items in the array return True for the specified function; otherwise, False.
       """
+      #for i in range(0,len(self)):
+      #   if callback(self[i], i, self) == False:
+      #      return False
+      #return True
       tempBool = True
       for i in range(0,len(self)):
          if callback(self[i], i, self) == False:
             tempBool = False
             break
       return tempBool
-   def filter(self, callback:object):
+   def filter(self, callback:callable):
       """
       Executes a test function on each item in the array and constructs a new array for all items that return True for the specified function. If an item returns False, it is not included in the new array.
       Parameters:
@@ -421,7 +435,7 @@ class Array(list):
          if callback(self[i], i, self) == True:
             tempArray.push(self[i])
       return tempArray
-   def forEach(self, callback:object):
+   def forEach(self, callback:callable):
       """
       Executes a function on each item in the array.
       Parameters:
@@ -430,7 +444,7 @@ class Array(list):
       """
       for i in range(0, len(self)):
          self[i] = callback(self[i], i, self)
-   def indexOf(self, searchElement, fromIndex:Union[int,Int]=0):
+   def indexOf(self, searchElement, fromIndex:Union[builtins.int,int]=0):
       """
       Searches for an item in an array using == and returns the index position of the item.
       Parameters:
@@ -447,19 +461,28 @@ class Array(list):
             index = i
             break
       return index
-   def insertAt(self, index:Union[int,Int], element):
+   def insertAt(self, index:Union[builtins.int,int], element):
       """
       Insert a single element into an array.
       Parameters
 	      index:int — An integer that specifies the position in the array where the element is to be inserted. You can use a negative integer to specify a position relative to the end of the array (for example, -1 is the last element of the array).
 	      element — The element to be inserted.
       """
+      #can possibly be replaced with just self.insert(index,element) but this is slightly different than current
+      #current inserts from end if negative while insert acts like the array is reversed
       if index < 0:
          self.insert((len(self) + index), element)
       else:
          self.insert(index, element)
+   def _denest(self, array):
+      tempA = []
+      for i in array:
+         if type(i) in (list,tuple,Array):
+            tempA.extend(self._denest(i))
+         else:
+            tempA.append(i)
+      return tempA
    def join(self, sep:Union[str,String]=","):
-      #!add support for nested arrays
       """
       Converts the elements in an array to strings, inserts the specified separator between the elements, concatenates them, and returns the resulting string. A nested array is always separated by a comma (,), not by the separator passed to the join() method.
       Parameters:
@@ -469,12 +492,22 @@ class Array(list):
       """
       result = ""
       for i in range(0, len(self)):
-         if i != len(self) - 1:
+         if type(self[i]) in (list,tuple,Array):
+            temp = self._denest(self[i])
+            for j in range(0,len(temp)):
+               if j == len(temp) - 1:
+                  if i == len(self) - 1:
+                     result += f"{temp[j]}"
+                  else:
+                     result += f"{temp[j]}{sep}"
+               else:
+                  result += f"{temp[j]},"
+         elif i != len(self) - 1:
             result += f"{self[i]}{sep}"
          else:
             result += f"{self[i]}"
       return result
-   def lastIndexOf(self, searchElement, fromIndex:Union[int,Int]=None):
+   def lastIndexOf(self, searchElement, fromIndex:Union[builtins.int,int]=None):
       """
       Searches for an item in an array, working backward from the last item, and returns the index position of the matching item using ==.
       Parameters:
@@ -483,21 +516,17 @@ class Array(list):
       Returns:
 	      int — A zero-based index position of the item in the array. If the searchElement argument is not found, the return value is -1.
       """
-      index = -1
       if fromIndex == None:
-         fromIndex = len(self)
+         fromIndex = 0
       elif fromIndex < 0:
-         raise Exception("Range Error")
+         RangeError(f"Array.lastIndexOf; fromIndex can not be less than 0, fromIndex is {fromIndex}")
+      tempA = Array(*self).reverse()
+      index = tempA.indexOf(searchElement,fromIndex)
+      if index == -1:
+         return index
       else:
-         fromIndex = len(self) - 1 - fromIndex
-      i = fromIndex
-      while i >= 0:
-         if self[i] == searchElement:
-            index = i
-            break
-         i -= 1
-      return index
-   def map(self, callback:object):
+         return len(self) - 1 - index
+   def map(self, callback:callable):
       """
       Executes a function on each item in an array, and constructs a new array of items corresponding to the results of the function on each item in the original array.
       Parameters:
@@ -507,9 +536,8 @@ class Array(list):
          Array — A new array that contains the results of the function on each item in the original array.
       """
       output = Array()
-      output.length(len(self))
       for i in range(0,len(self)):
-         output[i] = callback(self[i], i, self)
+         output.push(callback(self[i], i, self))
       return output
    def pop(self):
       """
@@ -517,7 +545,7 @@ class Array(list):
       Returns:
          * — The value of the last element (of any data type) in the specified array.
       """
-      return super().pop(len(self) - 1)
+      return super().pop(-1)
    def push(self, *args):
       """
       Adds one or more elements to the end of an array and returns the new length of the array.
@@ -526,7 +554,7 @@ class Array(list):
       """
       for i in args:
          self.append(i)
-   def removeAt(self, index:Union[int,Int]):
+   def removeAt(self, index:Union[builtins.int,int]):
       """
       Remove a single element from an array. This method modifies the array without making a copy.
       Parameters:
@@ -534,36 +562,23 @@ class Array(list):
       Returns:
 	      * — The element that was removed from the original array.
       """
-      if index < 0:
-         return super().pop(len(self) + index)
-      else:
-         return super().pop(index)
+      return super().pop(index)
    def reverse(self):
       """
       Reverses the array in place.
       Returns:
 	      Array — The new array.
       """
-      a = Array()
-      for i in range(0, len(self)):
-         a.append(self[len(self) - 1 - i])
-      for i in range(0, len(self)):
-         self[i] = a[i]
-      return a
+      super().reverse()
+      return self
    def shift(self):
       """
       Removes the first element from an array and returns that element. The remaining array elements are moved from their original position, i, to i-1.
       Returns:
          * — The first element (of any data type) in an array. 
       """
-      value = self[0]
-      for i in range(0,len(self)):
-         if i < len(self) - 1:
-            self[i] = self[i+1]
-         else:
-            self.pop()
-      return value
-   def slice(self, startIndex:Union[int,Int]=0, endIndex:Union[int,Int]=99*10^99):
+      return super().pop(0)
+   def slice(self, startIndex:Union[builtins.int,int]=0, endIndex:Union[builtins.int,int]=99*10^99):
       #!implement negative indicies
       """
       Returns a new array that consists of a range of elements from the original array, without modifying the original array. The returned array includes the startIndex element and all elements up to, but not including, the endIndex element.
@@ -587,7 +602,7 @@ class Array(list):
          result.push(self[i])
          i += 1
       return result
-   def some(self, callback:object):
+   def some(self, callback:callable):
       """
       Executes a test function on each item in the array until an item is reached that returns True. Use this method to determine whether any items in an array meet a criterion, such as having a value less than a particular number.
       Parameters:
@@ -623,7 +638,7 @@ class Array(list):
                super().sort()
    def sortOn():
       pass
-   def splice(self, startIndex:Union[int,Int], deleteCount:Union[int,Int], *values):
+   def splice(self, startIndex:Union[builtins.int,int], deleteCount:Union[builtins.int,int], *values):
       """
       Adds elements to and removes elements from an array. This method modifies the array without making a copy.
       Parameters:
@@ -678,19 +693,16 @@ class Array(list):
       Returns:
 	      int — An integer representing the new length of the array.
       """
-      tempArray = Array()
-      for i in args:
-         tempArray.push(i)
-      for i in self:
-         tempArray.push(i)
+      tempArray = [*args,*self]
       self.clear()
-      self.extend(tempArray.toList())
+      self.extend(tempArray)
       return len(self)
 class Boolean:
    """
    Lets you create boolean object similar to ActionScript3
    Since python is case sensitive the values are "True" or "False" instead of "true" or "false"
    """
+   __slots__ = ("bool")
    def __init__(self, expression=False):
       self.bool = self.Boolean(expression)
    def __str__(self):
@@ -703,7 +715,9 @@ class Boolean:
       match typeName(expression):
          case "bool":
             return expression
-         case "int" | "float" | "Int" | "uint" | "Number":
+         case "Boolean":
+            return expression.value
+         case "int" | "float" | "uint" | "Number":
             if expression == 0:
                return False
             else:
@@ -777,8 +791,8 @@ class Date:
          signmult = -1
          l1 = self._tz.split("-")
       l2 = wrap(l1[1],1)
-      hours = int(l2.pop(0) + l2.pop(0))
-      minutes = int(l2.pop(0) + l2.pop(0))
+      hours = builtins.int(l2.pop(0) + l2.pop(0))
+      minutes = builtins.int(l2.pop(0) + l2.pop(0))
       return (hours * 60 + minutes) * signmult
    def Date():
       pass
@@ -871,6 +885,7 @@ class Date:
    def valueOf(self):
       return self.time
 class DefinitionError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
@@ -883,106 +898,100 @@ def encodeURI():
 def encodeURIComponent():
    pass
 class Error():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-def escape(Str):
+def escape():
    """
    Converts the parameter to a string and encodes it in a URL-encoded format, where most nonalphanumeric characters are replaced with % hexadecimal sequences. When used in a URL-encoded string, the percentage symbol (%) is used to introduce escape characters, and is not equivalent to the modulo operator (%). 
    The following characters are not converted to escape sequences by the escape() function.
    0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@-_.*+/
    """
-   tempdict1 = [' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', '\x7f', '€', '\x81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', '\x8d', 'Ž', '‘', '\x8F', '\x90', '’', '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ', 'ž', 'Ÿ', '!', '\xa0', '¡', '¢', '£', '¤', '¥', '¦', '§', '¨', '©', 'ª', '«', '¬', '\xad', '®', '¯', '°', '±', '²', '³', '´', 'µ', '¶', '·', '¸', '¹', 'º', '»', '¼', '½', '¾', '¿', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', '×', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'Þ', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ð', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', '÷', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'þ', 'ÿ']
-   tempdict2 = ['%20', '%21', '%22', '%23', '%24', '%25', '%26', '%27', '%28', '%29', '*', '+', '%2C', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '%3A', '%3B', '%3C', '%3D', '%3E', '%3F', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '%5B', '%5C', '%5D', '%5E', '_', '%60', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '%7B', '%7C', '%7D', '%7E', '%7F', '%80', '%81', '%82', '%83', '%84', '%85', '%86', '%87', '%88', '%89', '%8A', '%8B', '%8C', '%8D', '%8E', '%8f', '%90', '%91', '%92', '%93', '%94', '%95', '%96', '%97', '%98', '%99', '%9A', '%9B', '%9C', '%9D', '%9E', '%9F', '%A0', '%A1', '%A2', '%A3', '%A4', '%A5', '%A6', '%A7', '%A8', '%A9', '%AA', '%AB', '%AC', '%AD', '%AE', '%AF', '%B0', '%B1', '%B2', '%B3', '%B4', '%B5', '%B6', '%B7', '%B8', '%B9', '%BA', '%BB', '%BC', '%BD', '%BE', '%BF', '%C0', '%C1', '%C2', '%C3', '%C4', '%C5', '%C6', '%C7', '%C8', '%C9', '%CA', '%CB', '%CC', '%CD', '%CE', '%CF', '%D0', '%D1', '%D2', '%D3', '%D4', '%D5', '%D6', '%D7', '%D8', '%D9', '%DA', '%DB', '%DC', '%DD', '%DE', '%DF', '%E0', '%E1', '%E2', '%E3', '%E4', '%E5', '%E6', '%E7', '%E8', '%E9', '%EA', '%EB', '%EC', '%ED', '%EE', '%EF', '%F0', '%F1', '%F2', '%F3', '%F4', '%F5', '%F6', '%F7', '%F8', '%F9', '%FA', '%FB', '%FC', '%FD', '%FE', '%FF']
-   tempString1 = str(Str)
-   templist = wrap(tempString1, 1)
-   tempString2 = String()
-   for i in range(0,len(templist)):
-      try:
-         tempi = tempdict1.index(templist[i])
-      except:
-         tempi = -1
-      if tempi == -1:
-         tempString2 += ""
-      else:
-         tempString2 += tempdict2[tempi]
-   return tempString2
+   pass
 class EvalError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class Int:
+class int:
+   __slots__ = ("value")
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
    def __init__(self, value):
-      self.value = self.int(value)
+      self.value = self._int(value)
    def __str__(self):
       return f'{self.value}'
    def __getitem__(self):
       return self.value
    def __setitem__(self, value):
-      self.value = self.int(value)
+      self.value = self._int(value)
    def __add__(self, value):
-      return Int(self.value + self.int(value))
+      return int(self.value + self._int(value))
    def __sub__(self, value):
-      return Int(self.value - self.int(value))
+      return int(self.value - self._int(value))
    def __mul__(self, value):
-      return Int(self.value * self.int(value))
+      return int(self.value * self._int(value))
    def __truediv__(self, value):
       if value == 0:
          if self.value == 0:
-            return Number(Number.NaN)
+            return NaN()
          elif self.value > 0:
-            return Number(Number.POSITIVE_INFINITY)
+            return Infinity()
          elif self.value < 0:
-            return Number(Number.NEGATIVE_INFINITY)
+            return NInfinity()
       else:
          try:
-            return Int(self.value / self.int(value))
+            return int(self.value / self._int(value))
          except:
-            raise TypeError(f"Can not divide Int by {type(value)}")
+            raise TypeError(f"Can not divide int by {type(value)}")
    def __float__(self):
       return float(self.value)
    def __int__(self):
       return self.value
-   def int(self, value):
-      if type(value) == int or type(value) == Int:
-         return value
-      elif type(value) == float or type(value) == Number:
-         return int(value)
-      elif type(value) == str or type(value) == String:
-         try:
-            return int(value)
-         except:
-            raise TypeError(f"Can not convert string {value} to integer")
-      else:
-         raise TypeError(f"Can not convert type {type(value)} to integer")
-   def toExponential(self, fractionDigits:Union[int,Int]):
+   def _int(self, value):
+      match typeName(value):
+         case "NaN" | "Infinity" | "NInfinity":
+            return value
+         case "int":
+            return value
+         case "float" | "Number":
+            return builtins.int(value)
+         case "str" | "String":
+            try:
+               return builtins.int(value)
+            except:
+               raise TypeError(f"Can not convert string {value} to integer")
+         case _:
+            raise TypeError(f"Can not convert type {type(value)} to integer")
+   def toExponential(self, fractionDigits:Union[builtins.int,int]):
       if fractionDigits < 0 or fractionDigits > 20:
-         raise Exception("RangeError: fractionDigits is outside of acceptable range")
+         RangeError("fractionDigits is outside of acceptable range")
       else:
-         tempString1 = str(self.value)
-         templist = wrap(tempString1,1)
-         if templist[0] == "-":
-            templist.pop(0)
-            exponent = len(templist) - 1
-            tempString2 = f"-{templist.pop(0)}."
+         tempString1 = f"{self.value}"
+         exponent = len(tempString1) - 1
+         if tempString1[0] == "-":
+            exponent -= 1
+            tempString2 = tempString1[:2]
+            tempString1 = tempString1[2:]
          else:
-            exponent = len(templist) - 1
-            tempString2 = f"{templist.pop(0)}."
-         if exponent == 0:
-            return self.value
-         else:
-            i = 0
-            while i < fractionDigits:
-               tempString2 += templist.pop(0)
-               i += 1
-            return f"{tempString2}e+{exponent}"
-   def toFixed(self, fractionDigits:Union[int,Int]):
+            tempString2 = tempString1[:1]
+            tempString1 = tempString1[1:]
+         if fractionDigits > 0:
+            tempString2 += "."
+            for i in range(0,fractionDigits):
+               try:
+                  tempString2 += tempString1[i]
+               except:
+                  tempString2 += "0" #I am assuming this is what it does since it isn't supposed to throw another error
+         if exponent > 0:
+            tempString2 += f"e+{exponent}"
+         return tempString2
+   def toFixed(self, fractionDigits:Union[builtins.int,int]):
       if fractionDigits < 0 or fractionDigits > 20:
-         raise Exception("RangeError: fractionDigits is outside of acceptable range")
+         RangeError("fractionDigits is outside of acceptable range")
       else:
-         tempString = str(self.value)
+         tempString = f"{self.value}"
          if fractionDigits == 0:
             return tempString
          else:
@@ -992,10 +1001,21 @@ class Int:
                tempString += "0"
                i += 1
             return tempString
-   def toPrecision():
-      pass
-   def toString(self, radix:Union[int,Int]=10):
-      #!
+   def toPrecision(self,precision:Union[builtins.int,int,uint]):
+      if precision < 1 or precision > 21:
+         RangeError("fractionDigits is outside of acceptable range")
+      tempString = f"{self.value}"
+      len_ = len(tempString)
+      if precision < len_:
+         return toExponential(precision-1)
+      elif precision == len_:
+         return tempString
+      else:
+         tempString += "."
+         for i in range(0,precision-len_):
+            tempString += "0"
+         return tempString
+   def toString(self, radix:Union[builtins.int,int,uint]=10):
       if radix > 36 or radix < 2:
          pass
       else:
@@ -1003,30 +1023,23 @@ class Int:
    def valueOf(self):
       return self.value
 def isFinite(num):
-   if num == inf or num == NINF or typeName(num) == "NInfinity" or typeName(num) == "Infinity" or typeName(num) == "NaN":
+   if num in (inf,NINF,NaN) or typeName(num) in ("NInfinity","Infinity","NaN"):
       return False
    else:
       return True
 def isNaN(num):
-   if typeName(num) == "NaN":
+   if num == nan or typeName(num) == "NaN":
       return True
    else:
       return False
 def isXMLName(str_:Union[str,String]):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = "-_."
-   if len(str_) > 0:
-      if str_[0].isalpha() == False and str_[0] != "_":
-         return False
-   if len(str_) >= 3:
-      if f"{str_[0]}{str_[1]}{str_[2]}".lower() == "xml":
-         return False
+   if (len(str_) == 0) or (str_[0].isalpha() == False and str_[0] != "_") or (str_[:3].lower() == "xml") or (str_.find(" ") != -1):
+      return False
    for i in str_:
       if i.isalnum() == True or i in whitelist:
          continue
-      else:
-         return False
-   if str_.find(" ") != -1:
       return False
    return True
 class JSON:
@@ -1035,6 +1048,7 @@ class JSON:
    def stringify():
       pass
 class Math:
+   __slots__ = ()
    E = 2.71828182845905
    LN10 = 2.302585092994046
    LN2 = 0.6931471805599453
@@ -1093,25 +1107,24 @@ class Namespace:
    def valueOf():
       pass
 class Number:
+   __slots__ = ("number")
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
    NaN = NaN()
    NEGATIVE_INFINITY = NInfinity()
    POSITIVE_INFINITY = Infinity()
-   def __init__(self, num):
-      self.number = self.Number(num)
+   def __init__(self, num=None):
+      self.number = self._Number(num)
    def __str__(self):
-      if self.number == self.NaN or self.number == self.POSITIVE_INFINITY or self.number == self.NEGATIVE_INFINITY:
+      if self.number in (NaN(),Infinity(),NInfinity()):
          return str(self.number)
-      match self.number.is_integer():
-         case True:
-            return f'{int(self.number)}'
-         case False:
-            return f'{self.number}'
+      if self.number.is_integer() == True:
+         return f'{builtins.int(self.number)}'
+      return f'{self.number}'
    def __getitem__(self):
       return self.number
    def __setitem__(self, value):
-      self.number = value
+      self.number = self._Number(value)
    def __add__(self, value):
       try:
          return Number(self.number + float(value))
@@ -1130,11 +1143,11 @@ class Number:
    def __truediv__(self, value):
       if value == 0:
          if self.number == 0:
-            return Number(self.NaN)
+            return Number(NaN())
          elif self.number > 0:
-            return Number(self.POSITIVE_INFINITY)
+            return Number(Infinity())
          elif self.number < 0:
-            return Number(self.NEGATIVE_INFINITY)
+            return Number(NInfinity())
       else:
          try:
             return Number(self.number / float(value))
@@ -1143,33 +1156,38 @@ class Number:
    def __float__(self):
       return float(self.number)
    def __int__(self):
-      return int(self.number)
-   def Number(self, expression):
-      if expression == self.NEGATIVE_INFINITY:
-         return self.NEGATIVE_INFINITY
-      elif expression == self.POSITIVE_INFINITY:
-         return self.POSITIVE_INFINITY
-      elif type(expression) == int or type(expression) == float or type(expression) == Number:
+      return builtins.int(self.number)
+   def _Number(self, expression):
+      tpexp = type(expression)
+      if expression == NInfinity():
+         return NInfinity()
+      elif expression == Infinity():
+         return Infinity()
+      elif expression in (None,NaN()):
+         return NaN()
+      elif tpexp in (builtins.int,int):
+         return float(expression)
+      elif tpexp in (float,Number):
          return expression
       elif expression == "undefined":
-         return self.NaN
+         return NaN()
       elif expression == "null":
          return 0.0
       elif expression == self.NaN:
          return self.NaN
-      elif type(expression) == bool or type(expression) == Boolean:
+      elif tpexp in (bool,Boolean):
          if expression == True:
             return 1.0
          else:
             return 0.0
-      elif type(expression) == str or type(expression) == String:
+      elif tpexp in (str,String):
          if expression == "":
             return 0.0
          else:
             try:
                return float(expression)
             except:
-               return self.NaN
+               return NaN()
    def toExponential(self):
       pass
    def toFixed(self):
@@ -1181,10 +1199,40 @@ class Number:
       return str(self.number)
    def valueOf(self):
       return self.number
-def parseFloat():
-   pass
-def parseInt():
-   pass
+def parseFloat(str_:Union[str,String]):
+   if str_[0].isspace() == True:
+      while str_[0].isspace() == True:
+         str_ = str_[1:]
+   if str_[0].isdigit() == True:
+      tempstr = String()
+      for i in str_:
+         if i.isdigit() != True and i != ".":
+            break
+         tempstr += i
+      return Number(tempstr)
+   else:
+      return NaN()
+def parseInt(str_:Union[str,String],radix:Union[int,uint]=0):
+   if radix < 2 or radix > 36:
+      trace("parseInt",f"radix {radix} is outside of the acceptable range",isError=True)
+      pass
+   if str_[0].isspace() == True:
+      while str_[0].isspace() == True:
+         str_ = str_[1:]
+   if len(str_) >= 2 and f"{str_[0]}{str_[1]}" == "0x":
+      radix = 16
+      str_ = str_[2:]
+   if len(str_) >= 1 and str_[0] == "0":
+      while str[0] == "0":
+         str_ = str_[1:]
+   radixchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:radix]
+   str_ = str_.upper()
+   tempstr = String()
+   for i in str_:
+      if i not in radixchars:
+         break
+      tempstr += i
+   return int(builtins.int(tempstr,radix))
 class QName:
    def __init__():
       pass
@@ -1193,16 +1241,19 @@ class QName:
    def valueOf():
       pass
 class RangeError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
 class ReferenceError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
 class RegExp:
    pass
 class SecurityError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
@@ -1211,6 +1262,9 @@ class String(str):
       self._hiddeninit(self._String(value))
    def _hiddeninit(self, value):
       super().__init__()
+   def _getLength(self):
+      return len(self)
+   length = property(fget=_getLength)
    def _String(self, expression):
       match typeName(expression):
          case "str" | "String":
@@ -1225,31 +1279,31 @@ class String(str):
          case "Array" | "Boolean" | "Number":
             return expression.toString()
          case _:
-            return str(expression)
+            return f"{expression}"
    def __add__(self, value):
       return String(f"{self}{self._String(value)}")
-   def length(self):
-      return len(self)
-   def charAt(self, index:Union[int,Int]=0):
+   def __iadd__(self, value):
+      return String(f"{self}{self._String(value)}")
+   def charAt(self, index:Union[builtins.int,int]=0):
       if index < 0 or index > len(self) - 1:
          return ""
       else:
          return self[index]
-   def charCodeAt(self, index:Union[int,Int]=0):
+   def charCodeAt(self, index:Union[builtins.int,int]=0):
       if index < 0 or index > len(self) - 1:
-         return NaN
+         return NaN()
       else:
          return r'\u{:04X}'.format(ord(self[index]))
    def concat(self, *args):
-      tempString = self
+      tempString = String(self)
       for i in args:
          tempString += self._String(i)
       return tempString
    def fromCharCode():
       pass
-   def indexOf(self, val, startIndex:Union[int,Int]=0):
+   def indexOf(self, val, startIndex:Union[builtins.int,int]=0):
       return self.find(val, startIndex)
-   def lastIndexOf(self, val, startIndex:Union[int,Int]=None):
+   def lastIndexOf(self, val, startIndex:Union[builtins.int,int]=None):
       tempInt = len(self)
       if startIndex == None or startIndex > tempInt:
          return self.rfind(val,0,tempInt)
@@ -1263,11 +1317,22 @@ class String(str):
       pass
    def search():
       pass
-   def slice():
+   def slice(self,startIndex=0,endIndex=None):
+      #!
+      """
+      rtl = False
+      if endIndex == None:
+         endIndex = len(self)
+      if startIndex < 0:
+         rtl = True
+         startIndex = len(self) + startIndex
+      if endIndex < 0:
+         endIndex = len(self) + endIndex
+      """
       pass
    def split():
       pass
-   def substr(self, startIndex:Union[int,Int]=0, Len:Union[int,Int]=None):
+   def substr(self, startIndex:Union[builtins.int,int]=0, Len:Union[builtins.int,int]=None):
       tempInt = len(self)
       if startIndex > tempInt - 1:
          return String()
@@ -1285,7 +1350,7 @@ class String(str):
          except:
             break
       return tempString
-   def substring(self, startIndex:Union[int,Int]=0, endIndex:Union[int,Int]=None):
+   def substring(self, startIndex:Union[builtins.int,int]=0, endIndex:Union[builtins.int,int]=None):
       tempInt = len(self)
       if startIndex < 0:
          startIndex = 0
@@ -1315,6 +1380,7 @@ class String(str):
    def valueOf(self):
       return f"{self}"
 class SyntaxError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
@@ -1322,9 +1388,8 @@ def trace(*args, isError=False):
    if configmodule.as3DebugEnable == True:
       if isError == True and configmodule.ErrorReportingEnable == 1:
          if configmodule.MaxWarningsReached == False:
-            if configmodule.CurrentWarnings < configmodule.MaxWarnings:
-               ErrName = formatTypeToName(args[0])
-               output = ErrName + ": " + args[1]
+            if configmodule.CurrentWarnings < configmodule.MaxWarnings or configmodule.MaxWarnings == 0:
+               output = f"Error:{formatTypeToName(args[0])}; {args[1]}"
                configmodule.CurrentWarnings += 1
             else:
                output = "Maximum number of errors has been reached. All further errors will be suppressed."
@@ -1333,21 +1398,21 @@ def trace(*args, isError=False):
             pass
       else:
          output = ""
-         for i in range(0, len(args)):
-            if len(args) == 1:
-               output = str(args[0])
-            else:
+         if len(args) == 1:
+            output = f"{args[0]}"
+         else:
+            for i in range(0, len(args)):
                if i == len(args) - 1:
-                  output += str(args[i])
+                  output += f"{args[i]}"
                else:
-                  output += str(args[i]) + " "
+                  output += f"{args[i]} "
       if configmodule.TraceOutputFileEnable == 1:
          if configmodule.TraceOutputFileName == configmodule.defaultTraceFilePath:
             if Path(configmodule.TraceOutputFileName).exists() == True:
                with open(configmodule.TraceOutputFileName, "r") as f:
                   tempread = f.read()
                with open(configmodule.TraceOutputFileName, "w") as f:
-                  output = tempread + output + "\n" 
+                  output = f"{tempread}{output}\n" 
                   f.write(output)
             else:
                with open(configmodule.TraceOutputFileName, "w") as f:
@@ -1359,7 +1424,7 @@ def trace(*args, isError=False):
                   with open(configmodule.TraceOutputFileName, "r") as f:
                      tempread = f.read()
                   with open(configmodule.TraceOutputFileName, "w") as f:
-                     output = tempread + output + "\n"
+                     output = f"{tempread}{output}\n"
                      f.write(output)
             else:
                with open(configmodule.TraceOutputFileName, "w") as f:
@@ -1368,11 +1433,12 @@ def trace(*args, isError=False):
       else:
          print(output)
 class TypeError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
 class U29:
-   def decodeU29int(_type, data):
+   def decodeU29int(type_, data):
       """
       Must have an input of the data type ("h" or "b" for hexidecimal or binary) and the data as a string.
       Binary data must be either 8, 16, 32, or 48 bits.
@@ -1380,46 +1446,40 @@ class U29:
       The specs of u29int can be found at https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf on page 3
       This function returns a list. Value 0 is the number it translates to, value 1 is the type of u29int value (1, 2, 3, or 4). The types basically mean how many bytes the u29int was (this is a part of the spec)
       """
-      dat = data.replace(" ", "")
+      data = data.replace(" ", "")
       r = ""
-      if _type == "h":
-         bindat = bin(int(dat, 16))[2:].zfill(len(dat) * 4)
-      elif _type == "b":
-         bindat = dat
+      if type_ == "h":
+         bindat = bin(builtins.int(data, 16))[2:].zfill(len(data) * 4)
+      elif type_ == "b":
+         bindat = data
+      else:
+         trace("U29Error; Wrong type",isError=True)
       if bindat[0] == "1":
          if bindat[8] == "1":
             if bindat[16] == "1":
                rtype = 4
                for i in range(0,32):
-                  if i == 0 or i == 8 or i == 16:
-                     continue
-                  else:
+                  if i not in (0,8,16):
                      r += bindat[i]
-               result = int(r,2)
+               result = builtins.int(r,2)
             else:
                rtype = 3
                for i in range(0,24):
-                  if i == 0 or i == 8 or i == 16:
-                     continue
-                  else:
+                  if i not in (0,8,16):
                      r += bindat[i]
-               result = int(r,2)
+               result = builtins.int(r,2)
          else:
             rtype = 2
             for i in range(0,16):
-               if i == 0 or i == 8:
-                  continue
-               else:
+               if i not in (0,8):
                   r += bindat[i]
-            result = int(r,2)
+            result = builtins.int(r,2)
       else:
          rtype = 1
          for i in range(0,8):
-            if i == 0:
-               continue
-            else:
+            if i != 0:
                r += bindat[i]
-         result = int(r,2)
+         result = builtins.int(r,2)
       return [result, rtype]
    def decodeU29str(_type, data):
       """
@@ -1429,19 +1489,19 @@ class U29:
       """
       dat = data.replace(" ", "")
       if _type == "h":
-         bindat = bin(int(dat, 16))[2:].zfill(len(dat) * 4)
+         bindat = bin(builtins.int(dat, 16))[2:].zfill(len(dat) * 4)
          x=0
       elif _type == "b":
          bindat = dat
       length1 = u29._decodeU29str(bindat)
       temp = u29.read_byte_destructive(bindat)
       bindat = temp[0]
-      length = int((length1[0] - 1) / 2)
+      length = builtins.int((length1[0] - 1) / 2)
       result = ''
       for i in range(0, length):
          temp = u29.read_byte_destructive(bindat)
          bindat = temp[0]
-         result += bytes.fromhex('%0*X' % ((len(temp[1]) + 3) // 4, int(temp[1], 2))).decode('utf-8')
+         result += bytes.fromhex('%0*X' % ((len(temp[1]) + 3) // 4, builtins.int(temp[1], 2))).decode('utf-8')
       return result
    def read_byte_destructive(binary_data):
       temp = u29.remove_byte(binary_data)
@@ -1460,66 +1520,105 @@ class U29:
             if numlist[2] == '1':
                if numlist[3] == '1':
                   for i in range(0,16):
-                     if i == 0 or i == 1 or i == 2 or i == 3 or i == 4 or i == 8 or i == 9 or i == 16 or i == 17 or i == 24 or i == 25:
+                     #if i == 0 or i == 1 or i == 2 or i == 3 or i == 4 or i == 8 or i == 9 or i == 16 or i == 17 or i == 24 or i == 25:
+                     if i in (0,1,2,3,4,8,9,16,17,24,25):
                         continue
                      else:
                         r += numlist[i]
-                  number = int(r,2)
+                  number = builtins.int(r,2)
                   return [number,4]
                else:
                   for i in range(0,16):
-                     if i == 0 or i == 1 or i == 2 or i == 3 or i == 8 or i == 9 or i == 16 or i == 17:
+                     #if i == 0 or i == 1 or i == 2 or i == 3 or i == 8 or i == 9 or i == 16 or i == 17:
+                     if i in (0,1,2,3,8,9,16,17):
                         continue
                      else:
                         r += numlist[i]
-                  number = int(r,2)
+                  number = builtins.int(r,2)
                   return [number,3]
             else:
                for i in range(0,16):
-                  if i == 0 or i == 1 or i == 2 or i == 8 or i == 9:
+                  #if i == 0 or i == 1 or i == 2 or i == 8 or i == 9:
+                  if i in (0,1,2,8,9):
                      continue
                   else:
                      r += numlist[i]
-               number = int(r,2)
+               number = builtins.int(r,2)
                return [number,2]
          else:
             raise Exception("Not U29 string/utf-8 value")
       else:
          for i in range(0,8):
-            if i == 0:
-               continue
-            else:
+            if i != 0:
                r += numlist[i]
-         number = int(r,2)
+         number = builtins.int(r,2)
          return [number,1]
 class uint:
    pass
-def unescape(Str):
-   """
-   Evaluates the parameter str as a string, decodes the string from URL-encoded format (converting all hexadecimal sequences to ASCII characters), and returns the string. 
-   """
-   tempdict1 = [' ', '!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', '\\', ']', '^', '_', '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', '\x7f', '€', '\x81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰', 'Š', '‹', 'Œ', '\x8d', 'Ž', '‘', '\X8f', '\x90', '’', '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ', 'ž', 'Ÿ', '!', '\xa0', '¡', '¢', '£', '¤', '¥', '¦', '§', '¨', '©', 'ª', '«', '¬', '\xad', '®', '¯', '°', '±', '²', '³', '´', 'µ', '¶', '·', '¸', '¹', 'º', '»', '¼', '½', '¾', '¿', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'Æ', 'Ç', 'È', 'É', 'Ê', 'Ë', 'Ì', 'Í', 'Î', 'Ï', 'Ð', 'Ñ', 'Ò', 'Ó', 'Ô', 'Õ', 'Ö', '×', 'Ø', 'Ù', 'Ú', 'Û', 'Ü', 'Ý', 'Þ', 'ß', 'à', 'á', 'â', 'ã', 'ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï', 'ð', 'ñ', 'ò', 'ó', 'ô', 'õ', 'ö', '÷', 'ø', 'ù', 'ú', 'û', 'ü', 'ý', 'þ', 'ÿ']
-   tempdict2 = ['%20', '%21', '%22', '%23', '%24', '%25', '%26', '%27', '%28', '%29', '%2A', '%2B', '%2C', '%2D', '%2E', '%2F', '%30', '%31', '%32', '%33', '%34', '%35', '%36', '%37', '%38', '%39', '%3A', '%3B', '%3C', '%3D', '%3E', '%3F', '%40', '%41', '$42', '%43', '%44', '%45', '%46', '%47', '%48', '%49', '%4A', '%4B', '%4C', '%4D', '%4E', '%4F', '%50', '%51', '%52', '%53', '%54', '%55', '%56', '%57', '%58', '%59', '%5A', '%5B', '%5C', '%5D', '%5E', '%5F', '%60', '%61', '%62', '%63', '%64', '%65', '%66', '%67', '%68', '%69', '%6A', '%6B', '%6C', '%6D', '%6E', '%6F', '%70', '%71', '%72', '%73', '%74', '%75', '%76', '%77', '%78', '%79', '%7A', '%7B', '%7C', '%7D', '%7E', '%7F', '%80', '%81', '%82', '%83', '%84', '%85', '%86', '%87', '%88', '%89', '%8A', '%8B', '%8C', '%8D', '%8E', '%8f', '%90', '%91', '%92', '%93', '%94', '%95', '%96', '%97', '%98', '%99', '%9A', '%9B', '%9C', '%9D', '%9E', '%9F', '%A0', '%A1', '%A2', '%A3', '%A4', '%A5', '%A6', '%A7', '%A8', '%A9', '%AA', '%AB', '%AC', '%AD', '%AE', '%AF', '%B0', '%B1', '%B2', '%B3', '%B4', '%B5', '%B6', '%B7', '%B8', '%B9', '%BA', '%BB', '%BC', '%BD', '%BE', '%BF', '%C0', '%C1', '%C2', '%C3', '%C4', '%C5', '%C6', '%C7', '%C8', '%C9', '%CA', '%CB', '%CC', '%CD', '%CE', '%CF', '%D0', '%D1', '%D2', '%D3', '%D4', '%D5', '%D6', '%D7', '%D8', '%D9', '%DA', '%DB', '%DC', '%DD', '%DE', '%DF', '%E0', '%E1', '%E2', '%E3', '%E4', '%E5', '%E6', '%E7', '%E8', '%E9', '%EA', '%EB', '%EC', '%ED', '%EE', '%EF', '%F0', '%F1', '%F2', '%F3', '%F4', '%F5', '%F6', '%F7', '%F8', '%F9', '%FA', '%FB', '%FC', '%FD', '%FE', '%FF']
-   tempString1 = str(Str)
-   templist = wrap(tempString1,1)
-   tempString2 = String()
-   while len(templist) > 0:
-      tempString3 = ""
-      if templist[0] == "%":
-         for i in range(0,3):
-            tempString3 += templist.pop(0)
-         tempi = tempdict2.index(tempString3)
-         tempString2 += tempdict1[tempi]
-      else:
-         tempString2 += templist.pop(0)
-   return tempString2
+def unescape():
+   pass
 class URIError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class Vector:
-   pass
+class Vector: #probably should have list as parent
+   def __init__(self,type,sourceArray:Union[list,tuple,Array,Vector]):
+      pass
+   def _getFixed(self):
+      return self._fixed
+   def _setFixed(self,value:Union[bool,Boolean]):
+      self._fixed = Boolean(value)
+   fixed = property(fget=_getFixed,fset=_setFixed)
+   def _getLength(self):
+      pass
+   def _setLength(self,value):
+      pass
+   length = property(fget=_getLength,fset=_setLength)
+   def concat():
+      pass
+   def every():
+      pass
+   def filter():
+      pass
+   def forEach():
+      pass
+   def indexOf():
+      pass
+   def insertAt():
+      pass
+   def join():
+      pass
+   def lastIndexOf():
+      pass
+   def map():
+      pass
+   def pop():
+      pass
+   def push():
+      pass
+   def removeAt():
+      pass
+   def reverse():
+      pass
+   def shift():
+      pass
+   def slice():
+      pass
+   def some():
+      pass
+   def sort():
+      pass
+   def splice():
+      pass
+   def toLocaleString():
+      pass
+   def toString():
+      pass
+   def unshift():
+      pass
 class VerifyError():
+   __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
@@ -1552,25 +1651,33 @@ def formatTypeToName(arg:type):
       return tempStr.split(".")[-1].split("'")[0]
    else:
       return tempStr.split("'")[1]
-def isEven(Num:Union[int,float,Int,Number,uint,NaN,Infinity,NInfinity]):
+def isEven(Num:Union[builtins.int,float,int,Number,uint,NaN,Infinity,NInfinity]):
    match typeName(Num):
       case "NaN" | "Infinity" | "NInfinity":
          return False
-      case "int" | "Int" | "uint":
+      case "int" | "uint":
          if Num % 2 == 0:
             return True
          else:
             return False
       case "float" | "Number":
          pass
-def isOdd(Num:Union[int,float,Int,Number,uint,NaN,Infinity,NInfinity]):
+def isOdd(Num:Union[builtins.int,float,int,Number,uint,NaN,Infinity,NInfinity]):
    match typeName(Num):
       case "NaN" | "Infinity" | "NInfinity":
          return False
-      case "int" | "Int" | "uint":
+      case "int" | "uint":
          if Num % 2 == 0:
             return False
          else:
             return True
       case "float" | "Number":
          pass
+def _checkValidDir(dir_):
+   #!check if directory is valid
+   return True
+def setDataDirectory(directory:Union[str,String]):
+   if _checkValidDir(directory) == True:
+      configmodule.appdatadirectory = directory
+   else:
+      Error(f"setDataDirectory; Directory {directory} not valid")

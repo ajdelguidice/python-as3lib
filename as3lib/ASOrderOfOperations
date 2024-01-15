@@ -1,0 +1,23 @@
+https://help.adobe.com/en_US/as3/learn/WS5b3ccc516d4fbf351e63e3d118a9b90204-7fd1.html
+
+Most prescedence ↔ Equal prescedence
+↓
+Least prescedence 
+
+N͟A͟M͟E͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟ ͟:͟ ͟O͟P͟E͟R͟A͟T͟O͟R͟S͟
+Primary          : [] {x:y} () f(x) new x.y x[y] <></> @ :: ..
+Postfix          : x++ x--
+Unary            : ++x --x + - ~ ! delete typeof void
+Multiplicative   : * / %
+Additive         : + -
+Bitwise shift    : << >> >>>
+Relational       : < > <= >= as in instanceof is
+Equality         : == != === !==
+Bitwise And      : &
+Bitwise XOR      : ^
+Bitwise OR       : |
+Logical AND      : &&
+Logical OR       : ||
+Conditional      : ?:
+Assignment       : = *= /= %= += -= <<= >>= >>>= ^= |=
+Comma            : ,

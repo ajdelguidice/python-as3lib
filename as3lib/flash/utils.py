@@ -1,5 +1,5 @@
 from as3lib import toplevel as as3
-from as3lib import flash.net as fn
+from as3lib.flash import net as fn
 from typing import Union
 import binascii
 

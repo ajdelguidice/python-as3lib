@@ -21,7 +21,7 @@ class CMItemList:
       elif type(item) == str:
          self.itemproperties[item] = value
    def length(self):
-      return self.itemorder.length()
+      return self.itemorder.length
    def indexOfItem(self, item:str):
       return self.itemorder.indexOf(item)
    def addContextMenuItem(self, obj:object, index:int=-1):
@@ -160,7 +160,7 @@ class ContextMenu:
    def display(self, stage:object, stageX, stageY):
       pass
    def getItemAt(self, item:object):
-      if as3.formatTypeToName(type(item)) == "ContextMenuItem":
+      if as3.typeName(item) == "ContextMenuItem":
          return self.customItems.indexOfItem(item.name)
       else:
          as3.TypeError("Item not of type ContextMenuItem")
@@ -274,11 +274,13 @@ class ContextMenuItem:
       self.name = name
       if type_ == "Item":
          self.command = command
-      if type_ == "Item" or type_ == "Menu":
-         self.type_ = type_
-      else:
-         as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
-         self.type_ = "Item"
+      match type_:
+         case "Item" | "Menu":
+            self.type_ = type_
+         case _:
+            as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
+            self.type_ = "Item"
+            self.command = ""
 class GameInput:
    pass
 class GameInputControl:
@@ -294,7 +296,11 @@ class KeyLocation:
 class Mouse:
    pass
 class MouseCursor:
-   pass
+   ARROW = "arrow"
+   AUTO = "auto"
+   BUTTON = "button"
+   HAND = "hand"
+   IBEAM = "ibeam"
 class MouseCursorData:
    pass
 class Multitouch:
