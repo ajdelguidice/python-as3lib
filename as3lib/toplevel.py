@@ -1,6 +1,5 @@
 import math as m
 import random as r
-from numpy import nan, inf, NINF, base_repr
 from textwrap import wrap
 from time import time, strftime
 from datetime import datetime
@@ -8,6 +7,9 @@ from pathlib import Path
 from . import configmodule
 from typing import Union
 import builtins
+
+from numpy import nan, inf, base_repr
+NINF = -inf
 
 class Array:
    #dummy class
@@ -535,6 +537,7 @@ class Array(list):
       Returns:
          Array — A new array that contains the results of the function on each item in the original array.
       """
+      #Potentially use copy() instead
       output = Array()
       for i in range(0,len(self)):
          output.push(callback(self[i], i, self))
