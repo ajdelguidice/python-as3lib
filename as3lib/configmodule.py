@@ -1,3 +1,8 @@
+"""
+Note to self: remove all of the things that could change outside of this library
+    Things that can be changed include things like: display stuff 
+    Things that can not be changed include things like: cpuArchetecture and spoofedFlashVersion
+"""
 checkdependencies = True
 platform = "" #Windows, Linux, or Darwin
 windowmanagertype = "" #linux (x11 or wayland) or darwin (x11 or native) only
@@ -21,6 +26,7 @@ defaultTraceFilePath = "" #default file path for trace output
 defaultTraceFilePath_Flash = "" #default file path for trace output in flash
 
 #flash.display
+#Most of this needs to be removed
 width = "" #maximum width of the display window (not implemented yet), needs to be manually set on wayland
 height = "" #maximum height of the display window (not implemented yet), needs to be manually set on wayland
 refreshrate = "" #refresh rate of the display window (not implemented yet), needs to be manually set on wayland
@@ -29,6 +35,7 @@ windows = {} #dictionary containing all of the defined windows (not implemented 
 
 #flash.filesystem
 separator = ""
+#get the bellow directories from the XDG variables on linux and set defaults on window and macos
 userdirectory = ""
 desktopdirectory = ""
 documentsdirectory = ""
@@ -50,4 +57,4 @@ appdatadirectory = None #the path to the applicatio specific data directory (no 
 
 #initcheck
 initdone:bool = False #variable to make sure this module has initialized
-initerror = [] #[{"errcode":errcode, "errdesc":errdesc},...]; errcode:int, errdesc:str
+initerror = [] #[(errcode:int,errdesc:str),...]

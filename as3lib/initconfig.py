@@ -4,6 +4,13 @@ import configparser
 from pathlib import Path
 from os.path import dirname
 
+"""
+initerror list
+1: platform not implemented yet
+2: (Linux specific) display manager type not found (expected x11 or wayland)
+3: requirement not found
+"""
+
 def defaultTraceFilePath():
    """
    Outputs the default file path for trace in this library
@@ -114,7 +121,13 @@ def sm_wayland():
    return int(sw), int(sh), float(rr), int(cd)
 
 def sm_windows():
-   pass
+   import ctypes
+   import win32api
+   temp = []
+   settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
+   for i in ('BitsPerPel', 'DisplayFrequency'):
+      temp.append(getattr(settings, i))
+   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[1]), int(temp[0])
 
 def sm_darwin():
    pass
@@ -155,8 +168,29 @@ def getDocumentsDir():
       case "Linux" | "Darwin":
          return fr"{configmodule.userdirectory}/Documents"
 
+def getdmtype():
+   temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
+   if temp[:2] == "b'" and temp[-1:] == "'":
+      temp = temp[2:-1]
+   temp = temp.split("\\n")
+   for i in temp:
+      if len(i) > 0:
+         temp2 = i.split("=")[-1]
+         if temp2 in ("x11","wayland"):
+            return temp2
+   return "error"
+
 def getdmname():
-   return str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True)).split("=")[1].replace("\\n","")[:-1].lower()
+   temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True))
+   if temp[:2] == "b'" and temp[-1:] == "'":
+      temp = temp[2:-1]
+   temp = temp.split("\\n")
+   for i in temp:
+      if len(i) > 0:
+         temp2 = i.split("=")[-1]
+         if len(temp2) > 0:
+            return temp2.lower()
+   return "error"
 
 def getCPUAddressSize():
    return platform.architecture()[0][:-3]
@@ -165,7 +199,7 @@ def getCPUArchitecture():
    #!support other architectures
    match platform.machine():
       case "x86" | "x86_64" | "AMD64":
-            return "x86"
+         return "x86"
 
 def getManufacturer():
    match configmodule.platform:
@@ -207,24 +241,19 @@ def dependencyCheck():
             x=0
          else:
             if str(subprocess.check_output("xwininfo -version",shell=True))[2:10] != "xwininfo":
-               raise Exception("xwininfo is required to use as3lib on xorg")
+               configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
             if str(subprocess.check_output("xrandr --version",shell=True))[2:8] != "xrandr":
-               raise Exception("xrandr is required to use as3lib on xorg")
+               configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
          if str(subprocess.check_output("bash --version",shell=True))[2:10] != "GNU bash":
-            raise Exception("bash is required to use as3lib on linux")
+            configmodule.initerror.append((3,"linux requirement 'bash' not found"))
          if str(subprocess.check_output("echo test",shell=True))[2:6] != "test":
-            raise Exception("echo is required to use as3lib on linux")
-         """
-         #grep
-         if str(subprocess.check_output("",shell=True))[2:\#] != "":
-            raise Exception(" is required to use as3lib on linux")
-         """
+            configmodule.initerror.append((3,"linux requirement 'echo' not found"))
          if str(subprocess.check_output("awk --version",shell=True))[2:9] != "GNU Awk":
-            raise Exception("awk is required to use as3lib on linux")
+            configmodule.initerror.append((3,"linux requirement 'awk' not found"))
          if str(subprocess.check_output("whoami --version",shell=True))[2:8] != "whoami":
-            raise Exception("whoami is required to use as3lib on linux")
+            configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
          if str(subprocess.check_output("loginctl --version",shell=True))[2:9] != "systemd":
-            raise Exception("loginctl (systemd) is required to use as3lib on linux")
+            configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
       case "Windows":
          pass
       case "Darwin":
@@ -252,8 +281,7 @@ def initconfig():
    configmodule.version = getVersion()
    match configmodule.platform:
       case "Linux":
-         dmtype = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True)).split("=")[1].replace("\\n'","")
-         configmodule.windowmanagertype = dmtype
+         configmodule.windowmanagertype = getdmtype()
          configmodule.dmname = getdmname()
          match configmodule.windowmanagertype:
             case "x11":
@@ -268,15 +296,17 @@ def initconfig():
                configmodule.height = temp[1]
                configmodule.refreshrate = temp[2]
                configmodule.colordepth = temp[3]
+            case _:
+               configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not found"))
       case "Windows":
-         configmodule.initerror.append({"errcode":1,"errdesc":"Error fetching screen properties; Windows; Not Implemented Yet"})
-         #configmodule.width = temp[0]
-         #configmodule.height = temp[1]
-         #configmodule.refreshrate = temp[2]
-         #configmodule.colordepth = temp[3]
-         pass
+         #configmodule.initerror.append((1,"Error fetching screen properties; Windows; Not Implemented Yet"))
+         temp = sm_windows()
+         configmodule.width = temp[0]
+         configmodule.height = temp[1]
+         configmodule.refreshrate = temp[2]
+         configmodule.colordepth = temp[3]
       case "Darwin":
-         configmodule.initerror.append({"errcode":1,"errdesc":"Error fetching screen properties; Darwin; Not Implemented Yet"})
+         configmodule.initerror.append((1,"Error fetching screen properties; Darwin; Not Implemented Yet"))
          #configmodule.width = temp[0]
          #configmodule.height = temp[1]
          #configmodule.refreshrate = temp[2]
@@ -333,3 +363,8 @@ def initconfig():
 
    #Tell others that library has been initialized
    configmodule.initdone = True
+   if len(configmodule.initerror) != 0:
+      temperrors = ""
+      for i in configmodule.initerror:
+         temperrors += f"\t{i[0]}: {i[1]}\n"
+      print(f"Warning: as3lib has initialized with the following errors, some functionality might be broken.\n{temperrors}")
