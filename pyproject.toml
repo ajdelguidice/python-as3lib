@@ -1,3 +1,39 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "as3lib"
+version = "0.0.9"
+authors = [{name = "ajdelguidice", email = "ajdelguidice@gmail.com"}]
+description = "Partial implementation of ActionScript3 in Python"
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Utilities"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "setuptools",
+    "numpy",
+    "tkhtmlview",
+    "Pillow"
+]
+
+[project.optional-dependencies]
+windows = ["pywin32"]
+
+
+[project.urls]
+Homepage = "https://github.com/ajdelguidice/python-as3lib"
+
+[tool.setuptools]
+packages = ["as3lib"]
+#ext-modules = [
+#    {name = "as3lib.cmath", sources = ["sourcecode/crypto.c"]},
+#    {name = "as3lib.flash._crypto", sources = ["sourcecode/crypto.c"]}
+#]
