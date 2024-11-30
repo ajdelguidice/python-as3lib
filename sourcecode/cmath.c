@@ -7,8 +7,7 @@ double itkwcalc(int neww, int newh, int startw, int starth) {
    double ymult = (double)(100*newh)/starth;
    if (xmult > ymult)
       return ymult;
-   else
-      return xmult;
+   return xmult;
 };
 
 static PyObject * itk_windowcalculate(PyObject *self, PyObject *args) {
@@ -19,7 +18,7 @@ static PyObject * itk_windowcalculate(PyObject *self, PyObject *args) {
 };
 
 int itkwrf(int fo, float mu) {
-   return round((fo*mu)/100);
+   return round(fo*mu*0.01);
 };
 
 static PyObject * itk_windowresizefont(PyObject *self, PyObject *args) {
@@ -68,7 +67,6 @@ static struct PyModuleDef cmath = {
    cmathMethods
 };
 
-PyMODINIT_FUNC
-PyInit_cmath(void) {
+PyMODINIT_FUNC PyInit_cmath(void) {
    return PyModule_Create(&cmath);
 }

@@ -1,8 +1,19 @@
-from as3lib import configmodule, toplevel
+from as3lib import configmodule
+import as3lib.toplevel as as3
 from typing import Union
+import tkinter
+from typing import Generator, Any
+
+def _winNameGen()-> Generator[int,None,None]:
+   i = 0
+   while True:
+      yield i
+      i += 1
+
+_windowNameGenerator: Generator[int,None,None] = _winNameGen()
 
 class as3totk:
-   def anchors(flashalign:Union[str, toplevel.String]):
+   def anchors(flashalign:as3.allString):
       match flashalign:
          case "B":
             return "s"
@@ -133,13 +144,103 @@ class NativeMenu:
 class NativeMenuItem:
    pass
 class NativeWindow:
-   pass
+   """
+   Due to limitations in tkinter, any window that isn't the main window will not be able to start out inactive. It will instead start out minimized.
+   """
+   def _setActive(self,state:as3.allBoolean):
+      self.__active = state
+   def _getActive(self):
+      return self.__active
+   active = property(fget=_getActive,fset=_setActive)
+   #alwaysInFront
+   #bounds
+   def _setClosed(self,state:as3.allBoolean):
+      self.__closed = state
+   def _getClosed(self):
+      return self.__closed
+   closed = property(fget=_getClosed,fset=_setClosed)
+   #displayState
+   #height
+   #isSupported
+   #maximizable
+   #maxSize
+   #menu
+   #minimizable
+   #minSize
+   #owner
+   #renderMode
+   #resizable
+   #stage
+   #supportsMenu
+   #supportsNotification
+   #supportsTransparency
+   #systemChrome
+   #systemMaxSize
+   #systemMinSize
+   #title
+   #transparent
+   #type
+   #visible
+   #width
+   #x
+   #y
+   def __init__(initOptions:NativeWindowInitOptions = NativeWindowInitOptions()):
+      self.__mainwindow = len(configmodule.windows) == 0:
+      if self.__mainwindow == True:
+         self.__windowObject = tkinter.Tk()
+      else:
+         self.__windowObject = tkinter.Toplevel()
+         self.minimize()
+      configmodule.windows[next(_windowNameGenerator)] = self
+   def activate():
+      if self.active == False and self.closed == False:
+         if self.__mainwindow == False:
+            self.maximize()
+         else:
+            self.__windowObject.mainloop()
+         self.active = True
+   def close():
+      self.__windowObject.destroy()
+      self.closed = True
+   def globalToScreen(globalPoint): #accepts flash.geom.Point objects
+      pass
+   def listOwnedWindows():
+      pass
+   def maximize():
+      pass
+   def minimize():
+      pass
+   def notifyUser(type):
+      pass
+   def orderInBackOf(window:NativeWindow):
+      pass
+   def orderInFrontOf(window:NativeWindow):
+      pass
+   def orderToBack():
+      pass
+   def orderToFront():
+      pass
+   def restore():
+      pass
+   def startMove():
+      pass
+   def startResize(edgeOfCorner):
+      pass
 class NativeWindowDisplayState:
    MAXIMIZED = "maximized"
    MINIMIZED = "minimized"
    NORMAL = "normal"
 class NativeWindowInitOptions:
-   pass
+   #!Add restraints for properties and make them actual properties
+   def __init__(self,**kwargs):
+      self.maximizable:as3.allBoolean = kwargs.get('maximizable', True)
+      self.minimizable:as3.allBoolean = kwargs.get('minimizable', True)
+      self.owner:NativeWindow = kwargs.get('owner', as3.null)
+      self.renderMode:as3.allString = kwargs.get('renderMode')
+      self.resizable:as3.allBoolean = kwargs.get('resizable', True)
+      self.systemChrome:as3.allString = kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD)
+      self.transparent:as3.allBoolean = kwargs.get('transparent', False)
+      self.type:as3.allString = kwargs.get('type', NativeWindowType.NORMAL)
 class NativeWindowRenderMode:
    AUTO = "auto"
    CPU = "cpu"

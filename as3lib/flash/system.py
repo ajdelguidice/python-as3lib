@@ -3,18 +3,25 @@ from as3lib import configmodule
 import platform
 from typing import Union
 import sys
+from functools import cache
 
 class ApplicationDomain:
     pass
 class Capabilities:
     #!get actual values later
     #!document changes from original
+    #!use __slots__
     avHardwareDisable = True
+    @cache
     def _getCPUBits():
-        return as3.Number(configmodule.cpuAddressSize)
+        return as3.Number(platform.architecture()[0][:-3])
     cpuAddressSize = property(fget=_getCPUBits) #returns 32 (32bit system) or 64 (64bit system)
+    @cache
     def _getCPUArch():
-        return configmodule.cpuArchitecture
+        #!support other architectures
+        match platform.machine():
+            case "x86" | "x86_64" | "AMD64":
+                return "x86"
     cpuArchitecture = property(fget=_getCPUArch) #returns "PowerPC","x86","SPARC",or "ARM"
     #hasAccessibility
     hasAudio = True #value is always True
@@ -36,12 +43,27 @@ class Capabilities:
     #language
     #languages
     #localFileReadDisable
+    @cache
     def _getManuf():
-        return configmodule.manufacturer
+        match configmodule.platform:
+            case "Windows":
+                return "Adobe Windows"
+            case "Linux":
+                return "Adobe Linux"
+            case "Darwin":
+                return "Adobe Macintosh"
     manufacturer = property(fget=_getManuf)
     #maxLevelIDC
+    @cache
     def _getOS():
-        return configmodule.os
+        #!add others
+        match configmodule.platform:
+            case "Windows":
+                pass
+            case "Linux":
+                return f"Linux {platform.release()}"
+            case "Darwin":
+                pass
     os = property(fget=_getOS)
     #pixelAspectRatio
     #playerType
@@ -53,8 +75,18 @@ class Capabilities:
     #supports32BitProcesses
     #supports64BitProcesses
     #touchscreenType
+    @cache
     def _getVer():
-        return configmodule.version
+        tempfv = configmodule.spoofedFlashVersion
+        match configmodule.platform:
+            case "Windows":
+                return f"Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+            case "Linux":
+                return f"LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+            case "Darwin":
+                return f"MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
+            case "Android":
+                return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
     version = property(fget=_getVer)
     def hasMultiChannelAudio(type:Union[str,as3.String]):
         pass

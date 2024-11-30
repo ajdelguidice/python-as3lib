@@ -145,15 +145,6 @@ def getSeparator():
       case "Linux" | "Darwin":
          return "/"
 
-def getUserDir():
-   match configmodule.platform:
-      case "Windows":
-         return f"{subprocess.check_output('echo %HOMEDRIVE%%HOMEPATH%',shell=True)}"[2:-5]
-      case "Linux":
-         return f"{subprocess.check_output('echo ~',shell=True)}"[2:-3]
-      case "Darwin":
-         pass
-
 def getDesktopDir():
    match configmodule.platform:
       case "Windows":
@@ -192,46 +183,6 @@ def getdmname():
             return temp2.lower()
    return "error"
 
-def getCPUAddressSize():
-   return platform.architecture()[0][:-3]
-
-def getCPUArchitecture():
-   #!support other architectures
-   match platform.machine():
-      case "x86" | "x86_64" | "AMD64":
-         return "x86"
-
-def getManufacturer():
-   match configmodule.platform:
-      case "Windows":
-         return "Adobe Windows"
-      case "Linux":
-         return "Adobe Linux"
-      case "Darwin":
-         return "Adobe Macintosh"
-
-def getOperatingSystem():
-   #!add others
-   match configmodule.platform:
-      case "Windows":
-         pass
-      case "Linux":
-         return f"Linux {platform.release()}"
-      case "Darwin":
-         pass
-
-def getVersion():
-   tempfv = configmodule.spoofedFlashVersion
-   match configmodule.platform:
-      case "Windows":
-         return f"Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-      case "Linux":
-         return f"LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-      case "Darwin":
-         return f"MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-      case "Android":
-         return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-
 def dependencyCheck():
    #!Make checks functional and reliable
    match configmodule.platform:
@@ -268,17 +219,12 @@ def initconfig():
    configmodule.platform = platform.system()
    dependencyCheck()
    configmodule.separator = getSeparator()
-   configmodule.userdirectory = getUserDir()
+   configmodule.userdirectory = str(Path.home())
    configmodule.desktopdirectory = getDesktopDir()
    configmodule.documentsdirectory = getDocumentsDir()
    configmodule.defaultTraceFilePath = defaultTraceFilePath()
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    configmodule.pythonversion = platform.python_version()
-   configmodule.cpuAddressSize = getCPUAddressSize()
-   configmodule.cpuArchitecture = getCPUArchitecture()
-   configmodule.manufacturer = getManufacturer()
-   configmodule.os = getOperatingSystem()
-   configmodule.version = getVersion()
    match configmodule.platform:
       case "Linux":
          configmodule.windowmanagertype = getdmtype()

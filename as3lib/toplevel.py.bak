@@ -2,7 +2,7 @@ import math as m
 import random as r
 from textwrap import wrap
 from pathlib import Path
-from . import configmodule, helpers
+from . import configmodule
 import builtins
 from typing import overload, TypeVar, Callable
 try:
@@ -628,70 +628,76 @@ class Array(list):
             tempBool == True
             break
       return tempBool
-   def sort(self, *args):
+   #@overload
+   #def sort(self,sortOptions:allArray|allNumber):...
+   #@overload
+   #def sort(self,compareFunction:):...
+   #@overload
+   #def sort(self,pythonsort:allBoolean):...
+   def sort(self, compareFunction=None, sortOptions:allArray|allNumber=None, pythonsort=False):
       """
-      Warning: Maximum element length is 100000
       """
-      if len(args) == 0:
-         """
-         Sorting is case-sensitive (Z precedes a).
-         Sorting is ascending (a precedes b).
-         The array is modified to reflect the sort order; multiple elements that have identical sort fields are placed consecutively in the sorted array in no particular order.
-         All elements, regardless of data type, are sorted as if they were strings, so 100 precedes 99, because "1" is a lower string value than "9".
-         """
-         def s(x,y):
-            trace("Array.sort: BROKEN: Using Array.sort with no arguements doesn't work as intended because the documentation does not include the entire sort order")
-            sortorder = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" #123456789 #!Where numbers and symbols
-            x,y = str(x),str(y)
-            if sortorder.index(x[0]) > sortorder.index(y[0]):
-               return 1
-            elif sortorder.index(x[0]) < sortorder.index(y[0]):
-               return -1
-            elif sortorder.index(x[0]) == sortorder.index(y[0]):
-               if len(x) > 1 and len(y) > 1:
-                  return s(x[1:],y[1:])
-               elif len(x) > 1:
-                  return 1
-               elif len(y) > 1:
-                  return -1
-               else:
-                  return 0
-         with helpers.recursionDepth(100000):
-            super().sort(key=cmp_to_key(s))
-      elif len(args) == 1:
-         if type(args[0]) in (bool,Boolean) and args[0] == True:
-            super().sort()
-         elif isfunction(args[0]):
-            super().sort(key=lambda:cmp_to_key(args[0]))
-         elif type(args[0]) in (builtins.int,float,int,uint,Number):
-            match args[0]:
-               case 1: #CASEINSENSITIVE
-                  raise Exception("Not Implemented Yet")
-               case 2: #DESCENDING
-                  raise Exception("Not Implemented Yet")
-               case 4: #UNIQUESORT
-                  raise Exception("Not Implemented Yet")
-               case 8: #RETURNINDEXEDARRAY
-                  raise Exception("Not Implemented Yet")
-               case 16: #NUMERIC
-                  def s(x,y):
-                     try:
-                        x,y = float(x),float(y)
-                     except:
-                        raise Exception("Array.sort: Error: Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
-                     if x > y:
-                        return 1
-                     elif x < y:
-                        return -1
-                     elif x == y:
-                        return 0
-                  super().sort(key=cmp_to_key(s))
-               case _:
-                  raise Exception(f"Array.sort: Error: sortOption {sortOption} is not implemented yet")
-         elif type(args[0]) in (tuple,list,Array):
-            raise Exception(f"Array.sort: Error: Using multiple sortOptions is not implemented yet")
+      ci,ds,un,re,nu = False,False,False,False,False
+      if pythonsort == True:
+         super().sort()
+      elif compareFunction != None:
+         super().sort(key=lambda:cmp_to_key(comparefunction))
       else:
-         raise Exception(f"Using more than one arguement is not implemented yet")
+         if sortOptions == None:
+            """
+            Sorting is case-sensitive (Z precedes a).
+            Sorting is ascending (a precedes b).
+            The array is modified to reflect the sort order; multiple elements that have identical sort fields are placed consecutively in the sorted array in no particular order.
+            All elements, regardless of data type, are sorted as if they were strings, so 100 precedes 99, because "1" is a lower string value than "9".
+            """
+            def s(x,y):
+               sortorder = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" #123456789 #!Where numbers and symbols
+               x,y = str(x),str(y)
+               if sortorder.index(x[0]) > sortorder.index(y[0]):
+                  return 1
+               elif sortorder.index(x[0]) < sortorder.index(y[0]):
+                  return -1
+               elif sortorder.index(x[0]) == sortorder.index(y[0]):
+                  if len(x) > 1 and len(y) > 1:
+                     return s(x[1:],y[1:])
+                  elif len(x) > 1:
+                     return 1
+                  elif len(y) > 1:
+                     return -1
+                  else:
+                     return 0
+            super().sort(key=cmp_to_key(s))
+         else:
+            if type(sortOptions) in (builtins.int,float,int,uint,Number): #!Don't know if this works
+               match sortOptions:
+                  case 16:
+                     def s(x,y):
+                        try:
+                           x,y = float(x),float(y)
+                        except:
+                           raise Exception("Array.sort: Error: Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
+                        if x > y:
+                           return 1
+                        elif x < y:
+                           return -1
+                        elif x == y:
+                           return 0
+                     super().sort(key=cmp_to_key(s))
+                  case _:
+                     raise Exception(f"Array.sort: Error: sortOption {sortOption} is not implemented yet")
+            else:
+               raise Exception(f"Array.sort: Error: Using multiple sortOptions is not implemented yet")
+               so = Array(sortOptions)
+               if so.indexOf(1) != -1:
+                  ci = True
+               if so.indexOf(2) != -1:
+                  ds = True
+               if so.indexOf(4) != -1:
+                  un = True
+               if so.indexOf(8) != -1:
+                  re = True
+               if so.indexOf(16) != -1:
+                  nu = True
    def sortOn():
       pass
    def splice(self, startIndex:builtins.int|int, deleteCount:builtins.int|int, *values):
@@ -737,8 +743,8 @@ class Array(list):
          a = ""
          for i in self:
             if type(i) in (list,tuple):
-               a += toStr2(i) + ","
-               continue
+                  a += toStr2(i) + ","
+                  continue
             a += f"{i},"
          return a[:-1]
       else:
@@ -1576,6 +1582,7 @@ def DisableDebug():
    configmodule.as3DebugEnable = False
 @deprecated("This is now built into the Array constructor")
 def listtoarray(l:list|tuple):
+   #!Can probably be removed since Array is now a child of list
    """
    A function to convert a python list to an Array.
    """

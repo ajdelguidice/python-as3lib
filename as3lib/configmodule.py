@@ -12,6 +12,7 @@ pythonversion = "" #version of python currently running
 interfaceType = "" #type of interface (Tkinter, or whatever else I decide to use)
 spoofedFlashVersion = [32,0,0,371] #[majorVersion,minorVersion,buildNumber,internalBuildNumber]
 #Note: this is the version I chose because it was the last version of flash before adobe's timebomb
+addedFeatures = False #Enables features I added to make things easier. These features change how things work so they aren't enabled by default
 
 #toplevel
 as3DebugEnable:bool = False #(True=enabled, False=disabled) state of debug mode
@@ -40,20 +41,8 @@ userdirectory = ""
 desktopdirectory = ""
 documentsdirectory = ""
 
-#flash.SystemError
-#avHardwareDisable
-cpuAddressSize = ""
-cpuArchitecture = ""
-#hasAccessibility
-
-manufacturer = ""
-
-os = ""
-
-version = ""
-
 #flash.net
-appdatadirectory = None #the path to the applicatio specific data directory (no default value. must be set by the application)
+appdatadirectory = None #the path to the application specific data directory (no default value. must be set by the application)
 
 #initcheck
 initdone:bool = False #variable to make sure this module has initialized
