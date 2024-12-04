@@ -207,12 +207,13 @@ class ComboLabelWithRadioButtons(tkinter.Label):
       self.frame["bg"] = color
       self["background"] = color
       for i in range(len(self.radiobuttons)):
-         self.radiobuttons[i]["background"] = color
+         self.radiobuttons[i].configure(background=color,highlightbackground=color)
    background = property(fset=__setBackgroundColor)
    def __setForegroundColor(self,color):
       self["foreground"] = color
       for i in range(len(self.radiobuttons)):
-         self.radiobuttons[i]["foreground"] = color
+         self.radiobuttons[i].configure(foreground=color)
+
    foreground = property(fset=__setForegroundColor)
    def setText(self,index,text):
       self.radiobuttons[index]["text"] = text
