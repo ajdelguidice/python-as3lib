@@ -963,14 +963,14 @@ class window:
                self.children[i]["font"] = self.resizefont(cl[6],mult)
             case "ImageLabel":
                self.children[i]["image"] = self.imagedict[cl[8]][3]
+            case "CheckboxWithLabel"|"CheckboxlabelWithEntry"|"CheckboxlabelWithCombobox"|"FileEntryBox":
+               self.children[i].changeFont(self.resizefont(cl[6],mult))
             case "Notebook" | "NBFrame":
                continue
             case "ComboLabelWithRadioButtons":
                self.children[i].font = self.resizefont(cl[6],mult)
             case _:
-               if cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
-                  self.children[i].changeFont(self.resizefont(cl[6],mult))
-               elif cl[1] != "Frame":
+               if cl[1] != "Frame":
                   self.children[i]["font"] = self.resizefont(cl[6],mult)
    def resizeChild(self, child:str, mult):
       if child not in self.children or child in ("display","root"):
@@ -1007,14 +1007,14 @@ class window:
             self.children[child]["font"] = self.resizefont(cl[6],mult)
          case "ImageLabel":
             self.children[child]["image"] = self.imagedict[cl[8]][3]
+         case "CheckboxWithLabel"|"CheckboxlabelWithEntry"|"CheckboxlabelWithCombobox"|"FileEntryBox":
+            self.children[child].changeFont(self.resizefont(cl[6],mult))
          case "Notebook" | "NBFrame":
             pass
          case "ComboLabelWithRadioButtons":
             self.children[child].font = self.resizefont(cl[6],mult)
          case _:
-            if cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
-               self.children[child].changeFont(self.resizefont(cl[6],mult))
-            elif cl[1] != "Frame":
+            if cl[1] != "Frame":
                self.children[child]["font"] = self.resizefont(cl[6],mult)
    def bindChild(self, child:str, tkevent, function):
       self.children[child].bind(tkevent, function)
