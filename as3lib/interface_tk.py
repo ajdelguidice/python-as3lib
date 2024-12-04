@@ -177,6 +177,49 @@ class CheckBoxWithLabel:
    pass
 class ComboboxWithCheckBox:
    pass
+class ComboLabelWithRadioButtons(tkinter.Label):
+   def __init__(self, master=None, numOptions:int=2, **kwargs):
+      self.frame = tkinter.Frame(master)
+      self.radiobuttons = []
+      self.rbvar = tkinter.IntVar()
+      tkinter.Label.__init__(self,self.frame,anchor="nw",**kwargs)
+      self.pack(side="top", fill="both")
+      for i in range(0,numOptions):
+         self.radiobuttons.append(tkinter.Radiobutton(self.frame,variable=self.rbvar,anchor="nw",value=i))
+         self.radiobuttons[i].pack(side="top", fill="both")
+      text_meths = vars(tkinter.Label).keys()
+      methods = vars(tkinter.Pack).keys() | vars(tkinter.Grid).keys() | vars(tkinter.Place).keys()
+      methods = methods.difference(text_meths)
+      for m in methods:
+         if m[0] != "_" and m != "config" and m != "configure":
+            setattr(self, m, getattr(self.frame, m))
+   def __setState(self,value:int):
+      self.rbvar.set(value)
+   def __getState(self):
+      return self.rbvar.get()
+   state = property(fget=__getState,fset=__setState)
+   def __setFont(self,font):
+      self["font"] = font
+      for i in range(len(self.radiobuttons)):
+         self.radiobuttons[i]["font"] = font
+   font = property(fset=__setFont)
+   def __setBackgroundColor(self,color):
+      self.frame["bg"] = color
+      self["background"] = color
+      for i in range(len(self.radiobuttons)):
+         self.radiobuttons[i]["background"] = color
+   background = property(fset=__setBackgroundColor)
+   def __setForegroundColor(self,color):
+      self["foreground"] = color
+      for i in range(len(self.radiobuttons)):
+         self.radiobuttons[i]["foreground"] = color
+   foreground = property(fset=__setForegroundColor)
+   def setText(self,index,text):
+      self.radiobuttons[index]["text"] = text
+   def setTextAll(self,text:tuple|list):
+      for i in range(len(self.radiobuttons)):
+         self.radiobuttons[i]["text"] = text[i]
+
 
 class ComboCheckboxUserEntry:
    #!Add a way to use this to window class
@@ -864,6 +907,20 @@ class window:
          self.children[master].add(self.children[name],text=text)
          self.childproperties[name] = [None,"NBFrame",None,None,width,height,None,None,text]
          self.resizeChild(name, self.windowproperties["oldmult"])
+   def addLabelWithRadioButtons(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", numOptions:int=2):
+      if master == "root":
+         master = "display"
+      if as3.isXMLName(master) == False:
+         as3.trace("Invalid Master")
+         pass
+      elif as3.isXMLName(name) == False:
+         as3.trace("Invalid Name")
+         pass
+      else:
+         self.childproperties[name] = [None,"ComboLabelWithRadioButtons",x,y,width,height,font,anchor]
+         self.children[name] = ComboLabelWithRadioButtons(self.children[master],numOptions)
+         self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
+         self.resizeChild(name, self.windowproperties["oldmult"])
    def resizeImage(self, size:tuple, image_name):
       if image_name != "":
          img = PIL.Image.open(btio(self.imagedict[image_name][2]))
@@ -908,6 +965,8 @@ class window:
                self.children[i]["image"] = self.imagedict[cl[8]][3]
             case "Notebook" | "NBFrame":
                continue
+            case "ComboLabelWithRadioButtons":
+               self.children[i].font = self.resizefont(cl[6],mult)
             case _:
                if cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
                   self.children[i].changeFont(self.resizefont(cl[6],mult))
@@ -950,6 +1009,8 @@ class window:
             self.children[child]["image"] = self.imagedict[cl[8]][3]
          case "Notebook" | "NBFrame":
             pass
+         case "ComboLabelWithRadioButtons":
+            self.children[child].font = self.resizefont(cl[6],mult)
          case _:
             if cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
                self.children[child].changeFont(self.resizefont(cl[6],mult))
@@ -991,6 +1052,11 @@ class window:
                      self.prepareHTMLST(child, self.htmlproperties[child][2] + v[i])
                elif self.childproperties[child][1] == "Entry":
                   self.childproperties[child][8].set(v[i])
+               elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
+                  if type(v[i]) in (list,tuple):
+                     self.children[child].setText(v[i][0],v[i][1])
+                  else:
+                     self.children[child]["text"] = v[i]
                else:
                   self.children[child][k[i]] = v[i]
             case "text1" | "text2":
@@ -1018,6 +1084,11 @@ class window:
                            self.children[child].changeBackground(v[i])
                         else:
                            self.children[child].changeForeground(v[i])
+                     case "ComboLabelWithRadioButtons":
+                        if k[i] == "background":
+                           self.children[child].background = v[i]
+                        else:
+                           self.children[child].foreground = v[i]
                      case _:
                         self.children[child][k[i]] = v[i]
             case "image":
