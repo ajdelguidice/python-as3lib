@@ -625,7 +625,7 @@ class window:
             self.aboutwindow[2]["window"] = tkinter.Toplevel()
             self.aboutwindow[2]["window"].geometry("350x155")
             self.aboutwindow[2]["window"].resizable(False,False)
-            self.group(self.aboutwindow[2]["window"])
+            self.aboutwindow[2]["window"].transient(self.children["root"])
             self.aboutwindow[2]["window"].configure(background=self.windowproperties["color"])
             self.aboutwindow[2]["label"] = tkinter.Label(self.aboutwindow[2]["window"], font=("TkTextFont",9), justify="left", text=self.aboutwindow[1], background=self.windowproperties["color"])
             self.aboutwindow[2]["label"].place(anchor="nw", x=7, y=9)
