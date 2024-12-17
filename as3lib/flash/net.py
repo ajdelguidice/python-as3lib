@@ -138,6 +138,49 @@ class sodata:
    def toDict(self):
       return dict(vars(self))
 
+class _AMFCODEC:
+   class AMF0:
+      number=b"\x00"
+      boolean=b"\x01"
+      string=b"\x02"
+      object=b"\x03"
+      movieclip=b"\x04"
+      null=b"\x05"
+      undefined=b"\x06"
+      reference=b"\x07"
+      ecma_array=b"\x08"
+      object_end="b\x09"
+      strict_array=b"\x0A"
+      date=b"\x0B"
+      long_string=b"\x0C"
+      unsupported=b"\x0D"
+      recordset=b"\x0E"
+      xml_document=b"\x0F"
+      typed_object=b"\x10"
+      avmplus_object=b"\x11"
+      number=b"\x00"
+      number=b"\x00"
+      number=b"\x00"
+   class AMF3:
+      undefined=b"\x00"
+      null=b"\x01"
+      false=b"\x02"
+      true=b"\x03"
+      integer=b"\x04"
+      double=b"\x05"
+      string=b"\x06"
+      xml=b"\x07"
+      date=b"\x08"
+      array=b"\x09"
+      object=b"\x0A"
+      xml=b"\x0B"
+      byte_array=b"\x0C"
+      vector_int=b"\x0D"
+      vector_uint=b"\x0E"
+      vector_double=b"\x0F"
+      vector_object=b"\x10"
+      dictionary=b"\x11"
+
 class SharedObject:
    def __init__(self):
       self._name = ""
