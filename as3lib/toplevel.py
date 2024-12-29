@@ -363,13 +363,15 @@ class Array(list):
                tempList.append(undefined())
             super().__init__(tempList)
    def __getitem__(self, item):
-      try:
-         if super().__getitem__(item) == None:
-            return undefined()
-         else:
-            return super().__getitem__(item)
-      except:
-         return ""
+      if isinstance(item, slice):
+         indices = range(*item.indices(len(self)))
+         return Array(*[self[i] for i in indices])
+      else:
+         try:
+            value = super().__getitem__(item)
+            return value if value != None else undefined()
+         except:
+            return ""
    def _getLength(self):
       return len(self)
    def _setLength(self,value:builtins.int|int):
@@ -395,19 +397,11 @@ class Array(list):
          Array — An array that contains the elements from this array followed by elements from the parameters.
       """
       if len(args) == 0:
-         raise Exception("Must have at least 1 arguments")
+         return Array(*self)
+      elif len(args) == 1 and type(args[0]) in (list,tuple,Array): #!check whether this should be "if any element is array" or if it is only one
+         return self+list(args[0])
       else:
-         if len(args) == 0:
-            raise Exception("Must have at least 1 arguments")
-         else:
-            tempArray = Array(*self)
-            for i in args:
-               if type(i) in (list,tuple,Array):
-                  for c in i:
-                     tempArray.append(c)
-               else:
-                  tempArray.append(i)
-            return tempArray
+         return self+list(args)
    def every(self, callback:callable):
       """
       Executes a test function on each item in the array until an item is reached that returns False for the specified function. You use this method to determine whether all items in an array meet a criterion, such as having values less than a particular number.
@@ -417,16 +411,10 @@ class Array(list):
       Returns:
          Boolean — A Boolean value of True if all items in the array return True for the specified function; otherwise, False.
       """
-      #for i in range(0,len(self)):
-      #   if callback(self[i], i, self) == False:
-      #      return False
-      #return True
-      tempBool = True
-      for i in range(0,len(self)):
+      for i in range(len(self)):
          if callback(self[i], i, self) == False:
-            tempBool = False
-            break
-      return tempBool
+            return False
+      return True
    def filter(self, callback:callable):
       """
       Executes a test function on each item in the array and constructs a new array for all items that return True for the specified function. If an item returns False, it is not included in the new array.
@@ -437,7 +425,7 @@ class Array(list):
          Array — A new array that contains all items from the original array that returned True. 
       """
       tempArray = Array()
-      for i in range(0,len(self)):
+      for i in range(len(self)):
          if callback(self[i], i, self) == True:
             tempArray.push(self[i])
       return tempArray
@@ -448,8 +436,8 @@ class Array(list):
          callback:Function — The function to run on each item in the array. This function can contain a simple command (for example, a trace() statement) or a more complex operation, and is invoked with three arguments; the value of an item, the index of an item, and the Array object:
          - function callback(item:*, index:int, array:Array)
       """
-      for i in range(0, len(self)):
-         self[i] = callback(self[i], i, self)
+      for i in range(len(self)):
+         callback(self[i], i, self)
    def indexOf(self, searchElement, fromIndex:builtins.int|int=0):
       """
       Searches for an item in an array using == and returns the index position of the item.
@@ -459,14 +447,12 @@ class Array(list):
       Returns:
          index:int — A zero-based index position of the item in the array. If the searchElement argument is not found, the return value is -1.
       """
-      index = -1
       if fromIndex < 0:
          fromIndex = 0
       for i in range(fromIndex,len(self)):
          if self[i] == searchElement:
-            index = i
-            break
-      return index
+            return i
+      return -1
    def insertAt(self, index:builtins.int|int, element):
       """
       Insert a single element into an array.
@@ -527,15 +513,12 @@ class Array(list):
 	      int — A zero-based index position of the item in the array. If the searchElement argument is not found, the return value is -1.
       """
       if fromIndex == None:
-         fromIndex = 0
+         fromIndex = len(self)
       elif fromIndex < 0:
          RangeError(f"Array.lastIndexOf; fromIndex can not be less than 0, fromIndex is {fromIndex}")
-      tempA = Array(*self).reverse()
-      index = tempA.indexOf(searchElement,fromIndex)
-      if index == -1:
-         return index
-      else:
-         return len(self) - 1 - index
+         return None
+      index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
+      return index if index == -1 else len(self)-1-index
    def map(self, callback:callable):
       """
       Executes a function on each item in an array, and constructs a new array of items corresponding to the results of the function on each item in the original array.
@@ -545,11 +528,7 @@ class Array(list):
       Returns:
          Array — A new array that contains the results of the function on each item in the original array.
       """
-      #Potentially use copy() instead
-      output = Array()
-      for i in range(0,len(self)):
-         output.push(callback(self[i], i, self))
-      return output
+      return Array(*[callback(self[i],i,self) for i in range(len(self))])
    def pop(self):
       """
       Removes the last element from an array and returns the value of that element.
@@ -563,8 +542,7 @@ class Array(list):
       Parameters:
          *args — One or more values to append to the array.
       """
-      for i in args:
-         self.append(i)
+      self+=list(args)
    def removeAt(self, index:builtins.int|int):
       """
       Remove a single element from an array. This method modifies the array without making a copy.
@@ -590,7 +568,6 @@ class Array(list):
       """
       return super().pop(0)
    def slice(self, startIndex:builtins.int|int=0, endIndex:builtins.int|int=99*10^99):
-      #!implement negative indicies
       """
       Returns a new array that consists of a range of elements from the original array, without modifying the original array. The returned array includes the startIndex element and all elements up to, but not including, the endIndex element.
       If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
@@ -600,19 +577,11 @@ class Array(list):
       Returns:
          Array — An array that consists of a range of elements from the original array.
       """
-      
-      result = Array()
       if startIndex < 0:
-         startIndex = len(self) + startIndex
+         startIndex=len(self)+startIndex
       if endIndex < 0:
-         endIndex = len(self) + endIndex
-      if endIndex > len(self):
-         endIndex = len(self)
-      i = startIndex
-      while i < endIndex:
-         result.push(self[i])
-         i += 1
-      return result
+         endIndex=len(self)+endIndex
+      return self[startIndex:endIndex]
    def some(self, callback:callable):
       """
       Executes a test function on each item in the array until an item is reached that returns True. Use this method to determine whether any items in an array meet a criterion, such as having a value less than a particular number.
@@ -622,12 +591,10 @@ class Array(list):
       Returns:
          Boolean — A Boolean value of True if any items in the array return True for the specified function; otherwise False.
       """
-      tempBool = False
       for i in range(0,len(self)):
          if callback(self[i], i, self) == True:
-            tempBool == True
-            break
-      return tempBool
+            return True
+      return False
    def sort(self, *args):
       """
       Warning: Maximum element length is 100000
@@ -704,17 +671,13 @@ class Array(list):
       Returns:
 	      Array — An array containing the elements that were removed from the original array. 
       """
-      removedValues = Array()
-      i = deleteCount
       if startIndex < 0:
          startIndex = len(self) + startIndex
-      while i > 0:
-         removedValues.push(self[startIndex])
-         self.removeAt(startIndex)
-         i -= 1
-      if len(values) > 0:
-         for i in range(0,len(values)):
-            self.insertAt(startIndex + i, values[i])
+      if deleteCount < 0:
+         RangeError(f"Array.splice; deleteCount can not be less than 0, deleteCount is {deleteCount}")
+         return None
+      removedValues = self[startIndex:startIndex+deleteCount]
+      self[startIndex:startIndex+deleteCount] = values
       return removedValues
    def toList(self):
       return list(self)
