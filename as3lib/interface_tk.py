@@ -598,7 +598,7 @@ class window:
    def disableResizing(self):
       self.children["root"].resizable(False,False)
    def endProcess(self):
-      with helpers.recursionDepth(100000) and helpers.stackLimit(100000): #workaround for python sefaulting while doing this
+      with helpers.recursionDepth(100000): #workaround for python sefaulting while doing this
          self.children["root"].destroy()
    def closeWindow(self):
       self.children["root"].destroy()
