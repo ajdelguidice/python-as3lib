@@ -385,6 +385,15 @@ class Array(list):
       elif len(self) < value:
          while len(self) < value:
             self.append(self.filler)
+   def __add__(self,item):
+      if type(item) not in (list,tuple,Array):
+         return Array(*super().__add__([item]))
+      return Array(*super().__add__(item))
+   def __iadd__(self,item):
+      if type(item) not in (list,tuple,Array):
+         self.push(item)
+      else:
+         self.extend(item)
    length = property(fget=_getLength,fset=_setLength)
    def setFiller(self,newFiller):
       self.filler = newFiller
@@ -688,6 +697,14 @@ class Array(list):
 	      String — A string of array elements. 
       """
       return self.toString()
+   def __listtostr(self,l):
+      a = ""
+      for i in l:
+         if type(i) in (list,tuple,Array):
+            a += self.__listtostr(i) + ","
+            continue
+         a += f"{i},"
+      return a[:-1]
    def toString(self, formatLikePython:bool|Boolean=False, interpretation=0):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
@@ -697,13 +714,7 @@ class Array(list):
       if formatLikePython == True:
          return str(self)
       elif interpretation == 1:
-         a = ""
-         for i in self:
-            if type(i) in (list,tuple):
-               a += toStr2(i) + ","
-               continue
-            a += f"{i},"
-         return a[:-1]
+         return self.__listtostr(self)
       else:
          return str(self)[1:-1].replace(", ",",")
    def unshift(self, *args):
