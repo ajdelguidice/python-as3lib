@@ -1134,38 +1134,40 @@ class Number:
    def valueOf(self):
       return self.number
 def parseFloat(str_:str|String):
-   while str_[0].isspace() == True:
-      str_ = str_[1:]
-   if str_[0].isdigit() == True:
-      tempstr = String()
-      for i in str_:
-         if i.isdigit() != True and i != ".":
-            break
-         tempstr += i
-      return Number(tempstr)
-   else:
-      return NaN()
+   i = 0
+   while str_[i].isspace():
+      i += 1
+   if str_[i].isdigit():
+      j=0
+      while str_[i+j].isdigit() or str_[i+j] == ".":
+         j += 1
+      return Number(str_[i:i+j])
+   return NaN()
 def parseInt(str_:str|String,radix:int|uint=0):
-   if radix < 2 or radix > 36:
+   l = len(str_)
+   zero = False
+   i = 0
+   while i < l and str_[i].isspace():
+      i += 1
+   if len(str_[i:]) >= 2 and str_[i:i+2] == "0x":
+      radix = 16
+      i += 2
+   elif radix < 2 or radix > 36:
       trace("parseInt",f"radix {radix} is outside of the acceptable range",isError=True)
       pass
-   if str_[0].isspace() == True:
-      while str_[0].isspace() == True:
-         str_ = str_[1:]
-   if len(str_) >= 2 and f"{str_[0]}{str_[1]}" == "0x":
-      radix = 16
-      str_ = str_[2:]
-   if len(str_) >= 1 and str_[0] == "0":
-      while str[0] == "0":
-         str_ = str_[1:]
+   while i < l and str_[i] == "0":
+      zero = True
+      i += 1
    radixchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:radix]
    str_ = str_.upper()
-   tempstr = String()
-   for i in str_:
-      if i not in radixchars:
-         break
-      tempstr += i
-   return int(builtins.int(tempstr,radix))
+   j = 0
+   while i+j < l and str_[i+j] in radixchars:
+      j += 1
+   if j == 0:
+      if zero:
+         return 0
+      return NaN()
+   return int(builtins.int(str_[i:i+j],radix))
 class QName:
    def __init__():
       pass
