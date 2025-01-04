@@ -727,11 +727,11 @@ class Array(list):
 	      String — A string of array elements. 
       """
       if formatLikePython == True:
-         return str(self)
+         return super().__str__(self)
       elif interpretation == 1:
          return self.__listtostr(self)
       else:
-         return str(self)[1:-1].replace(", ",",")
+         return super().__str__(self)[1:-1].replace(", ",",")
    def unshift(self, *args):
       """
       Adds one or more elements to the beginning of an array and returns the new length of the array. The other elements in the array are moved from their original position, i, to i+1.
