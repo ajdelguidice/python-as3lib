@@ -372,6 +372,13 @@ class Array(list):
             return value if value != None else undefined()
          except:
             return ""
+   def __setitem__(self,item,value):
+      if type(item) in (builtins.int,int,uint,Number) and item+1 > self.length:
+         """
+         When you assign a value to an array element (for example, my_array[index] = value), if index is a number, and index+1 is greater than the length property, the length property is updated to index+1.
+         """
+         self.length = item+1
+      super().__setitem__(item,value)
    def _getLength(self):
       return len(self)
    def _setLength(self,value:builtins.int|int):
