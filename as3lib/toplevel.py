@@ -500,6 +500,8 @@ class Array(list):
          for i in _Array:
             if type(i) in (list,tuple,Array):
                result += f"{self.join(_Array=i)}{sep}"
+            elif type(i) in (type(undefined()),type(None)):
+               result += sep
             else:
                result += f"{i}{sep}"
       elif interpretation == 1:
@@ -508,6 +510,8 @@ class Array(list):
                if result[-lsep:] == sep:
                   result = result[:-lsep] + f","
                result += f"{self.join(_Array=i)},"
+            elif type(i) in (type(undefined()),type(None)):
+               result += sep
             else:
                result += f"{i}{sep}"
       if result[-lsep:] == sep:
@@ -707,9 +711,12 @@ class Array(list):
          if type(i) in (list,tuple,Array):
             a += self.__listtostr(i) + ","
             continue
+         elif type(i) in (type(undefined()),type(None)):
+            a += ","
+            continue
          a += f"{i},"
       return a[:-1]
-   def toString(self, formatLikePython:bool|Boolean=False, interpretation=0):
+   def toString(self, formatLikePython:bool|Boolean=False, interpretation=1):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
       Returns:
