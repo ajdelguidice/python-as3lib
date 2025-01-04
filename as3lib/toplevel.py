@@ -398,6 +398,10 @@ class Array(list):
          self.push(item)
       else:
          self.extend(item)
+   def __str__(self):
+      return self.toString()
+   def __repr__(self):
+      return f"as3lib.toplevel.Array({self.toString()})"
    length = property(fget=_getLength,fset=_setLength)
    def setFiller(self,newFiller):
       self.filler = newFiller
