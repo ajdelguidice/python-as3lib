@@ -358,10 +358,7 @@ class Array(list):
          if numElements < 0:
             RangeError(f"Array; numElements can not be less than 0. numElements is {numElements}")
          else:
-            tempList = []
-            for i in range(0,numElements):
-               tempList.append(undefined())
-            super().__init__(tempList)
+            super().__init__([self.filler for i in range(numElements)])
    def __getitem__(self, item):
       if isinstance(item, slice):
          indices = range(*item.indices(len(self)))
