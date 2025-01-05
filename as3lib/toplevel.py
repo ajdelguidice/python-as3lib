@@ -1194,8 +1194,8 @@ class SecurityError():
       self.error = message
 class String(str):
    def __init__(self, value=""):
-      self._hiddeninit(self._String(value))
-   def _hiddeninit(self, value):
+      self.__hiddeninit(self._String(value))
+   def __hiddeninit(self, value):
       super().__init__()
    def _getLength(self):
       return len(self)
@@ -1215,20 +1215,18 @@ class String(str):
             return expression.toString()
          case _:
             return f"{expression}"
+   def __getitem__(self, item):
+      return String(super().__getitem__(item))
    def __add__(self, value):
-      return String(f"{self}{self._String(value)}")
-   def __iadd__(self, value):
       return String(f"{self}{self._String(value)}")
    def charAt(self, index:builtins.int|int=0):
       if index < 0 or index > len(self) - 1:
          return ""
-      else:
-         return self[index]
+      return self[index]
    def charCodeAt(self, index:builtins.int|int=0):
       if index < 0 or index > len(self) - 1:
          return NaN()
-      else:
-         return r'\u{:04X}'.format(ord(self[index]))
+      return parseInt(r'{:04X}'.format(ord(self[index])),16)
    def concat(self, *args):
       tempString = String(self)
       for i in args:
@@ -1239,11 +1237,7 @@ class String(str):
    def indexOf(self, val, startIndex:builtins.int|int=0):
       return self.find(val, startIndex)
    def lastIndexOf(self, val, startIndex:builtins.int|int=None):
-      tempInt = len(self)
-      if startIndex == None or startIndex > tempInt:
-         return self.rfind(val,0,tempInt)
-      else:
-         return self.rfind(val,0,startIndex)
+      ...
    def localeCompare():
       pass
    def match():
@@ -1253,57 +1247,31 @@ class String(str):
    def search():
       pass
    def slice(self,startIndex=0,endIndex=None):
-      #!
-      """
-      rtl = False
       if endIndex == None:
-         endIndex = len(self)
+         return self[startIndex:]
       if startIndex < 0:
-         rtl = True
-         startIndex = len(self) + startIndex
-      if endIndex < 0:
-         endIndex = len(self) + endIndex
-      """
-      pass
+         ...
+      return self[startIndex:endIndex]
    def split():
       pass
-   def substr(self, startIndex:builtins.int|int=0, Len:builtins.int|int=None):
-      tempInt = len(self)
-      if startIndex > tempInt - 1:
-         return String()
+   def substr(self, startIndex:builtins.int|int=0, len_:builtins.int|int=None):
+      if len_ < 0:
+         trace("Error")
       if startIndex < 0:
-         if startIndex > abs(tempInt) - 1:
-            startIndex = 0
-         else:
-            startIndex = tempInt + startIndex
-      if Len == None:
-         Len = tempInt
-      tempString = String()
-      for i in range(startIndex, startIndex + Len):
-         try:
-            tempString += self[i]
-         except:
-            break
-      return tempString
+         startIndex = len(self) + startIndex
+      if len_ == None:
+         return self[startIndex:]
+      return self[startIndex:startIndex+len_]
    def substring(self, startIndex:builtins.int|int=0, endIndex:builtins.int|int=None):
-      tempInt = len(self)
       if startIndex < 0:
          startIndex = 0
-      if endIndex != None:
-         if endIndex < 0:
-            endIndex = 0
-         elif endIndex > tempInt:
-            endIndex = tempInt
-      else:
+      if endIndex == None:
          endIndex = tempInt
+      if endIndex < 0:
+         endIndex = 0
       if startIndex > endIndex:
-         temp = startIndex
-         startIndex = endIndex
-         endIndex = temp
-      tempString = String()
-      for i in range(startIndex,endIndex):
-         tempString += self[i]
-      return tempString
+         return self[endIndex:startIndex]
+      return self[startIndex:endIndex]
    def toLocaleLowerCase(self):
       return self.toLowerCase()
    def toLocaleUpperCase(self):
@@ -1333,14 +1301,6 @@ def trace(*args, isError=False):
             pass
       else:
          output = ""
-         #if len(args) == 1:
-         #   output = f"{args[0]}"
-         #else:
-            #for i in range(0, len(args)):
-               #if i == len(args) - 1:
-               #   output += f"{args[i]}"
-               #else:
-               #   output += f"{args[i]} "
          for i in args:
             output += f"{i} "
          output = output[:-1]
