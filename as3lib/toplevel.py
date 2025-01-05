@@ -838,6 +838,8 @@ class int:
       self.value = self._int(value)
    def __str__(self):
       return f'{self.value}'
+   def __repr__(self):
+      return f'{self.value}'
    def __getitem__(self):
       return self.value
    def __setitem__(self, value):
