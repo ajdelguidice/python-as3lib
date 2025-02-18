@@ -33,7 +33,7 @@ Homepage = "https://github.com/ajdelguidice/python-as3lib"
 
 [tool.setuptools]
 packages = ["as3lib"]
-#ext-modules = [
-#    {name = "as3lib.cmath", sources = ["sourcecode/crypto.c"]},
-#    {name = "as3lib.flash._crypto", sources = ["sourcecode/crypto.c"]}
-#]
+ext-modules = [
+    {name = "as3lib.cmath", sources = ["sourcecode/cmath.c"]},
+    {name = "as3lib.flash._crypto", sources = ["sourcecode/crypto.c"]}
+]
