@@ -563,7 +563,7 @@ class Array(list):
       Parameters:
          *args — One or more values to append to the array.
       """
-      self+=list(args)
+      self.extend(args)
    def removeAt(self, index:builtins.int|int):
       """
       Remove a single element from an array. This method modifies the array without making a copy.
