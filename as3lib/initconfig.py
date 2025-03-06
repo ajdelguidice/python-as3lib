@@ -4,6 +4,14 @@ import configparser
 from pathlib import Path
 from os.path import dirname
 
+if platform.system() == "Windows":
+   from os import getlogin
+   import ctypes
+   import win32api
+elif platform.system() in ("Linux","Darwin"):
+   from os import getuid
+   from pwd import getpwuid
+
 """
 initerror list
 1: platform not implemented yet
@@ -15,46 +23,36 @@ def defaultTraceFilePath():
    """
    Outputs the default file path for trace in this library
    """
-   match configmodule.platform:
-      case "Windows":
-         path = fr"{configmodule.librarydirectory}\flashlog.txt"
-      case "Linux" | "Darwin":
-         path = f"{configmodule.librarydirectory}/flashlog.txt"
-   return path
+   if configmodule.platform == "Windows":
+      return fr"{configmodule.librarydirectory}\flashlog.txt"
+   elif configmodule.platform in ("Linux","Darwin"):
+      return f"{configmodule.librarydirectory}/flashlog.txt"
 
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
    """
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
    """
-   match configmodule.platform:
-      case "Linux" | "Darwin":
-         from os import getuid
-         from pwd import getpwuid
-         username = getpwuid(getuid())[0]
-      case "Windows":
-         from os import getlogin
-         username = getlogin()
+   if configmodule.platform == "Windows":
+      username = getlogin()
+   elif configmodule.platform in ("Linux","Darwin"):
+      username = getpwuid(getuid())[0]
    if versionOverride == True:
-      match overrideSystem:
-         case "Linux":
-            return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
-         case "Darwin":
-            return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
-         case "Windows ":
-            match overrideVersion:
-               case "95" | "98" | "ME" | "XP":
-                  return fr"C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt"
-               case "Vista" | "7" | "8" | "8.1" | "10" | "11":
-                  return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
-   else:
-      match configmodule.platform:
-         case "Linux":
-            return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
-         case "Windows":
+      if overrideSystem == "Linux":
+         return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
+      elif overrideSystem == "Darwin":
+         return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
+      elif overrideSystem == "Windows":
+         if overrideVersion in ("95","98","ME","XP"):
+            return fr"C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt"
+         elif overrideVersion in ("Vista","7","8","8.1","10","11"):
             return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
-         case "Darwin":
-            return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
+   elif configmodule.platform == "Linux":
+      return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
+   elif configmodule.platform == "Windows":
+      return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
+   elif configmodule.platform == "Darwin":
+      return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
 
 def sm_x11():
    """
@@ -65,21 +63,15 @@ def sm_x11():
       if option.find("*") != -1:
          curop = option.split(" ")
          break
-      else:
-         continue
    ops = []
    for i in curop:
-      if i == "":
-         continue
-      else:
+      if i != "":
          ops.append(i)
    ops.pop(0)
    for i in ops:
       if i.find("*") != -1:
          temprr = i.replace("*","").replace("+","")
          break
-      else:
-         continue
    cdp = f'{subprocess.check_output("xwininfo -root | grep Depth", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
    tempwidth = f'{subprocess.check_output("xwininfo -root | grep Width", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
    tempheight = f'{subprocess.check_output("xwininfo -root | grep Height", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
@@ -121,43 +113,39 @@ def sm_wayland():
    return int(sw), int(sh), float(rr), int(cd)
 
 def sm_windows():
-   import ctypes
-   import win32api
-   temp = []
+   #temp = []
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   for i in ('BitsPerPel', 'DisplayFrequency'):
-      temp.append(getattr(settings, i))
+   #for i in ('BitsPerPel', 'DisplayFrequency'):
+   #   temp.append(getattr(settings, i))
+   temp = (getattr(settings,i) for i in ('BitsPerPel', 'DisplayFrequency'))
    return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[1]), int(temp[0])
 
 def sm_darwin():
    pass
 
-def indexOf_String(string:str, find:str):
+def indexOf_String(string:str, find:str): #!unused
    try:
       return string.index(find)
    except:
       return -1
 
 def getSeparator():
-   match configmodule.platform:
-      case "Windows":
-         return "\\"
-      case "Linux" | "Darwin":
-         return "/"
+   if configmodule.platform == "Windows":
+      return "\\"
+   elif configmodule.platform ("Linux","Darwin"):
+      return "/"
 
 def getDesktopDir():
-   match configmodule.platform:
-      case "Windows":
-         return fr"{configmodule.userdirectory}\Desktop"
-      case "Linux" | "Darwin":
-         return fr"{configmodule.userdirectory}/Desktop"
+   if configmodule.platform == "Windows":
+      return fr"{configmodule.userdirectory}\Desktop"
+   elif configmodule.platform ("Linux","Darwin"):
+      return fr"{configmodule.userdirectory}/Desktop"
 
 def getDocumentsDir():
-   match configmodule.platform:
-      case "Windows":
-         return fr"{configmodule.userdirectory}\Documents"
-      case "Linux" | "Darwin":
-         return fr"{configmodule.userdirectory}/Documents"
+   if configmodule.platform == "Windows":
+      return fr"{configmodule.userdirectory}\Documents"
+   elif configmodule.platform ("Linux","Darwin"):
+      return fr"{configmodule.userdirectory}/Documents"
 
 def getdmtype():
    temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
@@ -185,33 +173,32 @@ def getdmname():
 
 def dependencyCheck():
    #!Make checks functional and reliable
-   match configmodule.platform:
-      case "Linux":
-         wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
-         if wmt == "wayland":
-            x=0
-         else:
-            if str(subprocess.check_output("xwininfo -version",shell=True))[2:10] != "xwininfo":
-               configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
-            if str(subprocess.check_output("xrandr --version",shell=True))[2:8] != "xrandr":
-               configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
-         if str(subprocess.check_output("bash --version",shell=True))[2:10] != "GNU bash":
-            configmodule.initerror.append((3,"linux requirement 'bash' not found"))
-         if str(subprocess.check_output("echo test",shell=True))[2:6] != "test":
-            configmodule.initerror.append((3,"linux requirement 'echo' not found"))
-         if str(subprocess.check_output("awk --version",shell=True))[2:9] != "GNU Awk":
-            configmodule.initerror.append((3,"linux requirement 'awk' not found"))
-         if str(subprocess.check_output("whoami --version",shell=True))[2:8] != "whoami":
-            configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
-         if str(subprocess.check_output("loginctl --version",shell=True))[2:9] != "systemd":
-            configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
-      case "Windows":
-         pass
-      case "Darwin":
-         pass
-      #<a href="https://pypi.org/project/numpy">numpy</a>
-      #<a href="https://pypi.org/project/Pillow">Pillow</a>
-      #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+   if configmodule.platform == "Linux":
+      wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
+      if wmt == "wayland":
+         x=0
+      else:
+         if str(subprocess.check_output("xwininfo -version",shell=True))[2:10] != "xwininfo":
+            configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
+         if str(subprocess.check_output("xrandr --version",shell=True))[2:8] != "xrandr":
+            configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
+      if str(subprocess.check_output("bash --version",shell=True))[2:10] != "GNU bash":
+         configmodule.initerror.append((3,"linux requirement 'bash' not found"))
+      if str(subprocess.check_output("echo test",shell=True))[2:6] != "test":
+         configmodule.initerror.append((3,"linux requirement 'echo' not found"))
+      if str(subprocess.check_output("awk --version",shell=True))[2:9] != "GNU Awk":
+         configmodule.initerror.append((3,"linux requirement 'awk' not found"))
+      if str(subprocess.check_output("whoami --version",shell=True))[2:8] != "whoami":
+         configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
+      if str(subprocess.check_output("loginctl --version",shell=True))[2:9] != "systemd":
+         configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
+   elif configmodule.platform == "Windows":
+      pass
+   elif configmodule.platform == "Darwin":
+      pass
+   #<a href="https://pypi.org/project/numpy">numpy</a>
+   #<a href="https://pypi.org/project/Pillow">Pillow</a>
+   #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
 
 def initconfig():
    #set up variables needed by mutiple modules
@@ -225,78 +212,75 @@ def initconfig():
    configmodule.defaultTraceFilePath = defaultTraceFilePath()
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    configmodule.pythonversion = platform.python_version()
-   match configmodule.platform:
-      case "Linux":
-         configmodule.windowmanagertype = getdmtype()
-         configmodule.dmname = getdmname()
-         match configmodule.windowmanagertype:
-            case "x11":
-               temp = sm_x11()
-               configmodule.width = temp[0]
-               configmodule.height = temp[1]
-               configmodule.refreshrate = temp[2]
-               configmodule.colordepth = temp[3]
-            case "wayland":
-               temp = sm_wayland()
-               configmodule.width = temp[0]
-               configmodule.height = temp[1]
-               configmodule.refreshrate = temp[2]
-               configmodule.colordepth = temp[3]
-            case _:
-               configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not found"))
-      case "Windows":
-         #configmodule.initerror.append((1,"Error fetching screen properties; Windows; Not Implemented Yet"))
-         temp = sm_windows()
+   if configmodule.platform == "Linux":
+      configmodule.windowmanagertype = getdmtype()
+      configmodule.dmname = getdmname()
+      if configmodule.windowmanagertype == "x11":
+         temp = sm_x11()
          configmodule.width = temp[0]
          configmodule.height = temp[1]
          configmodule.refreshrate = temp[2]
          configmodule.colordepth = temp[3]
-      case "Darwin":
-         configmodule.initerror.append((1,"Error fetching screen properties; Darwin; Not Implemented Yet"))
-         #configmodule.width = temp[0]
-         #configmodule.height = temp[1]
-         #configmodule.refreshrate = temp[2]
-         #configmodule.colordepth = temp[3]
-         pass
-   match configmodule.platform:
-      case "Linux" | "Darwin":
-         configpath = f"{configmodule.librarydirectory}/mm.cfg"
-         if Path(configpath).exists() == True:
-            with open(configpath, 'r') as f:
-               configwithheader = '[dummy_section]\n' + f.read()
-            config = configparser.ConfigParser()
-            config.read_string(configwithheader)
-            actual_config = config["dummy_section"]
-            existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-            if existing_options[0] == True:
-               configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-            if existing_options[1] == True:
-               configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-            if existing_options[2] == True:
-               configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-            if existing_options[3] == True:
-               configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-            if existing_options[4] == True:
-               configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
-      case "Windows":
-         configpath = fr"{configmodule.librarydirectory}\mm.cfg"
-         if Path(configpath).exists() == True:
-            with open(configpath, 'r') as f:
-               configwithheader = '[dummy_section]\n' + f.read()
-            config = configparser.ConfigParser()
-            config.read_string(configwithheader)
-            actual_config = config["dummy_section"]
-            existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-            if existing_options[0] == True:
-               configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-            if existing_options[1] == True:
-               configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-            if existing_options[2] == True:
-               configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-            if existing_options[3] == True:
-               configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-            if existing_options[4] == True:
-               configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+      elif configmodule.windowmanagertype == "wayland":
+         temp = sm_wayland()
+         configmodule.width = temp[0]
+         configmodule.height = temp[1]
+         configmodule.refreshrate = temp[2]
+         configmodule.colordepth = temp[3]
+      else:
+         configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not found"))
+   elif configmodule.platform == "Windows":
+      #configmodule.initerror.append((1,"Error fetching screen properties; Windows; Not Implemented Yet"))
+      temp = sm_windows()
+      configmodule.width = temp[0]
+      configmodule.height = temp[1]
+      configmodule.refreshrate = temp[2]
+      configmodule.colordepth = temp[3]
+   elif configmodule.platform == "Darwin":
+      configmodule.initerror.append((1,"Error fetching screen properties; Darwin; Not Implemented Yet"))
+      #configmodule.width = temp[0]
+      #configmodule.height = temp[1]
+      #configmodule.refreshrate = temp[2]
+      #configmodule.colordepth = temp[3]
+      pass
+   if configmodule.platform in ("Linux","Darwin"):
+      configpath = f"{configmodule.librarydirectory}/mm.cfg"
+      if Path(configpath).exists() == True:
+         with open(configpath, 'r') as f:
+            configwithheader = '[dummy_section]\n' + f.read()
+         config = configparser.ConfigParser()
+         config.read_string(configwithheader)
+         actual_config = config["dummy_section"]
+         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+         if existing_options[0] == True:
+            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+         if existing_options[1] == True:
+            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
+         if existing_options[2] == True:
+            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+         if existing_options[3] == True:
+            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
+         if existing_options[4] == True:
+            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+   elif configmodule.platform == "Windows":
+      configpath = fr"{configmodule.librarydirectory}\mm.cfg"
+      if Path(configpath).exists() == True:
+         with open(configpath, 'r') as f:
+            configwithheader = '[dummy_section]\n' + f.read()
+         config = configparser.ConfigParser()
+         config.read_string(configwithheader)
+         actual_config = config["dummy_section"]
+         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+         if existing_options[0] == True:
+            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+         if existing_options[1] == True:
+            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
+         if existing_options[2] == True:
+            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+         if existing_options[3] == True:
+            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
+         if existing_options[4] == True:
+            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
    if configmodule.TraceOutputFileName == "":
       configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
    if Path(configmodule.TraceOutputFileName).is_dir() == True:
