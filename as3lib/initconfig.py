@@ -172,26 +172,41 @@ def getdmname():
    return "error"
 
 def dependencyCheck():
-   #!Make checks functional and reliable
    if configmodule.platform == "Linux":
       wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
       if wmt == "wayland":
          x=0
       else:
-         if str(subprocess.check_output("xwininfo -version",shell=True))[2:10] != "xwininfo":
+         try:
+            subprocess.check_output("which xwininfo",shell=True)
+         except:
             configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
-         if str(subprocess.check_output("xrandr --version",shell=True))[2:8] != "xrandr":
+         try:
+            subprocess.check_output("which xrandr",shell=True)
+         except:
             configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
-      if str(subprocess.check_output("bash --version",shell=True))[2:10] != "GNU bash":
+      try:
+         subprocess.check_output("which bash",shell=True)
+      except:
          configmodule.initerror.append((3,"linux requirement 'bash' not found"))
-      if str(subprocess.check_output("echo test",shell=True))[2:6] != "test":
-         configmodule.initerror.append((3,"linux requirement 'echo' not found"))
-      if str(subprocess.check_output("awk --version",shell=True))[2:9] != "GNU Awk":
+      try:
+         subprocess.check_output("which awk",shell=True)
+      except:
          configmodule.initerror.append((3,"linux requirement 'awk' not found"))
-      if str(subprocess.check_output("whoami --version",shell=True))[2:8] != "whoami":
+      try:
+         subprocess.check_output("which whoami",shell=True)
+      except:
          configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
-      if str(subprocess.check_output("loginctl --version",shell=True))[2:9] != "systemd":
+      try:
+         subprocess.check_output("which loginctl",shell=True)
+      except:
          configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
+      try:
+         subprocess.check_output("which echo",shell=True)
+         if str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] != "test":
+            raise
+      except:
+         configmodule.initerror.append((3,"linux requirement 'echo' not found"))
    elif configmodule.platform == "Windows":
       pass
    elif configmodule.platform == "Darwin":
