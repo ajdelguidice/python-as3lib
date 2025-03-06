@@ -9,7 +9,7 @@ If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead. This is
 <br>Using "from as3lib import *" currently imports everything from the toplevel module with int renamed to Int so it doesn't conflict with python's int.
 <h3>Requirements</h3>
 Linux:
-<br>&emsp;a posix compatible shell, echo, grep, awk, loginctl, whoami
+<br>&emsp;a posix compatible shell, echo, grep, awk, loginctl, whoami, which
 <br>&emsp;(xorg): xwininfo, xrandr
 <br>Windows:
 <br>&emsp;PyLaucher
