@@ -132,19 +132,19 @@ def indexOf_String(string:str, find:str): #!unused
 def getSeparator():
    if configmodule.platform == "Windows":
       return "\\"
-   elif configmodule.platform ("Linux","Darwin"):
+   elif configmodule.platform in ("Linux","Darwin"):
       return "/"
 
 def getDesktopDir():
    if configmodule.platform == "Windows":
       return fr"{configmodule.userdirectory}\Desktop"
-   elif configmodule.platform ("Linux","Darwin"):
+   elif configmodule.platform in ("Linux","Darwin"):
       return fr"{configmodule.userdirectory}/Desktop"
 
 def getDocumentsDir():
    if configmodule.platform == "Windows":
       return fr"{configmodule.userdirectory}\Documents"
-   elif configmodule.platform ("Linux","Darwin"):
+   elif configmodule.platform in ("Linux","Darwin"):
       return fr"{configmodule.userdirectory}/Documents"
 
 def getdmtype():
