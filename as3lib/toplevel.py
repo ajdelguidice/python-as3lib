@@ -26,6 +26,8 @@ class Number:...
 class String:...
 class uint:...
 class Vector:...
+class NInfinity:...
+class Infinity:...
 
 #Objects with set values
 class NInfinity:
@@ -37,32 +39,27 @@ class NInfinity:
    def __repr__(self):
       return self.__value
    def __lt__(self, value):
-      if typeName(value) == "NInfinity":
+      if isinstance(value,NInfinity):
          return False
-      else:
-         return True
+      return True
    def __le__(self, value):
-      if typeName(value) == "NInfinity":
+      if isinstance(value,NInfinity):
          return True
-      else:
-         return False
+      return False
    def __eq__(self, value):
-      if typeName(value) == "NInfinity":
+      if isinstance(value,NInfinity):
          return True
-      else:
-         return False
+      return False
    def __ne__(self, value):
-      if typeName(value) == "NInfinity":
+      if isinstance(value,NInfinity):
          return False
-      else:
-         return True
+      return True
    def __gt__(self, value):
       return False
    def __ge__(self, value):
-      if typeName(value) == "NInfinity":
-         return True
-      else:
+      if isinstance(value,NInfinity):
          return False
+      return True
    def __bool__(self):
       return True
    def __getattr__(self, value):
@@ -140,25 +137,21 @@ class Infinity:
    def __lt__(self, value):
       return False
    def __le__(self, value):
-      if typeName(value) == "Infinity":
+      if isinstance(value,Infinity):
          return True
-      else:
-         return False
+      return False
    def __eq__(self, value):
-      if typeName(value) == "Infinity":
+      if isinstance(value,Infinity):
          return True
-      else:
-         return False
+      return False
    def __ne__(self, value):
-      if typeName(value) == "Infinity":
+      if isinstance(value,Infinity):
          return False
-      else:
-         return True
+      return True
    def __gt__(self, value):
-      if typeName(value) == "Infinity":
+      if isinstance(value,Infinity):
          return False
-      else:
-         return True
+      return True
    def __ge__(self, value):
       return True
    def __bool__(self):
@@ -920,15 +913,13 @@ class int:
    def valueOf(self):
       return self.value
 def isFinite(num):
-   if num in (inf,NINF,NaN) or typeName(num) in ("NInfinity","Infinity","NaN"):
+   if num in (inf,NINF,NaN) or isinstance(num,NInfinity) or isinstance(num,Infinity) or isinstance(num,NaN):
       return False
-   else:
-      return True
+   return True
 def isNaN(num):
-   if num == nan or typeName(num) == "NaN":
+   if num == nan or isinstance(num,NaN):
       return True
-   else:
-      return False
+   return False
 def isXMLName(str_:str|String):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = "-_."
@@ -1521,27 +1512,19 @@ def formatTypeToName(arg:type):
    else:
       return tempStr.split("'")[1]
 def isEven(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
-   match typeName(Num):
-      case "NaN" | "Infinity" | "NInfinity":
-         return False
-      case "int" | "uint":
-         if Num % 2 == 0:
-            return True
-         else:
-            return False
-      case "float" | "Number":
-         pass
+   if isinstance(Num,NaN) or isinstance(Num,Infinity) or isinstance(Num,NInfinity):
+      return False
+   elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
+      return True if Num % 2 == 0 else False
+   elif isinstance(Num,float) or issubclass(Num,Number):
+      ...
 def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
-   match typeName(Num):
-      case "NaN" | "Infinity" | "NInfinity":
-         return False
-      case "int" | "uint":
-         if Num % 2 == 0:
-            return False
-         else:
-            return True
-      case "float" | "Number":
-         pass
+   if isinstance(Num,NaN) or isinstance(Num,Infinity) or isinstance(Num,NInfinity):
+      return False
+   elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
+      return False if Num % 2 == 0 else True
+   elif isinstance(Num,float) or issubclass(Num,Number):
+      ...
 def _isValidDirectory(directory,separator=configmodule.separator):
    match configmodule.platform:
       case "Windows":
