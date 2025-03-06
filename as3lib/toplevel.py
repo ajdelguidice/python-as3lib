@@ -749,55 +749,34 @@ class Boolean:
    Lets you create boolean object similar to ActionScript3
    Since python is case sensitive the values are "True" or "False" instead of "true" or "false"
    """
-   __slots__ = ("bool")
+   __slots__ = ("_value")
    def __init__(self, expression=False):
-      self.bool = self._Boolean(expression)
+      self._value = self._Boolean(expression)
    def __str__(self):
-      return f'{self.bool}'
+      return f'{self._value}'.lower()
    def __getitem__(self):
-      return self.bool
+      return self._value
    def __setitem__(self, value):
-      self.bool = value
-   def _Boolean(self, expression, strrepbool:bool|Boolean=False):
-      match typeName(expression):
-         case "bool":
-            return expression
-         case "Boolean":
-            return expression.value
-         case "int" | "float" | "uint" | "Number":
-            if expression == 0:
-               return False
-            else:
-               return True
-         case "NaN":
-            return False
-         case "str" | "String":
-            match expression:
-               case "false":
-                  if strrepbool == True:
-                     return False
-                  else:
-                     return True
-               case "true":
-                  return True
-               case "":
-                  return False
-               case _:
-                  return True
-         case "null":
-            return False
-         case "undefined":
-            return False
-   def toString(self, formatLikePython:bool|Boolean=False):
-      if formatLikePython == True:
-         return f"{self.bool}"
-      else:
-         return f"{self.bool}".lower()
-   def valueOf(self):
-      if self.bool == True:
-         return True
-      else:
+      self._value = value
+   def _Boolean(self, expression=None, strrepbool:bool|Boolean=False):
+      if isinstance(expression,bool):
+         return expression
+      elif issubclass(expression,Boolean):
+         return expression._value
+      elif isinstance(expression,builtins.int) or isinstance(expression,float) or issubclass(expression,uint) or issubclass(expression,int) or issubclass(expression,Number):
+         return False if expression == 0 else True
+      elif isinstance(expression, NaN) or isinstance(expression,null) or isinstance(expression,undefined):
          return False
+      elif issubclass(expression,str):
+         if expression == "":
+            return False
+         elif expression == "false":
+            return False if strrepbool == True else True
+         return True
+   def toString(self, formatLikePython:bool|Boolean=False):
+      return f"{self._value}" if formatLikePython == True else f"{self._value}".lower()
+   def valueOf(self):
+      return self._value
 class Date:
    pass
 class DefinitionError():
