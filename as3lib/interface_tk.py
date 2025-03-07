@@ -120,7 +120,7 @@ class ComboEntryBox:
    def configure(self,**kwargs):
       k = list(kwargs.keys())
       v = list(kwargs.values())
-      for i in range(0,len(k)):
+      for i in range(len(k)):
          match k[i]:
             case "x" | "y" | "anchor":
                self._properties[k[i]] = v[i]
@@ -163,10 +163,7 @@ class ComboEntryBox:
    def getEntry(self,number,*args):
       return self.entries[number].get()
    def getEntries(self,*args):
-      temp = []
-      for i in self.entries:
-         temp.append(i.get())
-      return temp
+      return [i.get() for i in self.entries]
    def destroy(self):
       self.frame.destroy()
 class FileBoxWithLabels:
@@ -271,7 +268,7 @@ class ComboCheckboxUserEntry:
             self.ue = tkinter.Entry(self.frame,textvariable=self.uevar)
             self.fb = tkinter.Button(self.frame,command=self.selectfile)
             self.fb.place(x=width-height,y=height,width=height,height=height,anchor="nw")
-         if entrytype in ("Entry","Combo"):
+         if entrytype == "Entry" or entrytype == "Combo":
             self.ue.place(x=indent+text2[0],y=height,width=entrywidth,height=height,anchor="nw")
             self.checkCB()
          else:
@@ -347,7 +344,7 @@ class ComboCheckboxUserEntry:
       if et == "Single":
          self.cb.place(x=0,y=0,width=h,height=h,anchor="nw")
          self.l1.place(x=h,y=0,width=w-h,height=h,anchor="nw")
-      elif et in ("Entry","Combo"):
+      elif et == "Entry" or et == "Combo":
          self.cb.place(x=0,y=0,width=h,height=h,anchor="nw")
          self.l1.place(x=h,y=0,width=w-h,height=h,anchor="nw")
          self.l2.place(x=i,y=h,width=t2_0,height=h,anchor="nw")
@@ -392,10 +389,9 @@ class ComboCheckboxUserEntry:
                else:
                   print(f"Invalid filetype '{v[i]}', must be 'file' or 'dir'.")
             case "values":
-               if type(v[i]) in (list,tuple):
-                  if self._properties["entrytype"] == "Combo":
-                     self._properties["combovalues"] = list(v[i])
-                     self.ue["values"] = list(v[i])
+               if type(v[i]) in (list,tuple) and self._properties["entrytype"] == "Combo":
+                  self._properties["combovalues"] = list(v[i])
+                  self.ue["values"] = list(v[i])
             case "foreground" | "fg":
                self.changeForeground(v[i])
             case "background" | "bg":
@@ -522,15 +518,14 @@ class window:
          self.windowproperties["dheight"] = dheight
       if confmod.width not in (-1,None) and confmod.height not in (-1,None):
          self.children["root"].maxsize(confmod.width,confmod.height)
-      match type_:
-         case "canvas":
-            self.children["display"] = tkinter.Canvas(self.children["root"], background=self.windowproperties["color"], confine=True)
-            self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
-         case "frame":
-            self.children["display"] = tkinter.Frame(self.children["root"], background=self.windowproperties["color"])
-            self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
-         case _:
-            raise Exception("type_ must be either frame or canvas.")
+      if type_ == "canvas":
+         self.children["display"] = tkinter.Canvas(self.children["root"], background=self.windowproperties["color"], confine=True)
+         self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
+      elif type_ == "frame":
+         self.children["display"] = tkinter.Frame(self.children["root"], background=self.windowproperties["color"])
+         self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
+      else:
+         raise Exception("type_ must be either frame or canvas.")
       self.children["root"].bind("<Configure>",self.doResize)
       self.children["root"].geometry(f"{self.windowproperties['dwidth']}x{self.windowproperties['dheight']}")
       self.children["root"].bind("<Escape>",self.outfullscreen)
@@ -548,29 +543,27 @@ class window:
       tempStr = "." + f"{num}".split(".")[1]
       if float(tempStr) >= 0.5: #0.85? 0.5? 1?
          return math.ceil(num)
-      else:
-         return math.floor(num)
+      return math.floor(num)
    def minimumSize(self,type_:str="b",**kwargs):
       """
       type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
       kwargs must include width, height, or both depending on what you chose for type_
       if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
       """
-      match type_:
-         case "w":
-            if self.windowproperties["mainwindow"] == True:
-               self.children["root"].minsize(kwargs["width"],int((kwargs["width"]*self.windowproperties["startheight"])/self.windowproperties["startwidth"]) + 28)
-            else:
-               self.children["root"].minsize(kwargs["width"],int((kwargs["width"]*self.windowproperties["startheight"])/self.windowproperties["startwidth"]))
-         case "h":
-            if self.windowproperties["mainwindow"] == True:
-               self.children["root"].minsize(int((self.windowproperties["startwidth"]*kwargs["height"])/self.windowproperties["startheight"]) - 52,kwargs["height"])
-            else:
-               self.children["root"].minsize(int((self.windowproperties["startwidth"]*kwargs["height"])/self.windowproperties["startheight"]),kwargs["height"])
-         case "b":
-            self.children["root"].minsize(kwargs["width"],kwargs["height"])
-         case _:
-            as3.trace("Invalid type")
+      if type_ == "w":
+         if self.windowproperties["mainwindow"] == True:
+            self.children["root"].minsize(kwargs["width"],int((kwargs["width"]*self.windowproperties["startheight"])/self.windowproperties["startwidth"]) + 28)
+         else:
+            self.children["root"].minsize(kwargs["width"],int((kwargs["width"]*self.windowproperties["startheight"])/self.windowproperties["startwidth"]))
+      elif type_ == "h":
+         if self.windowproperties["mainwindow"] == True:
+            self.children["root"].minsize(int((self.windowproperties["startwidth"]*kwargs["height"])/self.windowproperties["startheight"]) - 52,kwargs["height"])
+         else:
+            self.children["root"].minsize(int((self.windowproperties["startwidth"]*kwargs["height"])/self.windowproperties["startheight"]),kwargs["height"])
+      elif type_ == "b":
+         self.children["root"].minsize(kwargs["width"],kwargs["height"])
+      else:
+         as3.trace("Invalid type")
    def minimumSizeReset(self):
       if self.windowproperties["mainwindow"] == True:
          self.children["root"].minsize(262,int((262*self.windowproperties["startheight"])/self.windowproperties["startwidth"]) + 28)
@@ -589,7 +582,7 @@ class window:
       self.children["root"].iconphoto(True,PIL.ImageTk.PhotoImage(PIL.Image.open(img)))
    def mainloop(self):
       if self.windowproperties["mainwindow"] == False:
-         print("Can not run mainloop on a child window.")
+         as3.trace("Can not run mainloop on a child window.")
       else:
          self.resizeChildren(100)
          self.children["root"].mainloop()
@@ -603,11 +596,10 @@ class window:
    def closeWindow(self):
       self.children["root"].destroy()
    def togglefullscreen(self):
-      match self.windowproperties["fullscreen"]:
-         case False:
-            self.gofullscreen()
-         case True:
-            self.outfullscreen()
+      if self.windowproperties["fullscreen"] == True:
+         self.outfullscreen()
+      else:
+         self.gofullscreen()
    def gofullscreen(self):
       self.windowproperties["fullscreen"] = True
       self.children["root"].attributes("-fullscreen", True)
@@ -732,20 +724,15 @@ class window:
          self.childproperties[name] = [None,"HTMLText",x,y,width,height,font,anchor]
          self.resizeChild(name, self.windowproperties["oldmult"])
    def prepareHTMLST(self, child:str, text:str):
-      if self.htmlproperties[child][2] == text:
-         self.HTMLUpdateText(child, True)
-      else:
+      if self.htmlproperties[child][2] != text:
          self.htmlproperties[child][2] = text
-         self.HTMLUpdateText(child)
-   def HTMLUpdateText(self, child:str, rt=False):
+         self.htmlproperties[child][3] = self.htmlproperties[child][2].replace("\t","    ")
+      self.HTMLUpdateText(child)
+   def HTMLUpdateText(self, child:str):
       self.children[child]["state"] = "normal"
       font = self.childproperties[child][6]
-      if rt == False:
-         self.htmlproperties[child][3] = self.htmlproperties[child][2].replace("\t","    ")
-      text = f"<pre style=\"color: {self.htmlproperties[child][0]}; background-color: {self.htmlproperties[child][1]}; font-size: {cmath.resizefont(font[1],self.windowproperties['oldmult'])}px; font-family: {font[0]}\">{self.htmlproperties[child][3]}</pre>"
-      if self.htmlproperties[child][4]:
-         text = f"<b>{text}</b>"
-      self.children[child].set_html(text)
+      temp = ("<b>","</b>") if self.htmlproperties[child][4] == True else ("","")
+      self.children[child].set_html(f"{temp[0]}<pre style=\"color: {self.htmlproperties[child][0]}; background-color: {self.htmlproperties[child][1]}; font-size: {cmath.resizefont(font[1],self.windowproperties['oldmult'])}px; font-family: {font[0]}\">{self.htmlproperties[child][3]}</pre>{temp[1]}")
       self.children[child]["state"] = "disabled"
    def addImage(self, image_name:str, image_data, size:tuple=None):
       """
@@ -753,7 +740,7 @@ class window:
       if size is not defined it is assumed to be the actual image size
       """
       if image_name == "":
-         trace("interfacetkError","image_name can not be empty string",isError=True)
+         as3.trace("interfacetkError","image_name can not be empty string",isError=True)
          pass
       self.imagedict[image_name] = [0,[],image_data,""]
       if size != None:
@@ -931,134 +918,124 @@ class window:
       for i in self.imagedict:
          self.resizeImage((int(self.imagedict[i][1][0]*nm),int(self.imagedict[i][1][1]*nm)),i)
       for i in self.childproperties:
-         if i in ("display","root"):
-            continue
-         cl = self.childproperties[i]
-         if cl[1] == "nwhLabel":
-            self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,anchor=cl[7])
-         elif cl[1] == "CheckboxWithLabel":
-            self.children[i].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
-         elif cl[1] in ("CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
-            self.children[i].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7],indent=cl[9]*nm,entrywidth=cl[10]*nm,text2=cl[11]*nm)
-         elif cl[1] == "Notebook":
-            if cl[2] != None and cl[3] != None and cl[4] != None and cl[5] != None:
-               self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
+         if i not in ("display","root"):
+            cl = self.childproperties[i]
+            if cl[1] == "nwhLabel":
+               self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,anchor=cl[7])
+            elif cl[1] == "CheckboxWithLabel":
+               self.children[i].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
+            elif cl[1] in ("CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
+               self.children[i].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7],indent=cl[9]*nm,entrywidth=cl[10]*nm,text2=cl[11]*nm)
+            elif cl[1] == "Notebook":
+               if cl[2] != None and cl[3] != None and cl[4] != None and cl[5] != None:
+                  self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
+               else:
+                  self.children[i].pack(expand=True)
+            elif cl[1] == "NBFrame":
+               self.children[i]["width"] = cl[4]*nm
+               self.children[i]["height"] = cl[5]*nm
             else:
-               self.children[i].pack(expand=True)
-         elif cl[1] == "NBFrame":
-            self.children[i]["width"] = cl[4]*nm
-            self.children[i]["height"] = cl[5]*nm
-         else:
-            self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
-         match cl[1]:
-            case "HTMLScrolledText":
+               self.children[i].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
+            if cl[1] == "HTMLScrolledText":
                if self.htmlproperties[i][5][0] == True:
                   self.children[i].vbar["width"] = self.htmlproperties[i][5][1]*nm
-               self.HTMLUpdateText(i,True)
-            case "HTMLText":
-               self.HTMLUpdateText(i,True)
-            case "ScrolledListbox":
+               self.HTMLUpdateText(i)
+            elif cl[1] == "HTMLText":
+               self.HTMLUpdateText(i)
+            elif cl[1] == "ScrolledListbox":
                if self.sbsettings[i][0] == True:
                   self.children[i].vbar["width"] = self.sbsettings[i][1]*nm
                self.children[i]["font"] = self.resizefont(cl[6],mult)
-            case "ImageLabel":
+            elif cl[1] == "ImageLabel":
                self.children[i]["image"] = self.imagedict[cl[8]][3]
-            case "CheckboxWithLabel"|"CheckboxlabelWithEntry"|"CheckboxlabelWithCombobox"|"FileEntryBox":
+            elif cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
                self.children[i].changeFont(self.resizefont(cl[6],mult))
-            case "Notebook" | "NBFrame":
+            elif cl[1] in ("Notebook","NBFrame"):
                continue
-            case "ComboLabelWithRadioButtons":
+            elif cl[1] == "ComboLabelWithRadioButtons":
                self.children[i].font = self.resizefont(cl[6],mult)
-            case _:
-               if cl[1] != "Frame":
-                  self.children[i]["font"] = self.resizefont(cl[6],mult)
+            elif cl[1] != "Frame":
+               self.children[i]["font"] = self.resizefont(cl[6],mult)
    def resizeChild(self, child:str, mult):
-      if child not in self.children or child in ("display","root"):
-         pass
-      nm = mult/100
-      cl = self.childproperties[child]
-      match cl[1]:
-         case "nwhLabel":
+      if child in self.children and child not in ("display","root"):
+         nm = mult/100
+         cl = self.childproperties[child]
+         if cl[1] == "nwhLabel":
             self.children[child].place(x=cl[2]*nm,y=cl[3]*nm,anchor=cl[7])
-         case "CheckboxWithLabel":
+         elif cl[1] == "CheckboxWithLabel":
             self.children[child].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
-         case "CheckboxlabelWithEntry" | "CheckboxlabelWithCombobox" | "FileEntryBox":
+         elif cl[1] in ("CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
             self.children[child].configurePlace(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7],indent=cl[9]*nm,entrywidth=cl[10]*nm,text2=cl[11]*nm)
-         case "Notebook":
+         elif cl[1] == "Notebook":
             if cl[2] != None and cl[3] != None and cl[4] != None and cl[5] != None:
                self.children[child].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
             else:
                self.children[child].pack(expand=True)
-         case "NBFrame":
+         elif cl[1] == "NBFrame":
             self.children[child]["width"] = cl[4]*nm
             self.children[child]["height"] = cl[5]*nm
-         case _:
+         else:
             self.children[child].place(x=cl[2]*nm,y=cl[3]*nm,width=cl[4]*nm,height=cl[5]*nm,anchor=cl[7])
-      match cl[1]:
-         case "HTMLScrolledText":
+         if cl[1] == "HTMLScrolledText":
             if self.htmlproperties[child][5][0] == True:
                self.children[child].vbar["width"] = self.htmlproperties[child][5][1]*nm
-            self.HTMLUpdateText(child,True)
-         case "HTMLText":
-            self.HTMLUpdateText(child,True)
-         case "ScrolledListbox":
+            self.HTMLUpdateText(child)
+         elif cl[1] == "HTMLText":
+            self.HTMLUpdateText(child)
+         elif cl[1] == "ScrolledListbox":
             if self.sbsettings[child][0] == True:
                self.children[child].vbar["width"] = self.sbsettings[child][1]*nm
             self.children[child]["font"] = self.resizefont(cl[6],mult)
-         case "ImageLabel":
+         elif cl[1] == "ImageLabel":
             self.children[child]["image"] = self.imagedict[cl[8]][3]
-         case "CheckboxWithLabel"|"CheckboxlabelWithEntry"|"CheckboxlabelWithCombobox"|"FileEntryBox":
+         elif cl[1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
             self.children[child].changeFont(self.resizefont(cl[6],mult))
-         case "Notebook" | "NBFrame":
+         elif cl[1] in ("Notebook","NBFrame"):
             pass
-         case "ComboLabelWithRadioButtons":
+         elif cl[1] == "ComboLabelWithRadioButtons":
             self.children[child].font = self.resizefont(cl[6],mult)
-         case _:
-            if cl[1] != "Frame":
-               self.children[child]["font"] = self.resizefont(cl[6],mult)
+         elif cl[1] != "Frame":
+            self.children[child]["font"] = self.resizefont(cl[6],mult)
    def bindChild(self, child:str, tkevent, function):
       self.children[child].bind(tkevent, function)
    def configureChild(self, child:str, **args):
       k = list(args.keys())
       v = list(args.values())
-      for i in range(0, len(k)):
+      for i in range(len(k)):
          match k[i]:
             case "x" | "y" | "width" | "height" | "font"| "anchor":
-               if child in ("display","root"):
-                  continue
-               newlist = self.childproperties[child]
-               match k[i]:
-                  case "x":
+               if child not in ("display","root"):
+                  newlist = self.childproperties[child]
+                  if k[i] == "x":
                      newlist[2] = v[i]
-                  case "y":
+                  elif k[i] == "y":
                      newlist[3] = v[i]
-                  case "width":
+                  elif k[i] == "width":
                      newlist[4] = v[i]
-                  case "height":
+                  elif k[i] == "height":
                      newlist[5] = v[i]
-                  case "font":
+                  elif k[i] == "font":
                      newlist[6] = v[i]
-                  case "anchor":
+                  elif k[i] == "anchor":
                      newlist[7] = v[i]
-               self.childproperties[child] = newlist
-               self.resizeChild(child, self.windowproperties["oldmult"])
+                  self.childproperties[child] = newlist
+                  self.resizeChild(child, self.windowproperties["oldmult"])
             case "text" | "textadd":
-               if child in ("display","root"):
-                  continue
-               if self.childproperties[child][1] in ("HTMLScrolledText","HTMLText"):
-                  if k[i] == "text":
-                     self.prepareHTMLST(child, v[i])
+               if child not in ("display","root"):
+                  if self.childproperties[child][1] in ("HTMLScrolledText","HTMLText"):
+                     if k[i] == "text":
+                        self.prepareHTMLST(child, v[i])
+                     else:
+                        self.prepareHTMLST(child, self.htmlproperties[child][2] + v[i])
+                  elif self.childproperties[child][1] == "Entry":
+                     self.childproperties[child][8].set(v[i])
+                  elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
+                     if type(v[i]) in (list,tuple):
+                        self.children[child].setText(v[i][0],v[i][1])
+                     else:
+                        self.children[child]["text"] = v[i]
                   else:
-                     self.prepareHTMLST(child, self.htmlproperties[child][2] + v[i])
-               elif self.childproperties[child][1] == "Entry":
-                  self.childproperties[child][8].set(v[i])
-               elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
-                  if type(v[i]) in (list,tuple):
-                     self.children[child].setText(v[i][0],v[i][1])
-                  else:
-                     self.children[child]["text"] = v[i]
-               else:
-                  self.children[child][k[i]] = v[i]
+                     self.children[child][k[i]] = v[i]
             case "text1" | "text2":
                pass
             case "indent":
@@ -1068,83 +1045,69 @@ class window:
                   if k[i] == "background":
                      self.children["display"]["bg"] = v[i]
                else:
-                  match self.childproperties[child][1]:
-                     case "Frame":
-                        if k[i] == "background":
-                           self.children[child]["bg"] = v[i]
-                     case "HTMLScrolledText" | "HTMLText":
-                        self.children[child][k[i]] = v[i]
-                        if k[i] == "background":
-                           self.htmlproperties[child][1] = v[i]
-                        else:
-                           self.htmlproperties[child][0] = v[i]
-                        self.prepareHTMLST(child, self.htmlproperties[child][2])
-                     case "CheckboxWithLabel" | "CheckboxlabelWithEntry" | "CheckboxlabelWithCombobox" | "FileEntryBox":
-                        if k[i] == "background":
-                           self.children[child].changeBackground(v[i])
-                        else:
-                           self.children[child].changeForeground(v[i])
-                     case "ComboLabelWithRadioButtons":
-                        if k[i] == "background":
-                           self.children[child].background = v[i]
-                        else:
-                           self.children[child].foreground = v[i]
-                     case _:
-                        self.children[child][k[i]] = v[i]
+                  if self.childproperties[child][1] == "Frame":
+                     if k[i] == "background":
+                        self.children[child]["bg"] = v[i]
+                  elif self.childproperties[child][1] in ("HTMLScrolledText","HTMLText"):
+                     self.children[child][k[i]] = v[i]
+                     if k[i] == "background":
+                        self.htmlproperties[child][1] = v[i]
+                     else:
+                        self.htmlproperties[child][0] = v[i]
+                     self.prepareHTMLST(child, self.htmlproperties[child][2])
+                  elif self.childproperties[child][1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
+                     if k[i] == "background":
+                        self.children[child].changeBackground(v[i])
+                     else:
+                        self.children[child].changeForeground(v[i])
+                  elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
+                     if k[i] == "background":
+                        self.children[child].background = v[i]
+                     else:
+                        self.children[child].foreground = v[i]
+                  else:
+                     self.children[child][k[i]] = v[i]
             case "image":
-               if child in ("display","root"):
-                  continue
-               self.imagedict[self.childproperties[child][8]][0] -= 1
-               self.childproperties[child][8] = v[i]
-               self.imagedict[v[i]][0] += 1
-               self.children[child]["image"] = self.imagedict[v[i]][3]
+               if child not in ("display","root"):
+                  self.imagedict[self.childproperties[child][8]][0] -= 1
+                  self.childproperties[child][8] = v[i]
+                  self.imagedict[v[i]][0] += 1
+                  self.children[child]["image"] = self.imagedict[v[i]][3]
             case "htmlfontbold":
-               if child in ("display","root"):
-                  continue
-               if self.childproperties[child][1] in ("HTMLScrolledText","HTMLText"):
+               if child not in ("display","root") and self.childproperties[child][1] in ("HTMLScrolledText","HTMLText"):
                   self.htmlproperties[child][4] = v[i]
                   self.prepareHTMLST(child, self.htmlproperties[child][2])
             case "sbwidth":
-               if child in ("display","root"):
-                  continue
-               match self.childproperties[child][1]:
-                  case "HTMLScrolledText":
+               if child not in ("display","root"):
+                  if self.childproperties[child][1] == "HTMLScrolledText":
                      self.htmlproperties[child][5][1] = int(v[i])
-                  case "ScrolledListBox":
+                  elif self.childproperties[child][1] == "ScrolledListBox":
                      self.sbsettings[child][1] = int(v[i])
             case "addTab":
-               if child in ("display","root"):
-                  continue
-               if self.childproperties[child][1] == "Notebook":
-                  self.children[child].add(self.children[v[i][0]],text=v[i][1])
+               if child not in ("display","root"):
+                  if self.childproperties[child][1] == "Notebook":
+                     self.children[child].add(self.children[v[i][0]],text=v[i][1])
             case _:
-               if self.childproperties[child][1] in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
-                  pass
-               else:
+               if self.childproperties[child][1] not in ("CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"):
                   self.children[child][k[i]] = v[i]
    def destroyChild(self, child:str):
-      if child in ("display","root"):
-         pass
-      temppref = self.childproperties.pop(child)
-      match temppref[1]:
-         case "HTMLScrolledText" | "HTMLText":
+      if child not in ("display","root"):
+         temppref = self.childproperties.pop(child)
+         if temppref[1] in ("HTMLScrolledText","HTMLText"):
             self.htmlproperties.pop(child)
-         case "ScrolledListbox":
+         elif temppref[1] == "ScrolledListbox":
             self.sbsettings.pop(child)
-         case "ImageLabel":
+         elif temppref[1] == "ImageLabel":
             self.imagedict[temppref[8]][0] -= 1
-      self.children[child].destroy()
-      self.children.pop(child)
+         self.children[child].destroy()
+         self.children.pop(child)
    def getChildAttribute(self, child:str, attribute:str):
       #!add combocheckboxuserentry
       if child in self.childproperties.keys() and self.childproperties[child][1] == "Entry" and attribute == "text":
          return self.childproperties[child][8].get()
       return self.children[child].cget(attribute)
    def getChildAttributes(self, child:str, *args:str):
-      templist = {}
-      for i in args:
-         templist.append(getChildAttribute(child, i))
-      return templist
+      return {i:self.getChildAttribute(child,i) for i in args}
    def doResize(self, event):
       if event.widget == self.children["root"]:
          newwidth = self.children["root"].winfo_width()
