@@ -803,115 +803,101 @@ class EvalError():
       trace(type(self), message, isError=True)
       self.error = message
 class int:
-   __slots__ = ("value")
+   #!Make this return a Number if the result is a float
+   #!Implement checks for max and min value
+   __slots__ = ("_value")
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
-   def __init__(self, value):
-      self.value = self._int(value)
+   def __init__(self, value=0):
+      self._value = self._int(value)
    def __str__(self):
-      return f'{self.value}'
+      return f'{self._value}'
    def __repr__(self):
-      return f'{self.value}'
+      return f'{self._value}'
    def __getitem__(self):
-      return self.value
+      return self._value
    def __setitem__(self, value):
-      self.value = self._int(value)
+      self._value = self._int(value)
    def __add__(self, value):
-      return int(self.value + self._int(value))
+      return int(self._value + self._int(value))
    def __sub__(self, value):
-      return int(self.value - self._int(value))
+      return int(self._value - self._int(value))
    def __mul__(self, value):
-      return int(self.value * self._int(value))
+      return int(self._value * self._int(value))
    def __truediv__(self, value):
       if value == 0:
-         if self.value == 0:
+         if self._value == 0:
             return NaN()
-         elif self.value > 0:
+         elif self._value > 0:
             return Infinity()
-         elif self.value < 0:
+         elif self._value < 0:
             return NInfinity()
       else:
          try:
-            return int(self.value / self._int(value))
+            return int(self._value / self._int(value))
          except:
             raise TypeError(f"Can not divide int by {type(value)}")
    def __float__(self):
-      return float(self.value)
+      return float(self._value)
    def __int__(self):
-      return self.value
+      return self._value
    def _int(self, value):
-      match typeName(value):
-         case "NaN" | "Infinity" | "NInfinity":
-            return value
-         case "int":
-            return value
-         case "float" | "Number":
+      #!It is unclear if most of this is included here, most is from the Number class
+      if isinstance(value,NaN) or isinstance(value,Infinity) or isinstance(value,NInfinity):
+         return value
+      elif isinstance(value,builtins.int) or issubclass(value,int):
+         return value
+      elif isinstance(value,float) or issubclass(value,Number):
+         return m.floor(value)
+      elif issubclass(value,str):
+         try:
             return builtins.int(value)
-         case "str" | "String":
-            try:
-               return builtins.int(value)
-            except:
-               raise TypeError(f"Can not convert string {value} to integer")
-         case _:
-            raise TypeError(f"Can not convert type {type(value)} to integer")
+         except:
+            raise TypeError(f"Can not convert string {value} to integer")
+      raise TypeError(f"Can not convert type {type(value)} to integer")
    def toExponential(self, fractionDigits:builtins.int|int):
-      if fractionDigits < 0 or fractionDigits > 20:
+      if fractionDigits < 0 and fractionDigits > 20:
          RangeError("fractionDigits is outside of acceptable range")
       else:
-         tempString1 = f"{self.value}"
-         exponent = len(tempString1) - 1
-         if tempString1[0] == "-":
-            exponent -= 1
-            tempString2 = tempString1[:2]
-            tempString1 = tempString1[2:]
+         temp = str(self._value)
+         if temp[0] == "-":
+            whole = temp[:2]
+            temp = temp[2:]
          else:
-            tempString2 = tempString1[:1]
-            tempString1 = tempString1[1:]
+            whole = temp[:1]
+            temp = temp[1:]
+         decpos = temp.find(".")
+         if decpos == -1:
+            exponent = len(temp)
+         else:
+            exponent = len(temp[:decpos])
+         temp = temp.replace(".","") + "0"*20
          if fractionDigits > 0:
-            tempString2 += "."
-            for i in range(0,fractionDigits):
-               try:
-                  tempString2 += tempString1[i]
-               except:
-                  tempString2 += "0" #I am assuming this is what it does since it isn't supposed to throw another error
-         if exponent > 0:
-            tempString2 += f"e+{exponent}"
-         return tempString2
+            return f"{whole}.{''.join([temp[i] for i in range(fractionDigits)])}e+{exponent}"
+         return f"{whole}e+{exponent}"
    def toFixed(self, fractionDigits:builtins.int|int):
       if fractionDigits < 0 or fractionDigits > 20:
          RangeError("fractionDigits is outside of acceptable range")
       else:
-         tempString = f"{self.value}"
          if fractionDigits == 0:
-            return tempString
-         else:
-            tempString += "."
-            i = 0
-            while i < fractionDigits:
-               tempString += "0"
-               i += 1
-            return tempString
+            return f"{self._value}"
+         return f"{self._value}.{'0'*fractionDigits}"
    def toPrecision(self,precision:builtins.int|int|uint):
       if precision < 1 or precision > 21:
          RangeError("fractionDigits is outside of acceptable range")
-      tempString = f"{self.value}"
-      len_ = len(tempString)
-      if precision < len_:
-         return toExponential(precision-1)
-      elif precision == len_:
-         return tempString
       else:
-         tempString += "."
-         for i in range(0,precision-len_):
-            tempString += "0"
-         return tempString
+         temp = str(self._value)
+         length = len(temp)
+         if precision < length:
+            return self.toExponential(precision-1)
+         elif precision == length:
+            return temp
+         return f"{temp}.{'0'*(precision-length)}"
    def toString(self, radix:builtins.int|int|uint=10):
-      if radix > 36 or radix < 2:
-         pass
-      else:
-         return base_repr(self.value, base=radix)
+      if radix <= 36 and radix >= 2:
+         return base_repr(self._value, base=radix)
    def valueOf(self):
-      return self.value
+      return self._value
 def isFinite(num):
    if num in (inf,NINF,NaN) or isinstance(num,NInfinity) or isinstance(num,Infinity) or isinstance(num,NaN):
       return False
@@ -923,12 +909,11 @@ def isNaN(num):
 def isXMLName(str_:str|String):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = "-_."
-   if (len(str_) == 0) or (str_[0].isalpha() == False and str_[0] != "_") or (str_[:3].lower() == "xml") or (str_.find(" ") != -1):
+   if len(str_) == 0 or str_[0].isalpha() == False and str_[0] != "_" or str_[:3].lower() == "xml" or " " in str_:
       return False
    for i in str_:
-      if i.isalnum() == True or i in whitelist:
-         continue
-      return False
+      if i.isalnum() == False and i not in whitelist:
+         return False
    return True
 class JSON:
    def parse():
