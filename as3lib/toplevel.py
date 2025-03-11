@@ -1505,11 +1505,48 @@ def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
       return False if Num % 2 == 0 else True
    elif isinstance(Num,float) or issubclass(Num,Number):
       ...
-def _isValidDirectory(directory,separator=configmodule.separator):
-   match configmodule.platform:
-      case "Windows":
-         blacklistedChars = '<>:"\\/|?*' #add ASCII characters from 0-31
-         blacklistedNames = ("CON","PRN","AUX","NUL","COM0","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM¹","COM²","COM³","LPT0","LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9","LPT¹","LPT²","LPT³")
+def _isValidDirectory(directory,separator=None):
+   """
+   Checks if a given directory is valid on the current platform
+   """
+   WIN_BlacklistedChars = {'<','>',':','"','\\','/','|','?','*','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','',''}
+   WIN_BlacklistedNames = {"CON","PRN","AUX","NUL","COM0","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM¹","COM²","COM³","LPT0","LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9","LPT¹","LPT²","LPT³"}
+   UNIX_BlacklistedChars = {"/","<",">","|",":","&",""}
+   UNIX_BlacklistedNames = {".",".."}
+   if type(directory) == type(Path()):
+      #While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
+      temp = directory.resolve()
+      if confmod.platform == "Windows":
+         while temp != temp.parent:
+            #get directory name and convert it to uppercase since windows is not case sensitive
+            tempname = temp.name.upper()
+            #invalid if blacklisted characters are used
+            for i in tempname:
+               if i in WIN_BlacklistedChars:
+                  return False
+            #invalid if last character is " " or "."
+            if tempname[-1] in {" ","."}:
+               return False
+            #invalid if name is blacklisted and if name before a period is blacklisted
+            if tempname.split(".")[0] in WIN_BlacklistedNames:
+               return False
+            temp = temp.parent
+         #Check drive letter
+         if not (str(temp)[0].isalpha() and str(temp)[1:] in {":",":\\",":/"}):
+            return False
+      else:
+         while temp != temp.parent:
+            #invalid if blacklisted names are used
+            if temp.name in UNIX_BlacklistedNames:
+               return False
+            #invalid if blacklisted characters are used
+            for i in temp.name:
+               if i in UNIX_BlacklistedChars:
+                  return False
+            temp = temp.parent
+   elif separator != None:
+      directory = str(directory)
+      if confmod.platform == "Windows":
          #convert path to uppercase since windows is not cas sensitive
          directory = directory.upper()
          #remove trailing path separator
@@ -1527,17 +1564,15 @@ def _isValidDirectory(directory,separator=configmodule.separator):
          for i in dirlist:
             #invalid if blacklisted characters are used
             for j in i:
-               if j in blacklistedChars:
+               if j in WIN_BlacklistedChars:
                   return False
             #invalid if last character is " " or "."
-            if i[-1:] in " .":
+            if i[-1:] in {" ","."}:
                return False
             #invalid if name is blacklisted and if name before a period is blacklisted
-            if i.split(".")[0] in blacklistedNames:
+            if i.split(".")[0] in WIN_BlacklistedNames:
                return False
-         return True
-      case "Linux" | "Darwin":
-         blacklistedChars = "/<>|:&"
+      elif confmod.platform in {"Linux","Darwin"}:
          #remove trailing path separator
          if directory[-1:] == separator:
             directory = directory[:-1]
@@ -1546,15 +1581,17 @@ def _isValidDirectory(directory,separator=configmodule.separator):
          #remove starting path separator
          if directory[:1] == separator:
             directory = directory[-(len(directory)-1):]
-         elif directory[:2] in (f".{separator}",f"~{separator}"):
+         elif directory[:2] in {f".{separator}",f"~{separator}"}:
             directory = directory[-(len(directory)-2):]
          dirlist = directory.split(separator)
          for i in dirlist:
+            #invalid if blacklisted names are used
+            if i in UNIX_BlacklistedNames:
+               return False
             #invalid if blacklisted characters are used
             for j in i:
-               if j in blacklistedChars:
+               if j in UNIX_BlacklistedChars:
                   return False
-         return True
    return True
 def _resolveDir(dir_):
    return str(Path(dir_).resolve())
