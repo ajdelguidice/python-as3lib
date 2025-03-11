@@ -1158,20 +1158,17 @@ class String(str):
       return len(self)
    length = property(fget=_getLength)
    def _String(self, expression):
-      match typeName(expression):
-         case "str" | "String":
-            return expression
-         case "bool":
-            if expression == True:
-               return "true"
-            elif expression == False:
-               return "false"
-         case "NaN":
-            return "NaN"
-         case "Array" | "Boolean" | "Number":
-            return expression.toString()
-         case _:
-            return f"{expression}"
+      if issubclass(expression,str):
+         return expression
+      elif isinstance(expression,bool):
+         if expression == True:
+            return "true"
+         return "false"
+      elif issubclass(expression,Array) or issubclass(expression,Boolean) or issubclass(expression,Number):
+         return expression.toString()
+      elif isinstance(expression,NaN):
+         return "NaN"
+      return f"{expression}"
    def __getitem__(self, item):
       return String(super().__getitem__(item))
    def __add__(self, value):
@@ -1185,24 +1182,21 @@ class String(str):
          return NaN()
       return parseInt(r'{:04X}'.format(ord(self[index])),16)
    def concat(self, *args):
-      tempString = String(self)
-      for i in args:
-         tempString += self._String(i)
-      return tempString
+      return self + ''.join([self._String(i) for i in args])
    def fromCharCode():
-      pass
+      ...
    def indexOf(self, val, startIndex:builtins.int|int=0):
       return self.find(val, startIndex)
    def lastIndexOf(self, val, startIndex:builtins.int|int=None):
       ...
    def localeCompare():
-      pass
+      ...
    def match():
-      pass
+      ...
    def replace():
-      pass
+      ...
    def search():
-      pass
+      ...
    def slice(self,startIndex=0,endIndex=None):
       if endIndex == None:
          return self[startIndex:]
@@ -1210,7 +1204,7 @@ class String(str):
          ...
       return self[startIndex:endIndex]
    def split():
-      pass
+      ...
    def substr(self, startIndex:builtins.int|int=0, len_:builtins.int|int=None):
       if len_ < 0:
          trace("Error")
@@ -1488,6 +1482,7 @@ def listtoarray(l:list|tuple):
    A function to convert a python list to an Array.
    """
    return Array(*l)
+@deprecated("typeName is deprecated and will be removed later")
 def typeName(obj:object):
    return formatTypeToName(type(obj))
 def formatTypeToName(arg:type):
