@@ -118,8 +118,8 @@ class ComboEntryBox:
          self.entries[i].place(x=tw,y=i*h,width=w-(tw+bw),height=h,anchor="nw")
       self.button.place(x=tw+(w-(tw+bw)),y=(r-1)*h,width=bw,height=h,anchor="nw")
    def configure(self,**kwargs):
-      k = list(kwargs.keys())
-      v = list(kwargs.values())
+      k = tuple(kwargs.keys())
+      v = tuple(kwargs.values())
       for i in range(len(k)):
          match k[i]:
             case "x" | "y" | "anchor":
@@ -355,8 +355,8 @@ class ComboCheckboxUserEntry:
          self.fb.place(x=w-h,y=h,width=h,height=h,anchor="nw")
          self.ue.place(x=i+t2_0,y=h,width=ew-h,height=h,anchor="nw")
    def configure(self,**kwargs):
-      k = list(kwargs.keys())
-      v = list(kwargs.values())
+      k = tuple(kwargs.keys())
+      v = tuple(kwargs.values())
       for i in range(0,len(k)):
          match k[i]:
             case "x" | "y" | "anchor":
@@ -999,8 +999,8 @@ class window:
    def bindChild(self, child:str, tkevent, function):
       self.children[child].bind(tkevent, function)
    def configureChild(self, child:str, **args):
-      k = list(args.keys())
-      v = list(args.values())
+      k = tuple(args.keys())
+      v = tuple(args.values())
       for i in range(len(k)):
          match k[i]:
             case "x" | "y" | "width" | "height" | "font"| "anchor":
