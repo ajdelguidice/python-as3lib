@@ -157,8 +157,8 @@ class ComboEntryBox:
                   i[k[i]] = v[i]
    def configurePlace(self,**kwargs):
       k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"})
-      for i in range(len(k)):
-         self._properties[k[i]] = kwargs[k[i]]
+      for i in k:
+         self._properties[i] = kwargs[i]
       self.__resizeandplace()
    def getEntry(self,number,*args):
       return self.entries[number].get()
@@ -181,7 +181,7 @@ class ComboLabelWithRadioButtons(tkinter.Label):
       self.rbvar = tkinter.IntVar()
       tkinter.Label.__init__(self,self.frame,anchor="nw",**kwargs)
       self.pack(side="top", fill="both")
-      for i in range(0,numOptions):
+      for i in range(numOptions):
          self.radiobuttons.append(tkinter.Radiobutton(self.frame,variable=self.rbvar,anchor="nw",value=i))
          self.radiobuttons[i].pack(side="top", fill="both")
       text_meths = vars(tkinter.Label).keys()
@@ -197,19 +197,19 @@ class ComboLabelWithRadioButtons(tkinter.Label):
    selected = property(fget=__getSelected,fset=__setSelected)
    def __setFont(self,font):
       self["font"] = font
-      for i in range(len(self.radiobuttons)):
-         self.radiobuttons[i]["font"] = font
+      for i in self.radiobuttons:
+         i["font"] = font
    font = property(fset=__setFont)
    def __setBackgroundColor(self,color):
       self.frame["bg"] = color
       self["background"] = color
-      for i in range(len(self.radiobuttons)):
-         self.radiobuttons[i].configure(background=color,highlightbackground=color)
+      for i in self.radiobuttons:
+         i.configure(background=color,highlightbackground=color)
    background = property(fset=__setBackgroundColor)
    def __setForegroundColor(self,color):
       self["foreground"] = color
-      for i in range(len(self.radiobuttons)):
-         self.radiobuttons[i].configure(foreground=color)
+      for i in self.radiobuttons:
+         i.configure(foreground=color)
    foreground = property(fset=__setForegroundColor)
    def setText(self,index,text):
       self.radiobuttons[index]["text"] = text
@@ -357,7 +357,7 @@ class ComboCheckboxUserEntry:
    def configure(self,**kwargs):
       k = tuple(kwargs.keys())
       v = tuple(kwargs.values())
-      for i in range(0,len(k)):
+      for i in range(len(k)):
          match k[i]:
             case "x" | "y" | "anchor":
                self._properties[k[i]] = v[i]
@@ -432,11 +432,11 @@ class ComboCheckboxUserEntry:
    def configurePlace(self,**kwargs):
       #add text2
       k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","indent","entrywidth","text2"})
-      for i in range(len(k)):
-         if k[i] != "text2":
-            self._properties[k[i]] = kwargs[k[i]]
+      for i in k:
+         if i != "text2":
+            self._properties[i] = kwargs[i]
          else:
-            self._properties["text2"][0] = kwargs[k[i]]
+            self._properties["text2"][0] = kwargs[i]
       self.__resizeandplace()
    def changeFont(self,font):
       et = self._properties["entrytype"]
