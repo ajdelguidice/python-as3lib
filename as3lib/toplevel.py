@@ -97,15 +97,13 @@ class NInfinity:
    def __and__(self, value):
       if bool(value) == True:
          return True
-      else:
-         return False
+      return False
    def __or__(self, value):
       return True
    def __xor__(self, value):
       if bool(value) == True:
          return False
-      else:
-         return True
+      return True
    def __neg__(self):
       return self
    def __pos__(self):
@@ -191,15 +189,13 @@ class Infinity:
    def __and__(self, value):
       if bool(value) == True:
          return True
-      else:
-         return False
+      return False
    def __or__(self, value):
       return True
    def __xor__(self, value):
       if bool(value) == True:
          return False
-      else:
-         return True
+      return True
    def __neg__(self):
       return NInfinity()
    def __pos__(self):
@@ -754,13 +750,13 @@ class Boolean:
    def _Boolean(self, expression=None, strrepbool:bool|Boolean=False):
       if isinstance(expression,bool):
          return expression
-      elif issubclass(expression,Boolean):
+      elif isinstance(expression,Boolean):
          return expression._value
-      elif isinstance(expression,builtins.int) or isinstance(expression,float) or issubclass(expression,uint) or issubclass(expression,int) or issubclass(expression,Number):
+      elif isinstance(expression,builtins.int) or isinstance(expression,float) or isinstance(expression,uint) or isinstance(expression,int) or isinstance(expression,Number):
          return False if expression == 0 else True
       elif isinstance(expression, NaN) or isinstance(expression,null) or isinstance(expression,undefined):
          return False
-      elif issubclass(expression,str):
+      elif isinstance(expression,str):
          if expression == "":
             return False
          elif expression == "false":
@@ -845,11 +841,11 @@ class int:
       #!It is unclear if most of this is included here, most is from the Number class
       if isinstance(value,NaN) or isinstance(value,Infinity) or isinstance(value,NInfinity):
          return value
-      elif isinstance(value,builtins.int) or issubclass(value,int):
+      elif isinstance(value,builtins.int) or isinstance(value,int):
          return value
-      elif isinstance(value,float) or issubclass(value,Number):
+      elif isinstance(value,float) or isinstance(value,Number):
          return m.floor(value)
-      elif issubclass(value,str):
+      elif isinstance(value,str):
          try:
             return builtins.int(value)
          except:
@@ -1158,13 +1154,13 @@ class String(str):
       return len(self)
    length = property(fget=_getLength)
    def _String(self, expression):
-      if issubclass(expression,str):
+      if isinstance(expression,str):
          return expression
       elif isinstance(expression,bool):
          if expression == True:
             return "true"
          return "false"
-      elif issubclass(expression,Array) or issubclass(expression,Boolean) or issubclass(expression,Number):
+      elif isinstance(expression,Array) or isinstance(expression,Boolean) or isinstance(expression,Number):
          return expression.toString()
       elif isinstance(expression,NaN):
          return "NaN"
@@ -1496,15 +1492,20 @@ def isEven(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
       return False
    elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
       return True if Num % 2 == 0 else False
-   elif isinstance(Num,float) or issubclass(Num,Number):
+   elif isinstance(Num,float) or isinstance(Num,Number):
       ...
 def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
    if isinstance(Num,NaN) or isinstance(Num,Infinity) or isinstance(Num,NInfinity):
       return False
    elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
       return False if Num % 2 == 0 else True
-   elif isinstance(Num,float) or issubclass(Num,Number):
+   elif isinstance(Num,float) or isinstance(Num,Number):
       ...
+def objIsChildClass(obj,cls):
+   """
+   Checks both isinstance and issubclass for (obj,cls)
+   """
+   return isinstance(obj,cls) or issubclass(obj,cls)
 def _isValidDirectory(directory,separator=None):
    """
    Checks if a given directory is valid on the current platform
