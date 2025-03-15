@@ -1275,121 +1275,71 @@ class TypeError():
       trace(type(self), message, isError=True)
       self.error = message
 class U29:
-   def decodeU29int(type_, data):
-      """
-      Must have an input of the data type ("h" or "b" for hexidecimal or binary) and the data as a string.
-      Binary data must be either 8, 16, 32, or 48 bits.
-      The first bit if each byte, aside from the 4th, determines if there is another byte afterwards (1xxxxxxx means there is another). This leaves a maximum of 29 bits for actual data, hence u29int.
-      The specs of u29int can be found at https://web.archive.org/web/20080723120955/http://download.macromedia.com/pub/labs/amf/amf3_spec_121207.pdf on page 3
-      This function returns a list. Value 0 is the number it translates to, value 1 is the type of u29int value (1, 2, 3, or 4). The types basically mean how many bytes the u29int was (this is a part of the spec)
-      """
-      data = data.replace(" ", "")
-      r = ""
-      if type_ == "h":
-         bindat = bin(builtins.int(data, 16))[2:].zfill(len(data) * 4)
-      elif type_ == "b":
-         bindat = data
+   def decodeUTF8HeaderBytes(data:str,type_="b"):
+      #!Check length
+      if type_ == "b":
+         for i in data:
+            if i not in {"0","1"}:
+               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0 or 1 in bit mode")
+      elif type_ == "B":
+         for i in data:
+            if i not in "0123456789ABCDEF":
+               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
+         data = bin(builtins.int(data,16))[2:]
       else:
-         trace("U29Error; Wrong type",isError=True)
-      if bindat[0] == "1":
-         if bindat[8] == "1":
-            if bindat[16] == "1":
-               rtype = 4
-               for i in range(0,32):
-                  if i not in (0,8,16):
-                     r += bindat[i]
-               result = builtins.int(r,2)
-            else:
-               rtype = 3
-               for i in range(0,24):
-                  if i not in (0,8,16):
-                     r += bindat[i]
-               result = builtins.int(r,2)
-         else:
-            rtype = 2
-            for i in range(0,16):
-               if i not in (0,8):
-                  r += bindat[i]
-            result = builtins.int(r,2)
-      else:
-         rtype = 1
-         for i in range(0,8):
-            if i != 0:
-               r += bindat[i]
-         result = builtins.int(r,2)
-      return [result, rtype]
-   def decodeU29str(_type, data):
+         ...
+      if data[0] == "0": #U29S-ref
+         ...
+      else: #U29S-value
+         ...
+      return (data[0],result)
+   def encodeUTF8HeaderBytes():...
+   def decodeU29String():...
+   def encodeU29String():...
+   def decodeInt(data:str,type_="b"):
       """
-      Must have an input of the data type ("h" or "b" for hexidecimal or binary) and the data as a string.
-      A u29str value is an encoded string which is preceded by (a) u29str length byte(s).
-      The u29str length byte(s) is, in all the cases I've seen, the length in bits of the string times 2 plus 1 (for some stupid reason).
+      Decodes U29 integer value.
+      
+      Must either be a string of bits or a string of bytes
       """
-      dat = data.replace(" ", "")
-      if _type == "h":
-         bindat = bin(builtins.int(dat, 16))[2:].zfill(len(dat) * 4)
-         x=0
-      elif _type == "b":
-         bindat = dat
-      length1 = u29._decodeU29str(bindat)
-      temp = u29.read_byte_destructive(bindat)
-      bindat = temp[0]
-      length = builtins.int((length1[0] - 1) / 2)
-      result = ''
-      for i in range(0, length):
-         temp = u29.read_byte_destructive(bindat)
-         bindat = temp[0]
-         result += bytes.fromhex('%0*X' % ((len(temp[1]) + 3) // 4, builtins.int(temp[1], 2))).decode('utf-8')
-      return result
-   def read_byte_destructive(binary_data):
-      temp = u29.remove_byte(binary_data)
-      return temp[0], temp[1]
-   def remove_byte(binary_data):
-      temp1 = wrap(binary_data, 8)
-      temp2 = temp1.pop(0)
-      temp1 = ''.join(temp1)
-      return temp1, temp2
-   def _decodeU29str(binary_data):
-      numlist = binary_data.replace(" ", "")
-      numlist = numlist[:32]
-      r = ""
-      if numlist[0] == '1':
-         if numlist[1] == '1':
-            if numlist[2] == '1':
-               if numlist[3] == '1':
-                  for i in range(0,16):
-                     #if i == 0 or i == 1 or i == 2 or i == 3 or i == 4 or i == 8 or i == 9 or i == 16 or i == 17 or i == 24 or i == 25:
-                     if i in (0,1,2,3,4,8,9,16,17,24,25):
-                        continue
-                     else:
-                        r += numlist[i]
-                  number = builtins.int(r,2)
-                  return [number,4]
-               else:
-                  for i in range(0,16):
-                     #if i == 0 or i == 1 or i == 2 or i == 3 or i == 8 or i == 9 or i == 16 or i == 17:
-                     if i in (0,1,2,3,8,9,16,17):
-                        continue
-                     else:
-                        r += numlist[i]
-                  number = builtins.int(r,2)
-                  return [number,3]
-            else:
-               for i in range(0,16):
-                  #if i == 0 or i == 1 or i == 2 or i == 8 or i == 9:
-                  if i in (0,1,2,8,9):
-                     continue
-                  else:
-                     r += numlist[i]
-               number = builtins.int(r,2)
-               return [number,2]
-         else:
-            raise Exception("Not U29 string/utf-8 value")
+      if type_ == "b":
+         for i in data:
+            if i not in {"0","1"}:
+               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0 or 1 in bit mode")
+      elif type_ == "B":
+         for i in data:
+            if i not in "0123456789ABCDEF":
+               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
+         data = bin(builtins.int(data,16))[2:]
       else:
-         for i in range(0,8):
-            if i != 0:
-               r += numlist[i]
-         number = builtins.int(r,2)
-         return [number,1]
+         ...
+      significantBits = [data[1:8],"","",""]
+      if data[0] == "1":
+         significantBits[1] = data[9:16]
+         if data[8] == "1":
+            significantBits[2] = data[17:24]
+            if data[16] == "1":
+               significantBits[3] = data[24:32]
+      return builtins.int(''.join(significantBits),2)
+   def encodeInt(num:builtins.int,int,uint,Number):
+      """
+      Encodes a U29 integer value.
+      
+      Must either be an integer between 0 and 536870911
+      """
+      if isinstance(num,(builtins.int,int,uint,Number)) and num >= 0 and num <= 536870911: #0 - 29^2-1
+         bits = bin(num)[2:]
+         l = len(bits)
+         if l < 8:
+            return f"0{'0'*(7-l)}{bits}"
+         elif l < 15:
+            return f"1{'0'*(14-l)}{bits[:-7]}0{bits[-7:]}"
+         elif l < 22:
+            return f"1{'0'*(21-l)}{bits[:-14]}1{bits[-14:-7]}0{bits[-7:]}"
+         elif l < 30:
+            return f"1{'0'*(29-l)}{bits[:-22]}1{bits[-22:-15]}1{bits[-15:-8]}{bits[-8:]}"
+      else:
+         RangeError("U29 integers must be between 0 and 536870911")
 class uint:
    pass
 def unescape():
