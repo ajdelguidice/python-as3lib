@@ -753,9 +753,9 @@ class Boolean:
          return expression
       elif isinstance(expression,Boolean):
          return expression._value
-      elif isinstance(expression,builtins.int) or isinstance(expression,float) or isinstance(expression,uint) or isinstance(expression,int) or isinstance(expression,Number):
+      elif isinstance(expression,(builtins.int,float,uint,int,Number)):
          return False if expression == 0 else True
-      elif isinstance(expression, NaN) or isinstance(expression,null) or isinstance(expression,undefined):
+      elif isinstance(expression,(NaN,null,undefined,None)):
          return False
       elif isinstance(expression,str):
          if expression == "":
@@ -840,11 +840,11 @@ class int:
       return self._value
    def _int(self, value):
       #!It is unclear if most of this is included here, most is from the Number class
-      if isinstance(value,NaN) or isinstance(value,Infinity) or isinstance(value,NInfinity):
+      if isinstance(value,(NaN,Infinity,NInfinity)):
          return value
-      elif isinstance(value,builtins.int) or isinstance(value,int):
+      elif isinstance(value,(builtins.int,int)):
          return value
-      elif isinstance(value,float) or isinstance(value,Number):
+      elif isinstance(value,(float,Number)):
          return m.floor(value)
       elif isinstance(value,str):
          try:
@@ -896,7 +896,7 @@ class int:
    def valueOf(self):
       return self._value
 def isFinite(num):
-   if num in (inf,NINF,NaN) or isinstance(num,NInfinity) or isinstance(num,Infinity) or isinstance(num,NaN):
+   if num in (inf,NINF,NaN) or isinstance(num,(NInfinity,Infinity,NaN)):
       return False
    return True
 def isNaN(num):
@@ -1161,7 +1161,7 @@ class String(str):
          if expression == True:
             return "true"
          return "false"
-      elif isinstance(expression,Array) or isinstance(expression,Boolean) or isinstance(expression,Number):
+      elif isinstance(expression,(Array,Boolean,Number)):
          return expression.toString()
       elif isinstance(expression,NaN):
          return "NaN"
@@ -1439,18 +1439,18 @@ def formatTypeToName(arg:type):
    else:
       return tempStr.split("'")[1]
 def isEven(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
-   if isinstance(Num,NaN) or isinstance(Num,Infinity) or isinstance(Num,NInfinity):
+   if isinstance(Num,(NaN,Infinity,NInfinity)):
       return False
-   elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
+   elif isinstance(Num,(builtins.int,int,uint)):
       return True if Num % 2 == 0 else False
-   elif isinstance(Num,float) or isinstance(Num,Number):
+   elif isinstance(Num,(float,Number)):
       ...
 def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
-   if isinstance(Num,NaN) or isinstance(Num,Infinity) or isinstance(Num,NInfinity):
+   if isinstance(Num,(NaN,Infinity,NInfinity)):
       return False
-   elif isinstance(Num,builtins.int) or isinstance(Num,int) or isinstance(Num,uint):
+   elif isinstance(Num,(builtins.int,int,uint)):
       return False if Num % 2 == 0 else True
-   elif isinstance(Num,float) or isinstance(Num,Number):
+   elif isinstance(Num,(float,Number)):
       ...
 def objIsChildClass(obj,cls):
    """
