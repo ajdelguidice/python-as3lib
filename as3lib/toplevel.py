@@ -1,10 +1,10 @@
 import math as m
 import random as r
-from textwrap import wrap
 from pathlib import Path
 from . import configmodule, helpers
 import builtins
-from typing import TypeVar
+from typing import Union
+from types import NoneType
 try:
    from warnings import deprecated
 except:
@@ -319,12 +319,13 @@ class null:
    def __repr__(self):
       return "None"
 
-#TypeVars
-allNumber = TypeVar("allNumber",builtins.int,float,int,uint,Number)
-allString = TypeVar("allString",str,String)
-allArray = TypeVar("allArray",list,tuple,Array)
-allBoolean = TypeVar("allBoolean",bool,Boolean)
-allNone = TypeVar("allNone",undefined,null)
+#Custom Types
+allNumber = Union[builtins.int,float,int,uint,Number]
+allInt = Union[builtins.int,int,uint]
+allString = Union[str,String]
+allArray = Union[list,tuple,Array]
+allBoolean = Union[bool,Boolean]
+allNone = Union[undefined,null,NoneType]
 
 #Classes
 class ArgumentError():
@@ -493,7 +494,7 @@ class Array(list):
          for i in _Array:
             if type(i) in (list,tuple,Array):
                result += f"{self.join(_Array=i)}{sep}"
-            elif type(i) in (type(undefined()),type(None)):
+            elif type(i) in (type(undefined()),NoneType):
                result += sep
             else:
                result += f"{i}{sep}"
@@ -503,7 +504,7 @@ class Array(list):
                if result[-lsep:] == sep:
                   result = result[:-lsep] + f","
                result += f"{self.join(_Array=i)},"
-            elif type(i) in (type(undefined()),type(None)):
+            elif type(i) in (type(undefined()),NoneType):
                result += sep
             else:
                result += f"{i}{sep}"
@@ -704,7 +705,7 @@ class Array(list):
          if type(i) in (list,tuple,Array):
             a += self.__listtostr(i) + ","
             continue
-         elif type(i) in (type(undefined()),type(None)):
+         elif type(i) in (type(undefined()),NoneType):
             a += ","
             continue
          a += f"{i},"
