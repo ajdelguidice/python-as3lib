@@ -1253,33 +1253,24 @@ def trace(*args, isError=False):
          if configmodule.MaxWarningsReached == False:
             if configmodule.CurrentWarnings < configmodule.MaxWarnings or configmodule.MaxWarnings == 0:
                output = f"Error:{formatTypeToName(args[0])}; {args[1]}"
-               configmodule.CurrentWarnings += 1 #!Make this last after restarting
+               configmodule.CurrentWarnings += 1
             else:
                output = "Maximum number of errors has been reached. All further errors will be suppressed."
-               configmodule.MaxWarningsReached = True #!Make this last after restarting
+               configmodule.MaxWarningsReached = True
          else:
             pass
       else:
-         output = ""
-         for i in args:
-            output += f"{i} "
-         output = output[:-1]
+         output = ' '.join((str(i) for i in args))
       if configmodule.TraceOutputFileEnable == 1:
-         if configmodule.TraceOutputFileName == configmodule.defaultTraceFilePath:
-            if Path(configmodule.TraceOutputFileName).exists() == True:
+         if Path(configmodule.TraceOutputFileName).exists() == True:
+            if Path(configmodule.TraceOutputFileName).is_file() == True:
                with open(configmodule.TraceOutputFileName, "a") as f:
                   f.write(output + "\n")
             else:
-               with open(configmodule.TraceOutputFileName, "w") as f:
-                  f.write(output + "\n" )
+               print(output)
          else:
-            if Path(configmodule.TraceOutputFileName).exists() == True:
-               if Path(configmodule.TraceOutputFileName).is_file() == True:
-                  with open(configmodule.TraceOutputFileName, "a") as f:
-                     f.write(output + "\n")
-            else:
-               with open(configmodule.TraceOutputFileName, "w") as f:
-                  f.write(output + "\n")
+            with open(configmodule.TraceOutputFileName, "w") as f:
+               f.write(output + "\n")
       else:
          print(output)
 class TypeError():
@@ -1435,13 +1426,13 @@ def EnableDebug():
    configmodule.as3DebugEnable = True
 def DisableDebug():
    configmodule.as3DebugEnable = False
-@deprecated("This is now built into the Array constructor")
+@deprecated("This is now built into the Array constructor. This will be removed after version 0.0.11")
 def listtoarray(l:list|tuple):
    """
    A function to convert a python list to an Array.
    """
    return Array(*l)
-@deprecated("typeName is deprecated and will be removed later")
+@deprecated("typeName is deprecated and will be removed after version 0.0.11")
 def typeName(obj:object):
    return formatTypeToName(type(obj))
 def formatTypeToName(arg:type):
