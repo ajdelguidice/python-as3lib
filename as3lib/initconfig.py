@@ -306,10 +306,9 @@ def initconfig():
          with open(configmodule.TraceOutputFileName, "w") as f: 
             f.write("")
 
+   #Report errors to user
+   if len(configmodule.initerror) != 0:
+      print(f"Warning: as3lib has initialized with errors, some functionality might be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in configmodule.initerror))}")
+   
    #Tell others that library has been initialized
    configmodule.initdone = True
-   if len(configmodule.initerror) != 0:
-      temperrors = ""
-      for i in configmodule.initerror:
-         temperrors += f"\t{i[0]}: {i[1]}\n"
-      print(f"Warning: as3lib has initialized with the following errors, some functionality might be broken.\n{temperrors}")
