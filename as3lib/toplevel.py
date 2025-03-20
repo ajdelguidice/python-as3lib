@@ -310,7 +310,7 @@ class undefined:
    def __str__(self):
       return "undefined"
    def __repr__(self):
-      return "None"
+      return "undefined"
 class null:
    __slots__ = ("value")
    def __init__(self):
@@ -318,7 +318,7 @@ class null:
    def __str__(self):
       return "null"
    def __repr__(self):
-      return "None"
+      return "null"
 
 #Custom Types
 allNumber = Union[builtins.int,float,int,uint,Number]
