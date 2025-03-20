@@ -254,42 +254,25 @@ def initconfig():
       pass
    if configmodule.platform in ("Linux","Darwin"):
       configpath = f"{configmodule.librarydirectory}/mm.cfg"
-      if Path(configpath).exists() == True:
-         with open(configpath, 'r') as f:
-            configwithheader = '[dummy_section]\n' + f.read()
-         config = configparser.ConfigParser()
-         config.read_string(configwithheader)
-         actual_config = config["dummy_section"]
-         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-         if existing_options[0] == True:
-            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-         if existing_options[1] == True:
-            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-         if existing_options[2] == True:
-            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-         if existing_options[3] == True:
-            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-         if existing_options[4] == True:
-            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
    elif configmodule.platform == "Windows":
       configpath = fr"{configmodule.librarydirectory}\mm.cfg"
-      if Path(configpath).exists() == True:
-         with open(configpath, 'r') as f:
-            configwithheader = '[dummy_section]\n' + f.read()
-         config = configparser.ConfigParser()
-         config.read_string(configwithheader)
-         actual_config = config["dummy_section"]
-         existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-         if existing_options[0] == True:
-            configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-         if existing_options[1] == True:
-            configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-         if existing_options[2] == True:
-            configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-         if existing_options[3] == True:
-            configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-         if existing_options[4] == True:
-            configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+   if Path(configpath).exists() == True:
+      with open(configpath, 'r') as f:
+         configwithheader = '[dummy_section]\n' + f.read()
+      config = configparser.ConfigParser()
+      config.read_string(configwithheader)
+      actual_config = config["dummy_section"]
+      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
+      if existing_options[0] == True:
+         configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
+      if existing_options[1] == True:
+         configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
+      if existing_options[2] == True:
+         configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
+      if existing_options[3] == True:
+         configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
+      if existing_options[4] == True:
+         configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
    if configmodule.TraceOutputFileName == "":
       configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
    if Path(configmodule.TraceOutputFileName).is_dir() == True:
