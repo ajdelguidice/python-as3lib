@@ -123,12 +123,6 @@ def sm_windows():
 def sm_darwin():
    pass
 
-def indexOf_String(string:str, find:str): #!unused
-   try:
-      return string.index(find)
-   except:
-      return -1
-
 def getSeparator():
    if configmodule.platform == "Windows":
       return "\\"
