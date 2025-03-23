@@ -1,5 +1,6 @@
 from as3lib import toplevel as as3
 from as3lib.flash import net as fn
+from as3lib import metaclasses
 from typing import Union
 import binascii
 
@@ -275,13 +276,13 @@ class ByteArray(bytearray):
    def writeUTFBytes():
       pass
 
-class CompressionAlgorithm:
+class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFLATE = "deflate"
    LZMA = "lzma"
    ZLIB = "zlib"
 class Dictionary:
    pass
-class Endian:
+class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BIG_ENDIAN = "bigEndian"
    LITTLE_ENDIAN = "littleEndian"
 class Timer:

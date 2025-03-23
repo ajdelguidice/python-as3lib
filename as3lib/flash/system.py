@@ -1,5 +1,5 @@
 from as3lib import toplevel as as3
-from as3lib import configmodule
+from as3lib import configmodule, metaclasses
 import platform
 from typing import Union
 import sys
@@ -95,12 +95,12 @@ class Capabilities:
     version = property(fget=_getVer)
     def hasMultiChannelAudio(type:Union[str,as3.String]):
         pass
-class ImageDecodingPolicy:
+class ImageDecodingPolicy(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     ON_DEMAND = "onDemand"
     ON_LOAD = "onLoad"
 class IME:
     pass
-class IMEConversionMode:
+class IMEConversionMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     ALPHANUMERIC_FULL = "ALPHANUMERIC_FULL"
     ALPHANUMERIC_HALF = "ALPHANUMERIC_HALF"
     CHINESE = "CHINESE"
@@ -115,7 +115,7 @@ class LoaderContext:
     pass
 class MessageChannel:
     pass
-class MessageChannelState:
+class MessageChannelState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     CLOSED = "closed"
     CLOSING = "closing"
     OPEN = "open"
@@ -148,10 +148,10 @@ class System:
         pass
 class SystemUpdater:
     pass
-class SystemUpdaterType:
+class SystemUpdaterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     DRM = "drm"
     SYSTEM = "system"
-class TouchscreenType:
+class TouchscreenType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     FINGER = "finger"
     NONE = "none"
     STYLUS = "stylus"
@@ -159,7 +159,7 @@ class Worker:
     pass
 class WorkerDomain:
     pass
-class WorkerState:
+class WorkerState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     NEW = "new"
     RUNNING = "running"
     TERMINATED = "terminated"

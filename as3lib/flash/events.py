@@ -1,5 +1,5 @@
-
-class Event:
+from as3lib import metaclasses
+class Event(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ACTIVATE = "activate"
    ADDED = "added"
    ADDED_TO_STAGE = "addedToStage"

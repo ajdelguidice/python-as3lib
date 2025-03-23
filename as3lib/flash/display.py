@@ -1,4 +1,4 @@
-from as3lib import configmodule
+from as3lib import configmodule,metaclasses
 import as3lib.toplevel as as3
 from typing import Union
 import tkinter
@@ -32,7 +32,7 @@ class as3totk:
          case "TR":
             return "ne"
 
-class ActionScriptVersion:
+class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ACTIONSCRIPT2 = 2
    ACTIONSCRIPT3 = 3
 class AVLoader:
@@ -45,12 +45,12 @@ class BitmapData:
    pass
 class BitmapDataChannel:
    pass
-class BitmapEncodingColorSpace:
+class BitmapEncodingColorSpace(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    COLORSPACE_4_2_0 = "4:2:0"
    COLORSPACE_4_2_2 = "4:2:2"
    COLORSPACE_4_4_4 = "4:4:4"
    COLORSPACE_AUTO = "auto"
-class BlendMode:
+class BlendMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ADD = "add"
    ALPHA = "alpha"
    DARKEN = "darken"
@@ -66,15 +66,15 @@ class BlendMode:
    SCREEN = "screen"
    SHADER = "shader"
    SUBTRACT = "subtract"
-class CapsStyle:
+class CapsStyle(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    NONE = "none"
    ROUND = "round"
    SQUARE = "square"
-class ColorCorrection:
+class ColorCorrection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFAULR = "default"
    OFF = "off"
    ON = "on"
-class ColorCorrectionSupport:
+class ColorCorrectionSupport(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFAULT_OFF = "defaultOff"
    DEFAULT_ON = "defualtOn"
    UNSUPPORTED = "unsupported"
@@ -82,13 +82,13 @@ class DisplayObject:
    pass
 class DisplayObjectContainer:
    pass
-class FocusDirection:
+class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "bottom"
    NONE = "none"
    TOP = "top"
 class FrameLabel:
    pass
-class GradientType:
+class GradientType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LINEAR = "linear"
    RADIAL = "radial"
 class Graphics:
@@ -115,10 +115,10 @@ class GraphicsTrianglePath:
    pass
 class GraphicsObject:
    pass
-class InterpolationMethod:
+class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LINEAR_RGB = "linearRGB"
    RGB = "rgb"
-class JointStyle:
+class JointStyle(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BEVEL = "bevel"
    MITER = "miter"
    ROUND = "round"
@@ -126,7 +126,7 @@ class JPEGEncoderOptions:
    pass
 class JPEGCREncoderOptions:
    pass
-class LineScaleMode:
+class LineScaleMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    HORIZONTAL = "horizontal"
    NONE = "none"
    NORMAL = "normal"
@@ -226,7 +226,7 @@ class NativeWindow:
       pass
    def startResize(edgeOfCorner):
       pass
-class NativeWindowDisplayState:
+class NativeWindowDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    MAXIMIZED = "maximized"
    MINIMIZED = "minimized"
    NORMAL = "normal"
@@ -241,12 +241,12 @@ class NativeWindowInitOptions:
       self.systemChrome:as3.allString = kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD)
       self.transparent:as3.allBoolean = kwargs.get('transparent', False)
       self.type:as3.allString = kwargs.get('type', NativeWindowType.NORMAL)
-class NativeWindowRenderMode:
+class NativeWindowRenderMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AUTO = "auto"
    CPU = "cpu"
    DIRECT = "direct"
    GPU = "gpu"
-class NativeWindowResize:
+class NativeWindowResize(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "B"
    BOTTOM_LEFT = "BL"
    BOTTOM_RIGHT = "BR"
@@ -255,15 +255,15 @@ class NativeWindowResize:
    TOP = "T"
    TOP_LEFT = "TL"
    TOP_RIGHT = "TR"
-class NativeWindowSystemChrome:
+class NativeWindowSystemChrome(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ALTERNATE = "alternate"
    NONE = "none"
    STANDARD = "standard"
-class NativeWindowType:
+class NativeWindowType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LIGHTWEIGHT = "lightweight"
    NORMAL = "normal"
    UTILITY = "utility"
-class PixelSnapping:
+class PixelSnapping(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ALWAYS = "always"
    AUTO = "auto"
    NEVER = "never"
@@ -275,7 +275,7 @@ class SceneMode:
    pass
 class Screen:
    pass
-class ScreenMode:
+class ScreenMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    colorDepth = configmodule.colordepth
    height = configmodule.height
    refreshRate = configmodule.refreshrate
@@ -290,7 +290,7 @@ class ShaderJob:
    pass
 class ShaderParameter:
    pass
-class ShaderParameterType:
+class ShaderParameterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOOL = "bool"
    BOOL2 = "bool2"
    BOOL3 = "bool3"
@@ -306,14 +306,14 @@ class ShaderParameterType:
    MATRIX2X2 = "matrix2x2"
    MATRIX3X3 = "matrix3x3"
    MATRIX4X4 = "matrix4x4"
-class ShaderPrecision:
+class ShaderPrecision(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FAST = "fast"
    FULL = "full"
 class Shape:
    pass
 class SimpleButtom:
    pass
-class SpreadMethod:
+class SpreadMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    PAD = "pad"
    REFLECT = "reflect"
    REPEAT = "repeat"
@@ -323,7 +323,7 @@ class Stage:
    pass
 class Stage3D:
    pass
-class StageAlign:
+class StageAlign(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "B"
    BOTTOM_LEFT = "BL"
    BOTTOM_RIGHT = "BR"
@@ -332,21 +332,21 @@ class StageAlign:
    TOP = "T"
    TOP_LEFT = "TL"
    TOP_RIGHT = "TR"
-class StageAspectRatio:
+class StageAspectRatio(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ANY = "any"
    LANDSCAPE = "landscape"
    PORTRAIT = "portrait"
-class StageDisplayState:
+class StageDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FULL_SCREEN = "fullScreen"
    FULL_SCREEN_INTERACTIVE = "fullScreenInteractive"
    NORMAL = "normal"
-class StageOrientation:
+class StageOrientation(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFAULT = "default"
    ROTATED_LEFT = "rotatedLeft"
    ROTATED_RIGHT = "rotatedRight"
    UNKNOWN = "unknown"
    UPSIDE_DOWN = "upsideDown"
-class StageQuality:
+class StageQuality(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BEST = "best"
    HIGH = "high"
    HIGH_16X16 = "16x16"
@@ -355,12 +355,12 @@ class StageQuality:
    HIGH_8X8_LINEAR = "8x8linear"
    LOW = "low"
    MEDIUM = "medium"
-class StageScaleMode:
+class StageScaleMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    EXACT_FIT = "exactFit"
    NO_BORDER = "noBorder"
    NO_SCALE = "noScale"
    SHOW_ALL = "showAll"
-class SWFVersion:
+class SWFVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FLASH1 = 1
    FLASH2 = 2
    FLASH3 = 3
@@ -372,7 +372,7 @@ class SWFVersion:
    FLASH9 = 9
    FLASH10 = 10
    FLASH11 = 11
-class TriangleCulling:
+class TriangleCulling(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    NEGATIVE = "negative"
    NONE = "none"
    POSITIVE = "positive"

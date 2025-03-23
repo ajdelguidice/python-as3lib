@@ -1,5 +1,6 @@
 import as3lib.toplevel as as3
 import as3lib.configmodule as confmod
+from as3lib import metaclasses
 from subprocess import check_output as co
 from subprocess import CalledProcessError as CPE
 from typing import Union
@@ -117,7 +118,7 @@ class File:
       pass
    def resolvePath():
       pass
-class FileMode:
+class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    APPEND = "append"
    READ = "read"
    UPDATE = "update"

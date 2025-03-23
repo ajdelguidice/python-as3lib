@@ -2,6 +2,7 @@ import as3lib.toplevel as as3
 from as3lib import configmodule as confmod
 from typing import Union
 from as3lib.flash.events import Event
+from as3lib import metaclasses
 from tkinter import filedialog
 import as3lib.flash.utils as utils
 
@@ -118,12 +119,12 @@ class InterfaceAddress:
    #ipVersion = classmethod(fget=__AddrType)
    #prefixLength = classmethod()
 
-class IPVersion:
+class IPVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    IPV4 = "IPv4"
    IPV6 = "IPv6"
 
 
-class ObjectEncoding:
+class ObjectEncoding(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AMF0 = 0
    AMF3 = 3
    DEFAULT = 3
@@ -230,7 +231,7 @@ class SharedObject:
       pass
    def setProperty(self,propertyName,value=None):
       pass
-class SharedObjectFlushStatus:
+class SharedObjectFlushStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FLUSHED = "flushed"
    PENDING = "pending"
 
