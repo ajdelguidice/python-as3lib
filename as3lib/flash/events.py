@@ -1,5 +1,23 @@
 from as3lib import metaclasses
-class Event(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+import as3lib.toplevel as as3
+
+class IEventDispatcher:
+   def __init__(self):
+      self.eventobjects = {}
+   def addEventListener(type, listener, useCapture=False, priority=0, useWeakReference=False):
+      pass
+   def dispatchEvent(event):
+      pass
+   def hasEventListener(type):
+      pass
+   def removeEventListener(type, listener, useCapture=False):
+      pass
+   def willTrigger(type):
+      pass
+
+
+
+class Event:
    ACTIVATE = "activate"
    ADDED = "added"
    ADDED_TO_STAGE = "addedToStage"
@@ -57,19 +75,97 @@ class Event(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    USER_PRESENT = "userPresent"
    VIDEO_FRAME = "videoFrame"
    WORKER_STATE = "workerState"
-   def __init__(self, type, bubbles=False, cancelable=False):
+   def __getBubbles(self):
+      return self.__bubbles
+   bubbles=property(fget=__getBubbles)
+   def __getCancelable(self):
+      return self.__cancelable
+   cancelable=property(fget=__getCancelable)
+   def __getCTarget(self):
+      return self.__ctarget
+   currentTarget=property(fget=__getCTarget)
+   def __getEPhase(self__getEPhase):
+      return self.__ephase
+   eventPhase=property(fget=__getEPhase)
+   def __getTarget(self):
+      return self.__target
+   target=property(fget=__getTarget)
+   def __getType(self):
+      return self.__type
+   type=property(fget=__getType)
+   def __init__(self, type_, bubbles=False, cancelable=False):
+      self.__type = type_
+      self.__bubbles = bubbles
+      self.__cancelable = cancelable
+      self.__preventDefault = False
+   def clone(self):...
+   def formatToString(self,className,*arguements):...
+   def isDefaultPrevented(self):
+      return self.__preventDefault
+   def preventDefault(self):
+      #!Implement actual behavior
+      ...
+      self.__preventDefault = True
+   def stopImmediatePropagation(self):...
+   def stopPropagation(self):...
+   def toString(self):
+      return f"[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]"
+class EventDispatcher:
+   #!Implement priority, weakReference
+   def __init__(self,target:IEventDispatcher=None):
+      #!Implement target
+      self._events = {}
+      self._eventsCapture = {}
+   def addEventListener(self,type_:as3.allString,listener,useCapture:as3.allBoolean=False,priority:as3.allInt=0,useWeakReference:as3.allBoolean=False):
+      #!Add error
+      if useCapture == False:
+         if self._events.get(type_) == None:
+            self._events[type_] = [listener]
+         elif listener not in self._events[type_]:
+            self._events[type_].append(listener)
+      else:
+         if self._eventsCapture.get(type_) == None:
+            self._eventsCapture[type_] = [listener]
+         elif listener not in self._eventsCapture[type_]:
+            self._eventsCapture[type_].append(listener)
+   def _dispatchEventType(self,type_,capture=False):
+      """
+      This is a temporary function that will be removed later. I just have no idea how to implement the original and haven't implemented event objects yet.
+      """
+      if capture == False:
+         if self._events.get(type_) != None:
+            for i in self._events[type_]:
+               i(type_)
+      else:
+         if self._eventsCapture.get(type_) != None:
+            for i in self._eventsCapture[type_]:
+               i(type_)
+   def dispatchEvent(self,event):
       pass
-
-class IEventDispatcher:
-   def __init__(self):
-      self.eventobjects = {}
-   def addEventListener(type, listener, useCapture=False, priority=0, useWeakReference=False):
+   def hasEventListener(self,type_):
+      if self._events.get(type_) != None or self._eventsCapture.get(type_) != None:
+         return True
+      else:
+         return False
+   def removeEventListener(self,type_:as3.allString,listener,useCapture:as3.allBoolean=False):
+      if useCapture == False:
+         if self._events.get(type_) != None:
+            try:
+               self._events[type_].remove(listener)
+            except:
+               pass
+      else:
+         if self._eventsCapture.get(type_) != None:
+            try:
+               self._eventsCapture[type_].remove(listener)
+            except:
+               pass
+   def willTrigger(self,type_:as3.allString):
       pass
-   def dispatchEvent(event):
-      pass
-   def hasEventListener(type):
-      pass
-   def removeEventListener(type, listener, useCapture=False):
-      pass
-   def willTrigger(type):
-      pass
+      
+      
+      
+      
+class TimerEvent(Event):
+   TIMER = "timer"
+   TIMER_COMPLETE = "timerComplete"

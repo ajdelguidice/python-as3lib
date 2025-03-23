@@ -1,5 +1,6 @@
 from as3lib import toplevel as as3
 from as3lib.flash import net as fn
+from as3lib.flash.events import EventDispatcher, TimerEvent
 from as3lib import metaclasses
 from typing import Union
 import binascii
@@ -286,16 +287,19 @@ class Dictionary:
 class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BIG_ENDIAN = "bigEndian"
    LITTLE_ENDIAN = "littleEndian"
-class Timer:
+class Timer(EventDispatcher):
    def __getCCount(self):
       return self.__currentCount
-   currentCount=property(fget=_getCCount)
+   currentCount=property(fget=__getCCount)
    def __getDelay(self):
       return self.__delay
    def __setDelay(self,number_ms:as3.allNumber):
-      self.stop()
-      self.__delay = number_ms
-      self.start()
+      if self.running:
+         self.stop()
+         self.__delay = number_ms
+         self.start()
+      else:
+         self.__delay = number_ms
    delay=property(fget=__getDelay,fset=__setDelay)
    def __getRCount(self):
       return self.__repeatCount
@@ -307,14 +311,17 @@ class Timer:
    running=property(fget=__getRunning)
    def __TimerTick(self):
       self.__currentCount += 1
+      #Make the events happen on a separate thread
+      self._dispatchEventType("timer")
       if self.currentCount >= self.repeatCount:
-         ... #!Send TIMER_COMPLETE event
+         self._dispatchEventType("timerComplete")
       else:
-         ... #!Send the TIMER event
-         self.start()
+         self.__timer = timedExec(self.delay/1000,self.__TimerTick)
+         self.__timer.start()
    def __init__(self,delay:as3.allNumber,repeatCount:as3.allInt=0):
+      super().__init__()
       self.__currentCount = 0
-      self.delay = delay
+      self.__delay = delay
       self.repeatCount = repeatCount
       self.__running = False
    def reset(self):
@@ -322,7 +329,7 @@ class Timer:
       self.__currentCount = 0
    def start(self):
       if self.running == False:
-         self.__timer = timedExec(self.delay/100,self.__TimerTick)
+         self.__timer = timedExec(self.delay/1000,self.__TimerTick)
          self.__running = True
          self.__timer.start()
    def stop(self):
