@@ -3,6 +3,7 @@ from as3lib.flash import net as fn
 from as3lib import metaclasses
 from typing import Union
 import binascii
+from threading import Timer as timedExec
 
 #dummy classes
 class ByteArray:...
@@ -286,4 +287,45 @@ class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BIG_ENDIAN = "bigEndian"
    LITTLE_ENDIAN = "littleEndian"
 class Timer:
-   pass
+   def __getCCount(self):
+      return self.__currentCount
+   currentCount=property(fget=_getCCount)
+   def __getDelay(self):
+      return self.__delay
+   def __setDelay(self,number_ms:as3.allNumber):
+      self.stop()
+      self.__delay = number_ms
+      self.start()
+   delay=property(fget=__getDelay,fset=__setDelay)
+   def __getRCount(self):
+      return self.__repeatCount
+   def __setRCount(self,number:as3.allInt):
+      self.__repeatCount = number
+   repeatCount=property(fget=__getRCount,fset=__setRCount)
+   def __getRunning(self):
+      return self.__running
+   running=property(fget=__getRunning)
+   def __TimerTick(self):
+      self.__currentCount += 1
+      if self.currentCount >= self.repeatCount:
+         ... #!Send TIMER_COMPLETE event
+      else:
+         ... #!Send the TIMER event
+         self.start()
+   def __init__(self,delay:as3.allNumber,repeatCount:as3.allInt=0):
+      self.__currentCount = 0
+      self.delay = delay
+      self.repeatCount = repeatCount
+      self.__running = False
+   def reset(self):
+      self.stop()
+      self.__currentCount = 0
+   def start(self):
+      if self.running == False:
+         self.__timer = timedExec(self.delay/100,self.__TimerTick)
+         self.__running = True
+         self.__timer.start()
+   def stop(self):
+      if self.running == True:
+         self.__timer.cancel()
+         self.__running = False
