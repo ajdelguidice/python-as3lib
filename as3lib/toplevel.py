@@ -13,7 +13,6 @@ from functools import cmp_to_key
 from inspect import isfunction
 from numpy import nan, inf, base_repr
 
-
 #Static values
 true = True
 false = False
@@ -361,7 +360,7 @@ class Array(list):
          except:
             return ""
    def __setitem__(self,item,value):
-      if type(item) in (builtins.int,int,uint,Number) and item+1 > self.length:
+      if isinstance(item,(builtins.int,int,uint,Number)) and item+1 > self.length:
          """
          When you assign a value to an array element (for example, my_array[index] = value), if index is a number, and index+1 is greater than the length property, the length property is updated to index+1.
          """
@@ -381,14 +380,15 @@ class Array(list):
          while len(self) < value:
             self.append(self.filler)
    def __add__(self,item):
-      if type(item) not in (list,tuple,Array):
-         return Array(*super().__add__([item]))
-      return Array(*super().__add__(item))
+      if isinstance(item,(list,tuple)):
+         return Array(*super().__add__(item))
+      return Array(*super().__add__([item]))
    def __iadd__(self,item):
-      if type(item) not in (list,tuple,Array):
-         self.push(item)
-      else:
+      #!Fix this, ends up with NoneType
+      if isinstance(item,(list,tuple)):
          self.extend(item)
+      else:
+         self.push(item)
    def __str__(self):
       return self.toString()
    def __repr__(self):
@@ -406,7 +406,7 @@ class Array(list):
       """
       if len(args) == 0:
          return Array(*self)
-      elif len(args) == 1 and type(args[0]) in (list,tuple,Array): #!check whether this should be "if any element is array" or if it is only one
+      elif len(args) == 1 and isinstance(args[0],(list,tuple)): #!check whether this should be "if any element is array" or if it is only one
          return self+list(args[0])
       else:
          return self+list(args)
@@ -493,19 +493,19 @@ class Array(list):
          _Array = self
       if interpretation == 0:
          for i in _Array:
-            if type(i) in (list,tuple,Array):
+            if isinstance(i,(list,tuple)):
                result += f"{self.join(_Array=i)}{sep}"
-            elif type(i) in (type(undefined()),NoneType):
+            elif isinstance(i,(undefined,NoneType)):
                result += sep
             else:
                result += f"{i}{sep}"
       elif interpretation == 1:
          for i in _Array:
-            if type(i) in (list,tuple,Array):
+            if isinstance(i,(list,tuple)):
                if result[-lsep:] == sep:
                   result = result[:-lsep] + f","
                result += f"{self.join(_Array=i)},"
-            elif type(i) in (type(undefined()),NoneType):
+            elif isinstance(i,(undefined,NoneType)):
                result += sep
             else:
                result += f"{i}{sep}"
@@ -638,11 +638,11 @@ class Array(list):
          with helpers.recursionDepth(100000):
             super().sort(key=cmp_to_key(s))
       elif len(args) == 1:
-         if type(args[0]) in (bool,Boolean) and args[0] == True:
+         if isinstance(args[0],(bool,Boolean)) and args[0] == True:
             super().sort()
          elif isfunction(args[0]):
             super().sort(key=lambda:cmp_to_key(args[0]))
-         elif type(args[0]) in (builtins.int,float,int,uint,Number):
+         elif isinstance(args[0],(builtins.int,float,int,uint,Number)):
             match args[0]:
                case 1: #CASEINSENSITIVE
                   raise Exception("Not Implemented Yet")
@@ -703,10 +703,10 @@ class Array(list):
    def __listtostr(self,l):
       a = ""
       for i in l:
-         if type(i) in (list,tuple,Array):
+         if isinstance(i,(list,tuple)):
             a += self.__listtostr(i) + ","
             continue
-         elif type(i) in (type(undefined()),NoneType):
+         elif isinstance(i,(undefined,NoneType)):
             a += ","
             continue
          a += f"{i},"
