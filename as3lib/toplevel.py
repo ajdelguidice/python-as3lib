@@ -351,8 +351,7 @@ class Array(list):
             super().__init__([self.filler for i in range(numElements)])
    def __getitem__(self, item):
       if isinstance(item, slice):
-         indices = range(*item.indices(len(self)))
-         return Array(*[self[i] for i in indices])
+         return Array(*[self[i] for i in range(*item.indices(len(self)))])
       else:
          try:
             value = super().__getitem__(item)
