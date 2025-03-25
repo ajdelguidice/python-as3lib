@@ -1,6 +1,6 @@
 import math as m
 import random as r
-from pathlib import Path
+from pathlib import Path, PurePath
 from . import configmodule, helpers
 import builtins
 from typing import Union
@@ -1468,7 +1468,7 @@ def _isValidDirectory(directory,separator=None):
    WIN_BlacklistedNames = {"CON","PRN","AUX","NUL","COM0","COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9","COM¹","COM²","COM³","LPT0","LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9","LPT¹","LPT²","LPT³"}
    UNIX_BlacklistedChars = {"/","<",">","|",":","&",""}
    UNIX_BlacklistedNames = {".",".."}
-   if type(directory) == type(Path()):
+   if isinstance(directory,PurePath):
       #While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
       temp = directory.resolve()
       if confmod.platform == "Windows":
