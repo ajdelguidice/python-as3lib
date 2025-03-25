@@ -384,11 +384,11 @@ class Array(list):
          return Array(*super().__add__(item))
       return Array(*super().__add__([item]))
    def __iadd__(self,item):
-      #!Fix this, ends up with NoneType
       if isinstance(item,(list,tuple)):
          self.extend(item)
       else:
-         self.push(item)
+         self.extend([item])
+      return self
    def __str__(self):
       return self.toString()
    def __repr__(self):
