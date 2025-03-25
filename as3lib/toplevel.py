@@ -996,87 +996,76 @@ class Namespace:
    def valueOf():
       pass
 class Number:
-   __slots__ = ("number")
+   __slots__ = ("_value")
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
    NaN = NaN()
    NEGATIVE_INFINITY = NInfinity()
    POSITIVE_INFINITY = Infinity()
    def __init__(self, num=None):
-      self.number = self._Number(num)
+      self._value = self._Number(num)
    def __str__(self):
-      if self.number in (NaN(),Infinity(),NInfinity()):
-         return str(self.number)
-      if self.number.is_integer() == True:
-         return f'{builtins.int(self.number)}'
-      return f'{self.number}'
+      if isinstance(self._value,(NaN,Infinity,NInfinity)):
+         return str(self._value)
+      if self._value.is_integer() == True:
+         return f'{builtins.int(self._value)}'
+      return f'{self._value}'
    def __getitem__(self):
-      return self.number
+      return self._value
    def __setitem__(self, value):
-      self.number = self._Number(value)
+      self._value = self._Number(value)
    def __add__(self, value):
       try:
-         return Number(self.number + float(value))
+         return Number(self._value + float(value))
       except ValueError:
          raise TypeError(f"can not add {type(value)} to Number")
    def __sub__(self, value):
       try:
-         return Number(self.number - float(value))
+         return Number(self._value - float(value))
       except ValueError:
          raise TypeError(f"can not subtract {type(value)} from Number")
    def __mul__(self, value):
       try:
-         return Number(self.number * float(value))
+         return Number(self._value * float(value))
       except ValueError:
          raise TypeError(f"can not multiply Number by {type(value)}")
    def __truediv__(self, value):
       if value == 0:
-         if self.number == 0:
+         if self._value == 0:
             return Number(NaN())
-         elif self.number > 0:
+         elif self._value > 0:
             return Number(Infinity())
-         elif self.number < 0:
+         elif self._value < 0:
             return Number(NInfinity())
       else:
          try:
-            return Number(self.number / float(value))
+            return Number(self._value / float(value))
          except:
             raise TypeError(f"Can not divide Number by {type(value)}")
    def __float__(self):
-      return float(self.number)
+      return float(self._value)
    def __int__(self):
-      return builtins.int(self.number)
+      return builtins.int(self._value)
    def _Number(self, expression):
-      tpexp = type(expression)
-      if expression == NInfinity():
-         return NInfinity()
-      elif expression == Infinity():
-         return Infinity()
-      elif expression in (None,NaN()):
-         return NaN()
-      elif tpexp in (builtins.int,int):
-         return float(expression)
-      elif tpexp in (float,Number):
+      if isinstance(expression,(NInfinity,Infinity,float,Number)):
          return expression
-      elif expression == "undefined":
+      elif isinstance(expression,(NoneType,NaN,undefined)):
          return NaN()
-      elif expression == "null":
+      elif isinstance(expression,(builtins.int,int)):
+         return float(expression)
+      elif isinstance(expression,null):
          return 0.0
-      elif expression == self.NaN:
-         return self.NaN
-      elif tpexp in (bool,Boolean):
+      elif isinstance(expression,(bool,Boolean)):
          if expression == True:
             return 1.0
-         else:
-            return 0.0
-      elif tpexp in (str,String):
+         return 0.0
+      elif isinstance(expression,str):
          if expression == "":
             return 0.0
-         else:
-            try:
-               return float(expression)
-            except:
-               return NaN()
+         try:
+            return float(expression)
+         except:
+            return NaN()
    def toExponential(self):
       pass
    def toFixed(self):
@@ -1085,9 +1074,9 @@ class Number:
       pass
    def toString(self, radix=10):
       #!
-      return str(self.number)
+      return str(self._value)
    def valueOf(self):
-      return self.number
+      return self._value
 class Object:
    #ActionScript3 Base object
    def __init__(self):...
