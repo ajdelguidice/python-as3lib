@@ -7,7 +7,10 @@ from os.path import dirname
 if platform.system() == "Windows":
    from os import getlogin
    import ctypes
-   import win32api
+   try:
+      import win32api
+   except:
+      configmodule.initerror.append((3,"pywin32 is required for operation on Windows but is either not installed or not accessible."))
 elif platform.system() in ("Linux","Darwin"):
    from os import getuid
    from pwd import getpwuid
