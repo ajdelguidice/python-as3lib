@@ -13,6 +13,7 @@ Linux:
 <br>&emsp;(xorg): xwininfo, xrandr
 <br>Windows:
 <br>&emsp;PyLaucher
+<br>&emsp;<a href="https://pypi.org/project/pywin32/">pywin32</a>
 <br>Python built-ins:
 <br>&emsp;tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (linux), pathlib, configparser, webbrowser, textwrap, typing
 <br>Python external:
