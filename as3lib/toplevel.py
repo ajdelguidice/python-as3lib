@@ -1355,14 +1355,13 @@ class Vector(list):
          self.__superclass = True
          ...
       else:
-         super().__init__(())
          self.__superclass = superclass
-         self.length = length
+         super().__init__((null() for i in range(length)))
          self.fixed = fixed
    def __getFixed(self):
       return self.__fixed
    def __setFixed(self,value:allBoolean):
-      self.__fixed = Boolean(value)
+      self.__fixed = value
    fixed = property(fget=__getFixed,fset=__setFixed)
    def __getLength(self):
       return len(self)
@@ -1372,7 +1371,7 @@ class Vector(list):
       elif value > 4294967296:
          RangeError("New vector length outside of accepted range (0-4294967296).")
       else:
-         elif len(self) > value:
+         if len(self) > value:
             while len(self) > value:
                self.pop()
          elif len(self) < value:
@@ -1476,7 +1475,7 @@ class Vector(list):
          RangeError("unshift can not be called on a Vector with fixed set to true.")
       else:
          argsOK = True
-         if self.__superclass == True
+         if self.__superclass == True:
             for i in args:
                if not isinstance(i,(self.__type,null)):
                   argsOk = False
