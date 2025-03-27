@@ -323,7 +323,7 @@ class null:
 allNumber = Union[builtins.int,float,int,uint,Number]
 allInt = Union[builtins.int,int,uint]
 allString = Union[str,String]
-allArray = Union[list,tuple,Array]
+allArray = Union[list,tuple,Array,Vector]
 allBoolean = Union[bool,Boolean]
 allNone = Union[undefined,null,NoneType]
 
@@ -1341,61 +1341,155 @@ class URIError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class Vector: #probably should have list as parent
-   def __init__(self,type,sourceArray:list|tuple|Array|Vector):
-      pass
-   def _getFixed(self):
-      return self._fixed
-   def _setFixed(self,value:bool|Boolean):
-      self._fixed = Boolean(value)
-   fixed = property(fget=_getFixed,fset=_setFixed)
-   def _getLength(self):
-      pass
-   def _setLength(self,value):
-      pass
-   length = property(fget=_getLength,fset=_setLength)
-   def concat():
-      pass
-   def every():
-      pass
-   def filter():
-      pass
-   def forEach():
-      pass
-   def indexOf():
-      pass
-   def insertAt():
-      pass
-   def join():
-      pass
-   def lastIndexOf():
-      pass
-   def map():
-      pass
-   def pop():
-      pass
-   def push():
-      pass
-   def removeAt():
-      pass
-   def reverse():
-      pass
-   def shift():
-      pass
-   def slice():
-      pass
-   def some():
-      pass
-   def sort():
-      pass
-   def splice():
-      pass
-   def toLocaleString():
-      pass
-   def toString():
-      pass
-   def unshift():
-      pass
+class Vector(list):
+   """
+   AS3 Vector datatype.
+   
+   Since python does not allow for multiple things to have the same name, the function and the class constructor have been merged. Here's how it works now:
+     - If sourceArray is defined, the behavior for the function is used and the arguements are ignored.
+     - The arguement "superclass" is provided for convinience. It makes the Vector object check the type as a superclass instead of as a strict type. Passing sourceArray sets this to true
+   """
+   def __init__(self,type_,length=0,fixed:allBoolean=False,superclass:allBoolean=False,sourceArray:list|tuple|Array|Vector=None):
+      self.__type = type_
+      if sourceArray != None:
+         self.__superclass = True
+         ...
+      else:
+         super().__init__(())
+         self.__superclass = superclass
+         self.length = length
+         self.fixed = fixed
+   def __getFixed(self):
+      return self.__fixed
+   def __setFixed(self,value:allBoolean):
+      self.__fixed = Boolean(value)
+   fixed = property(fget=__getFixed,fset=__setFixed)
+   def __getLength(self):
+      return len(self)
+   def __setLength(self,value):
+      if self.__fixed == True:
+         RangeError("Can not set vector length while fixed is set to true.")
+      elif value > 4294967296:
+         RangeError("New vector length outside of accepted range (0-4294967296).")
+      else:
+         elif len(self) > value:
+            while len(self) > value:
+               self.pop()
+         elif len(self) < value:
+            while len(self) < value:
+               self.append(null())
+   length = property(fget=__getLength,fset=__setLength)
+   def __getitem__(self, item):
+      if isinstance(item, slice):...
+      else:
+         return super().__getitem__(item)
+   def __setitem__(self,item,value):
+      if self.__superclass == True:
+         if isinstance(value,(self.__type,null)):
+            super().__setitem__(item,value)
+      else:
+         if type(value) == (self.__type,type(null())):
+            super().__setitem__(item,value)
+   def concat():...
+   def every(self,callback,thisObject):
+      for i in range(len(self)):
+         if callback(self[i],i,self) == False:
+            return False
+      return True
+   def filter(self,callback,thisObject):
+      tempVect = Vector(type_=self.__type,superclass=self.__superclass)
+      for i in range(len(self)):
+         if callback(self[i], i, self) == True:
+            tempVector.push(self[i])
+      return tempVector
+   def forEach(self,callback,thisObject):
+      for i in range(len(self)):
+         callback(self[i], i, self)
+   def indexOf(self,searchElement,fromIndex=0):
+      if fromIndex < 0:
+         fromIndex = len(self) - fromIndex
+      for i in range(fromIndex,len(self)):
+         if self[i] == searchElement:
+            return i
+      return -1
+   def insertAt(index,element):
+      if self.__fixed == True:
+         RangeError("insertAt can not be called on a Vector with fixed set to true.")
+      elif self.__superclass == True:
+         if isinstance(element,(self.__type,null)):
+            ...
+      else:
+         ...
+   def join():...
+   def lastIndexOf(searchElement,fromIndex=None):
+      if fromIndex == None:
+         fromIndex = len(self)
+      elif fromIndex < 0:
+         fromIndex = len(self) - fromIndex
+      ...
+      #index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
+      #return index if index == -1 else len(self)-1-index
+   def map(self,callback,thisObject):
+      tempVect = Vector(type_=self.__type,length=len(self),superclass=self.__superclass)
+      for i in range(len(self)):
+         tempVect[i] = callback(self[i],i,self)
+      return tempVect
+   def pop(self):
+      if self.__fixed == True:
+         RangeError("pop can not be called on a Vector with fixed set to true.")
+      else:
+         return super().pop(-1)
+   def push(self,*args):
+      if self.__fixed == True:
+         RangeError("push can not be called on a Vector with fixed set to true.")
+      else:
+         #!Check item types
+         self.extend(args)
+         return len(self)
+   def removeAt(self,index):
+      if self.__fixed == True:
+         RangeError("removeAt can not be called on a Vector with fixed set to true.")
+      elif False: #!Index out of bounds
+         RangeError("index is out of bounds.")
+      else:
+         return super().pop(index)
+   def reverse(self):
+      super().reverse()
+      return self
+   def shift(self):
+      if self.__fixed == True:
+         RangeError("shift can not be called on a Vector with fixed set to true.")
+      else:
+         return super().pop(0)
+   def slice():...
+   def some(self,callback,thisObject):
+      for i in range(len(self)):
+         if callback(self[i], i, self) == True:
+            return True
+      return False
+   def sort():...
+   def splice():...
+   def toLocaleString():...
+   def toString():...
+   def unshift(self,*args):
+      if self.__fixed == True:
+         RangeError("unshift can not be called on a Vector with fixed set to true.")
+      else:
+         argsOK = True
+         if self.__superclass == True
+            for i in args:
+               if not isinstance(i,(self.__type,null)):
+                  argsOk = False
+                  break
+         else:
+            ...
+         if argsOK == False:
+            TypeError("One or more args is not of the Vector's base type.")
+         else:
+            tempVect = (*args,*self)
+            self.clear()
+            self.extend(tempVect)
+            return len(self)
 class VerifyError():
    __slots__ = ("error")
    def __init__(self, message=""):
