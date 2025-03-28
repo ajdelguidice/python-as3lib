@@ -12,10 +12,10 @@ class FileFilter:
       self.extension = extension
       self.macType = macType
    def extensionsToArray(self):
-      return as3.listtoarray(self.extension.split(";"))
+      return as3.Array(*self.extension.split(";"))
    def macTypeToArray(self):
       if self.macType != None:
-         return as3.listtoarray(self.macType.split(";"))
+         return as3.Array(*self.macType.split(";"))
    def toTkTuple(self):
       return (self.description,self.extension.split(";"))
 class FileReference:
