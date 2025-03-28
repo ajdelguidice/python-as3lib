@@ -340,9 +340,11 @@ class Array(list):
    UNIQUESORT = 4
    RETURNINDEXEDARRAY =  8
    NUMERIC = 16
-   def __init__(self,*args,numElements:builtins.int|int=None):
+   def __init__(self,*args,numElements:builtins.int|int=None,sourceArray:allArray=None):
       self.filler = undefined()
-      if numElements == None:
+      if sourceArray != None:
+         super().__init__(sourceArray)
+      elif numElements == None:
          super().__init__(args)
       else:
          if numElements < 0:
@@ -1353,11 +1355,11 @@ class Vector(list):
       self.__type = type_
       if sourceArray != None:
          self.__superclass = True
-         ...
+         super().__init__(sourceArray) #!Temporary, must convert first in real implementation
       else:
          self.__superclass = superclass
          super().__init__((null() for i in range(length)))
-         self.fixed = fixed
+      self.fixed = fixed
    def __getFixed(self):
       return self.__fixed
    def __setFixed(self,value:allBoolean):
