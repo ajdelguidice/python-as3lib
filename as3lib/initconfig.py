@@ -1,8 +1,6 @@
-import platform, subprocess
+import platform, subprocess, configparser
 from . import configmodule
-import configparser
 from pathlib import Path
-from os.path import dirname
 
 if platform.system() == "Windows":
    from os import getlogin
@@ -21,14 +19,6 @@ initerror list
 2: (Linux specific) display manager type not found (expected x11 or wayland)
 3: requirement not found
 """
-
-def defaultTraceFilePath():
-   """
-   Outputs the default file path for trace in this library
-   """
-   if configmodule.platform == "Windows":
-      return fr"{configmodule.librarydirectory}\flashlog.txt"
-   return f"{configmodule.librarydirectory}/flashlog.txt"
 
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
    """
@@ -80,8 +70,8 @@ def sm_x11():
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
-   configpath = f"{configmodule.librarydirectory}/wayland.cfg"
-   if Path(configpath).exists() == True:
+   configpath = configmodule.librarydirectory / "wayland.cfg"
+   if configpath.exists() == True:
       with open(configpath, 'r') as f:
          configwithheader = f.read()
       config = configparser.ConfigParser()
@@ -110,7 +100,7 @@ def sm_wayland():
       sh = input("Maximum height (px), or -1 for no limit: ")
       rr = input("Refresh rate (Hz): ")
       cd = input("Color depth (bits): ")
-      with open(f"{configmodule.librarydirectory}/wayland.cfg", "w") as cfg:
+      with open(configpath, "w") as cfg:
          cfg.write(f"[Screen]\nscreenwidth={int(sw)}\nscreenheight={int(sh)}\nrefreshrate={float(rr)}\ncolordepth={int(cd)}")
    return int(sw), int(sh), float(rr), int(cd)
 
@@ -131,14 +121,12 @@ def getSeparator():
    return "/"
 
 def getDesktopDir():
-   if configmodule.platform == "Windows":
-      return fr"{configmodule.userdirectory}\Desktop"
-   return fr"{configmodule.userdirectory}/Desktop"
+   #!Use $XDG_DESKTOP_DIR on linux
+   return configmodule.userdirectory / "Desktop"
 
 def getDocumentsDir():
-   if configmodule.platform == "Windows":
-      return fr"{configmodule.userdirectory}\Documents"
-   return fr"{configmodule.userdirectory}/Documents"
+   #!Use $XDG_DOCUMENTS_DIR on linux
+   return configmodule.userdirectory / "Documents"
 
 def getdmtype():
    temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
@@ -210,14 +198,14 @@ def dependencyCheck():
 
 def initconfig():
    #set up variables needed by mutiple modules
-   configmodule.librarydirectory = dirname(__file__)
+   configmodule.librarydirectory = Path(__file__).resolve().parent
    configmodule.platform = platform.system()
    dependencyCheck()
    configmodule.separator = getSeparator()
-   configmodule.userdirectory = str(Path.home())
+   configmodule.userdirectory = Path.home()
    configmodule.desktopdirectory = getDesktopDir()
    configmodule.documentsdirectory = getDocumentsDir()
-   configmodule.defaultTraceFilePath = defaultTraceFilePath()
+   configmodule.defaultTraceFilePath = configmodule.librarydirectory / "flashlog.txt"
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    configmodule.pythonversion = platform.python_version()
    if configmodule.platform == "Linux":
@@ -250,11 +238,8 @@ def initconfig():
       #configmodule.refreshrate = temp[2]
       #configmodule.colordepth = temp[3]
       pass
-   if configmodule.platform in ("Linux","Darwin"):
-      configpath = f"{configmodule.librarydirectory}/mm.cfg"
-   elif configmodule.platform == "Windows":
-      configpath = fr"{configmodule.librarydirectory}\mm.cfg"
-   if Path(configpath).exists() == True:
+   configpath = configmodule.librarydirectory / "mm.cfg"
+   if configpath.exists() == True:
       with open(configpath, 'r') as f:
          configwithheader = '[dummy_section]\n' + f.read()
       config = configparser.ConfigParser()
