@@ -28,8 +28,7 @@ def defaultTraceFilePath():
    """
    if configmodule.platform == "Windows":
       return fr"{configmodule.librarydirectory}\flashlog.txt"
-   elif configmodule.platform in ("Linux","Darwin"):
-      return f"{configmodule.librarydirectory}/flashlog.txt"
+   return f"{configmodule.librarydirectory}/flashlog.txt"
 
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
    """
@@ -129,20 +128,17 @@ def sm_darwin():
 def getSeparator():
    if configmodule.platform == "Windows":
       return "\\"
-   elif configmodule.platform in ("Linux","Darwin"):
-      return "/"
+   return "/"
 
 def getDesktopDir():
    if configmodule.platform == "Windows":
       return fr"{configmodule.userdirectory}\Desktop"
-   elif configmodule.platform in ("Linux","Darwin"):
-      return fr"{configmodule.userdirectory}/Desktop"
+   return fr"{configmodule.userdirectory}/Desktop"
 
 def getDocumentsDir():
    if configmodule.platform == "Windows":
       return fr"{configmodule.userdirectory}\Documents"
-   elif configmodule.platform in ("Linux","Darwin"):
-      return fr"{configmodule.userdirectory}/Documents"
+   return fr"{configmodule.userdirectory}/Documents"
 
 def getdmtype():
    temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
@@ -240,9 +236,8 @@ def initconfig():
          configmodule.refreshrate = temp[2]
          configmodule.colordepth = temp[3]
       else:
-         configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not found"))
+         configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not supported"))
    elif configmodule.platform == "Windows":
-      #configmodule.initerror.append((1,"Error fetching screen properties; Windows; Not Implemented Yet"))
       temp = sm_windows()
       configmodule.width = temp[0]
       configmodule.height = temp[1]
