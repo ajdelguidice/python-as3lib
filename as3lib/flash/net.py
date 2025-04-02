@@ -1,7 +1,7 @@
 import as3lib.toplevel as as3
 from as3lib import configmodule as confmod
 from typing import Union
-from as3lib.flash.events import Event
+from as3lib.flash.events import Event, EventDispatcher
 from as3lib import metaclasses
 from tkinter import filedialog
 import as3lib.flash.utils as utils
@@ -24,33 +24,29 @@ class FileFilter:
          return as3.Array(*self.macType.split(";"))
    def toTkTuple(self):
       return (self.description,self.extension.split(";"))
-class FileReference:
+class FileReference(EventDispatcher):
+   @staticmethod
+   def _getPerStat():
+      return True
+   permissionStatus = property(fget=_getPerStat)
    def __init__(self):
-      self.__listeners = as3.Array() #Array of Arrays; each Array consists of the event to listen for and the object to call
       #self.creationDate
       #self.creator
       #self.data
       #self.extension
       #self.modificationDate
       #self.name
-      #self.permissionStatus
       #self.size
       #self.type
       self._location = None
       pass
-   def execEvent(self,event):
-      for i in self.__listeners:
-         if i[0] == event:
-            i[1]() #needs to have some sort of event object as a function parameter
-   def addEventListener(self,event,function:callable):
-      self.__listeners.push(as3.Array(event,function))
+   def _setFile(self,file):
+      #Sets the file and all of its details
+      ...
    def browse(self,typeFilter:Union[as3.Array,list,tuple]=None):
       #typeFilter is an Array/list/tuple of FileFilter objects
       if typeFilter != None:
-         filetypes = []
-         for i in typeFilter:
-            filetypes.append(i.toTkTuple())
-         filename = filedialog.askopenfilename(title="Select a file to upload",filetypes=filetypes)
+         filename = filedialog.askopenfilename(title="Select a file to upload",filetypes=tuple(i.toTkTuple() for i in typeFilter))
       else:
          filename = filedialog.askopenfilename(title="Select a file to upload")
       try:
@@ -59,9 +55,9 @@ class FileReference:
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self.execEvent(Event.CANCEL)
+            self._dispatchEventType("cancel")
          else:
-            self.execEvent(Event.SELECT)
+            self._dispatchEventType("select")
    def cancel(self):
       pass
    def dowload(self,request,defaultFileName=None):
@@ -77,13 +73,13 @@ class FileReference:
       if data == None:
          as3.ArguementError("Invalid Data")
          return False
-      elif type(data) in (str,as3.String):
+      elif isinstance(data,str)
          #write a UTF-8 text file
          savetype = 1
       #elif type(data) == #XML:
          #Write as xml format text file with format preserved
          #savetype = 2
-      elif type(data) == utils.ByteArray:
+      elif isinstance(data,utils.ByteArray):
          #write data to file as is (in byte form)
          savetype = 3
       else:
@@ -107,11 +103,11 @@ class FileReference:
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self.execEvent(Event.CANCEL)
+            self._dispatchEventType("cancel")
          else:
-            self.execEvent(Event.SELECT)
+            self._dispatchEventType("select")
             self._location = filename
-            self.execEvent(Event.COMPLETE)
+            self._dispatchEventType("complete")
    def upload(self,request,uploadDataFieldName,testUpload=False):
       pass
    def uploadUnencoded(self,request):
