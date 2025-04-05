@@ -1,8 +1,63 @@
 from as3lib import metaclasses
 import as3lib.toplevel as as3
+from copy import copy
+
+#BaseEvent
+class _AS3_BASEEVENT:
+   def _getBubbles(self):
+      return self.__bubbles
+   bubbles = property(fget=_getBubbles)
+   def _getCancelable(self):
+      return self.__cancelable
+   cancelable = property(fget=_getCancelable)
+   def _getCTarget(self):
+      return self.__currentTarget
+   currentTarget = property(fget=_getCTarget)
+   def _getEventPhase(self):
+      return self.__eventPhase
+   eventPhase = property(fget=_getEventPhase)
+   def _getTarget(self):
+      return self.__target
+   target = property(fget=_getTarget)
+   def _getType(self):
+      return self.__type
+   type = property(fget=_getType)
+   def __init__(self,type,bubbles=False,cancelable=False,_target=None):
+      self.__type = type
+      self.__bubbles = bubbles
+      self.__cancelable = cancelable
+      self.__currentTarget = None
+      self.__target = _target
+      self.__eventPhase = None
+      self.__preventDefault = False
+   def __eq__(self,value):
+      return self.type == value
+   def __str__(self):
+      return self.type
+   def getEventProperties(self):
+      return (self.type,self.bubbles,self.cancelable,self.currentTarget,self.eventPhase,self.target)
+   def _Internal_setTarget(self,target):
+      """Internal method. do not use"""
+      self.__target = target
+   def _Internal_setCurrentTarget(self,currentTarget):
+      """Internal method. do not use"""
+      self.__currentTarget = currentTarget
+      currentTarget(self.type)
+   def clone(self):
+      return copy(self)
+   def formatToString(self,className,*arguements):...
+   def isDefaultPrevented(self):
+      return self.__preventDefault
+   def preventDefault(self):
+      if self.cancelable == True:
+         self.__preventDefault = True
+   def stopImmediatePropagation(self):...
+   def stopPropagation(self):...
+   def toString(self):
+      return f"[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]"
 
 #Dummy classes
-class Event:...
+class Event(_AS3_BASEEVENT):...
 class EventDispatcher:...
 
 #Interfaces
@@ -44,7 +99,7 @@ class DRMMetadataEvent:...
 class DRMReturnVoucherCompleteEvent:...
 class DRMStatusEvent:...
 class ErrorEvent:...
-class Event:
+class Event(Event):
    ACTIVATE = "activate"
    ADDED = "added"
    ADDED_TO_STAGE = "addedToStage"
@@ -102,41 +157,6 @@ class Event:
    USER_PRESENT = "userPresent"
    VIDEO_FRAME = "videoFrame"
    WORKER_STATE = "workerState"
-   def __getBubbles(self):
-      return self.__bubbles
-   bubbles=property(fget=__getBubbles)
-   def __getCancelable(self):
-      return self.__cancelable
-   cancelable=property(fget=__getCancelable)
-   def __getCTarget(self):
-      return self.__ctarget
-   currentTarget=property(fget=__getCTarget)
-   def __getEPhase(self__getEPhase):
-      return self.__ephase
-   eventPhase=property(fget=__getEPhase)
-   def __getTarget(self):
-      return self.__target
-   target=property(fget=__getTarget)
-   def __getType(self):
-      return self.__type
-   type=property(fget=__getType)
-   def __init__(self, type_, bubbles=False, cancelable=False):
-      self.__type = type_
-      self.__bubbles = bubbles
-      self.__cancelable = cancelable
-      self.__preventDefault = False
-   def clone(self):...
-   def formatToString(self,className,*arguements):...
-   def isDefaultPrevented(self):
-      return self.__preventDefault
-   def preventDefault(self):
-      #!Implement actual behavior
-      ...
-      self.__preventDefault = True
-   def stopImmediatePropagation(self):...
-   def stopPropagation(self):...
-   def toString(self):
-      return f"[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]"
 class EventDispatcher:
    #!Implement priority, weakReference
    def __init__(self,target:IEventDispatcher=None):
@@ -155,25 +175,32 @@ class EventDispatcher:
             self._eventsCapture[type_] = [listener]
          elif listener not in self._eventsCapture[type_]:
             self._eventsCapture[type_].append(listener)
-   def _dispatchEventType(self,type_,capture=False):
-      """
-      This is a temporary function that will be removed later. I just have no idea how to implement the original and haven't implemented event objects yet.
-      """
-      if capture == False:
-         if self._events.get(type_) != None:
-            for i in self._events[type_]:
-               i(type_)
-      else:
-         if self._eventsCapture.get(type_) != None:
-            for i in self._eventsCapture[type_]:
-               i(type_)
+   #def _dispatchEventType(self,type_,capture=False):
+   #   """
+   #   This is a temporary function that will be removed later. I just have no idea how to implement the original and haven't implemented event objects yet.
+   #   """
+   #   if capture == False:
+   #      if self._events.get(type_) != None:
+   #         for i in self._events[type_]:
+   #            i(type_)
+   #   else:
+   #      if self._eventsCapture.get(type_) != None:
+   #         for i in self._eventsCapture[type_]:
+   #            i(type_)
    def dispatchEvent(self,event):
-      pass
+      #!I do not know how to implement useCapture here
+      #!Implement stuff to do with bubbles
+      if event.isDefaultPrevented() == False:
+         if self._events.get(event.type) != None:
+            e = event.clone()
+            for i in self._events[event.type]:
+               e._Internal_setCurrentTarget(i)
+            return True
+      return False
    def hasEventListener(self,type_):
       if self._events.get(type_) != None or self._eventsCapture.get(type_) != None:
          return True
-      else:
-         return False
+      return False
    def removeEventListener(self,type_:as3.allString,listener,useCapture:as3.allBoolean=False):
       if useCapture == False:
          if self._events.get(type_) != None:

@@ -311,10 +311,9 @@ class Timer(EventDispatcher):
    running=property(fget=__getRunning)
    def __TimerTick(self):
       self.__currentCount += 1
-      #Make the events happen on a separate thread
-      self._dispatchEventType("timer")
+      self.dispatchEvent(self.timer)
       if self.currentCount >= self.repeatCount:
-         self._dispatchEventType("timerComplete")
+         self.dispatchEvent(self.timerComplete)
       else:
          self.__timer = timedExec(self.delay/1000,self.__TimerTick)
          self.__timer.start()
@@ -324,6 +323,8 @@ class Timer(EventDispatcher):
       self.__delay = delay
       self.repeatCount = repeatCount
       self.__running = False
+      self.timer = TimerEvent("timer",False,False,self)
+      self.timerComplete = TimerEvent("timerComplete",False,False,self)
    def reset(self):
       self.stop()
       self.__currentCount = 0

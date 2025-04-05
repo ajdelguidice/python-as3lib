@@ -73,7 +73,7 @@ class FileReference(EventDispatcher):
       if data == None:
          as3.ArguementError("Invalid Data")
          return False
-      elif isinstance(data,str)
+      elif isinstance(data,str):
          #write a UTF-8 text file
          savetype = 1
       #elif type(data) == #XML:
