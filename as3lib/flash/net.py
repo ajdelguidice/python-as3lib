@@ -1,7 +1,7 @@
 import as3lib.toplevel as as3
 from as3lib import configmodule as confmod
 from typing import Union
-from as3lib.flash.events import Event, EventDispatcher
+from as3lib.flash.events import Event, EventDispatcher #, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent, DataEvent
 from as3lib import metaclasses
 from tkinter import filedialog
 import as3lib.flash.utils as utils
@@ -30,6 +30,7 @@ class FileReference(EventDispatcher):
       return True
    permissionStatus = property(fget=_getPerStat)
    def __init__(self):
+      super().__init__()
       #self.creationDate
       #self.creator
       #self.data
@@ -39,7 +40,18 @@ class FileReference(EventDispatcher):
       #self.size
       #self.type
       self._location = None
-      pass
+      #!Most of these events need extra information
+      self.cancel = Event("cancel",False,False,self)
+      self.complete = Event("complete",False,False,self)
+      #self.httpResponseStatus = HTTPStatusEvent("httpResponseStatus",False,False,self)
+      #self.httpStatus = HTTPStatusEvent("httpStatus",False,False,self)
+      #self.ioError = IOErrorEvent("ioError",False,False,self)
+      self.open = Event("open",False,False,self)
+      #self.permissionStatus = PermissionEvent("permissionStatus",False,False,self)
+      #self.progress = ProgressEvent("progress",False,False,self)
+      #self.securityError = SecurityErrorEvent("securityError",False,False,self)
+      self.select = Event("select",False,False,self)
+      #self.uploadCompleteData = DataEvent("uploadCompleteEvent",False,False,self)
    def _setFile(self,file):
       #Sets the file and all of its details
       ...
@@ -55,9 +67,9 @@ class FileReference(EventDispatcher):
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self._dispatchEventType("cancel")
+            self.dispatchEvent(self.cancel)
          else:
-            self._dispatchEventType("select")
+            self.dispatchEvent(self.select)
    def cancel(self):
       pass
    def dowload(self,request,defaultFileName=None):
@@ -103,11 +115,11 @@ class FileReference(EventDispatcher):
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self._dispatchEventType("cancel")
+            self.dispatchEvent(self.cancel)
          else:
-            self._dispatchEventType("select")
+            self.dispatchEvent(self.select)
             self._location = filename
-            self._dispatchEventType("complete")
+            self.dispatchEvent(self.complete)
    def upload(self,request,uploadDataFieldName,testUpload=False):
       pass
    def uploadUnencoded(self,request):
