@@ -282,8 +282,13 @@ class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFLATE = "deflate"
    LZMA = "lzma"
    ZLIB = "zlib"
-class Dictionary:
-   pass
+class Dictionary(dict):
+   def __init__(self,weakKeys:as3.allBoolean=False):
+      return super().__init__()
+   def __getitem__(self,item):
+      return self.get(item) #I think this is how actionscript does it but I'm not sure
+   def toJSON(self,k:as3.allString):
+      return "Dictionary"
 class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BIG_ENDIAN = "bigEndian"
    LITTLE_ENDIAN = "littleEndian"
