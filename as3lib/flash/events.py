@@ -104,63 +104,64 @@ class DRMReturnVoucherCompleteEvent:...
 class DRMStatusEvent:...
 class ErrorEvent:...
 class Event(_AS3_BASEEVENT):
-   ACTIVATE = "activate"
-   ADDED = "added"
-   ADDED_TO_STAGE = "addedToStage"
-   BROWSER_ZOOM_CHANGE = "browerZoomChange"
-   CANCEL = "cancel"
-   CHANGE = "change"
-   CHANNEL_MESSAGE = "channelMessage"
-   CHANNEL_STATE = "channelState"
-   CLEAR = "clear"
-   CLOSE = "close"
-   CLOSING = "closing"
-   COMPLETE = "complete"
-   CONNECT = "connect"
-   CONTEXT3D_CREATE = "context3DCreate"
-   COPY = "copy"
-   CUT = "cut"
-   DEACTIVATE = "deactivate"
-   DISPLAYING = "displaying"
-   ENTER_FRAME = "enterFrame"
-   EXIT_FRAME = "exitFrame"
-   EXITING = "exiting"
-   FRAME_CONSTRUCTED = "frameConstructed"
-   FRAME_LABEL = "frameLabel"
-   FULLSCREEN = "fullscreen"
-   HTML_BOUNDS_CHANGE = "htmlBoundsChange"
-   HTML_DOM_INITIALIZE = "htmlDOMInitialize"
-   HTML_RENDER = "htmlRender"
-   ID3 = "id3"
-   INIT = "init"
-   LOCATION_CHANGE = "locationChange"
-   MOUSE_LEAVE = "mouseLeave"
-   NETWORK_CHANGE = "networkChange"
-   OPEN = "open"
-   PASTE = "paste"
-   PREPARING = "preparing"
-   REMOVED = "removed"
-   REMOVED_FROM_STAGE = "removeFromStage"
-   RENDER = "render"
-   RESIZE = "resize"
-   SCROLL = "scroll"
-   SELECT = "select"
-   SELECT_ALL = "selectAll"
-   SOUND_COMPLETE = "soundComplete"
-   STANDARD_ERROR_CLOSE = "standardErrorClose"
-   STANDARD_INPUT_CLOSE = "standardInputClose"
-   STANDARD_OUTPUT_CLOSE = "standardOutputClose"
-   SUSPEND = "suspend"
-   TAB_CHILDREN_CHANGE = "tabChildrenChange"
-   TAB_ENABLE_CHANGE = "tabEnableChange"
-   TAB_INDEX_CHANGE = "tabIndexChange"
-   TEXT_INTERACTION_MODE_CHANGE = "textInteractionModeChange"
-   TEXTURE_READY = "textureReady"
-   UNLOAD = "unload"
-   USER_IDLE = "userIdle"
-   USER_PRESENT = "userPresent"
-   VIDEO_FRAME = "videoFrame"
-   WORKER_STATE = "workerState"
+   ACTIVATE = "activate" #bubbles=False, cancelable=False
+   ADDED = "added" #bubbles=True, cancelable=False
+   ADDED_TO_STAGE = "addedToStage" #bubbles=False, cancelable=False
+   BROWSER_ZOOM_CHANGE = "browerZoomChange" #bubbles=False, cancelable=False
+   CANCEL = "cancel" #bubbles=False, cancelable=False
+   CHANGE = "change" #bubbles=True, cancelable=False
+   CHANNEL_MESSAGE = "channelMessage" #bubbles=False, cancelable=False
+   CHANNEL_STATE = "channelState" #bubbles=False, cancelable=False
+   CLEAR = "clear" #bubbles=False, cancelable=False
+   CLOSE = "close" #bubbles=False, cancelable=False
+   CLOSING = "closing" #bubbles=False, cancelable=True
+   COMPLETE = "complete" #bubbles=False, cancelable=False
+   CONNECT = "connect" #bubbles=False, cancelable=False
+   CONTEXT3D_CREATE = "context3DCreate" #?
+   COPY = "copy" #bubbles=False, cancelable=False
+   CUT = "cut" #bubbles=False, cancelable=False
+   DEACTIVATE = "deactivate" #bubbles=False, cancelable=False
+   DISPLAYING = "displaying" #bubbles=False, cancelable=False
+   ENTER_FRAME = "enterFrame" #bubbles=False, cancelable=False
+   EXIT_FRAME = "exitFrame" #bubbles=False, cancelable=False
+   EXITING = "exiting" #bubbles=False, cancelable=True
+   FRAME_CONSTRUCTED = "frameConstructed" #bubbles=False, cancelable=False
+   FRAME_LABEL = "frameLabel" #bubbles=False, cancelable=False
+   FULLSCREEN = "fullscreen" #bubbles=False, cancelable=False
+   HTML_BOUNDS_CHANGE = "htmlBoundsChange" #bubbles=False, cancelable=False
+   HTML_DOM_INITIALIZE = "htmlDOMInitialize" #bubbles=False, cancelable=False
+   HTML_RENDER = "htmlRender" #bubbles=False, cancelable=False
+   ID3 = "id3" #bubbles=False, cancelable=False
+   INIT = "init" #bubbles=False, cancelable=False
+   LOCATION_CHANGE = "locationChange" #bubbles=False, cancelable=False
+   MOUSE_LEAVE = "mouseLeave" #bubbles=False, cancelable=False
+   NETWORK_CHANGE = "networkChange" #bubbles=False, cancelable=False
+   OPEN = "open" #bubbles=False, cancelable=False
+   PASTE = "paste" #bubbles=(platformDependant), cancelable=False
+   PREPARING = "preparing" #bubbles=False, cancelable=False
+   REMOVED = "removed" #bubbles=True, cancelable=False
+   REMOVED_FROM_STAGE = "removeFromStage" #bubbles=False, cancelable=False
+   RENDER = "render" #bubbles=False, cancelable=False
+   RESIZE = "resize" #bubbles=False, cancelable=False
+   SCROLL = "scroll" #bubbles=False, cancelable=False
+   SELECT = "select" #bubbles=False, cancelable=False
+   SELECT_ALL = "selectAll" #bubbles=False, cancelable=False
+   SOUND_COMPLETE = "soundComplete" #bubbles=False, cancelable=False
+   STANDARD_ERROR_CLOSE = "standardErrorClose" #bubbles=False, cancelable=False
+   STANDARD_INPUT_CLOSE = "standardInputClose" #bubbles=False, cancelable=False
+   STANDARD_OUTPUT_CLOSE = "standardOutputClose" #bubbles=False, cancelable=False
+   SUSPEND = "suspend" #bubbles=False, cancelable=False
+   TAB_CHILDREN_CHANGE = "tabChildrenChange" #bubbles=True, cancelable=False
+   TAB_ENABLE_CHANGE = "tabEnableChange" #bubbles=True, cancelable=False
+   TAB_INDEX_CHANGE = "tabIndexChange" #bubbles=True, cancelable=False
+   TEXT_INTERACTION_MODE_CHANGE = "textInteractionModeChange" #bubbles=False, cancelable=False
+   TEXTURE_READY = "textureReady" #?
+   UNLOAD = "unload" #bubbles=False, cancelable=False
+   USER_IDLE = "userIdle" #bubbles=False, cancelable=False
+   USER_PRESENT = "userPresent" #bubbles=False, cancelable=False
+   VIDEO_FRAME = "videoFrame" #bubbles=False, cancelable=False
+   WORKER_STATE = "workerState" #bubbles=False, cancelable=False
+   _INTERNAL_allowedTypes = {"activate","added","addedToStage","browerZoomChange","cancel","change","channelMessage","channelState","clear","close","closing","complete","connect","context3DCreate","copy","cut","deactivate","displaying","enterFrame","exitFrame","exiting","frameConstructed","frameLabel","fullscreen","htmlBoundsChange","htmlDOMInitialize","htmlRender","id3","init","locationChange","mouseLeave","networkChange","open","paste","preparing","removed","removeFromStage","render","resize","scroll","select","selectAll","soundComplete","standardErrorClose","standardInputClose","standardOutputClose","suspend","tabChildrenChange","tabEnableChange","tabIndexChange","textInteractionModeChange","textureReady","unload","userIdle","userPresent","videoFrame","workerState"}
 class EventDispatcher:
    #!Implement priority, weakReference
    def __init__(self,target:IEventDispatcher=None):
