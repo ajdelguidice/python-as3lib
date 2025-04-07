@@ -119,40 +119,39 @@ class ComboEntryBox:
       self.button.place(x=tw+(w-(tw+bw)),y=(r-1)*h,width=bw,height=h,anchor="nw")
    def configure(self,**kwargs):
       for attr,value in kwargs:
-         match attr:
-            case "x" | "y" | "anchor":
-               self._properties[attr] = value
-               self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
-            case "width" | "height" | "textwidth" | "buttonwidth":
-               self._properties[attr] = value
-               self.__resizeandplace()
-            case "font":
-               self._properties["font"] = value
-               for j in range(self._properties["rows"]):
-                  self.labels[j].configure(font=value)
-                  self.entrys[j].configure(font=value)
-               self.button.configure(font=value)
-            case "text":
-               if isinstance(value,(str,list,tuple)):
-                  self._properties["text"] = value
-                  if isinstance(value,str):
-                     for j in range(self._properties["rows"]):
-                        self.labels[j].configure(text=value)
-                  else:
-                     for j in range(self._properties["rows"]):
-                        self.labels[j].configure(text=value[j])
-            case "buttontext":
-               self._properties["buttontext"] = value
-               self.button.configure(text=value)
-            case "command":
-               self.button.configure(command=value)
-            case "rows":
-               print("Changing number of rows not implemented yet.")
-            case "textalign":
-               print("Changing text alignment not implemented yet.")
-            case _:
-               for i in {self.frame,self.label,self.entry,self.button}:
-                  i[attr] = value
+         if attr in {"x","y","anchor"}:
+            self._properties[attr] = value
+            self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
+         elif attr in {"width","height","textwidth","buttonwidth"}:
+            self._properties[attr] = value
+            self.__resizeandplace()
+         elif attr == "font":
+            self._properties["font"] = value
+            for j in range(self._properties["rows"]):
+               self.labels[j].configure(font=value)
+               self.entrys[j].configure(font=value)
+            self.button.configure(font=value)
+         elif attr == "text":
+            if isinstance(value,(str,list,tuple)):
+               self._properties["text"] = value
+               if isinstance(value,str):
+                  for j in range(self._properties["rows"]):
+                     self.labels[j].configure(text=value)
+               else:
+                  for j in range(self._properties["rows"]):
+                     self.labels[j].configure(text=value[j])
+         elif attr == "buttontext":
+            self._properties["buttontext"] = value
+            self.button.configure(text=value)
+         elif attr == "command":
+            self.button.configure(command=value)
+         elif attr == "rows":
+            print("Changing number of rows not implemented yet.")
+         elif attr == "textalign":
+            print("Changing text alignment not implemented yet.")
+         else:
+            for i in {self.frame,self.label,self.entry,self.button}:
+               i[attr] = value
    def configurePlace(self,**kwargs):
       k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"})
       for i in k:
@@ -354,47 +353,46 @@ class ComboCheckboxUserEntry:
          self.ue.place(x=i+t2_0,y=h,width=ew-h,height=h,anchor="nw")
    def configure(self,**kwargs):
       for attr,value in kwargs:
-         match attr:
-            case "x" | "y" | "anchor":
-               self._properties[attr] = value
-               self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
-            case "width" | "height" | "entrywidth" | "indent":
-               self._properties[attr] = value
+         if attr in {"x","y","anchor"}:
+            self._properties[attr] = value
+            self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
+         elif attr in {"width","height","entrywidth","indent"}:
+            self._properties[attr] = value
+            self.__resizeandplace()
+         elif attr == "font":
+            self._properties["font"] = value
+            """
+            for j in range(self._properties["rows"]):
+               self.labels[j].configure(font=value)
+               self.entrys[j].configure(font=value)
+            self.button.configure(font=value)
+            """
+         elif attr == "text1":
+            self._properties["text1"] = value
+            self.l1["text"] = value
+         elif attr == "text2":
+            if isinstance(value,(list,tuple)) and len(value) == 2:
+               self._properties["text2"] = list(value)
+               self.l2["text"] = value[1]
                self.__resizeandplace()
-            case "font":
-               self._properties["font"] = value
-               """
-               for j in range(self._properties["rows"]):
-                  self.labels[j].configure(font=value)
-                  self.entrys[j].configure(font=value)
-               self.button.configure(font=value)
-               """
-            case "text1":
-               self._properties["text1"] = value
-               self.l1["text"] = value
-            case "text2":
-               if isinstance(value,(list,tuple)) and len(value) == 2:
-                  self._properties["text2"] = list(value)
-                  self.l2["text"] = value[1]
-                  self.__resizeandplace()
-            case "entrytype":
-               print("Not Implemented")
-            case "filetype":
-               if value in {"dir","file"}:
-                  self._properties["filetype"] = list(value)
-               else:
-                  print(f"Invalid filetype '{value}', must be 'file' or 'dir'.")
-            case "values":
-               if isinstance(value,(list,tuple)) and self._properties["entrytype"] == "Combo":
-                  self._properties["combovalues"] = list(value)
-                  self.ue["values"] = list(value)
-            case "foreground" | "fg":
-               self.changeForeground(value)
-            case "background" | "bg":
-               self.changeBackground(value)
-            case _:
-               for i in {self.frame,self.label,self.entry,self.button}:
-                  i[attr] = value
+         elif attr == "entrytype":
+            print("Not Implemented")
+         elif attr == "filetype":
+            if value in {"dir","file"}:
+               self._properties["filetype"] = list(value)
+            else:
+               print(f"Invalid filetype '{value}', must be 'file' or 'dir'.")
+         elif attr == "values":
+            if isinstance(value,(list,tuple)) and self._properties["entrytype"] == "Combo":
+               self._properties["combovalues"] = list(value)
+               self.ue["values"] = list(value)
+         elif attr in {"foreground","fg"}:
+            self.changeForeground(value)
+         elif attr in {"background","bg"}:
+            self.changeBackground(value)
+         else:
+            for i in {self.frame,self.label,self.entry,self.button}:
+               i[attr] = value
    def changeForeground(self,color):
       et = self._properties["entrytype"]
       if et == "Single":
