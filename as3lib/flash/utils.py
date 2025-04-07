@@ -1,6 +1,7 @@
 from as3lib import toplevel as as3
 from as3lib.flash import net as fn
 from as3lib.flash.events import EventDispatcher, TimerEvent
+from as3lib.flash import errors
 from as3lib import metaclasses
 from typing import Union
 import binascii
@@ -39,6 +40,7 @@ class IDataOutput:
    pass
 
 class ByteArray(bytearray):
+   #!Implement slice function
    def __getBytesAvailable(self):
       return self.length - self.position
    bytesAvailable=property(fget=__getBytesAvailable)
@@ -111,14 +113,14 @@ class ByteArray(bytearray):
       if format == 0:
          return value+128
       elif format == 1:
-         if type(value) in (bytearray,bytes,ByteArray):
+         if isinstance(value,(bytearray,bytes)):
             return int(binascii.hexlify(value),16)
          else:
             return int(value,16)
       elif format == 2:
-         if type(value) in (int,as3.int):
+         if isinstance(value,(int,as3.int)):
             return value+128
-         elif type(value) in (bytearray,bytes,ByteArray):
+         elif isinstance(value,(bytearray,bytes)):
             return int(binascii.hexlify(value),16)
          else:
             return int(value,16)
@@ -127,29 +129,20 @@ class ByteArray(bytearray):
       self.defaultObjectEncoding = fn.ObjectEncoding.AMF3
       self.objectEncoding = self.defaultObjectEncoding
       self.position = 0
-   def __getitem__(self,item):
-      if type(item) == slice:
-         return super().__getitem__(item) #!define slice function so this can be removed
-      else:
-         return super().__getitem__(item)-128
    def __setitem__(self,item,value):
       super().__setitem__(item,self._convertToPythonInput(value,2))
    def __str__(self):
       return str(binascii.hexlify(self))[2:-1]
    def __repr__(self):
       return f"ByteArray({str(binascii.hexlify(self))[2:-1]})"
-   def _bitbangwrite(self,byte):
-      """
-      Throw a byte at the wall and see if it sticks.
-      Writes a byte to the ByteArray even if position is at the end. This will only work if position is less than or equal to length.
-      """
+   def _writeNoEOFProtect(self,byte):
       if self.length == self.position:
-         self.length += 1
+         self += b"\x00"
       self[self.position] = byte
       self.position += 1
-   def _multibitbang(self,bytes:list|tuple|as3.Array):
+   def _multiByteWriteNoEOFProtect(self,bytes:list|tuple|as3.Array):
       for i in bytes:
-         self._bitbangwrite(i)
+         self._writeNoEOFProtect(i)
    def atomicCompareAndSwapIntAt():
       pass
    def atomicCompareAndSwapLengthAt(self,expectedLength:int,newLength:int):
@@ -185,33 +178,62 @@ class ByteArray(bytearray):
    def inflate():
       pass
    def readBoolean(self):
-      if self[self.position] == -128:
-         return False
-      return True
+      if self.bytesAvailable == 0:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 1
+         if self[self.position-1] == 0:
+            return False
+         return True
    def readByte(self):
-      return self[self.position]
-   def readBytes():
-      pass
-   def readDouble():
-      pass
-   def readInt():
-      pass
-   def readMultiByte():
-      pass
-   def readObject():
-      pass
-   def readShort():
-      pass
-   def readUnsignedByte():
-      pass
-   def readUnsignedInt():
-      pass
-   def readUnsignedShort():
-      pass
-   def readUTF():
-      pass
-   def readUTFBytes():
-      pass
+      if self.bytesAvailable == 0:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 1
+         return self[self.position-1]-128
+   def readBytes(self,bytes:ByteArray,offset=0,length=0):
+      #!Implement default behavior of arguements, implement error, position move
+      if self.bytesAvailable < length:
+         errors.IOError("placeholderText")
+      elif False:... #!RangeError when offset+length > length of uint
+      else:
+         byte[offset:offset+length] = self[self.position:self.position+length]
+   def readDouble():...
+   def readFloat():...
+   def readInt(self):
+      if self.bytesAvailable > 4:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 4
+         return int(binascii.hexlify(self[self.position-4:self.position]),16)-2147483648
+   def readMultiByte():...
+   def readObject():...
+   def readShort(self):
+      if self.bytesAvailable > 2:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 2
+         return int(binascii.hexlify(self[self.position-2:self.position]),16)-32768
+   def readUnsignedByte(self):
+      if self.bytesAvailable == 0:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 1
+         return self[self.position-1]
+   def readUnsignedInt(self):
+      if self.bytesAvailable > 4:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 4
+         return int(binascii.hexlify(self[self.position-4:self.position]),16)
+   def readUnsignedShort(self):
+      if self.bytesAvailable > 2:
+         errors.IOError("placeholderText")
+      else:
+         self.position += 2
+         return int(binascii.hexlify(self[self.position-2:self.position]),16)-32768
+   def readUTF():...
+   def readUTFBytes():...
    def toJSON(self,k:str):
       """
       Provides an overridable method for customizing the JSON encoding of values in an ByteArray object.
@@ -242,21 +264,15 @@ class ByteArray(bytearray):
             return -127
          return -128
    def writeBoolean(self,value:bool):
-      self[self.position] = self.__ConvBoolToByte(value)
-   def writeByte(self,value:int):
-      pass
-   def writeBytes():
-      pass
-   def writeDouble():
-      pass
-   def writeFloat():
-      pass
-   def writeInt():
-      pass
-   def writeMultiByte():
-      pass
+      self._writeNoEOFProtect(self.__ConvBoolToByte(value)+128)
+   def writeByte(self,value:int):...
+   def writeBytes():...
+   def writeDouble():...
+   def writeFloat():...
+   def writeInt(self,value):...
+   def writeMultiByte():...
    def __writeImproperObjName(self,string):
-      self._bitbangwrite(hex(len(string)*2+1)[2:])
+      self._writeNoEOFProtect(hex(len(string)*2+1)[2:])
       ...
    def __writeProperObjName(self,string):
       ...
@@ -264,19 +280,14 @@ class ByteArray(bytearray):
       """
       Due to how this must be implemented and the fact that python does not store object names at runtime, object (and any objects that it contains) must be a dictionary. The dictionary can be formatted exactly like the object originally would be in actionscript.
       """
-      self._bitbangwrite("0A")
+      self._writeNoEOFProtect("0A")
       ...
-      self._bitbangwrite("01")
-   def writeShort():
-      pass
-   def writeUnsignedInt():
-      pass
-   def __utfchartobyte(self,string):
-      pass
-   def writeUTF():
-      pass
-   def writeUTFBytes():
-      pass
+      self._writeNoEOFProtect("01")
+   def writeShort():...
+   def writeUnsignedInt():...
+   def __utfchartobyte(self,string):...
+   def writeUTF():...
+   def writeUTFBytes():...
 
 class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFLATE = "deflate"
