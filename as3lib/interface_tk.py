@@ -118,43 +118,41 @@ class ComboEntryBox:
          self.entries[i].place(x=tw,y=i*h,width=w-(tw+bw),height=h,anchor="nw")
       self.button.place(x=tw+(w-(tw+bw)),y=(r-1)*h,width=bw,height=h,anchor="nw")
    def configure(self,**kwargs):
-      k = tuple(kwargs.keys())
-      v = tuple(kwargs.values())
-      for i in range(len(k)):
-         match k[i]:
+      for attr,value in kwargs:
+         match attr:
             case "x" | "y" | "anchor":
-               self._properties[k[i]] = v[i]
+               self._properties[attr] = value
                self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
             case "width" | "height" | "textwidth" | "buttonwidth":
-               self._properties[k[i]] = v[i]
+               self._properties[attr] = value
                self.__resizeandplace()
             case "font":
-               self._properties["font"] = v[i]
+               self._properties["font"] = value
                for j in range(self._properties["rows"]):
-                  self.labels[j].configure(font=v[i])
-                  self.entrys[j].configure(font=v[i])
-               self.button.configure(font=v[i])
+                  self.labels[j].configure(font=value)
+                  self.entrys[j].configure(font=value)
+               self.button.configure(font=value)
             case "text":
-               if isinstance(v[i],(str,list,tuple)):
-                  self._properties["text"] = v[i]
-                  if isinstance(v[i],str):
+               if isinstance(value,(str,list,tuple)):
+                  self._properties["text"] = value
+                  if isinstance(value,str):
                      for j in range(self._properties["rows"]):
-                        self.labels[j].configure(text=v[i])
+                        self.labels[j].configure(text=value)
                   else:
                      for j in range(self._properties["rows"]):
-                        self.labels[j].configure(text=v[i][j])
+                        self.labels[j].configure(text=value[j])
             case "buttontext":
-               self._properties["buttontext"] = v[i]
-               self.button.configure(text=v[i])
+               self._properties["buttontext"] = value
+               self.button.configure(text=value)
             case "command":
-               self.button.configure(command=v[i])
+               self.button.configure(command=value)
             case "rows":
                print("Changing number of rows not implemented yet.")
             case "textalign":
                print("Changing text alignment not implemented yet.")
             case _:
                for i in {self.frame,self.label,self.entry,self.button}:
-                  i[k[i]] = v[i]
+                  i[attr] = value
    def configurePlace(self,**kwargs):
       k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"})
       for i in k:
@@ -355,50 +353,48 @@ class ComboCheckboxUserEntry:
          self.fb.place(x=w-h,y=h,width=h,height=h,anchor="nw")
          self.ue.place(x=i+t2_0,y=h,width=ew-h,height=h,anchor="nw")
    def configure(self,**kwargs):
-      k = tuple(kwargs.keys())
-      v = tuple(kwargs.values())
-      for i in range(len(k)):
-         match k[i]:
+      for attr,value in kwargs:
+         match attr:
             case "x" | "y" | "anchor":
-               self._properties[k[i]] = v[i]
+               self._properties[attr] = value
                self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
             case "width" | "height" | "entrywidth" | "indent":
-               self._properties[k[i]] = v[i]
+               self._properties[attr] = value
                self.__resizeandplace()
             case "font":
-               self._properties["font"] = v[i]
+               self._properties["font"] = value
                """
                for j in range(self._properties["rows"]):
-                  self.labels[j].configure(font=v[i])
-                  self.entrys[j].configure(font=v[i])
-               self.button.configure(font=v[i])
+                  self.labels[j].configure(font=value)
+                  self.entrys[j].configure(font=value)
+               self.button.configure(font=value)
                """
             case "text1":
-               self._properties["text1"] = v[i]
-               self.l1["text"] = v[i]
+               self._properties["text1"] = value
+               self.l1["text"] = value
             case "text2":
-               if isinstance(v[i],(list,tuple)) and len(v[i]) == 2:
-                  self._properties["text2"] = list(v[i])
-                  self.l2["text"] = v[i][1]
+               if isinstance(value,(list,tuple)) and len(value) == 2:
+                  self._properties["text2"] = list(value)
+                  self.l2["text"] = value[1]
                   self.__resizeandplace()
             case "entrytype":
                print("Not Implemented")
             case "filetype":
-               if v[i] in {"dir","file"}:
-                  self._properties["filetype"] = list(v[i])
+               if value in {"dir","file"}:
+                  self._properties["filetype"] = list(value)
                else:
-                  print(f"Invalid filetype '{v[i]}', must be 'file' or 'dir'.")
+                  print(f"Invalid filetype '{value}', must be 'file' or 'dir'.")
             case "values":
-               if isinstance(v[i],(list,tuple)) and self._properties["entrytype"] == "Combo":
-                  self._properties["combovalues"] = list(v[i])
-                  self.ue["values"] = list(v[i])
+               if isinstance(value,(list,tuple)) and self._properties["entrytype"] == "Combo":
+                  self._properties["combovalues"] = list(value)
+                  self.ue["values"] = list(value)
             case "foreground" | "fg":
-               self.changeForeground(v[i])
+               self.changeForeground(value)
             case "background" | "bg":
-               self.changeBackground(v[i])
+               self.changeBackground(value)
             case _:
                for i in {self.frame,self.label,self.entry,self.button}:
-                  i[k[i]] = v[i]
+                  i[attr] = value
    def changeForeground(self,color):
       et = self._properties["entrytype"]
       if et == "Single":
@@ -999,97 +995,95 @@ class window:
    def bindChild(self, child:str, tkevent, function):
       self.children[child].bind(tkevent, function)
    def configureChild(self, child:str, **args):
-      k = tuple(args.keys())
-      v = tuple(args.values())
-      for i in range(len(k)):
-         match k[i]:
+      for attr,value in args.items():
+         match attr:
             case "x" | "y" | "width" | "height" | "font"| "anchor":
                if child not in {"display","root"}:
                   newlist = self.childproperties[child]
-                  if k[i] == "x":
-                     newlist[2] = v[i]
-                  elif k[i] == "y":
-                     newlist[3] = v[i]
-                  elif k[i] == "width":
-                     newlist[4] = v[i]
-                  elif k[i] == "height":
-                     newlist[5] = v[i]
-                  elif k[i] == "font":
-                     newlist[6] = v[i]
-                  elif k[i] == "anchor":
-                     newlist[7] = v[i]
+                  if attr == "x":
+                     newlist[2] = value
+                  elif attr == "y":
+                     newlist[3] = value
+                  elif attr == "width":
+                     newlist[4] = value
+                  elif attr == "height":
+                     newlist[5] = value
+                  elif attr == "font":
+                     newlist[6] = value
+                  elif attr == "anchor":
+                     newlist[7] = value
                   self.childproperties[child] = newlist
                   self.resizeChild(child, self.windowproperties["oldmult"])
             case "text" | "textadd":
                if child not in {"display","root"}:
                   if self.childproperties[child][1] in {"HTMLScrolledText","HTMLText"}:
-                     if k[i] == "text":
-                        self.prepareHTMLST(child, v[i])
+                     if attr == "text":
+                        self.prepareHTMLST(child, value)
                      else:
-                        self.prepareHTMLST(child, self.htmlproperties[child][2] + v[i])
+                        self.prepareHTMLST(child, self.htmlproperties[child][2] + value)
                   elif self.childproperties[child][1] == "Entry":
-                     self.childproperties[child][8].set(v[i])
+                     self.childproperties[child][8].set(value)
                   elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
-                     if isinstance(v[i],(list,tuple)):
-                        self.children[child].setText(v[i][0],v[i][1])
+                     if isinstance(value,(list,tuple)):
+                        self.children[child].setText(value[0],value[1])
                      else:
-                        self.children[child]["text"] = v[i]
+                        self.children[child]["text"] = value
                   else:
-                     self.children[child][k[i]] = v[i]
+                     self.children[child][attr] = value
             case "text1" | "text2":
                pass
             case "indent":
                pass
             case "background" | "foreground":
                if child == "display":
-                  if k[i] == "background":
-                     self.children["display"]["bg"] = v[i]
+                  if attr == "background":
+                     self.children["display"]["bg"] = value
                else:
                   if self.childproperties[child][1] == "Frame":
-                     if k[i] == "background":
-                        self.children[child]["bg"] = v[i]
+                     if attr == "background":
+                        self.children[child]["bg"] = value
                   elif self.childproperties[child][1] in {"HTMLScrolledText","HTMLText"}:
-                     self.children[child][k[i]] = v[i]
-                     if k[i] == "background":
-                        self.htmlproperties[child][1] = v[i]
+                     self.children[child][attr] = value
+                     if attr == "background":
+                        self.htmlproperties[child][1] = value
                      else:
-                        self.htmlproperties[child][0] = v[i]
+                        self.htmlproperties[child][0] = value
                      self.prepareHTMLST(child, self.htmlproperties[child][2])
                   elif self.childproperties[child][1] in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-                     if k[i] == "background":
-                        self.children[child].changeBackground(v[i])
+                     if attr == "background":
+                        self.children[child].changeBackground(value)
                      else:
-                        self.children[child].changeForeground(v[i])
+                        self.children[child].changeForeground(value)
                   elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
-                     if k[i] == "background":
-                        self.children[child].background = v[i]
+                     if attr == "background":
+                        self.children[child].background = value
                      else:
-                        self.children[child].foreground = v[i]
+                        self.children[child].foreground = value
                   else:
-                     self.children[child][k[i]] = v[i]
+                     self.children[child][attr] = value
             case "image":
                if child not in {"display","root"}:
                   self.imagedict[self.childproperties[child][8]][0] -= 1
-                  self.childproperties[child][8] = v[i]
-                  self.imagedict[v[i]][0] += 1
-                  self.children[child]["image"] = self.imagedict[v[i]][3]
+                  self.childproperties[child][8] = value
+                  self.imagedict[value][0] += 1
+                  self.children[child]["image"] = self.imagedict[value][3]
             case "htmlfontbold":
                if child not in {"display","root"} and self.childproperties[child][1] in {"HTMLScrolledText","HTMLText"}:
-                  self.htmlproperties[child][4] = v[i]
+                  self.htmlproperties[child][4] = value
                   self.prepareHTMLST(child, self.htmlproperties[child][2])
             case "sbwidth":
                if child not in {"display","root"}:
                   if self.childproperties[child][1] == "HTMLScrolledText":
-                     self.htmlproperties[child][5][1] = int(v[i])
+                     self.htmlproperties[child][5][1] = int(value)
                   elif self.childproperties[child][1] == "ScrolledListBox":
-                     self.sbsettings[child][1] = int(v[i])
+                     self.sbsettings[child][1] = int(value)
             case "addTab":
                if child not in {"display","root"}:
                   if self.childproperties[child][1] == "Notebook":
-                     self.children[child].add(self.children[v[i][0]],text=v[i][1])
+                     self.children[child].add(self.children[value[0]],text=value[1])
             case _:
                if self.childproperties[child][1] not in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-                  self.children[child][k[i]] = v[i]
+                  self.children[child][attr] = value
    def destroyChild(self, child:str):
       if child not in {"display","root"}:
          temppref = self.childproperties.pop(child)
