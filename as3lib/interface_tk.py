@@ -81,7 +81,7 @@ class ComboEntryBox:
       if rows == 1:
          self.frame.place(x=x,y=y,width=width,height=height,anchor=anchor)
          self.frame.configure(borderwidth=0,highlightthickness=0)
-         if type(text) in {str,as3.String}:
+         if isinstance(text,str):
             self.labels.append(tkinter.Label(self.frame,text=text,font=font,anchor=textalign))
          else:
             self.labels.append(tkinter.Label(self.frame,text=text[0],font=font,anchor=textalign))
@@ -93,7 +93,7 @@ class ComboEntryBox:
       else:
          self.frame.place(x=x,y=y,width=width,height=(height*rows),anchor=anchor)
          self.frame.configure(borderwidth=0,highlightthickness=0)
-         if type(text) in {str,as3.String}:
+         if isinstance(text,str):
             for i in range(rows):
                self.labels.append(tkinter.Label(self.frame,text=text,font=font,anchor=textalign))
                self.labels[i].place(x=0-2,y=i*height,width=textwidth+2,height=height,anchor="nw")
@@ -135,9 +135,9 @@ class ComboEntryBox:
                   self.entrys[j].configure(font=v[i])
                self.button.configure(font=v[i])
             case "text":
-               if type(v[i]) in {str,list,tuple,as3.String,as3.Array}:
+               if isinstance(v[i],(str,list,tuple)):
                   self._properties["text"] = v[i]
-                  if type(v[i]) in {str,as3.String}:
+                  if isinstance(v[i],str):
                      for j in range(self._properties["rows"]):
                         self.labels[j].configure(text=v[i])
                   else:
@@ -290,7 +290,7 @@ class ComboCheckboxUserEntry:
             file = filedialog.askopenfilename(initialdir=self._properties["fileboxinitdir"],initialfile=self._properties["fileboxinitfile"])
          elif self._properties["filetype"][1] == "save":
             file = filedialog.asksaveasfilename(initialdir=self._properties["fileboxinitdir"],initialfile=self._properties["fileboxinitfile"])
-      if type(file) == tuple or file == "":
+      if isinstance(file,tuple) or file == "":
          self.uevar.set(self.uevar.get())
       else:
          self.uevar.set(file)
@@ -377,7 +377,7 @@ class ComboCheckboxUserEntry:
                self._properties["text1"] = v[i]
                self.l1["text"] = v[i]
             case "text2":
-               if type(v[i]) in {list,tuple} and len(v[i]) == 2:
+               if isinstance(v[i],(list,tuple)) and len(v[i]) == 2:
                   self._properties["text2"] = list(v[i])
                   self.l2["text"] = v[i][1]
                   self.__resizeandplace()
@@ -389,7 +389,7 @@ class ComboCheckboxUserEntry:
                else:
                   print(f"Invalid filetype '{v[i]}', must be 'file' or 'dir'.")
             case "values":
-               if type(v[i]) in {list,tuple} and self._properties["entrytype"] == "Combo":
+               if isinstance(v[i],(list,tuple)) and self._properties["entrytype"] == "Combo":
                   self._properties["combovalues"] = list(v[i])
                   self.ue["values"] = list(v[i])
             case "foreground" | "fg":
@@ -539,7 +539,7 @@ class window:
       self.children["root"].lift()
    def forceFocus(self, child:str):
       self.children[child].focus_force()
-   def round(self, num):
+   def round(self, num): #!Unused
       tempStr = "." + f"{num}".split(".")[1]
       if float(tempStr) >= 0.5: #0.85? 0.5? 1?
          return math.ceil(num)
@@ -820,7 +820,7 @@ class window:
       elif as3.isXMLName(name) == False:
          as3.trace("Invalid Name")
          pass
-      elif type(text2[0]) != int or type(text2[1]) != str:
+      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
          as3.trace("Invalid text2")
          pass
       else:
@@ -837,7 +837,7 @@ class window:
       elif as3.isXMLName(name) == False:
          as3.trace("Invalid Name")
          pass
-      elif type(text2[0]) != int or type(text2[1]) != str:
+      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
          as3.trace("Invalid text2")
          pass
       else:
@@ -854,7 +854,7 @@ class window:
       elif as3.isXMLName(name) == False:
          as3.trace("Invalid Name")
          pass
-      elif type(text2[0]) != int or type(text2[1]) != str:
+      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
          as3.trace("Invalid text2")
          pass
       else:
@@ -1030,7 +1030,7 @@ class window:
                   elif self.childproperties[child][1] == "Entry":
                      self.childproperties[child][8].set(v[i])
                   elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
-                     if type(v[i]) in {list,tuple}:
+                     if isinstance(v[i],(list,tuple)):
                         self.children[child].setText(v[i][0],v[i][1])
                      else:
                         self.children[child]["text"] = v[i]
@@ -1163,7 +1163,6 @@ if __name__ == "__main__":
    root.configureChild("testbutton3",command=lambda: root.configureChild("testtext",htmlfontbold=test_changebold()))
    root.configureChild("testbutton3", text="st_boldtest")
    root.addScrolledListbox("root","testslb",0,450,150,150,("Times New Roman",12))
-   l1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-   for i in l1:
+   for i in range(1,21):
       root.slb_Insert("testslb", "end", i)
    root.mainloop()
