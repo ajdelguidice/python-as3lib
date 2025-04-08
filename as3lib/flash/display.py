@@ -3,6 +3,10 @@ import as3lib.toplevel as as3
 from typing import Union
 import tkinter
 from typing import Generator, Any
+from as3.flash.events import EventDispatcher
+
+#Dummy classes
+class InteractiveObject:...
 
 def _winNameGen()-> Generator[int,None,None]:
    i = 0
@@ -78,10 +82,8 @@ class ColorCorrectionSupport(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFAULT_OFF = "defaultOff"
    DEFAULT_ON = "defualtOn"
    UNSUPPORTED = "unsupported"
-class DisplayObject:
-   pass
-class DisplayObjectContainer:
-   pass
+class DisplayObject(EventDispatcher):...
+class DisplayObjectContainer(InteractiveObject):...
 class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "bottom"
    NONE = "none"
@@ -115,6 +117,7 @@ class GraphicsTrianglePath:
    pass
 class GraphicsObject:
    pass
+class InteractiveObject(DisplayObject):...
 class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LINEAR_RGB = "linearRGB"
    RGB = "rgb"
