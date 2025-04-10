@@ -1058,6 +1058,8 @@ class window:
                      else:
                         self.children[child].foreground = value
                   else:
+                     if self.childproperties[child][1] == "Entry" and attr == "foreground":
+                        self.children[child]["insertbackground"] = value
                      self.children[child][attr] = value
             case "image":
                if child not in {"display","root"}:
