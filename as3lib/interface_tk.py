@@ -118,7 +118,7 @@ class ComboEntryBox:
          self.entries[i].place(x=tw,y=i*h,width=w-(tw+bw),height=h,anchor="nw")
       self.button.place(x=tw+(w-(tw+bw)),y=(r-1)*h,width=bw,height=h,anchor="nw")
    def configure(self,**kwargs):
-      for attr,value in kwargs:
+      for attr,value in kwargs.items():
          if attr in {"x","y","anchor"}:
             self._properties[attr] = value
             self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
@@ -352,7 +352,7 @@ class ComboCheckboxUserEntry:
          self.fb.place(x=w-h,y=h,width=h,height=h,anchor="nw")
          self.ue.place(x=i+t2_0,y=h,width=ew-h,height=h,anchor="nw")
    def configure(self,**kwargs):
-      for attr,value in kwargs:
+      for attr,value in kwargs.items():
          if attr in {"x","y","anchor"}:
             self._properties[attr] = value
             self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
