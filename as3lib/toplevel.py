@@ -907,7 +907,7 @@ def isNaN(num):
    return False
 def isXMLName(str_:str|String):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
-   whitelist = "-_."
+   whitelist = {"-","_","."}
    if len(str_) == 0 or str_[0].isalpha() == False and str_[0] != "_" or str_[:3].lower() == "xml" or " " in str_:
       return False
    for i in str_:
@@ -963,14 +963,12 @@ class Math:
    def max(*values):
       if len(values) == 1:
          return values[0]
-      else:
-         return max(values)
+      return max(values)
    @staticmethod
    def min(*values):
       if len(values) == 1:
          return values[0]
-      else:
-         return min(values)
+      return min(values)
    @staticmethod
    def pow(base, power):
       return m.pow(base,power)
@@ -1090,14 +1088,18 @@ class Object:
    def valueOf(self):
       return self
 def parseFloat(str_:str|String):
+   #!Make stop a second period
+   l = len(str_)
    i = 0
-   while str_[i].isspace():
+   while i != l and str_[i].isspace():
       i += 1
+   if l == i:
+      return NaN()
    if str_[i].isdigit():
-      j=0
-      while str_[i+j].isdigit() or str_[i+j] == ".":
+      j=i
+      while j != l and (str_[j].isdigit() or str_[j] == "."):
          j += 1
-      return Number(str_[i:i+j])
+      return Number(str_[i:j])
    return NaN()
 def parseInt(str_:str|String,radix:int|uint=0):
    l = len(str_)
@@ -1116,14 +1118,14 @@ def parseInt(str_:str|String,radix:int|uint=0):
       i += 1
    radixchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:radix]
    str_ = str_.upper()
-   j = 0
-   while i+j < l and str_[i+j] in radixchars:
+   j = i
+   while j < l and str_[j] in radixchars:
       j += 1
-   if j == 0:
+   if j == i:
       if zero:
          return 0
       return NaN()
-   return int(builtins.int(str_[i:i+j],radix))
+   return int(builtins.int(str_[i:j],radix))
 class QName:
    def __init__():
       pass
@@ -1351,8 +1353,8 @@ class Vector(list):
      - If sourceArray is defined, the behavior for the function is used and the arguements are ignored.
      - The arguement "superclass" is provided for convinience. It makes the Vector object check the type as a superclass instead of as a strict type. Passing sourceArray sets this to true
    """
-   def __init__(self,type_,length=0,fixed:allBoolean=False,superclass:allBoolean=False,sourceArray:list|tuple|Array|Vector=None):
-      self.__type = type_
+   def __init__(self,type,length=0,fixed:allBoolean=False,superclass:allBoolean=False,sourceArray:list|tuple|Array|Vector=None):
+      self.__type = type
       if sourceArray != None:
          self.__superclass = True
          super().__init__(sourceArray) #!Temporary, must convert first in real implementation
@@ -1360,15 +1362,18 @@ class Vector(list):
          self.__superclass = superclass
          super().__init__((null() for i in range(length)))
       self.fixed = fixed
-   def __getFixed(self):
+   def _getType(self):
+      return self.__type
+   _type = property(fget=_getType)
+   def _getFixed(self):
       return self.__fixed
-   def __setFixed(self,value:allBoolean):
+   def _setFixed(self,value:allBoolean):
       self.__fixed = value
-   fixed = property(fget=__getFixed,fset=__setFixed)
-   def __getLength(self):
+   fixed = property(fget=_getFixed,fset=_setFixed)
+   def _getLength(self):
       return len(self)
-   def __setLength(self,value):
-      if self.__fixed == True:
+   def _setLength(self,value):
+      if self.fixed == True:
          RangeError("Can not set vector length while fixed is set to true.")
       elif value > 4294967296:
          RangeError("New vector length outside of accepted range (0-4294967296).")
@@ -1379,26 +1384,39 @@ class Vector(list):
          elif len(self) < value:
             while len(self) < value:
                self.append(null())
-   length = property(fget=__getLength,fset=__setLength)
+   length = property(fget=_getLength,fset=_setLength)
    def __getitem__(self, item):
       if isinstance(item, slice):...
       else:
          return super().__getitem__(item)
    def __setitem__(self,item,value):
       if self.__superclass == True:
-         if isinstance(value,(self.__type,null)):
+         if isinstance(value,(self._type,null)):
             super().__setitem__(item,value)
       else:
-         if type(value) == (self.__type,type(null())):
+         if type(value) == (self._type,type(null())):
             super().__setitem__(item,value)
-   def concat():...
+   def concat(self,*args):
+      temp = Vector(self._type,superclass=True)
+      temp.extend(self)
+      if len(args) > 0:
+         for i in args:
+            if isinstance(i,Vector) and issubclass(i._type,self._type):
+               temp.extend(i)
+            elif not isinstance(i,Vector):
+               TypeError("Vector.concat; One or more arguements are not of type Vector")
+            else:
+               TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
+               pass
+      temp.fixed = self.fixed
+      return temp
    def every(self,callback,thisObject):
       for i in range(len(self)):
          if callback(self[i],i,self) == False:
             return False
       return True
    def filter(self,callback,thisObject):
-      tempVect = Vector(type_=self.__type,superclass=self.__superclass)
+      tempVect = Vector(type_=self._type,superclass=self.__superclass)
       for i in range(len(self)):
          if callback(self[i], i, self) == True:
             tempVector.push(self[i])
@@ -1414,14 +1432,14 @@ class Vector(list):
             return i
       return -1
    def insertAt(index,element):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("insertAt can not be called on a Vector with fixed set to true.")
       elif self.__superclass == True:
-         if isinstance(element,(self.__type,null)):
+         if isinstance(element,(self._type,null)):
             ...
       else:
          ...
-   def join():...
+   def join(self,sep:str=","):...
    def lastIndexOf(searchElement,fromIndex=None):
       if fromIndex == None:
          fromIndex = len(self)
@@ -1431,24 +1449,24 @@ class Vector(list):
       #index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
       #return index if index == -1 else len(self)-1-index
    def map(self,callback,thisObject):
-      tempVect = Vector(type_=self.__type,length=len(self),superclass=self.__superclass)
+      tempVect = Vector(type_=self._type,length=len(self),superclass=self.__superclass)
       for i in range(len(self)):
          tempVect[i] = callback(self[i],i,self)
       return tempVect
    def pop(self):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("pop can not be called on a Vector with fixed set to true.")
       else:
          return super().pop(-1)
    def push(self,*args):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("push can not be called on a Vector with fixed set to true.")
       else:
          #!Check item types
          self.extend(args)
          return len(self)
    def removeAt(self,index):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("removeAt can not be called on a Vector with fixed set to true.")
       elif False: #!Index out of bounds
          RangeError("index is out of bounds.")
@@ -1458,7 +1476,7 @@ class Vector(list):
       super().reverse()
       return self
    def shift(self):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("shift can not be called on a Vector with fixed set to true.")
       else:
          return super().pop(0)
@@ -1473,13 +1491,13 @@ class Vector(list):
    def toLocaleString():...
    def toString():...
    def unshift(self,*args):
-      if self.__fixed == True:
+      if self.fixed == True:
          RangeError("unshift can not be called on a Vector with fixed set to true.")
       else:
          argsOK = True
          if self.__superclass == True:
             for i in args:
-               if not isinstance(i,(self.__type,null)):
+               if not isinstance(i,(self._type,null)):
                   argsOk = False
                   break
          else:
