@@ -73,12 +73,9 @@ def sm_wayland():
    return config.getint("wayland","screenwidth",fallback=1600),config.getint("wayland","screenheight",fallback=900),config.getfloat("wayland","refreshrate",fallback=60.00),config.getint("wayland","colordepth",fallback=8)
 
 def sm_windows():
-   #temp = []
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   #for i in ('BitsPerPel', 'DisplayFrequency'):
-   #   temp.append(getattr(settings, i))
-   temp = (getattr(settings,i) for i in ('BitsPerPel', 'DisplayFrequency'))
-   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[1]), int(temp[0])
+   temp = tuple(getattr(settings,i) for i in ('DisplayFrequency','BitsPerPel'))
+   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[0]), int(temp[1])
 
 def sm_darwin():
    pass
@@ -100,11 +97,10 @@ def getdmtype():
    temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
    if temp[:2] == "b'" and temp[-1:] == "'":
       temp = temp[2:-1]
-   temp = temp.split("\\n")
-   for i in temp:
+   for i in temp.split("\\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
-         if temp2 in ("x11","wayland"):
+         if temp2 in {"x11","wayland"}:
             return temp2
    return "error"
 
@@ -112,8 +108,7 @@ def getdmname():
    temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True))
    if temp[:2] == "b'" and temp[-1:] == "'":
       temp = temp[2:-1]
-   temp = temp.split("\\n")
-   for i in temp:
+   for i in temp.split("\\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
          if len(temp2) > 0:
@@ -240,21 +235,13 @@ def initconfig():
       configmodule.windowmanagertype = getdmtype()
       configmodule.dmname = getdmname()
       if configmodule.windowmanagertype == "x11":
-         temp = sm_x11()
-         configmodule.width = temp[0]
-         configmodule.height = temp[1]
-         configmodule.refreshrate = temp[2]
-         configmodule.colordepth = temp[3]
+         configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_x11()
       elif configmodule.windowmanagertype == "wayland":
          configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_wayland()
       else:
          configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not supported"))
    elif configmodule.platform == "Windows":
-      temp = sm_windows()
-      configmodule.width = temp[0]
-      configmodule.height = temp[1]
-      configmodule.refreshrate = temp[2]
-      configmodule.colordepth = temp[3]
+      configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_windows()
    elif configmodule.platform == "Darwin":
       configmodule.initerror.append((1,"Error fetching screen properties; Darwin; Not Implemented Yet"))
       #configmodule.width = temp[0]
