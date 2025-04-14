@@ -70,37 +70,7 @@ def sm_x11():
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
-   configpath = configmodule.librarydirectory / "wayland.cfg"
-   if configpath.exists() == True:
-      config = configparser.ConfigParser()
-      with open(configpath, 'r') as f:
-         config.read_string(f.read())
-      actual_config = config["Screen"]
-      if "screenwidth" in actual_config:
-         sw = int(actual_config["screenwidth"])
-      else:
-         sw = 1600
-      if "screenheight" in actual_config:
-         sh = int(actual_config["screenheight"])
-      else:
-         sh = 900
-      if "refreshrate" in actual_config:
-         rr = float(actual_config["refreshrate"])
-      else:
-         rr = 60.00
-      if "colordepth" in actual_config:
-         cd = int(actual_config["colordepth"])
-      else:
-         cd = 8
-   else:
-      print("(The things that these answers controls is not implemented yet) This seems to be your first time using the module as3lib. Since you are using wayland, some things could not be automatically detected. Please input them in the fields bellow. This information is a part of the flash display module, if you aren't planning to use that, you can put in whatever you want. This information can be configured later in the file <library directory>/wayland.cfg")
-      sw = input("Maximum width (px), or -1 for no limit: ")
-      sh = input("Maximum height (px), or -1 for no limit: ")
-      rr = input("Refresh rate (Hz): ")
-      cd = input("Color depth (bits): ")
-      with open(configpath, "w") as cfg:
-         cfg.write(f"[Screen]\nscreenwidth={int(sw)}\nscreenheight={int(sh)}\nrefreshrate={float(rr)}\ncolordepth={int(cd)}")
-   return int(sw), int(sh), float(rr), int(cd)
+   return config.getint("wayland","screenwidth",fallback=1600),config.getint("wayland","screenheight",fallback=900),config.getfloat("wayland","refreshrate",fallback=60.00),config.getint("wayland","colordepth",fallback=8)
 
 def sm_windows():
    #temp = []
@@ -151,6 +121,8 @@ def getdmname():
    return "error"
 
 def dependencyCheck():
+   global config
+   hasDeps = True
    if configmodule.platform == "Linux":
       wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
       if wmt == "wayland":
@@ -160,32 +132,39 @@ def dependencyCheck():
             subprocess.check_output("which xwininfo",shell=True)
          except:
             configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
+            hasDeps = False
          try:
             subprocess.check_output("which xrandr",shell=True)
          except:
             configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
+            hasDeps = False
       try:
          subprocess.check_output("which bash",shell=True)
       except:
          configmodule.initerror.append((3,"linux requirement 'bash' not found"))
+         hasDeps = False
       try:
          subprocess.check_output("which awk",shell=True)
       except:
          configmodule.initerror.append((3,"linux requirement 'awk' not found"))
+         hasDeps = False
       try:
          subprocess.check_output("which whoami",shell=True)
       except:
          configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
+         hasDeps = False
       try:
          subprocess.check_output("which loginctl",shell=True)
       except:
          configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
+         hasDeps = False
       try:
          subprocess.check_output("which echo",shell=True)
          if str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] != "test":
             raise
       except:
          configmodule.initerror.append((3,"linux requirement 'echo' not found"))
+         hasDeps = False
    elif configmodule.platform == "Windows":
       pass
    elif configmodule.platform == "Darwin":
@@ -193,12 +172,61 @@ def dependencyCheck():
    #<a href="https://pypi.org/project/numpy">numpy</a>
    #<a href="https://pypi.org/project/Pillow">Pillow</a>
    #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+   config.set("dependencies","passed",str(hasDeps))
+
+def configLoader():
+   configpath = configmodule.librarydirectory / "as3lib.cfg"
+   if configpath.exists() == True:
+      config = configparser.ConfigParser()
+      config2 = configparser.ConfigParser()
+      with open(configpath, 'r') as f:
+         config.read_string(f.read())
+         config2.read_string(f.read())
+      return config,config2
+   else:
+      mmcfgpath = configmodule.librarydirectory / "mm.cfg"
+      wlcfgpath = configmodule.librarydirectory / "wayland.cfg"
+      ErrorReportingEnable = False
+      MaxWarnings = False
+      TraceOutputFileEnable = False
+      TraceOutputFileName = ""
+      ClearLogsOnStartup = 1
+      if mmcfgpath.exists() == True:
+         mmcfg = configparser.ConfigParser()
+         with open(mmcfgpath, 'r') as f:
+            mmcfg.read_string('[dummy_section]\n' + f.read())
+         ErrorReportingEnable = mmcfg.getboolean("dummy_section","ErrorReportingEnable",fallback=False)
+         MaxWarnings = mmcfg.getboolean("dummy_section","MaxWarnings",fallback=False)
+         TraceOutputFileEnable = mmcfg.getboolean("dummy_section","TraceOutputFileEnable",fallback=False)
+         TraceOutputFileName = mmcfg.get("dummy_section","TraceOutputFileName",fallback="")
+         ClearLogsOnStartup = mmcfg.getint("dummy_section","ClearLogsOnStartup",fallback=1)
+      sw = 1600
+      sh = 900
+      rr = 60.00
+      cd = 8
+      if wlcfgpath.exists() == True:
+         wlcfg = configparser.ConfigParser()
+         with open(wlcfgpath, 'r') as f:
+            wlcfg.read_string(f.read())
+         sw = wlcfg.getint("Screen","screenwidth",fallback=1600)
+         sh = wlcfg.getint("Screen","screenheight",fallback=900)
+         rr = wlcfg.getfloat("Screen","refreshrate",fallback=60.00)
+         cd = wlcfg.getint("Screen","colordepth",fallback=8)
+         wlcfgpath.unlink(missing_ok=True)
+      config = configparser.ConfigParser()
+      config.read_string(f"[dependencies]\npassed=false\n\n[mm.cfg]\nErrorReportingEnable={ErrorReportingEnable}\nMaxWarnings={MaxWarnings}\nTraceOutputFileEnable={TraceOutputFileEnable}\nTraceOutputFileName=\"{TraceOutputFileName}\"\nClearLogsOnStartup={ClearLogsOnStartup}\nNoClearWarningNumber=0\n\n[wayland]\nscreenwidth={sw}\nscreenheight={sh}\nrefreshrate={rr}\ncolordepth={cd}")
+      return config,"default"
+      
+config = None
 
 def initconfig():
    #set up variables needed by mutiple modules
+   global config
    configmodule.librarydirectory = Path(__file__).resolve().parent
+   config,config2 = configLoader()
    configmodule.platform = platform.system()
-   dependencyCheck()
+   if config.getboolean("dependencies","passed",fallback=False) == False:
+      dependencyCheck()
    configmodule.separator = getSeparator()
    configmodule.userdirectory = Path.home()
    configmodule.desktopdirectory = getDesktopDir()
@@ -216,11 +244,7 @@ def initconfig():
          configmodule.refreshrate = temp[2]
          configmodule.colordepth = temp[3]
       elif configmodule.windowmanagertype == "wayland":
-         temp = sm_wayland()
-         configmodule.width = temp[0]
-         configmodule.height = temp[1]
-         configmodule.refreshrate = temp[2]
-         configmodule.colordepth = temp[3]
+         configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_wayland()
       else:
          configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not supported"))
    elif configmodule.platform == "Windows":
@@ -236,22 +260,13 @@ def initconfig():
       #configmodule.refreshrate = temp[2]
       #configmodule.colordepth = temp[3]
       pass
-   configpath = configmodule.librarydirectory / "mm.cfg"
-   if configpath.exists() == True:
-      config = configparser.ConfigParser()
-      with open(configpath, 'r') as f:
-         config.read_string('[dummy_section]\n' + f.read())
-      actual_config = config["dummy_section"]
-      if "ErrorReportingEnable" in actual_config:
-         configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-      if "MaxWarnings" in actual_config:
-         configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-      if "TraceOutputFileEnable" in actual_config:
-         configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-      if "TraceOutputFileName" in actual_config:
-         configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-      if "ClearLogsOnStartup" in actual_config:
-         configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
+   configmodule.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
+   configmodule.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
+   configmodule.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
+   configmodule.TraceOutputFileName = config.get("mm.cfg","TraceOutputFileName",fallback="")
+   configmodule.ClearLogsOnStartup = config.getint("mm.cfg","ClearLogsOnStartup",fallback=1)
+   if configmodule.ClearLogsOnStartup == 0:
+      configmodule.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
    if configmodule.TraceOutputFileName == "":
       configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
    if Path(configmodule.TraceOutputFileName).is_dir() == True:
@@ -261,6 +276,9 @@ def initconfig():
       if Path(configmodule.TraceOutputFileName).exists() == True:
          with open(configmodule.TraceOutputFileName, "w") as f: 
             f.write("")
+   if config != config2 or config2 == "default":
+      with open(configmodule.librarydirectory / "as3lib.cfg","w") as f:
+         config.write(f)
 
    #Report errors to user
    if len(configmodule.initerror) != 0:
