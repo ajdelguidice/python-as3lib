@@ -178,7 +178,9 @@ def configLoader():
    configpath = configmodule.librarydirectory / "as3lib.cfg"
    if configpath.exists() == True:
       config = configparser.ConfigParser()
+      config.optionxform=str
       config2 = configparser.ConfigParser()
+      config2.optionxform=str
       with open(configpath, 'r') as f:
          config.read_string(f.read())
          config2.read_string(f.read())
