@@ -72,25 +72,23 @@ def sm_x11():
 def sm_wayland():
    configpath = configmodule.librarydirectory / "wayland.cfg"
    if configpath.exists() == True:
-      with open(configpath, 'r') as f:
-         configwithheader = f.read()
       config = configparser.ConfigParser()
-      config.read_string(configwithheader)
+      with open(configpath, 'r') as f:
+         config.read_string(f.read())
       actual_config = config["Screen"]
-      existing_options = ["screenwidth" in actual_config,"screenheight" in actual_config,"refreshrate" in actual_config,"colordepth" in actual_config]
-      if existing_options[0] == True:
+      if "screenwidth" in actual_config:
          sw = int(actual_config["screenwidth"])
       else:
          sw = 1600
-      if existing_options[1] == True:
+      if "screenheight" in actual_config:
          sh = int(actual_config["screenheight"])
       else:
          sh = 900
-      if existing_options[2] == True:
+      if "refreshrate" in actual_config:
          rr = float(actual_config["refreshrate"])
       else:
          rr = 60.00
-      if existing_options[3] == True:
+      if "colordepth" in actual_config:
          cd = int(actual_config["colordepth"])
       else:
          cd = 8
@@ -240,21 +238,19 @@ def initconfig():
       pass
    configpath = configmodule.librarydirectory / "mm.cfg"
    if configpath.exists() == True:
-      with open(configpath, 'r') as f:
-         configwithheader = '[dummy_section]\n' + f.read()
       config = configparser.ConfigParser()
-      config.read_string(configwithheader)
+      with open(configpath, 'r') as f:
+         config.read_string('[dummy_section]\n' + f.read())
       actual_config = config["dummy_section"]
-      existing_options = ["ErrorReportingEnable" in actual_config,"MaxWarnings" in actual_config,"TraceOutputFileEnable" in actual_config,"TraceOutputFileName" in actual_config,"ClearLogsOnStartup" in actual_config]
-      if existing_options[0] == True:
+      if "ErrorReportingEnable" in actual_config:
          configmodule.ErrorReportingEnable = int(actual_config["ErrorReportingEnable"])
-      if existing_options[1] == True:
+      if "MaxWarnings" in actual_config:
          configmodule.MaxWarnings = int(actual_config["MaxWarnings"])
-      if existing_options[2] == True:
+      if "TraceOutputFileEnable" in actual_config:
          configmodule.TraceOutputFileEnable = int(actual_config["TraceOutputFileEnable"])
-      if existing_options[3] == True:
+      if "TraceOutputFileName" in actual_config:
          configmodule.TraceOutputFileName = actual_config["TraceOutputFileName"]
-      if existing_options[4] == True:
+      if "ClearLogsOnStartup" in actual_config:
          configmodule.ClearLogsOnStartup = int(actual_config["ClearLogsOnStartup"])
    if configmodule.TraceOutputFileName == "":
       configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
