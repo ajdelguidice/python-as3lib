@@ -268,6 +268,7 @@ def initconfig():
    if config != config2 or config2 == "default":
       with open(configmodule.librarydirectory / "as3lib.cfg","w") as f:
          config.write(f)
+   del config
 
    #Report errors to user
    if len(configmodule.initerror) != 0:
