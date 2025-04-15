@@ -997,20 +997,18 @@ class window:
          match attr:
             case "x" | "y" | "width" | "height" | "font"| "anchor":
                if child not in {"display","root"}:
-                  newlist = self.childproperties[child]
                   if attr == "x":
-                     newlist[2] = value
+                     self.childproperties[child][2] = value
                   elif attr == "y":
-                     newlist[3] = value
+                     self.childproperties[child][3] = value
                   elif attr == "width":
-                     newlist[4] = value
+                     self.childproperties[child][4] = value
                   elif attr == "height":
-                     newlist[5] = value
+                     self.childproperties[child][5] = value
                   elif attr == "font":
-                     newlist[6] = value
+                     self.childproperties[child][6] = value
                   elif attr == "anchor":
-                     newlist[7] = value
-                  self.childproperties[child] = newlist
+                     self.childproperties[child][7] = value
                   self.resizeChild(child, self.windowproperties["oldmult"])
             case "text" | "textadd":
                if child not in {"display","root"}:
