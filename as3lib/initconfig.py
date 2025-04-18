@@ -86,11 +86,17 @@ def getSeparator():
    return "/"
 
 def getDesktopDir():
-   #!Use $XDG_DESKTOP_DIR on linux
+   if configmodule.platform == "Linux":
+      deskdir = f'{subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True)}'.replace("\\n","").replace("b'","").replace("'","")
+      if deskdir != "":
+         return deskdir
    return configmodule.userdirectory / "Desktop"
 
 def getDocumentsDir():
-   #!Use $XDG_DOCUMENTS_DIR on linux
+   if configmodule.platform == "Linux":
+      deskdir = f'{subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True)}'.replace("\\n","").replace("b'","").replace("'","")
+      if deskdir != "":
+         return deskdir
    return configmodule.userdirectory / "Documents"
 
 def getdmtype():
