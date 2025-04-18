@@ -334,6 +334,7 @@ class ArgumentError():
       trace(type(self), message, isError=True)
       self.error = message
 class Array(list):
+   #!Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
    __slots__ = ("filler")
    CASEINSENSITIVE = 1
    DESCENDING = 2
@@ -604,7 +605,7 @@ class Array(list):
       Returns:
          Boolean — A Boolean value of True if any items in the array return True for the specified function; otherwise False.
       """
-      for i in range(0,len(self)):
+      for i in range(len(self)):
          if callback(self[i], i, self) == True:
             return True
       return False
@@ -739,7 +740,7 @@ class Array(list):
 class Boolean:
    """
    Lets you create boolean object similar to ActionScript3
-   Since python is case sensitive the values are "True" or "False" instead of "true" or "false"
+   Since python has to be different, values are "True" and "False" instead of "true" and "false"
    """
    __slots__ = ("_value")
    def __init__(self, expression=False):
@@ -1405,6 +1406,7 @@ class Vector(list):
                temp.extend(i)
             elif not isinstance(i,Vector):
                TypeError("Vector.concat; One or more arguements are not of type Vector")
+               pass
             else:
                TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
                pass

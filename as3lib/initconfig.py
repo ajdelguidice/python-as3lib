@@ -14,10 +14,10 @@ elif platform.system() in ("Linux","Darwin"):
    from pwd import getpwuid
 
 """
-initerror list
-1: platform not implemented yet
-2: (Linux specific) display manager type not found (expected x11 or wayland)
-3: requirement not found
+initerrors
+1 - function not implemented for current platform
+2 - (Linux specific) unexpected display server (expected x11 or wayland)
+3 - dependency not found
 """
 
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
@@ -27,7 +27,7 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
    """
    if configmodule.platform == "Windows":
       username = getlogin()
-   elif configmodule.platform in ("Linux","Darwin"):
+   elif configmodule.platform in {"Linux","Darwin"}:
       username = getpwuid(getuid())[0]
    if versionOverride == True:
       if overrideSystem == "Linux":
@@ -35,9 +35,9 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
       elif overrideSystem == "Darwin":
          return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
       elif overrideSystem == "Windows":
-         if overrideVersion in ("95","98","ME","XP"):
+         if overrideVersion in {"95","98","ME","XP"}:
             return fr"C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt"
-         elif overrideVersion in ("Vista","7","8","8.1","10","11"):
+         elif overrideVersion in {"Vista","7","8","8.1","10","11"}:
             return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
    elif configmodule.platform == "Linux":
       return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
@@ -126,39 +126,39 @@ def dependencyCheck():
          try:
             subprocess.check_output("which xwininfo",shell=True)
          except:
-            configmodule.initerror.append((3,"linux xorg requirement 'xwininfo' not found"))
+            configmodule.initerror.append((3,"linux (xorg): requirement 'xwininfo' not found"))
             hasDeps = False
          try:
             subprocess.check_output("which xrandr",shell=True)
          except:
-            configmodule.initerror.append((3,"linux xorg requirement 'xrandr' not found"))
+            configmodule.initerror.append((3,"linux (xorg): requirement 'xrandr' not found"))
             hasDeps = False
       try:
          subprocess.check_output("which bash",shell=True)
       except:
-         configmodule.initerror.append((3,"linux requirement 'bash' not found"))
+         configmodule.initerror.append((3,"linux: requirement 'bash' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which awk",shell=True)
       except:
-         configmodule.initerror.append((3,"linux requirement 'awk' not found"))
+         configmodule.initerror.append((3,"linux: requirement 'awk' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which whoami",shell=True)
       except:
-         configmodule.initerror.append((3,"linux requirement 'whoami' not found"))
+         configmodule.initerror.append((3,"linux: requirement 'whoami' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which loginctl",shell=True)
       except:
-         configmodule.initerror.append((3,"linux requirement 'loginctl' not found"))
+         configmodule.initerror.append((3,"linux: requirement 'loginctl' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which echo",shell=True)
          if str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] != "test":
             raise
       except:
-         configmodule.initerror.append((3,"linux requirement 'echo' not found"))
+         configmodule.initerror.append((3,"linux: requirement 'echo' not found"))
          hasDeps = False
    elif configmodule.platform == "Windows":
       pass
@@ -243,12 +243,9 @@ def initconfig():
    elif configmodule.platform == "Windows":
       configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_windows()
    elif configmodule.platform == "Darwin":
-      configmodule.initerror.append((1,"Error fetching screen properties; Darwin; Not Implemented Yet"))
-      #configmodule.width = temp[0]
-      #configmodule.height = temp[1]
-      #configmodule.refreshrate = temp[2]
-      #configmodule.colordepth = temp[3]
-      pass
+      configmodule.initerror.append((1,"Darwin: Fetching screen properties is not implemented."))
+      #configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_darwin()
+      ...
    configmodule.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
    configmodule.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
    configmodule.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
@@ -272,7 +269,7 @@ def initconfig():
 
    #Report errors to user
    if len(configmodule.initerror) != 0:
-      print(f"Warning: as3lib has initialized with errors, some functionality might be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in configmodule.initerror))}")
+      print(f"Warning: as3lib has initialized with errors, some functionality may be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in configmodule.initerror))}")
    
    #Tell others that library has been initialized
    configmodule.initdone = True
