@@ -17,38 +17,26 @@ static PyObject * itk_windowcalculate(PyObject *self, PyObject *args) {
    return PyFloat_FromDouble(itkwcalc(nw,nh,sw,sh));
 };
 
-int itkwrf(int fo, float mu) {
-   return round(fo*mu*0.01);
-};
-
 static PyObject * itk_windowresizefont(PyObject *self, PyObject *args) {
    int font;
    float mult;
    if (!PyArg_ParseTuple(args, "if", &font, &mult))
       return NULL;
-   return PyLong_FromLong((long)itkwrf(font,mult));
-};
-
-double muldiv(double number, double multiplier, double diviser) {
-   return number*multiplier/diviser;
+   return PyLong_FromLong((long)round(font*mult*0.01));
 };
 
 static PyObject * multdivide(PyObject *self, PyObject *args) {
    double a, b, c;
    if (!PyArg_ParseTuple(args, "ddd", &a, &b, &c))
       return NULL;
-   return PyFloat_FromDouble(muldiv(a,b,c));
-};
-
-double rmuldiv(double number, double multiplier, double diviser) {
-   return round(number*multiplier)/diviser;
+   return PyFloat_FromDouble(a*b/c);
 };
 
 static PyObject * roundedmultdivide(PyObject *self, PyObject *args) {
    double a, b, c;
    if (!PyArg_ParseTuple(args, "ddd", &a, &b, &c))
       return NULL;
-   return PyFloat_FromDouble(rmuldiv(a,b,c));
+   return PyFloat_FromDouble(round(a*b)/c);
 };
 
 static PyMethodDef cmathMethods[] = {
