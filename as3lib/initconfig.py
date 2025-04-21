@@ -238,11 +238,11 @@ def initconfig():
    configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    configmodule.pythonversion = platform.python_version()
    if configmodule.platform == "Linux":
-      configmodule.windowmanagertype = getdmtype()
+      configmodule.displayserver = getdmtype()
       configmodule.dmname = getdmname()
-      if configmodule.windowmanagertype == "x11":
+      if configmodule.displayserver == "x11":
          configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_x11()
-      elif configmodule.windowmanagertype == "wayland":
+      elif configmodule.displayserver == "wayland":
          configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_wayland()
       else:
          configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not supported"))

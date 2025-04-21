@@ -1,11 +1,11 @@
 """
 Note to self: remove all of the things that could change outside of this library
-    Things that can be changed include things like: display stuff 
-    Things that can not be changed include things like: cpuArchetecture and spoofedFlashVersion
+    Display stuff should not change (as defined by the actionscript documentation)
+    Things that can not be changed include things like: spoofedFlashVersion
 """
 checkdependencies = True
 platform = "" #Windows, Linux, or Darwin
-windowmanagertype = "" #linux (x11 or wayland) or darwin (x11 or native) only
+displayserver = "" #linux (x11 or wayland) or darwin (x11 or native) only
 dmname = "" #linux only, name of the program managing the display (window manager or compositor)
 librarydirectory = "" #full path to as3lib (this library)
 pythonversion = "" #version of python currently running
@@ -36,7 +36,6 @@ windows = {} #dictionary containing all of the defined windows (not implemented 
 
 #flash.filesystem
 separator = ""
-#get the bellow directories from the XDG variables on linux and set defaults on window and macos
 userdirectory = ""
 desktopdirectory = ""
 documentsdirectory = ""
