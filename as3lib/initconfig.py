@@ -174,6 +174,7 @@ def dependencyCheck():
    #<a href="https://pypi.org/project/Pillow">Pillow</a>
    #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
    config.set("dependencies","passed",str(hasDeps))
+   configmodule.hasDependencies = hasdeps
 
 def configLoader():
    configpath = configmodule.librarydirectory / "as3lib.cfg"
