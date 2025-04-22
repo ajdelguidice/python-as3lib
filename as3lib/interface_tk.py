@@ -393,36 +393,34 @@ class ComboCheckboxUserEntry:
          else:
             for i in {self.frame,self.label,self.entry,self.button}:
                i[attr] = value
+   def _getForeground(self):
+      return self.l1["foreground"]
    def changeForeground(self,color):
       et = self._properties["entrytype"]
-      if et == "Single":
-         self.l1["foreground"] = color
-      elif et == "Combo":
-         self.l1["foreground"] = color
-         self.l2["foreground"] = color
-      elif et == "Entry":
-         self.l1["foreground"] = color
+      self.l1["foreground"] = color
+      if et in {"Combo","Entry"}:
          self.l2["foreground"] = color
       elif et == "File":
-         self.l1["foreground"] = color
          self.l2["foreground"] = color
          self.fb["foreground"] = color
+   foreground=property(fget=_getForeground,fset=changeForeground)
+   def _getBackground(self):
+      return self.l1["background"]
    def changeBackground(self,color):
       et = self._properties["entrytype"]
       self.frame["bg"] = color
+      self.l1["background"] = color
       if et == "Single":
          self.cb["background"] = color
          self.cb["highlightbackground"] = color
-         self.l1["background"] = color
       elif et in {"Entry","Combo"}:
          self.cb["background"] = color
          self.cb["highlightbackground"] = color
-         self.l1["background"] = color
          self.l2["background"] = color
       elif et == "File":
-         self.l1["background"] = color
          self.l2["background"] = color
          self.fb["background"] = color
+   background=property(fget=_getBackground,fset=changeBackground)
    def configurePlace(self,**kwargs):
       #add text2
       k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","indent","entrywidth","text2"})
@@ -432,21 +430,22 @@ class ComboCheckboxUserEntry:
          else:
             self._properties["text2"][0] = kwargs[i]
       self.__resizeandplace()
+   def _getFont(self):
+      return self.l1["font"]
    def changeFont(self,font):
       et = self._properties["entrytype"]
+      self.l1["font"] = font
       if et == "Single":
          self.cb["font"] = font
-         self.l1["font"] = font
       elif et in {"Entry","Combo"}:
          self.cb["font"] = font
-         self.l1["font"] = font
          self.l2["font"] = font
          self.ue["font"] = font
       elif et == "File":
-         self.l1["font"] = font
          self.l2["font"] = font
          self.fb["font"] = font
          self.ue["font"] = font
+   font=property(fget=_getFont,fset=changeFont)
    def destroy(self):
       self.frame.destroy()
 
@@ -942,11 +941,9 @@ class window:
                self.children[i]["font"] = self.resizefont(cl[6],mult)
             elif cl[1] == "ImageLabel":
                self.children[i]["image"] = self.imagedict[cl[8]][3]
-            elif cl[1] in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-               self.children[i].changeFont(self.resizefont(cl[6],mult))
             elif cl[1] in {"Notebook","NBFrame"}:
                continue
-            elif cl[1] == "ComboLabelWithRadioButtons":
+            elif cl[1] in {"ComboLabelWithRadioButtons","CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
                self.children[i].font = self.resizefont(cl[6],mult)
             elif cl[1] != "Frame":
                self.children[i]["font"] = self.resizefont(cl[6],mult)
@@ -982,11 +979,9 @@ class window:
             self.children[child]["font"] = self.resizefont(cl[6],mult)
          elif cl[1] == "ImageLabel":
             self.children[child]["image"] = self.imagedict[cl[8]][3]
-         elif cl[1] in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-            self.children[child].changeFont(self.resizefont(cl[6],mult))
          elif cl[1] in {"Notebook","NBFrame"}:
             pass
-         elif cl[1] == "ComboLabelWithRadioButtons":
+         elif cl[1] in {"ComboLabelWithRadioButtons","CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
             self.children[child].font = self.resizefont(cl[6],mult)
          elif cl[1] != "Frame":
             self.children[child]["font"] = self.resizefont(cl[6],mult)
@@ -1045,12 +1040,7 @@ class window:
                      else:
                         self.htmlproperties[child][0] = value
                      self.prepareHTMLST(child, self.htmlproperties[child][2])
-                  elif self.childproperties[child][1] in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-                     if attr == "background":
-                        self.children[child].changeBackground(value)
-                     else:
-                        self.children[child].changeForeground(value)
-                  elif self.childproperties[child][1] == "ComboLabelWithRadioButtons":
+                  elif self.childproperties[child][1] in {"ComboLabelWithRadioButtons","CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
                      if attr == "background":
                         self.children[child].background = value
                      else:
