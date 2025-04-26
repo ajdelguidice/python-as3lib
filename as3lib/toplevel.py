@@ -1255,8 +1255,8 @@ def trace(*args, isError=False):
       else:
          output = ' '.join((str(i) for i in args))
       if configmodule.TraceOutputFileEnable == 1:
-         if Path(configmodule.TraceOutputFileName).exists() == True:
-            if Path(configmodule.TraceOutputFileName).is_file() == True:
+         if configmodule.TraceOutputFileName.exists() == True:
+            if configmodule.TraceOutputFileName.is_file() == True:
                with open(configmodule.TraceOutputFileName, "a") as f:
                   f.write(output + "\n")
             else:

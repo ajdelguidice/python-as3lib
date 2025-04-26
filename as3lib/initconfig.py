@@ -15,9 +15,11 @@ elif platform.system() in ("Linux","Darwin"):
 
 """
 initerrors
+0 - platform not implemented
 1 - function not implemented for current platform
 2 - (Linux specific) unexpected display server (expected x11 or wayland)
 3 - dependency not found
+4 - other error
 """
 
 def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
@@ -253,20 +255,25 @@ def initconfig():
       configmodule.initerror.append((1,"Darwin: Fetching screen properties is not implemented."))
       #configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_darwin()
       ...
+   elif configmodule.platform == "":
+      configmodule.initerror.append((4,"Platform could not be determined"))
+   else:
+      configmodule.initerror.append((0,f"Current platform {configmodule.platform} not supported"))
    configmodule.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
    configmodule.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
    configmodule.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
-   configmodule.TraceOutputFileName = config.get("mm.cfg","TraceOutputFileName",fallback="")
+   tempTraceOutputFileName = config.get("mm.cfg","TraceOutputFileName",fallback="")
    configmodule.ClearLogsOnStartup = config.getint("mm.cfg","ClearLogsOnStartup",fallback=1)
    if configmodule.ClearLogsOnStartup == 0:
       configmodule.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
-   if configmodule.TraceOutputFileName == "":
-      configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
-   if Path(configmodule.TraceOutputFileName).is_dir() == True:
+   if tempTraceOutputFileName == "":
+      tempTraceOutputFileName = configmodule.defaultTraceFilePath
+   if Path(tempTraceOutputFileName).is_dir() == True:
       print("Path provided is a directory, writing to defualt location instead.")
-      configmodule.TraceOutputFileName = configmodule.defaultTraceFilePath
+      tempTraceOutputFileName = configmodule.defaultTraceFilePath
+   configmodule.TraceOutputFileName = Path(tempTraceOutputFileName)
    if configmodule.ClearLogsOnStartup == 1:
-      if Path(configmodule.TraceOutputFileName).exists() == True:
+      if configmodule.TraceOutputFileName.exists() == True:
          with open(configmodule.TraceOutputFileName, "w") as f: 
             f.write("")
    if config != config2 or config2 == "default":
