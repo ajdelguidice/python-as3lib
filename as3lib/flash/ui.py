@@ -1,5 +1,5 @@
 import tkinter
-from as3lib import keyConversions
+from as3lib import keyConversions, metaclasses
 from as3lib import toplevel as as3
 
 class CMItemList:
@@ -295,7 +295,7 @@ class KeyLocation:
    pass
 class Mouse:
    pass
-class MouseCursor:
+class MouseCursor(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ARROW = "arrow"
    AUTO = "auto"
    BUTTON = "button"

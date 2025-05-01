@@ -1,49 +1,64 @@
 import as3lib.toplevel as as3
 from as3lib import configmodule as confmod
 from typing import Union
-from as3lib.flash.events import Event
+from as3lib.flash.events import Event, EventDispatcher #, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent, DataEvent
+from as3lib import metaclasses
 from tkinter import filedialog
 import as3lib.flash.utils as utils
 
+def getClassByAlias(aliasName:as3.allString):...
+def navigateToURL(request,window:as3.allString=None):...
+def registerClassAlias(aliasName:as3.allString,classObject):...
+def sendToURL(request):...
+
+class DatagramSocket:...
 class FileFilter:
    def __init__(self,description:Union[str,as3.String],extension:Union[str,as3.String],macType:Union[str,as3.String]=None):
       self.description = description
       self.extension = extension
       self.macType = macType
    def extensionsToArray(self):
-      return as3.listtoarray(self.extension.split(";"))
+      return as3.Array(*self.extension.split(";"))
    def macTypeToArray(self):
       if self.macType != None:
-         return as3.listtoarray(self.macType.split(";"))
+         return as3.Array(*self.macType.split(";"))
    def toTkTuple(self):
       return (self.description,self.extension.split(";"))
-class FileReference:
+class FileReference(EventDispatcher):
+   @staticmethod
+   def _getPerStat():
+      return True
+   permissionStatus = property(fget=_getPerStat)
    def __init__(self):
-      self.__listeners = as3.Array() #Array of Arrays; each Array consists of the event to listen for and the object to call
+      super().__init__()
       #self.creationDate
       #self.creator
       #self.data
       #self.extension
       #self.modificationDate
       #self.name
-      #self.permissionStatus
       #self.size
       #self.type
       self._location = None
-      pass
-   def execEvent(self,event):
-      for i in self.__listeners:
-         if i[0] == event:
-            i[1]() #needs to have some sort of event object as a function parameter
-   def addEventListener(self,event,function:callable):
-      self.__listeners.push(as3.Array(event,function))
+      #!Most of these events need extra information
+      self.cancel = Event("cancel",False,False,self)
+      self.complete = Event("complete",False,False,self)
+      #self.httpResponseStatus = HTTPStatusEvent("httpResponseStatus",False,False,self)
+      #self.httpStatus = HTTPStatusEvent("httpStatus",False,False,self)
+      #self.ioError = IOErrorEvent("ioError",False,False,self)
+      self.open = Event("open",False,False,self)
+      #self.permissionStatus = PermissionEvent("permissionStatus",False,False,self)
+      #self.progress = ProgressEvent("progress",False,False,self)
+      #self.securityError = SecurityErrorEvent("securityError",False,False,self)
+      self.select = Event("select",False,False,self)
+      #self.uploadCompleteData = DataEvent("uploadCompleteEvent",False,False,self)
+   def _setFile(self,file):
+      #Sets the file and all of its details
+      ...
    def browse(self,typeFilter:Union[as3.Array,list,tuple]=None):
       #typeFilter is an Array/list/tuple of FileFilter objects
       if typeFilter != None:
-         filetypes = []
-         for i in typeFilter:
-            filetypes.append(i.toTkTuple())
-         filename = filedialog.askopenfilename(title="Select a file to upload",filetypes=filetypes)
+         filename = filedialog.askopenfilename(title="Select a file to upload",filetypes=tuple(i.toTkTuple() for i in typeFilter))
       else:
          filename = filedialog.askopenfilename(title="Select a file to upload")
       try:
@@ -52,9 +67,9 @@ class FileReference:
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self.execEvent(Event.CANCEL)
+            self.dispatchEvent(self.cancel)
          else:
-            self.execEvent(Event.SELECT)
+            self.dispatchEvent(self.select)
    def cancel(self):
       pass
    def dowload(self,request,defaultFileName=None):
@@ -70,13 +85,13 @@ class FileReference:
       if data == None:
          as3.ArguementError("Invalid Data")
          return False
-      elif type(data) in (str,as3.String):
+      elif isinstance(data,str):
          #write a UTF-8 text file
          savetype = 1
       #elif type(data) == #XML:
          #Write as xml format text file with format preserved
          #savetype = 2
-      elif type(data) == utils.ByteArray:
+      elif isinstance(data,utils.ByteArray):
          #write data to file as is (in byte form)
          savetype = 3
       else:
@@ -100,16 +115,17 @@ class FileReference:
          print("You somhow messed it up")
       finally:
          if filename in (None,()):
-            self.execEvent(Event.CANCEL)
+            self.dispatchEvent(self.cancel)
          else:
-            self.execEvent(Event.SELECT)
+            self.dispatchEvent(self.select)
             self._location = filename
-            self.execEvent(Event.COMPLETE)
+            self.dispatchEvent(self.complete)
    def upload(self,request,uploadDataFieldName,testUpload=False):
       pass
    def uploadUnencoded(self,request):
       pass
-
+class FileReferenceList:...
+class GroupSpecifier:...
 class InterfaceAddress:
    #address = classmethod()
    #broadcast = classmethod()
@@ -117,16 +133,31 @@ class InterfaceAddress:
       pass
    #ipVersion = classmethod(fget=__AddrType)
    #prefixLength = classmethod()
-
-class IPVersion:
+class IPVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    IPV4 = "IPv4"
    IPV6 = "IPv6"
-
-
-class ObjectEncoding:
+class LocalConnection:...
+class NetGroup:...
+class NetGroupInfo:...
+class NetGroupReceiveMode:...
+class NetGroupReplicationStrategy:...
+class NetGroupSendMode:...
+class NetGroupSendResult:...
+class NetMonitor:...
+class NetStream:...
+class NetStreamAppendBytesAction:...
+class NetStreamInfo:...
+class NetStreamMulticastInfo:...
+class NetStreamPlayOptions:...
+class NetStreamPlayTransitions:...
+class NetworkInfo:...
+class NetworkInterface:...
+class ObjectEncoding(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AMF0 = 0
    AMF3 = 3
    DEFAULT = 3
+class Responder:...
+class SecureSocket:...
 
 class sodata:
    def __init__(self):
@@ -137,6 +168,48 @@ class sodata:
       return f"{vars(self)}"
    def toDict(self):
       return dict(vars(self))
+class _AMFCODEC:
+   class AMF0:
+      number=b"\x00"
+      boolean=b"\x01"
+      string=b"\x02"
+      object=b"\x03"
+      movieclip=b"\x04"
+      null=b"\x05"
+      undefined=b"\x06"
+      reference=b"\x07"
+      ecma_array=b"\x08"
+      object_end="b\x09"
+      strict_array=b"\x0A"
+      date=b"\x0B"
+      long_string=b"\x0C"
+      unsupported=b"\x0D"
+      recordset=b"\x0E"
+      xml_document=b"\x0F"
+      typed_object=b"\x10"
+      avmplus_object=b"\x11"
+      number=b"\x00"
+      number=b"\x00"
+      number=b"\x00"
+   class AMF3:
+      undefined=b"\x00"
+      null=b"\x01"
+      false=b"\x02"
+      true=b"\x03"
+      integer=b"\x04"
+      double=b"\x05"
+      string=b"\x06"
+      xml=b"\x07"
+      date=b"\x08"
+      array=b"\x09"
+      object=b"\x0A"
+      xml=b"\x0B"
+      byte_array=b"\x0C"
+      vector_int=b"\x0D"
+      vector_uint=b"\x0E"
+      vector_double=b"\x0F"
+      vector_object=b"\x10"
+      dictionary=b"\x11"
 
 class SharedObject:
    def __init__(self):
@@ -187,9 +260,19 @@ class SharedObject:
       pass
    def setProperty(self,propertyName,value=None):
       pass
-class SharedObjectFlushStatus:
+class SharedObjectFlushStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FLUSHED = "flushed"
    PENDING = "pending"
+class Socket:...
+class URLLoader:...
+class URLLoaderDataFormat:...
+class URLRequest:...
+class URLRequestDefaults:...
+class URLRequestHeader:...
+class URLRequestMethod:...
+class URLStream:...
+class URLVariables:...
+class XMLSocket:...
 
 if __name__ == "__main__":
    def eventCancel(event=None):
