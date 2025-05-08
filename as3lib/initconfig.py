@@ -125,6 +125,7 @@ def getdmname():
 
 def dependencyCheck():
    global config
+   import importlib.util
    hasDeps = True
    if configmodule.platform == "Linux":
       wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
@@ -134,49 +135,60 @@ def dependencyCheck():
          try:
             subprocess.check_output("which xwininfo",shell=True)
          except:
-            configmodule.initerror.append((3,"linux (xorg): requirement 'xwininfo' not found"))
+            configmodule.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
             hasDeps = False
          try:
             subprocess.check_output("which xrandr",shell=True)
          except:
-            configmodule.initerror.append((3,"linux (xorg): requirement 'xrandr' not found"))
+            configmodule.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
             hasDeps = False
       try:
          subprocess.check_output("which bash",shell=True)
       except:
-         configmodule.initerror.append((3,"linux: requirement 'bash' not found"))
+         configmodule.initerror.append((3,"Linux: requirement 'bash' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which awk",shell=True)
       except:
-         configmodule.initerror.append((3,"linux: requirement 'awk' not found"))
+         configmodule.initerror.append((3,"Linux: requirement 'awk' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which whoami",shell=True)
       except:
-         configmodule.initerror.append((3,"linux: requirement 'whoami' not found"))
+         configmodule.initerror.append((3,"Linux: requirement 'whoami' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which loginctl",shell=True)
       except:
-         configmodule.initerror.append((3,"linux: requirement 'loginctl' not found"))
+         configmodule.initerror.append((3,"Linux: requirement 'loginctl' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which echo",shell=True)
-         if str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] != "test":
-            raise
+         assert str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] == "test"
       except:
-         configmodule.initerror.append((3,"linux: requirement 'echo' not found"))
+         configmodule.initerror.append((3,"Linux: requirement 'echo' not found"))
          hasDeps = False
    elif configmodule.platform == "Windows":
       pass
    elif configmodule.platform == "Darwin":
       pass
-   #<a href="https://pypi.org/project/numpy">numpy</a>
-   #<a href="https://pypi.org/project/Pillow">Pillow</a>
-   #<a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
+   try: #https://pypi.org/project/numpy
+      importlib.util.find_spec('numpy').origin
+   except:
+      configmodule.initerror.append((3,"Python: requirement 'numpy' not found"))
+      hasDeps = False
+   try: #https://pypi.org/project/Pillow
+      importlib.util.find_spec('PIL').origin
+   except:
+      configmodule.initerror.append((3,"Python: requirement 'Pillow' not found"))
+      hasDeps = False
+   try: #https://pypi.org/project/tkhtmlview
+      importlib.util.find_spec('tkhtmlview').origin
+   except:
+      configmodule.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
+      hasDeps = False
    config.set("dependencies","passed",str(hasDeps))
-   configmodule.hasDependencies = hasdeps
+   configmodule.hasDependencies = hasDeps
 
 def configLoader():
    configpath = configmodule.librarydirectory / "as3lib.cfg"
