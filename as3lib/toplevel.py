@@ -1090,43 +1090,38 @@ class Object:
       return self
 def parseFloat(str_:str|String):
    #!Make stop a second period
+   str_ = str_.lstrip()
    l = len(str_)
-   i = 0
-   while i != l and str_[i].isspace():
-      i += 1
-   if l == i:
+   if l == 0:
       return NaN()
-   if str_[i].isdigit():
-      j=i
+   if str_[0].isdigit():
+      j = 0
       while j != l and (str_[j].isdigit() or str_[j] == "."):
          j += 1
-      return Number(str_[i:j])
+      return Number(str_[:j])
    return NaN()
 def parseInt(str_:str|String,radix:int|uint=0):
-   l = len(str_)
+   str_ = str_.lstrip()
    zero = False
-   i = 0
-   while i < l and str_[i].isspace():
-      i += 1
-   if len(str_[i:]) >= 2 and str_[i:i+2] == "0x":
+   if len(str_) >= 2 and str_.startswith("0x"):
       radix = 16
-      i += 2
+      str_ = str_[2:]
    elif radix < 2 or radix > 36:
       trace("parseInt",f"radix {radix} is outside of the acceptable range",isError=True)
       pass
-   while i < l and str_[i] == "0":
+   if str_.startswith("0"):
       zero = True
-      i += 1
+      str_.lstrip("0")
    radixchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:radix]
    str_ = str_.upper()
-   j = i
-   while j < l and str_[j] in radixchars:
+   j = 0
+   while j < len(str_) and str_[j] in radixchars:
       j += 1
-   if j == i:
+   if j == 0:
       if zero:
          return 0
       return NaN()
-   return int(builtins.int(str_[i:j],radix))
+   return int(builtins.int(str_[:j],radix))
 class QName:
    def __init__():
       pass
@@ -1582,11 +1577,8 @@ def _isValidDirectory(directory,separator=None):
             for i in tempname:
                if i in WIN_BlacklistedChars:
                   return False
-            #invalid if last character is " " or "."
-            if tempname[-1] in {" ","."}:
-               return False
-            #invalid if name is blacklisted and if name before a period is blacklisted
-            if tempname.split(".")[0] in WIN_BlacklistedNames:
+            #invalid if last character is " " or "." or if name or name before a period is blacklisted
+            if tempname.endswith((" ",".")) or tempname.split(".")[0] in WIN_BlacklistedNames:
                return False
             temp = temp.parent
          #Check drive letter
@@ -1594,11 +1586,12 @@ def _isValidDirectory(directory,separator=None):
             return False
       else:
          while temp != temp.parent:
+            tempname = temp.name
             #invalid if blacklisted names are used
-            if temp.name in UNIX_BlacklistedNames:
+            if tempname in UNIX_BlacklistedNames:
                return False
             #invalid if blacklisted characters are used
-            for i in temp.name:
+            for i in tempname:
                if i in UNIX_BlacklistedChars:
                   return False
             temp = temp.parent
@@ -1608,14 +1601,14 @@ def _isValidDirectory(directory,separator=None):
          #convert path to uppercase since windows is not cas sensitive
          directory = directory.upper()
          #remove trailing path separator
-         if directory[-1:] == separator:
+         if directory[-1] == separator:
             directory = directory[:-1]
          #remove drive letter or server path designator
          if directory[0].isalpha() and directory[1] == ":" and directory[2] == separator:
             directory = directory[3:]
-         elif directory[:2] == "\\\\":
+         elif directory.startswith("\\\\"):
             directory = directory[2:]
-         elif directory[:2] == f".{separator}":
+         elif directory.startswith(f".{separator}"):
             directory = directory[-(len(directory)-2):]
          #split path into each component
          dirlist = directory.split(separator)
@@ -1624,22 +1617,19 @@ def _isValidDirectory(directory,separator=None):
             for j in i:
                if j in WIN_BlacklistedChars:
                   return False
-            #invalid if last character is " " or "."
-            if i[-1:] in {" ","."}:
-               return False
-            #invalid if name is blacklisted and if name before a period is blacklisted
-            if i.split(".")[0] in WIN_BlacklistedNames:
+            #invalid if last character is " " or "." or if name or name before a period is blacklisted
+            if i.endswith((" ",".")) or i.split(".")[0] in WIN_BlacklistedNames:
                return False
       elif confmod.platform in {"Linux","Darwin"}:
          #remove trailing path separator
-         if directory[-1:] == separator:
+         if directory[-1] == separator:
             directory = directory[:-1]
-         elif directory[-2:] == f"{separator}.":
+         elif directory.endswith(f"{separator}."):
             directory = directory[:-2]
          #remove starting path separator
-         if directory[:1] == separator:
+         if directory[0] == separator:
             directory = directory[-(len(directory)-1):]
-         elif directory[:2] in {f".{separator}",f"~{separator}"}:
+         elif directory.startswith((f".{separator}",f"~{separator}")):
             directory = directory[-(len(directory)-2):]
          dirlist = directory.split(separator)
          for i in dirlist:
