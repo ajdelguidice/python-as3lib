@@ -610,6 +610,7 @@ class window:
             self.aboutwindow[2]["window"].resizable(False,False)
             self.aboutwindow[2]["window"].transient(self.children["root"])
             self.aboutwindow[2]["window"].configure(background=self.windowproperties["color"])
+            self.aboutwindow[2]["window"].bind("<Destroy>",self.closeabout)
             self.aboutwindow[2]["label"] = tkinter.Label(self.aboutwindow[2]["window"], font=("TkTextFont",9), justify="left", text=self.aboutwindow[1], background=self.windowproperties["color"])
             self.aboutwindow[2]["label"].place(anchor="nw", x=7, y=9)
             self.aboutwindow[2]["okbutton"] = tkinter.Button(self.aboutwindow[2]["window"], text="OK", command=self.closeabout, background=self.windowproperties["color"])
@@ -617,9 +618,9 @@ class window:
             self.aboutwindow[0] = True
          else:
             self.aboutwindow[2]["window"].lift()
-   def closeabout(self):
+   def closeabout(self,*e):
       if self.aboutwindow != None:
-         for i in self.aboutwindow[2]:
+         for i in self.aboutwindow[2].copy():
             try:
                self.aboutwindow[2][i].destroy()
             except:
