@@ -1,18 +1,6 @@
 from as3lib import toplevel as as3
-from as3lib.configmodule import platform
-try:
-   if platform == "Windows":
-      raise
-   from as3lib.flash._crypto import _generateRandomBytes
-except:
-   from os import urandom
-   from binascii import b2a_hex
-   def _generateRandomBytes(numberRandomBytes):
-      try:
-         #return f"{b2a_hex(urandom(int(numberRandomBytes)))}"[2:][:(int(numberRandomBytes)*2)]
-         return urandom(int(numberRandomBytes))
-      except:
-         as3.Error("generateRandomBytes; Could not generate random bytes")
+from os import urandom
+from binascii import b2a_hex
 
 def generateRandomBytes(numberRandomBytes:int|as3.uint|as3.int):
    """
@@ -27,4 +15,7 @@ def generateRandomBytes(numberRandomBytes:int|as3.uint|as3.int):
    if numberRandomBytes > 1024 or numberRandomBytes < 1:
       as3.Error(f"generateRandomBytes; numberRandomBytes outside of expected range; expected uint between 1 and 1024, got {numberRandomBytes}")
    else:
-      return _generateRandomBytes(numberRandomBytes)[:numberRandomBytes] #The last part is here because Microsoft's c compiler doesn't support C99 so the c module must return the maximum number of bytes
+      try:
+         return urandom(int(numberRandomBytes))
+      except:
+         as3.Error("generateRandomBytes; Could not generate random bytes")s
