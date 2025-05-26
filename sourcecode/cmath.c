@@ -25,13 +25,6 @@ static PyObject * itk_windowresizefont(PyObject *self, PyObject *args) {
    return PyLong_FromLong((long)round(font*mult*0.01));
 };
 
-static PyObject * multdivide(PyObject *self, PyObject *args) {
-   double a, b, c;
-   if (!PyArg_ParseTuple(args, "ddd", &a, &b, &c))
-      return NULL;
-   return PyFloat_FromDouble(a*b/c);
-};
-
 static PyObject * roundedmultdivide(PyObject *self, PyObject *args) {
    double a, b, c;
    if (!PyArg_ParseTuple(args, "ddd", &a, &b, &c))
@@ -42,7 +35,6 @@ static PyObject * roundedmultdivide(PyObject *self, PyObject *args) {
 static PyMethodDef cmathMethods[] = {
    {"calculate", itk_windowcalculate, METH_VARARGS, "window.calculate function in the interface_tk module."},
    {"resizefont", itk_windowresizefont, METH_VARARGS, "window.resizefont function in the interface_tk module."},
-   {"multdivide", multdivide, METH_VARARGS, "a*b/c"},
    {"roundedmultdivide", roundedmultdivide, METH_VARARGS, "Originally used as a workaround to round to a specific decimal place. round(a*b)/c"},
    {NULL, NULL, 0, NULL}
 };
