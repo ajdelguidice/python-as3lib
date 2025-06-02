@@ -5,10 +5,6 @@ from . import configmodule, helpers
 import builtins
 from typing import Union
 from types import NoneType
-try:
-   from warnings import deprecated
-except:
-   from .py_backports import deprecated
 from functools import cmp_to_key
 from inspect import isfunction
 from numpy import nan, inf, base_repr
@@ -1524,15 +1520,6 @@ def EnableDebug():
    configmodule.as3DebugEnable = True
 def DisableDebug():
    configmodule.as3DebugEnable = False
-@deprecated("This is now built into the Array constructor. This will be removed after version 0.0.11")
-def listtoarray(l:list|tuple):
-   """
-   A function to convert a python list to an Array.
-   """
-   return Array(*l)
-@deprecated("typeName is deprecated and will be removed after version 0.0.11")
-def typeName(obj:object):
-   return formatTypeToName(type(obj))
 def formatTypeToName(arg:type):
    tempStr = f"{arg}"
    if tempStr.find(".") != -1:
