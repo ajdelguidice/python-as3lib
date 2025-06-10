@@ -981,89 +981,84 @@ class window:
       self.children[child].bind(tkevent, function)
    def configureChild(self, child:str, **args):
       for attr,value in args.items():
-         match attr:
-            case "x" | "y" | "width" | "height" | "font"| "anchor":
-               if child not in {"display","root"}:
-                  if attr == "x":
-                     self.childproperties[child][1] = value
-                  elif attr == "y":
-                     self.childproperties[child][2] = value
-                  elif attr == "width":
-                     self.childproperties[child][3] = value
-                  elif attr == "height":
-                     self.childproperties[child][4] = value
-                  elif attr == "font":
-                     self.childproperties[child][5] = value
-                  elif attr == "anchor":
-                     self.childproperties[child][6] = value
-                  self.resizeChild(child, self.windowproperties["oldmult"])
-            case "text" | "textadd":
-               if child not in {"display","root"}:
-                  if self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
-                     if attr == "text":
-                        self.prepareHTMLST(child, value)
-                     else:
-                        self.prepareHTMLST(child, self.childproperties[child][7][2] + value)
-                  elif self.childproperties[child][0] == "Entry":
-                     self.childproperties[child][7][0].set(value)
-                  elif self.childproperties[child][0] == "ComboLabelWithRadioButtons":
-                     if isinstance(value,(list,tuple)):
-                        self.children[child].setText(value[0],value[1])
-                     else:
-                        self.children[child]["text"] = value
+         if attr in {"x","y","width","height","font","anchor"}:
+            if child not in {"display","root"}:
+               if attr == "x":
+                  self.childproperties[child][1] = value
+               elif attr == "y":
+                  self.childproperties[child][2] = value
+               elif attr == "width":
+                  self.childproperties[child][3] = value
+               elif attr == "height":
+                  self.childproperties[child][4] = value
+               elif attr == "font":
+                  self.childproperties[child][5] = value
+               elif attr == "anchor":
+                  self.childproperties[child][6] = value
+               self.resizeChild(child, self.windowproperties["oldmult"])
+         elif attr in {"text","textadd"}:
+            if child not in {"display","root"}:
+               if self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
+                  if attr == "text":
+                     self.prepareHTMLST(child, value)
                   else:
-                     self.children[child][attr] = value
-            case "text1" | "text2":
-               pass
-            case "indent":
-               pass
-            case "background" | "foreground":
-               if child == "display":
-                  if attr == "background":
-                     self.children["display"]["bg"] = value
+                     self.prepareHTMLST(child, self.childproperties[child][7][2] + value)
+               elif self.childproperties[child][0] == "Entry":
+                  self.childproperties[child][7][0].set(value)
+               elif self.childproperties[child][0] == "ComboLabelWithRadioButtons":
+                  if isinstance(value,(list,tuple)):
+                     self.children[child].setText(value[0],value[1])
+                  else:
+                     self.children[child]["text"] = value
                else:
-                  if self.childproperties[child][0] == "Frame":
-                     if attr == "background":
-                        self.children[child]["bg"] = value
-                  elif self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
-                     self.children[child][attr] = value
-                     if attr == "background":
-                        self.childproperties[child][7][1] = value
-                     else:
-                        self.childproperties[child][7][0] = value
-                     self.prepareHTMLST(child, self.childproperties[child][7][2])
-                  elif self.childproperties[child][0] in {"ComboLabelWithRadioButtons","CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
-                     if attr == "background":
-                        self.children[child].background = value
-                     else:
-                        self.children[child].foreground = value
-                  else:
-                     if self.childproperties[child][0] == "Entry" and attr == "foreground":
-                        self.children[child]["insertbackground"] = value
-                     self.children[child][attr] = value
-            case "image":
-               if child not in {"display","root"}:
-                  self.imagedict[self.childproperties[child][7][0]][0] -= 1
-                  self.childproperties[child][7][0] = value
-                  self.imagedict[value][0] += 1
-                  self.children[child]["image"] = self.imagedict[value][3]
-            case "htmlfontbold":
-               if child not in {"display","root"} and self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
-                  self.childproperties[child][7][4] = value
-                  self.prepareHTMLST(child, self.childproperties[child][7][2])
-            case "sbwidth":
-               if child not in {"display","root"}:
-                  if self.childproperties[child][0] == "HTMLScrolledText":
-                     self.childproperties[child][7][6] = int(value)
-                  elif self.childproperties[child][0] == "ScrolledListBox":
-                     self.childproperties[child][7][1] = int(value)
-            case "addTab":
-               if child not in {"display","root"}:
-                  if self.childproperties[child][0] == "Notebook":
-                     self.children[child].add(self.children[value[0]],text=value[1])
-            case _:
-               if self.childproperties[child][0] not in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
                   self.children[child][attr] = value
+         elif attr in {"text1","text2"}:...
+         elif attr == "indent":...
+         elif attr in {"background","foreground"}:
+            if child == "display":
+               if attr == "background":
+                  self.children["display"]["bg"] = value
+            else:
+               if self.childproperties[child][0] == "Frame":
+                  if attr == "background":
+                     self.children[child]["bg"] = value
+               elif self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
+                  self.children[child][attr] = value
+                  if attr == "background":
+                     self.childproperties[child][7][1] = value
+                  else:
+                     self.childproperties[child][7][0] = value
+                  self.prepareHTMLST(child, self.childproperties[child][7][2])
+               elif self.childproperties[child][0] in {"ComboLabelWithRadioButtons","CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
+                  if attr == "background":
+                     self.children[child].background = value
+                  else:
+                     self.children[child].foreground = value
+               else:
+                  if self.childproperties[child][0] == "Entry" and attr == "foreground":
+                     self.children[child]["insertbackground"] = value
+                  self.children[child][attr] = value
+         elif attr == "image":
+            if child not in {"display","root"}:
+               self.imagedict[self.childproperties[child][7][0]][0] -= 1
+               self.childproperties[child][7][0] = value
+               self.imagedict[value][0] += 1
+               self.children[child]["image"] = self.imagedict[value][3]
+         elif attr == "htmlfontbold":
+            if child not in {"display","root"} and self.childproperties[child][0] in {"HTMLScrolledText","HTMLText"}:
+               self.childproperties[child][7][4] = value
+               self.prepareHTMLST(child, self.childproperties[child][7][2])
+         elif attr == "sbwidth":
+            if child not in {"display","root"}:
+               if self.childproperties[child][0] == "HTMLScrolledText":
+                  self.childproperties[child][7][6] = int(value)
+               elif self.childproperties[child][0] == "ScrolledListBox":
+                  self.childproperties[child][7][1] = int(value)
+         elif attr == "addTab":
+            if child not in {"display","root"} and self.childproperties[child][0] == "Notebook":
+               self.children[child].add(self.children[value[0]],text=value[1])
+         elif self.childproperties[child][0] not in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
+            self.children[child][attr] = value
    def destroyChild(self, child:str):
       if child not in {"display","root"}:
          temppref = self.childproperties.pop(child)
