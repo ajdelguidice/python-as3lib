@@ -4,6 +4,10 @@ if configmodule.initdone == False:
 
 from .toplevel import *
 from .toplevel import int as Int
+try:
+   import miniamf
+   from . import adapters
+except:...
 
 
 __all__ = (
