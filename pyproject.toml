@@ -10,6 +10,7 @@ description = "Partial implementation of ActionScript3 in Python"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
 license-files = ["LICENSE"]
+keywords = ["actionscript", "air", "flash", "flashplayer"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Operating System :: OS Independent",
