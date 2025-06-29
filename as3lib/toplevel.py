@@ -9,6 +9,11 @@ from functools import cmp_to_key
 from inspect import isfunction
 from numpy import nan, inf, base_repr
 
+try:
+   from warnings import deprecated
+except:
+   from as3lib.py_backports import deprecated
+
 #Static values
 true = True
 false = False
@@ -766,21 +771,16 @@ class Boolean:
       return f"{self._value}" if formatLikePython == True else f"{self._value}".lower()
    def valueOf(self):
       return self._value
-class Date:
-   pass
+class Date:...
 class DefinitionError():
    __slots__ = ("error")
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-def decodeURI():
-   pass
-def decodeURIComponent():
-   pass
-def encodeURI():
-   pass
-def encodeURIComponent():
-   pass
+def decodeURI():...
+def decodeURIComponent():...
+def encodeURI():...
+def encodeURIComponent():...
 class Error():
    __slots__ = ("error")
    def __init__(self, message=""):
@@ -985,12 +985,9 @@ class Math:
    def tan(angleRadians):
       return m.tan(angleRadians)
 class Namespace:
-   def __init__():
-      pass
-   def toString():
-      pass
-   def valueOf():
-      pass
+   def __init__():...
+   def toString():...
+   def valueOf():...
 class Number:
    __slots__ = ("_value")
    MAX_VALUE = 1.79e308
@@ -1062,12 +1059,9 @@ class Number:
             return float(expression)
          except:
             return NaN()
-   def toExponential(self):
-      pass
-   def toFixed(self):
-      pass
-   def toPrecision():
-      pass
+   def toExponential(self):...
+   def toFixed(self):...
+   def toPrecision():...
    def toString(self, radix=10):
       #!
       return str(self._value)
@@ -1119,12 +1113,9 @@ def parseInt(str_:str|String,radix:int|uint=0):
       return NaN()
    return int(builtins.int(str_[:j],radix))
 class QName:
-   def __init__():
-      pass
-   def toString():
-      pass
-   def valueOf():
-      pass
+   def __init__():...
+   def toString():...
+   def valueOf():...
 class RangeError():
    __slots__ = ("error")
    def __init__(self, message=""):
@@ -1135,8 +1126,7 @@ class ReferenceError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class RegExp:
-   pass
+class RegExp:...
 class SecurityError():
    __slots__ = ("error")
    def __init__(self, message=""):
@@ -1176,28 +1166,29 @@ class String(str):
       return parseInt(r'{:04X}'.format(ord(self[index])),16)
    def concat(self, *args):
       return self + ''.join([self._String(i) for i in args])
-   def fromCharCode():
-      ...
+   def fromCharCode():...
    def indexOf(self, val, startIndex:builtins.int|int=0):
       return self.find(val, startIndex)
-   def lastIndexOf(self, val, startIndex:builtins.int|int=None):
-      ...
-   def localeCompare():
-      ...
-   def match():
-      ...
-   def replace():
-      ...
-   def search():
-      ...
+   def lastIndexOf(self, val, startIndex:builtins.int|int=None):...
+   def localeCompare():...
+   def match():...
+   def replace():...
+   def search():...
    def slice(self,startIndex=0,endIndex=None):
       if endIndex == None:
          return self[startIndex:]
-      if startIndex < 0:
-         ...
+      if startIndex < 0:...
       return self[startIndex:endIndex]
-   def split():
-      ...
+   def split(delimiter = None, limit = 0x7fffffff):
+      if isinstance(delimiter,(undefined,NoneType)):
+         arr = Array(self)
+      elif delimiter == "" or False: #an empty string, an empty regular expression, or a regular expression that can match an empty string
+         arr = Array(sourceArray=[i for i in self])
+      elif False:... #If the delimiter parameter is a regular expression, only the first match at a given position of the string is considered, even if backtracking could find a nonempty substring match at that position.
+      elif False:... #If the delimiter parameter is a regular expression containing grouping parentheses, then each time the delimiter is matched, the results (including any undefined results) of the grouping parentheses are spliced into the output array.
+      if limit != 0x7fffffff:
+         return arr[:limit]
+      return arr
    def substr(self, startIndex:builtins.int|int=0, len_:builtins.int|int=None):
       if len_ < 0:
          trace("Error")
@@ -1236,7 +1227,7 @@ def trace(*args, isError=False):
       if isError == True and configmodule.ErrorReportingEnable == 1:
          if configmodule.MaxWarningsReached == False:
             if configmodule.CurrentWarnings < configmodule.MaxWarnings or configmodule.MaxWarnings == 0:
-               output = f"Error:{formatTypeToName(args[0])}; {args[1]}"
+               output = f"Error:{args[0].__name__}; {args[1]}"
                configmodule.CurrentWarnings += 1
             else:
                output = "Maximum number of errors has been reached. All further errors will be suppressed."
@@ -1274,12 +1265,9 @@ class U29:
             if i not in "0123456789ABCDEF":
                raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
          data = bin(builtins.int(data,16))[2:]
-      else:
-         ...
-      if data[0] == "0": #U29S-ref
-         ...
-      else: #U29S-value
-         ...
+      else:...
+      if data[0] == "0":... #U29S-ref
+      else:... #U29S-value
       return (data[0],result)
    def encodeUTF8HeaderBytes():...
    def decodeU29String():...
@@ -1299,8 +1287,7 @@ class U29:
             if i not in "0123456789ABCDEF":
                raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
          data = bin(builtins.int(data,16))[2:]
-      else:
-         ...
+      else:...
       significantBits = [data[1:8],"","",""]
       if data[0] == "1":
          significantBits[1] = data[9:16]
@@ -1328,10 +1315,8 @@ class U29:
             return f"1{'0'*(29-l)}{bits[:-22]}1{bits[-22:-15]}1{bits[-15:-8]}{bits[-8:]}"
       else:
          RangeError("U29 integers must be between 0 and 536870911")
-class uint:
-   pass
-def unescape():
-   pass
+class uint:...
+def unescape():...
 class URIError():
    __slots__ = ("error")
    def __init__(self, message=""):
@@ -1428,10 +1413,8 @@ class Vector(list):
       if self.fixed == True:
          RangeError("insertAt can not be called on a Vector with fixed set to true.")
       elif self.__superclass == True:
-         if isinstance(element,(self._type,null)):
-            ...
-      else:
-         ...
+         if isinstance(element,(self._type,null)):...
+      else:...
    def join(self,sep:str=","):...
    def lastIndexOf(searchElement,fromIndex=None):
       if fromIndex == None:
@@ -1494,8 +1477,11 @@ class Vector(list):
                   argsOk = False
                   break
          else:
-            ...
-         if argsOK == False:
+            for i in args:
+               if not (isinstance(i,null) or type(i) == self._type):
+                  argsOk = False
+                  break
+         if not argsOK:
             TypeError("One or more args is not of the Vector's base type.")
          else:
             tempVect = (*args,*self)
@@ -1520,6 +1506,7 @@ def EnableDebug():
    configmodule.as3DebugEnable = True
 def DisableDebug():
    configmodule.as3DebugEnable = False
+@deprecated("formatTypeToName is deprecated and will be removed in 0.0.13. Use type.__name__ instead.")
 def formatTypeToName(arg:type):
    tempStr = f"{arg}"
    if tempStr.find(".") != -1:
@@ -1531,15 +1518,13 @@ def isEven(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
       return False
    elif isinstance(Num,(builtins.int,int,uint)):
       return True if Num % 2 == 0 else False
-   elif isinstance(Num,(float,Number)):
-      ...
+   elif isinstance(Num,(float,Number)):...
 def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
    if isinstance(Num,(NaN,Infinity,NInfinity)):
       return False
    elif isinstance(Num,(builtins.int,int,uint)):
       return False if Num % 2 == 0 else True
-   elif isinstance(Num,(float,Number)):
-      ...
+   elif isinstance(Num,(float,Number)):...
 def objIsChildClass(obj,cls):
    """
    Checks both isinstance and issubclass for (obj,cls)
