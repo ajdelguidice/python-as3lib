@@ -11,21 +11,21 @@ class CMItemList:
    def __len__(self):
       return len(self.itemorder)
    def __getitem__(self, item):
-      if type(item) == int:
+      if isinstance(item,int):
          return self.itemorder[item]
-      elif type(item) == str:
+      if isinstance(item,str):
          return self.itemproperties[item]
    def __setitem__(self, item, value):
-      if type(item) == int:
+      if isinstance(item,int):
          self.itemorder[item] = value
-      elif type(item) == str:
+      elif isinstance(item,str):
          self.itemproperties[item] = value
    def length(self):
       return self.itemorder.length
    def indexOfItem(self, item:str):
       return self.itemorder.indexOf(item)
    def addContextMenuItem(self, obj:object, index:int=-1):
-      if as3.typeName(obj) == "ContextMenuItem":
+      if isinstance(obj,ContextMenuItem):
          tempproperties = {"master":obj.master, "type":obj.type_, "command":obj.command, "caption":obj.caption, "separatorBefore":obj.separatorBefore, "enabled":obj.enabled, "visible":obj.visible}
          if index == -1:
             self.append(obj.name, tempproperties)
@@ -103,7 +103,7 @@ class ContextMenu:
             self._itemobjects["clipboardMenu"].add_command(label="Paste",font=self.font)
          if self.clipboardItems.selectAll == True:
             self._itemobjects["clipboardMenu"].add_command(label="Select All",font=self.font)
-      for i in range(0,self.customItems.length()):
+      for i in range(self.customItems.length()):
          tempprop = self.customItems.propertiesAt(i)
          if tempprop["visible"] == True:
             if tempprop["type"] == "Menu":
@@ -141,7 +141,7 @@ class ContextMenu:
    #def set(self, item:str, value):
    #   pass
    def addItemAt(self, item:object, index:int=-1):
-      if as3.typeName(item) == "ContextMenuItem":
+      if isinstance(item,ContextMenuItem):
          self.customItems.addContextMenuItem(item, index)
          self._createAndBindMenu()
       else:
@@ -149,18 +149,17 @@ class ContextMenu:
    def clone(self):
       return self
    def containsItem(self, item:object):
-      if as3.typeName(item) == "ContextMenuItem":
+      if isinstance(item,ContextMenuItem):
          temp = self.customItems.idexOfItem(item.name)
          if temp == -1:
             return False
-         else:
-            return True
+         return True
       else:
          as3.TypeError("Item not of type ContextMenuItem")
    def display(self, stage:object, stageX, stageY):
       pass
    def getItemAt(self, item:object):
-      if as3.typeName(item) == "ContextMenuItem":
+      if isinstance(item,ContextMenuItem):
          return self.customItems.indexOfItem(item.name)
       else:
          as3.TypeError("Item not of type ContextMenuItem")
@@ -198,41 +197,39 @@ class ContextMenuBuiltInItems:
       self.save:bool = True
       self.zoom:bool = True
    def get(self, item:str):
-      match item:
-         case "forwardAndBack":
-            return self.forwardAndBack
-         case "loop":
-            return self.loop
-         case "play":
-            return self.play
-         case "print":
-            return self.print
-         case "quality":
-            return self.quality
-         case "rewind":
-            return self.rewind
-         case "save":
-            return self.save
-         case "zoom":
-            return self.zoom
+      if item == "forwardAndBack":
+         return self.forwardAndBack
+      if item == "loop":
+         return self.loop
+      if item == "play":
+         return self.play
+      if item == "print":
+         return self.print
+      if item == "quality":
+         return self.quality
+      if item == "rewind":
+         return self.rewind
+      if item == "save":
+         return self.save
+      if item == "zoom":
+         return self.zoom
    def set(self, item:str, value:bool):
-      match item:
-         case "forwardAndBack":
-            self.forwardAndBack = value
-         case "loop":
-            self.loop = value
-         case "play":
-            self.play = value
-         case "print":
-            self.print = value
-         case "quality":
-            self.quality = value
-         case "rewind":
-            self.rewind = value
-         case "save":
-            self.save = value
-         case "zoom":
-            self.zoom = value
+      if item == "forwardAndBack":
+         self.forwardAndBack = value
+      elif item == "loop":
+         self.loop = value
+      elif item == "play":
+         self.play = value
+      elif item == "print":
+         self.print = value
+      elif item == "quality":
+         self.quality = value
+      elif item == "rewind":
+         self.rewind = value
+      elif item == "save":
+         self.save = value
+      elif item == "zoom":
+         self.zoom = value
 class ContextMenuClipboardItems:
    def __init__(self):
       self.clear:bool = True
@@ -241,29 +238,27 @@ class ContextMenuClipboardItems:
       self.paste:bool = True
       self.selectAll:bool = True
    def get(self, item:str):
-      match item:
-         case "clear":
-            return self.clear
-         case "copy":
-            return self.copy
-         case "cut":
-            return self.cut
-         case "paste":
-            return self.paste
-         case "selectAll":
-            return self.selectAll
+      if item == "clear":
+         return self.clear
+      if item == "copy":
+         return self.copy
+      if item == "cut":
+         return self.cut
+      if item == "paste":
+         return self.paste
+      if item == "selectAll":
+         return self.selectAll
    def set(self, item:str, value:bool):
-      match item:
-         case "clear":
-            self.clear = value
-         case "copy":
-            self.copy = value
-         case "cut":
-            self.cut = value
-         case "paste":
-            self.paste = value
-         case "selectAll":
-            self.selectAll = value
+      if item == "clear":
+         self.clear = value
+      elif item == "copy":
+         self.copy = value
+      elif item == "cut":
+         self.cut = value
+      elif item == "paste":
+         self.paste = value
+      elif item == "selectAll":
+         self.selectAll = value
 class ContextMenuItem:
    def __init__(self, master:str, caption:str, name:str, separatorBefore:bool=False, enabled:bool=True, visible:bool=True, type_:str="Item", command:object=""):
       self.caption = caption
@@ -274,36 +269,25 @@ class ContextMenuItem:
       self.name = name
       if type_ == "Item":
          self.command = command
-      match type_:
-         case "Item" | "Menu":
-            self.type_ = type_
-         case _:
-            as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
-            self.type_ = "Item"
-            self.command = ""
-class GameInput:
-   pass
-class GameInputControl:
-   pass
-class GameInputDevice:
-   pass
-class Keyboard:
-   pass
-class KeyboardType:
-   pass
-class KeyLocation:
-   pass
-class Mouse:
-   pass
+      if type_ in {"Item","Menu"}:
+         self.type_ = type_
+      else:
+         as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
+         self.type_ = "Item"
+         self.command = ""
+class GameInput:...
+class GameInputControl:...
+class GameInputDevice:...
+class Keyboard:...
+class KeyboardType:...
+class KeyLocation:...
+class Mouse:...
 class MouseCursor(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ARROW = "arrow"
    AUTO = "auto"
    BUTTON = "button"
    HAND = "hand"
    IBEAM = "ibeam"
-class MouseCursorData:
-   pass
-class Multitouch:
-   pass
-class MultitouchInputMode:
-   pass
+class MouseCursorData:...
+class Multitouch:...
+class MultitouchInputMode:...
