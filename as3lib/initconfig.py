@@ -55,13 +55,9 @@ def sm_x11():
    xr = subprocess.check_output("xrandr --current", shell=True).decode("utf-8").split("\n")
    for option in xr:
       if option.find("*") != -1:
-         curop = option.split(" ")
+         ops = [i for i in option.split(" ") if  i != ""]
+         ops.pop(0)
          break
-   ops = []
-   for i in curop:
-      if i != "":
-         ops.append(i)
-   ops.pop(0)
    for i in ops:
       if i.find("*") != -1:
          temprr = i.replace("*","").replace("+","")
@@ -91,14 +87,14 @@ def getDesktopDir():
    if configmodule.platform == "Linux":
       deskdir = subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
-         return deskdir
+         return Path(deskdir)
    return configmodule.userdirectory / "Desktop"
 
 def getDocumentsDir():
    if configmodule.platform == "Linux":
       deskdir = subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
-         return deskdir
+         return Path(deskdir)
    return configmodule.userdirectory / "Documents"
 
 def getdmtype():
@@ -188,7 +184,7 @@ def dependencyCheck():
 
 def configLoader():
    configpath = configmodule.librarydirectory / "as3lib.cfg"
-   if configpath.exists() == True:
+   if configpath.exists():
       config = configparser.ConfigParser()
       config.optionxform=str
       config2 = configparser.ConfigParser()
@@ -218,7 +214,7 @@ def configLoader():
       sh = 900
       rr = 60.00
       cd = 8
-      if wlcfgpath.exists() == True:
+      if wlcfgpath.exists():
          wlcfg = configparser.ConfigParser()
          with open(wlcfgpath, 'r') as f:
             wlcfg.read_string(f.read())
@@ -276,12 +272,12 @@ def initconfig():
       configmodule.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
    if tempTraceOutputFileName == "":
       tempTraceOutputFileName = configmodule.defaultTraceFilePath
-   if Path(tempTraceOutputFileName).is_dir() == True:
+   if Path(tempTraceOutputFileName).is_dir():
       print("Path provided is a directory, writing to defualt location instead.")
       tempTraceOutputFileName = configmodule.defaultTraceFilePath
    configmodule.TraceOutputFileName = Path(tempTraceOutputFileName)
    if configmodule.ClearLogsOnStartup == 1:
-      if configmodule.TraceOutputFileName.exists() == True:
+      if configmodule.TraceOutputFileName.exists():
          with open(configmodule.TraceOutputFileName, "w") as f: 
             f.write("")
    if config != config2 or config2 == "default":
