@@ -18,4 +18,4 @@ def generateRandomBytes(numberRandomBytes:int|as3.uint|as3.int):
       try:
          return urandom(int(numberRandomBytes))
       except:
-         as3.Error("generateRandomBytes; Could not generate random bytes")s
+         as3.Error("generateRandomBytes; Could not generate random bytes")
