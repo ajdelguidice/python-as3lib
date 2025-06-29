@@ -52,7 +52,7 @@ def sm_x11():
    """
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    """
-   xr = f'{subprocess.check_output("xrandr --current", shell=True)}'.split("\\n")
+   xr = subprocess.check_output("xrandr --current", shell=True).decode("utf-8").split("\n")
    for option in xr:
       if option.find("*") != -1:
          curop = option.split(" ")
@@ -66,9 +66,9 @@ def sm_x11():
       if i.find("*") != -1:
          temprr = i.replace("*","").replace("+","")
          break
-   cdp = f'{subprocess.check_output("xwininfo -root | grep Depth", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
-   tempwidth = f'{subprocess.check_output("xwininfo -root | grep Width", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
-   tempheight = f'{subprocess.check_output("xwininfo -root | grep Height", shell=True)}'.replace("\\n","").replace("b'","").replace(" ","").replace("'","").split(":")[1]
+   cdp = subprocess.check_output("xwininfo -root | grep Depth", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
+   tempwidth = subprocess.check_output("xwininfo -root | grep Width", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
+   tempheight = subprocess.check_output("xwininfo -root | grep Height", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
@@ -89,23 +89,21 @@ def getSeparator():
 
 def getDesktopDir():
    if configmodule.platform == "Linux":
-      deskdir = f'{subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True)}'.replace("\\n","").replace("b'","").replace("'","")
+      deskdir = subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
          return deskdir
    return configmodule.userdirectory / "Desktop"
 
 def getDocumentsDir():
    if configmodule.platform == "Linux":
-      deskdir = f'{subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True)}'.replace("\\n","").replace("b'","").replace("'","")
+      deskdir = subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
          return deskdir
    return configmodule.userdirectory / "Documents"
 
 def getdmtype():
-   temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True))
-   if temp[:2] == "b'" and temp[-1:] == "'":
-      temp = temp[2:-1]
-   for i in temp.split("\\n"):
+   temp = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8")
+   for i in temp.split("\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
          if temp2 in {"x11","wayland"}:
@@ -113,10 +111,8 @@ def getdmtype():
    return "error"
 
 def getdmname():
-   temp = str(subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True))
-   if temp[:2] == "b'" and temp[-1:] == "'":
-      temp = temp[2:-1]
-   for i in temp.split("\\n"):
+   temp = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True).decode("utf-8")
+   for i in temp.split("\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
          if len(temp2) > 0:
@@ -128,7 +124,7 @@ def dependencyCheck():
    import importlib.util
    hasDeps = True
    if configmodule.platform == "Linux":
-      wmt = str(subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True))[2:].replace("\\n'","")
+      wmt = subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True).decode("utf-8")
       if wmt == "wayland":
          x=0
       else:
@@ -164,7 +160,7 @@ def dependencyCheck():
          hasDeps = False
       try:
          subprocess.check_output("which echo",shell=True)
-         assert str(subprocess.check_output("echo test",shell=True)).replace("\\n","")[2:-1] == "test"
+         assert subprocess.check_output("echo test",shell=True).decode("utf-8").replace("\n","") == "test"
       except:
          configmodule.initerror.append((3,"Linux: requirement 'echo' not found"))
          hasDeps = False
