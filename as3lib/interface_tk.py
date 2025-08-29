@@ -5,13 +5,12 @@ import tkhtmlview
 import PIL
 import math
 from io import BytesIO as btio
-from as3lib import configmodule as confmod
 from as3lib import toplevel as as3
 try:
    from as3lib import cmath
 except:
    from as3lib.cfail import cmath
-from as3lib import helpers
+from as3lib import helpers, as3state
 """
 Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
 Notes:
@@ -22,7 +21,7 @@ Notes:
 """
 #Adobe flash minimum size is 262x0 for a window that starts out at 1176x662
 
-confmod.interfaceType = "Tkinter"
+as3state.interfaceType = "Tkinter"
 
 def help():
    print("If you are confused about how to use this module, please run this module by itself and look at the test code at the bottom. This is more of a test module so don't expect it to make any sense.")
@@ -507,8 +506,8 @@ class window:
          self.windowproperties["dheight"] = self.windowproperties["startheight"]
       else:
          self.windowproperties["dheight"] = dheight
-      if confmod.width not in {-1,None} and confmod.height not in {-1,None}:
-         self.children["root"].maxsize(confmod.width,confmod.height)
+      if as3state.width not in {-1,None} and as3state.height not in {-1,None}:
+         self.children["root"].maxsize(as3state.width,as3state.height)
       if type_ == "canvas":
          self.children["display"] = tkinter.Canvas(self.children["root"], background=self.windowproperties["color"], confine=True)
          self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)

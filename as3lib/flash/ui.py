@@ -21,7 +21,7 @@ class CMItemList:
       elif isinstance(item,str):
          self.itemproperties[item] = value
    def length(self):
-      return self.itemorder.length
+      return len(self)
    def indexOfItem(self, item:str):
       return self.itemorder.indexOf(item)
    def addContextMenuItem(self, obj:object, index:int=-1):
@@ -156,8 +156,7 @@ class ContextMenu:
          return True
       else:
          as3.TypeError("Item not of type ContextMenuItem")
-   def display(self, stage:object, stageX, stageY):
-      pass
+   def display(self, stage:object, stageX, stageY):...
    def getItemAt(self, item:object):
       if isinstance(item,ContextMenuItem):
          return self.customItems.indexOfItem(item.name)

@@ -1,7 +1,7 @@
 import math as m
 import random as r
 from pathlib import Path, PurePath
-from . import configmodule, helpers
+from . import as3state, helpers
 import builtins
 from typing import Union
 from types import NoneType
@@ -1223,28 +1223,28 @@ class SyntaxError():
       trace(type(self), message, isError=True)
       self.error = message
 def trace(*args, isError=False):
-   if configmodule.as3DebugEnable == True:
-      if isError == True and configmodule.ErrorReportingEnable == 1:
-         if configmodule.MaxWarningsReached == False:
-            if configmodule.CurrentWarnings < configmodule.MaxWarnings or configmodule.MaxWarnings == 0:
+   if as3state.as3DebugEnable == True:
+      if isError == True and as3state.ErrorReportingEnable == 1:
+         if as3state.MaxWarningsReached == False:
+            if as3state.CurrentWarnings < as3state.MaxWarnings or as3state.MaxWarnings == 0:
                output = f"Error:{args[0].__name__}; {args[1]}"
-               configmodule.CurrentWarnings += 1
+               as3state.CurrentWarnings += 1
             else:
                output = "Maximum number of errors has been reached. All further errors will be suppressed."
-               configmodule.MaxWarningsReached = True
+               as3state.MaxWarningsReached = True
          else:
             pass
       else:
          output = ' '.join((str(i) for i in args))
-      if configmodule.TraceOutputFileEnable == 1:
-         if configmodule.TraceOutputFileName.exists() == True:
-            if configmodule.TraceOutputFileName.is_file() == True:
-               with open(configmodule.TraceOutputFileName, "a") as f:
+      if as3state.TraceOutputFileEnable == 1:
+         if as3state.TraceOutputFileName.exists() == True:
+            if as3state.TraceOutputFileName.is_file() == True:
+               with open(as3state.TraceOutputFileName, "a") as f:
                   f.write(output + "\n")
             else:
                print(output)
          else:
-            with open(configmodule.TraceOutputFileName, "w") as f:
+            with open(as3state.TraceOutputFileName, "w") as f:
                f.write(output + "\n")
       else:
          print(output)
@@ -1503,9 +1503,9 @@ def EnableDebug():
       if "-debug" in sys.argv:
          <this module>.EnableDebug()
    """
-   configmodule.as3DebugEnable = True
+   as3state.as3DebugEnable = True
 def DisableDebug():
-   configmodule.as3DebugEnable = False
+   as3state.as3DebugEnable = False
 @deprecated("formatTypeToName is deprecated and will be removed in 0.0.13. Use type.__name__ instead.")
 def formatTypeToName(arg:type):
    tempStr = f"{arg}"
@@ -1617,6 +1617,6 @@ def _resolveDir(dir_):
    return str(Path(dir_).resolve())
 def setDataDirectory(directory:str|String):
    if _isValidDirectory(_resolveDir(directory)) == True:
-      configmodule.appdatadirectory = directory
+      as3state.appdatadirectory = directory
    else:
       Error(f"setDataDirectory; Directory {directory} not valid")

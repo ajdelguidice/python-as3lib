@@ -168,18 +168,18 @@ class EventDispatcher:
       #!Implement target
       self._events = {}
       self._eventsCapture = {}
-   def addEventListener(self,type_:as3.allString,listener,useCapture:as3.allBoolean=False,priority:as3.allInt=0,useWeakReference:as3.allBoolean=False):
+   def addEventListener(self,type:as3.allString,listener,useCapture:as3.allBoolean=False,priority:as3.allInt=0,useWeakReference:as3.allBoolean=False):
       #!Add error
       if useCapture == False:
-         if self._events.get(type_) == None:
-            self._events[type_] = [listener]
-         elif listener not in self._events[type_]:
-            self._events[type_].append(listener)
+         if self._events.get(type) == None:
+            self._events[type] = [listener]
+         elif listener not in self._events[type]:
+            self._events[type].append(listener)
       else:
-         if self._eventsCapture.get(type_) == None:
-            self._eventsCapture[type_] = [listener]
-         elif listener not in self._eventsCapture[type_]:
-            self._eventsCapture[type_].append(listener)
+         if self._eventsCapture.get(type) == None:
+            self._eventsCapture[type] = [listener]
+         elif listener not in self._eventsCapture[type]:
+            self._eventsCapture[type].append(listener)
    #def _dispatchEventType(self,type_,capture=False):
    #   """
    #   This is a temporary function that will be removed later. I just have no idea how to implement the original and haven't implemented event objects yet.
@@ -202,26 +202,29 @@ class EventDispatcher:
                e._Internal_setCurrentTarget(i)
             return True
       return False
-   def hasEventListener(self,type_):
-      if self._events.get(type_) != None or self._eventsCapture.get(type_) != None:
+   def hasEventListener(self,type):
+      if self._events.get(type) != None or self._eventsCapture.get(type) != None:
          return True
       return False
-   def removeEventListener(self,type_:as3.allString,listener,useCapture:as3.allBoolean=False):
+   def removeEventListener(self,type:as3.allString,listener,useCapture:as3.allBoolean=False):
       if useCapture == False:
-         if self._events.get(type_) != None:
+         if self._events.get(type) != None:
             try:
-               self._events[type_].remove(listener)
+               self._events[type].remove(listener)
             except:
                pass
       else:
-         if self._eventsCapture.get(type_) != None:
+         if self._eventsCapture.get(type) != None:
             try:
-               self._eventsCapture[type_].remove(listener)
+               self._eventsCapture[type].remove(listener)
             except:
                pass
-   def willTrigger(self,type_:as3.allString):
+   def willTrigger(self,type:as3.allString):
       pass
-class EventPhase:...
+class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+   AT_TARGET = 2
+   BUBBLING_PHASE = 3
+   CAPTURING_PHASE = 1
 class FileListEvent:...
 class FocusEvent:...
 class FullScreenEvent:...

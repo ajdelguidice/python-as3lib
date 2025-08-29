@@ -1,5 +1,5 @@
 from as3lib import toplevel as as3
-from as3lib import configmodule, metaclasses
+from as3lib import as3state, metaclasses
 import platform
 from typing import Union
 import sys
@@ -42,7 +42,7 @@ class Capabilities:
     #hasTLS
     #hasVideoEncoder
     def _getDebug():
-        return configmodule.as3DebugEnable
+        return as3state.as3DebugEnable
     isDebugger = property(fget=_getDebug)
     isEmbeddedInAcrobat = property(fget=_propFalse) #Always false because this is irelavant
     #language
@@ -50,22 +50,22 @@ class Capabilities:
     #localFileReadDisable
     @cache
     def _getManuf():
-        if configmodule.platform == "Windows":
+        if as3state.platform == "Windows":
             return "Adobe Windows"
-        if configmodule.platform == "Linux":
+        if as3state.platform == "Linux":
             return "Adobe Linux"
-        if configmodule.platform == "Darwin":
+        if as3state.platform == "Darwin":
             return "Adobe Macintosh"
     manufacturer = property(fget=_getManuf)
     #maxLevelIDC
     @cache
     def _getOS():
         #!add others
-        if configmodule.platform == "Windows":
+        if as3state.platform == "Windows":
             pass
-        if configmodule.platform == "Linux":
+        if as3state.platform == "Linux":
             return f"Linux {platform.release()}"
-        if configmodule.platform == "Darwin":...
+        if as3state.platform == "Darwin":...
     os = property(fget=_getOS)
     #pixelAspectRatio
     def _getPlayerType():
@@ -81,14 +81,14 @@ class Capabilities:
     #touchscreenType
     @cache
     def _getVer():
-        tempfv = configmodule.spoofedFlashVersion
-        if configmodule.platform == "Windows":
+        tempfv = as3state.spoofedFlashVersion
+        if as3state.platform == "Windows":
             return f"Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-        if configmodule.platform == "Linux":
+        if as3state.platform == "Linux":
             return f"LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-        if configmodule.platform == "Darwin":
+        if as3state.platform == "Darwin":
             return f"MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
-        if configmodule.platform == "Android":
+        if as3state.platform == "Android":
             return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
     version = property(fget=_getVer)
     def hasMultiChannelAudio(type:Union[str,as3.String]):

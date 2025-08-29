@@ -1,5 +1,5 @@
 from importlib import __import__
-from . import configmodule
+from . import as3state
 
 __doc__ = "This module contains the builtin functions and directives from actionscript 3"
 
@@ -30,7 +30,7 @@ def as3import(packageName:str,namespace,name:str=None):
    if pkg[-1] == "*":
       raise NotImplemented("\"*\" imports are not implemented yet")
    else:
-      file = configmodule.librarydirectory / ("/".join(pkg) + ".py")
+      file = as3state.librarydirectory / ("/".join(pkg) + ".py")
       if file.exists():
          if file.is_file():
             with open(file,"rb") as f:

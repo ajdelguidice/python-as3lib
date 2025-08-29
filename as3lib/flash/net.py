@@ -1,8 +1,7 @@
 import as3lib.toplevel as as3
-from as3lib import configmodule as confmod
 from typing import Union
 from as3lib.flash.events import Event, EventDispatcher #, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent, DataEvent
-from as3lib import metaclasses
+from as3lib import metaclasses, as3state
 from tkinter import filedialog
 import as3lib.flash.utils as utils
 
@@ -70,14 +69,10 @@ class FileReference(EventDispatcher):
             self.dispatchEvent(self.cancel)
          else:
             self.dispatchEvent(self.select)
-   def cancel(self):
-      pass
-   def dowload(self,request,defaultFileName=None):
-      pass
-   def load(self):
-      pass
-   def requestPermission(self):
-      pass
+   def cancel(self):...
+   def dowload(self,request,defaultFileName=None):...
+   def load(self):...
+   def requestPermission(self):...
    def save(self,data,defaultFileName=None):
       #!add check for blacklisted characters  / \ : * ? " < > | %
       file = defaultFileName.split(".")
@@ -120,17 +115,14 @@ class FileReference(EventDispatcher):
             self.dispatchEvent(self.select)
             self._location = filename
             self.dispatchEvent(self.complete)
-   def upload(self,request,uploadDataFieldName,testUpload=False):
-      pass
-   def uploadUnencoded(self,request):
-      pass
+   def upload(self,request,uploadDataFieldName,testUpload=False):...
+   def uploadUnencoded(self,request):...
 class FileReferenceList:...
 class GroupSpecifier:...
 class InterfaceAddress:
    #address = classmethod()
    #broadcast = classmethod()
-   def __getAddrType():
-      pass
+   def __getAddrType():...
    #ipVersion = classmethod(fget=__AddrType)
    #prefixLength = classmethod()
 class IPVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -220,46 +212,39 @@ class SharedObject:
       #self._name = ""
       #self._path = ""
       self.data = sodata()
-   def close(self):
-      pass
-   def connect(self):
-      pass
-   def flush(slef,minDiskSpace=0):
-      pass
+   def close(self):...
+   def connect(self):...
+   def flush(slef,minDiskSpace=0):...
    def getLocal(self,name,localPath=None,secure=False):
       #gets local shared object; if object exists, set path and load it. if not, just set path
       #!fix separators and make paths "Path" objects
       parent = ""
-      directory = f"{confmod.separator}"
+      directory = f"{as3state.separator}"
       #localPath is the path (without the file name) with the application specific data directory as root
       #   application data directory is configmodule.appdatadirectory and needs to be set manually using toplevel.setDataDirectory(directory)
       #   (implementation specific addition) if the application data directory is not specified, the library directory is used as a default
       #name is the name of the file excluding the extension because it will always be .sol
       if localPath != None:
          directory = localPath
-      if confmod.appdatadirectory == None:
-         #use confmod.librarydirectory
-         parent = confmod.librarydirectory
+      if as3state.appdatadirectory == None:
+         #use as3state.librarydirectory
+         parent = as3state.librarydirectory
       else:
-         #use confmod.appdatadirectory
-         parent = confmod.appdatadirectory
-      if parent[-1] == confmod.separator:
+         #use as3state.appdatadirectory
+         parent = as3state.appdatadirectory
+      if parent[-1] == as3state.separator:
          parent = parent[:-1]
-      if directory[0] == confmod.separator:
+      if directory[0] == as3state.separator:
          directory = directory[1:]
-      if directory[-1] == confmod.separator:
+      if directory[-1] == as3state.separator:
          directory = directory[:-1]
-      self._path = f"{parent}{confmod.separator}{directory}{confmod.separator}{name}.sol"
+      self._path = f"{parent}{as3state.separator}{directory}{as3state.separator}{name}.sol"
       self._name = name
-      pass
-   def getRemote(self,name,remotePath=None,persistance=False,secure=False):
-      pass
-   def send(self,*arguments):
-      pass
-   def setDirty(self,propertyName):
-      pass
-   def setProperty(self,propertyName,value=None):
-      pass
+      ...
+   def getRemote(self,name,remotePath=None,persistance=False,secure=False):...
+   def send(self,*arguments):...
+   def setDirty(self,propertyName):...
+   def setProperty(self,propertyName,value=None):...
 class SharedObjectFlushStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FLUSHED = "flushed"
    PENDING = "pending"

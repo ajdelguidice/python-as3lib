@@ -1,27 +1,27 @@
-from as3lib import configmodule, toplevel
+from as3lib import as3state, toplevel
 import re
 from typing import Union
 
 def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       return Linux.mouseButtonNameToTkname(name)
-   elif configmodule.platform == "Windows":
+   elif as3state.platform == "Windows":
       return Windows.mouseButtonNameToTkname(name)
-   elif configmodule.platform == "Darwin":
+   elif as3state.platform == "Darwin":
       pass
 def tkeventToMouseButtonName(event):
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       return Linux.tkeventToMouseButtonName(event)
-   elif configmodule.platform == "Windows":
+   elif as3state.platform == "Windows":
       return Windows.tkeventToMouseButtonName(event)
-   elif configmodule.platform == "Darwin":
+   elif as3state.platform == "Darwin":
       pass
 def tkeventToJavascriptKeycode(event):
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       return Linux.tkeventToJavascriptKeycode(event)
-   elif configmodule.platform == "Windows":
+   elif as3state.platform == "Windows":
       return Windows.tkeventToJavascriptKeycode(event)
-   elif configmodule.platform == "Darwin":
+   elif as3state.platform == "Darwin":
       pass
 class Linux:
    def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
