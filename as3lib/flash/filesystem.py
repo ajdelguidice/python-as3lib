@@ -1,6 +1,5 @@
 import as3lib.toplevel as as3
-import as3lib.configmodule as confmod
-from as3lib import metaclasses
+from as3lib import metaclasses, as3state
 from subprocess import check_output as co
 from subprocess import CalledProcessError as CPE
 from typing import Union
@@ -39,7 +38,7 @@ class File:
       # check for above names before a file extension (not allowed)
       #linux and macos:
       # make sure file name doesn't contain a slash
-      pass
+      ...
    def __init__(self,path:Union[str,as3.String]):
       #!detect url path
       #!convert path to native path and url
@@ -47,47 +46,28 @@ class File:
       self._filepath = path
    #def __str__(self):
       #return the string of the native path
-   def browseForDirectory():
-      pass
-   def browseForOpen():
-      pass
-   def browseForOpenMultiple():
-      pass
-   def browseForSave():
-      pass
-   def cancel():
-      pass
-   def canonicalize():
-      pass
-   def clone():
-      pass
-   def copyTo():
-      pass
-   def copyToAsync():
-      pass
-   def createDirectory():
-      pass
-   def createTempDirectory():
-      pass
-   def createTempFile():
-      pass
-   def deleteDirectory():
-      pass
-   def deleteDirectoryAsync():
-      pass
-   def deleteFile():
-      pass
-   def deleteFileAsync():
-      pass
-   def getDirectoryListing():
-      pass
-   def getDirectoryListingAsync():
-      pass
-   def getRelativePath():
-      pass
+   def browseForDirectory():...
+   def browseForOpen():...
+   def browseForOpenMultiple():...
+   def browseForSave():...
+   def cancel():...
+   def canonicalize():...
+   def clone():...
+   def copyTo():...
+   def copyToAsync():...
+   def createDirectory():...
+   def createTempDirectory():...
+   def createTempFile():...
+   def deleteDirectory():...
+   def deleteDirectoryAsync():...
+   def deleteFile():...
+   def deleteFileAsync():...
+   def getDirectoryListing():...
+   def getDirectoryListingAsync():...
+   def getRelativePath():...
    def getRootDirectories(self):
       #!Change returned values inside of the arrays into File objects
-      match confmod.platform:
+      match as3state.platform:
          case "Windows":
             drives = f"{co("fsutil fsinfo drives",shell=True)}".replace(" ","").replace("\\r","").split("Drives:")[1].replace("\\n'","").split("\\")
             tempDrives = as3.Array()
@@ -104,28 +84,18 @@ class File:
             return tempDrives
          case "Linux" | "Darwin":
             return as3.Array(File("/"))
-   def moveTo():
-      pass
-   def moveToAsync():
-      pass
-   def moveToTrash():
-      pass
-   def moveToTrashAsync():
-      pass
-   def openWithDefaultApplication():
-      pass
-   def requestPermission():
-      pass
-   def resolvePath():
-      pass
+   def moveTo():...
+   def moveToAsync():...
+   def moveToTrash():...
+   def moveToTrashAsync():...
+   def openWithDefaultApplication():...
+   def requestPermission():...
+   def resolvePath():...
 class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    APPEND = "append"
    READ = "read"
    UPDATE = "update"
    WRITE = "write"
-class FileStream:
-   pass
-class StorageVolume:
-   pass
-class StorageVolumeInfo:
-   pass
+class FileStream:...
+class StorageVolume:...
+class StorageVolumeInfo:...

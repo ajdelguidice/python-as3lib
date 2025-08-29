@@ -1,4 +1,4 @@
-from as3lib import configmodule,metaclasses
+from as3lib import as3state,metaclasses
 import as3lib.toplevel as as3
 from typing import Union
 import tkinter
@@ -39,16 +39,11 @@ class as3totk:
 class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ACTIONSCRIPT2 = 2
    ACTIONSCRIPT3 = 3
-class AVLoader:
-   pass
-class AVM1Movie:
-   pass
-class Bitmap:
-   pass
-class BitmapData:
-   pass
-class BitmapDataChannel:
-   pass
+class AVLoader:...
+class AVM1Movie:...
+class Bitmap:...
+class BitmapData:...
+class BitmapDataChannel:...
 class BitmapEncodingColorSpace(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    COLORSPACE_4_2_0 = "4:2:0"
    COLORSPACE_4_2_2 = "4:2:2"
@@ -88,35 +83,22 @@ class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "bottom"
    NONE = "none"
    TOP = "top"
-class FrameLabel:
-   pass
+class FrameLabel:...
 class GradientType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LINEAR = "linear"
    RADIAL = "radial"
-class Graphics:
-   pass
-class GraphicsBitmapFill:
-   pass
-class GraphicsEndFill:
-   pass
-class GraphicsGradientFill:
-   pass
-class GraphicsPath:
-   pass
-class GraphicsPathCommand:
-   pass
-class GraphicsPathWinding:
-   pass
-class GraphicsShaderFill:
-   pass
-class GraphicsSolidFill:
-   pass
-class GraphicsStroke:
-   pass
-class GraphicsTrianglePath:
-   pass
-class GraphicsObject:
-   pass
+class Graphics:...
+class GraphicsBitmapFill:...
+class GraphicsEndFill:...
+class GraphicsGradientFill:...
+class GraphicsPath:...
+class GraphicsPathCommand:...
+class GraphicsPathWinding:...
+class GraphicsShaderFill:...
+class GraphicsSolidFill:...
+class GraphicsStroke:...
+class GraphicsTrianglePath:...
+class GraphicsObject:...
 class InteractiveObject(DisplayObject):...
 class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    LINEAR_RGB = "linearRGB"
@@ -125,27 +107,19 @@ class JointStyle(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BEVEL = "bevel"
    MITER = "miter"
    ROUND = "round"
-class JPEGEncoderOptions:
-   pass
-class JPEGCREncoderOptions:
-   pass
+class JPEGEncoderOptions:...
+class JPEGCREncoderOptions:...
 class LineScaleMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    HORIZONTAL = "horizontal"
    NONE = "none"
    NORMAL = "normal"
    VERTICAL = "vertical"
-class Loader:
-   pass
-class LoderInfo:
-   pass
-class MorphShape:
-   pass
-class MovieClip:
-   pass
-class NativeMenu:
-   pass
-class NativeMenuItem:
-   pass
+class Loader:...
+class LoderInfo:...
+class MorphShape:...
+class MovieClip:...
+class NativeMenu:...
+class NativeMenuItem:...
 class NativeWindow:
    """
    Due to limitations in tkinter, any window that isn't the main window will not be able to start out inactive. It will instead start out minimized.
@@ -188,13 +162,13 @@ class NativeWindow:
    #x
    #y
    def __init__(initOptions:NativeWindowInitOptions = NativeWindowInitOptions()):
-      self.__mainwindow = len(configmodule.windows) == 0:
+      self.__mainwindow = len(as3state.windows) == 0:
       if self.__mainwindow == True:
          self.__windowObject = tkinter.Tk()
       else:
          self.__windowObject = tkinter.Toplevel()
          self.minimize()
-      configmodule.windows[next(_windowNameGenerator)] = self
+      as3state.windows[next(_windowNameGenerator)] = self
    def activate():
       if self.active == False and self.closed == False:
          if self.__mainwindow == False:
@@ -205,30 +179,18 @@ class NativeWindow:
    def close():
       self.__windowObject.destroy()
       self.closed = True
-   def globalToScreen(globalPoint): #accepts flash.geom.Point objects
-      pass
-   def listOwnedWindows():
-      pass
-   def maximize():
-      pass
-   def minimize():
-      pass
-   def notifyUser(type):
-      pass
-   def orderInBackOf(window:NativeWindow):
-      pass
-   def orderInFrontOf(window:NativeWindow):
-      pass
-   def orderToBack():
-      pass
-   def orderToFront():
-      pass
-   def restore():
-      pass
-   def startMove():
-      pass
-   def startResize(edgeOfCorner):
-      pass
+   def globalToScreen(globalPoint):... #accepts flash.geom.Point objects
+   def listOwnedWindows():...
+   def maximize():...
+   def minimize():...
+   def notifyUser(type):...
+   def orderInBackOf(window:NativeWindow):...
+   def orderInFrontOf(window:NativeWindow):...
+   def orderToBack():...
+   def orderToFront():...
+   def restore():...
+   def startMove():...
+   def startResize(edgeOfCorner):...
 class NativeWindowDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    MAXIMIZED = "maximized"
    MINIMIZED = "minimized"
@@ -270,29 +232,20 @@ class PixelSnapping(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ALWAYS = "always"
    AUTO = "auto"
    NEVER = "never"
-class PNGEncoderOptions:
-   pass
-class Scene:
-   pass
-class SceneMode:
-   pass
-class Screen:
-   pass
+class PNGEncoderOptions:...
+class Scene:...
+class SceneMode:...
+class Screen:...
 class ScreenMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-   colorDepth = configmodule.colordepth
-   height = configmodule.height
-   refreshRate = configmodule.refreshrate
-   width = configmodule.width
-class Shader:
-   pass
-class ShaderData:
-   pass
-class ShaderInput:
-   pass
-class ShaderJob:
-   pass
-class ShaderParameter:
-   pass
+   colorDepth = as3state.colordepth
+   height = as3state.height
+   refreshRate = as3state.refreshrate
+   width = as3state.width
+class Shader:...
+class ShaderData:...
+class ShaderInput:...
+class ShaderJob:...
+class ShaderParameter:...
 class ShaderParameterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOOL = "bool"
    BOOL2 = "bool2"
@@ -312,20 +265,15 @@ class ShaderParameterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 class ShaderPrecision(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FAST = "fast"
    FULL = "full"
-class Shape:
-   pass
-class SimpleButtom:
-   pass
+class Shape:...
+class SimpleButtom:...
 class SpreadMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    PAD = "pad"
    REFLECT = "reflect"
    REPEAT = "repeat"
-class Sprite:
-   pass
-class Stage:
-   pass
-class Stage3D:
-   pass
+class Sprite:...
+class Stage:...
+class Stage3D:...
 class StageAlign(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = "B"
    BOTTOM_LEFT = "BL"

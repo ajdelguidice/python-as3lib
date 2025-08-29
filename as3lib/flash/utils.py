@@ -11,33 +11,20 @@ from threading import Timer as timedExec
 class ByteArray:...
 
 
-def clearInterval():
-   pass
-def clearTimeout():
-   pass
-def describeType():
-   pass
-def escapeMultiByte():
-   pass
-def getDefinitionByName():
-   pass
-def getQualifiedClassName():
-   pass
-def getQualifiedSuperclassName():
-   pass
-def getTimer():
-   pass
-def setInterval():
-   pass
-def setTimeout():
-   pass
-def unescapeMultiByte():
-   pass
+def clearInterval():...
+def clearTimeout():...
+def describeType():...
+def escapeMultiByte():...
+def getDefinitionByName():...
+def getQualifiedClassName():...
+def getQualifiedSuperclassName():...
+def getTimer():...
+def setInterval():...
+def setTimeout():...
+def unescapeMultiByte():...
 
-class IDataInput:
-   pass
-class IDataOutput:
-   pass
+class IDataInput:...
+class IDataOutput:...
 
 class ByteArray(bytearray):
    #!Implement slice function
@@ -143,8 +130,7 @@ class ByteArray(bytearray):
    def _multiByteWriteNoEOFProtect(self,bytes:list|tuple|as3.Array):
       for i in bytes:
          self._writeNoEOFProtect(i)
-   def atomicCompareAndSwapIntAt():
-      pass
+   def atomicCompareAndSwapIntAt():...
    def atomicCompareAndSwapLengthAt(self,expectedLength:int,newLength:int):
       """
       In a single atomic operation, compares this byte array's length with a provided value and, if they match, changes the length of this byte array.
@@ -171,12 +157,9 @@ class ByteArray(bytearray):
       "Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance."
       self.position = 0
       self = self[:0]
-   def compress():
-      pass
-   def deflate():
-      pass
-   def inflate():
-      pass
+   def compress():...
+   def deflate():...
+   def inflate():...
    def readBoolean(self):
       if self.bytesAvailable == 0:
          errors.IOError("placeholderText")
