@@ -1,5 +1,5 @@
 import platform, subprocess, configparser
-from . import configmodule
+from . import as3state
 from pathlib import Path
 
 if platform.system() == "Windows":
@@ -8,7 +8,7 @@ if platform.system() == "Windows":
    try:
       import win32api
    except:
-      configmodule.initerror.append((3,"pywin32 is required for operation on Windows but is either not installed or not accessible."))
+      as3state.initerror.append((3,"pywin32 is required for operation on Windows but is either not installed or not accessible."))
 elif platform.system() in ("Linux","Darwin"):
    from os import getuid
    from pwd import getpwuid
@@ -27,9 +27,9 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
    """
-   if configmodule.platform == "Windows":
+   if as3state.platform == "Windows":
       username = getlogin()
-   elif configmodule.platform in {"Linux","Darwin"}:
+   elif as3state.platform in {"Linux","Darwin"}:
       username = getpwuid(getuid())[0]
    if versionOverride == True:
       if overrideSystem == "Linux":
@@ -41,11 +41,11 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
             return fr"C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt"
          elif overrideVersion in {"Vista","7","8","8.1","10","11"}:
             return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
-   elif configmodule.platform == "Linux":
+   elif as3state.platform == "Linux":
       return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
-   elif configmodule.platform == "Windows":
+   elif as3state.platform == "Windows":
       return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
-   elif configmodule.platform == "Darwin":
+   elif as3state.platform == "Darwin":
       return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
 
 def sm_x11():
@@ -79,23 +79,23 @@ def sm_darwin():
    pass
 
 def getSeparator():
-   if configmodule.platform == "Windows":
+   if as3state.platform == "Windows":
       return "\\"
    return "/"
 
 def getDesktopDir():
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       deskdir = subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
          return Path(deskdir)
-   return configmodule.userdirectory / "Desktop"
+   return as3state.userdirectory / "Desktop"
 
 def getDocumentsDir():
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       deskdir = subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True).decode("utf-8").replace("\n","")
       if deskdir != "":
          return Path(deskdir)
-   return configmodule.userdirectory / "Documents"
+   return as3state.userdirectory / "Documents"
 
 def getdmtype():
    temp = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8")
@@ -119,7 +119,7 @@ def dependencyCheck():
    global config
    import importlib.util
    hasDeps = True
-   if configmodule.platform == "Linux":
+   if as3state.platform == "Linux":
       wmt = subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True).decode("utf-8")
       if wmt == "wayland":
          x=0
@@ -127,63 +127,63 @@ def dependencyCheck():
          try:
             subprocess.check_output("which xwininfo",shell=True)
          except:
-            configmodule.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
+            as3state.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
             hasDeps = False
          try:
             subprocess.check_output("which xrandr",shell=True)
          except:
-            configmodule.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
+            as3state.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
             hasDeps = False
       try:
          subprocess.check_output("which bash",shell=True)
       except:
-         configmodule.initerror.append((3,"Linux: requirement 'bash' not found"))
+         as3state.initerror.append((3,"Linux: requirement 'bash' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which awk",shell=True)
       except:
-         configmodule.initerror.append((3,"Linux: requirement 'awk' not found"))
+         as3state.initerror.append((3,"Linux: requirement 'awk' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which whoami",shell=True)
       except:
-         configmodule.initerror.append((3,"Linux: requirement 'whoami' not found"))
+         as3state.initerror.append((3,"Linux: requirement 'whoami' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which loginctl",shell=True)
       except:
-         configmodule.initerror.append((3,"Linux: requirement 'loginctl' not found"))
+         as3state.initerror.append((3,"Linux: requirement 'loginctl' not found"))
          hasDeps = False
       try:
          subprocess.check_output("which echo",shell=True)
          assert subprocess.check_output("echo test",shell=True).decode("utf-8").replace("\n","") == "test"
       except:
-         configmodule.initerror.append((3,"Linux: requirement 'echo' not found"))
+         as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
          hasDeps = False
-   elif configmodule.platform == "Windows":
+   elif as3state.platform == "Windows":
       pass
-   elif configmodule.platform == "Darwin":
+   elif as3state.platform == "Darwin":
       pass
    try: #https://pypi.org/project/numpy
       importlib.util.find_spec('numpy').origin
    except:
-      configmodule.initerror.append((3,"Python: requirement 'numpy' not found"))
+      as3state.initerror.append((3,"Python: requirement 'numpy' not found"))
       hasDeps = False
    try: #https://pypi.org/project/Pillow
       importlib.util.find_spec('PIL').origin
    except:
-      configmodule.initerror.append((3,"Python: requirement 'Pillow' not found"))
+      as3state.initerror.append((3,"Python: requirement 'Pillow' not found"))
       hasDeps = False
    try: #https://pypi.org/project/tkhtmlview
       importlib.util.find_spec('tkhtmlview').origin
    except:
-      configmodule.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
+      as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
       hasDeps = False
    config.set("dependencies","passed",str(hasDeps))
-   configmodule.hasDependencies = hasDeps
+   as3state.hasDependencies = hasDeps
 
 def configLoader():
-   configpath = configmodule.librarydirectory / "as3lib.cfg"
+   configpath = as3state.librarydirectory / "as3lib.cfg"
    if configpath.exists():
       config = configparser.ConfigParser()
       config.optionxform=str
@@ -194,8 +194,8 @@ def configLoader():
          config2.read_string(f.read())
       return config,config2
    else:
-      mmcfgpath = configmodule.librarydirectory / "mm.cfg"
-      wlcfgpath = configmodule.librarydirectory / "wayland.cfg"
+      mmcfgpath = as3state.librarydirectory / "mm.cfg"
+      wlcfgpath = as3state.librarydirectory / "wayland.cfg"
       ErrorReportingEnable = False
       MaxWarnings = False
       TraceOutputFileEnable = False
@@ -232,62 +232,62 @@ config = None
 def initconfig():
    #set up variables needed by mutiple modules
    global config
-   configmodule.librarydirectory = Path(__file__).resolve().parent
+   as3state.librarydirectory = Path(__file__).resolve().parent
    config,config2 = configLoader()
-   configmodule.platform = platform.system()
+   as3state.platform = platform.system()
    if config.getboolean("dependencies","passed",fallback=False) == False:
       dependencyCheck()
-   configmodule.separator = getSeparator()
-   configmodule.userdirectory = Path.home()
-   configmodule.desktopdirectory = getDesktopDir()
-   configmodule.documentsdirectory = getDocumentsDir()
-   configmodule.defaultTraceFilePath = configmodule.librarydirectory / "flashlog.txt"
-   configmodule.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
-   configmodule.pythonversion = platform.python_version()
-   if configmodule.platform == "Linux":
-      configmodule.displayserver = getdmtype()
-      configmodule.dmname = getdmname()
-      if configmodule.displayserver == "x11":
-         configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_x11()
-      elif configmodule.displayserver == "wayland":
-         configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_wayland()
+   as3state.separator = getSeparator()
+   as3state.userdirectory = Path.home()
+   as3state.desktopdirectory = getDesktopDir()
+   as3state.documentsdirectory = getDocumentsDir()
+   as3state.defaultTraceFilePath = as3state.librarydirectory / "flashlog.txt"
+   as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
+   as3state.pythonversion = platform.python_version()
+   if as3state.platform == "Linux":
+      as3state.displayserver = getdmtype()
+      as3state.dmname = getdmname()
+      if as3state.displayserver == "x11":
+         as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_x11()
+      elif as3state.displayserver == "wayland":
+         as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
       else:
-         configmodule.initerror.append((2,f"windowmanagertype \"{configmodule.windowmanagertype}\" not supported"))
-   elif configmodule.platform == "Windows":
-      configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_windows()
-   elif configmodule.platform == "Darwin":
-      configmodule.initerror.append((1,"Darwin: Fetching screen properties is not implemented."))
-      #configmodule.width,configmodule.height,configmodule.refreshrate,configmodule.colordepth = sm_darwin()
+         as3state.initerror.append((2,f"windowmanagertype \"{as3state.windowmanagertype}\" not supported"))
+   elif as3state.platform == "Windows":
+      as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_windows()
+   elif as3state.platform == "Darwin":
+      as3state.initerror.append((1,"Darwin: Fetching screen properties is not implemented."))
+      #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
       ...
-   elif configmodule.platform == "":
-      configmodule.initerror.append((4,"Platform could not be determined"))
+   elif as3state.platform == "":
+      as3state.initerror.append((4,"Platform could not be determined"))
    else:
-      configmodule.initerror.append((0,f"Current platform {configmodule.platform} not supported"))
-   configmodule.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
-   configmodule.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
-   configmodule.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
+      as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
+   as3state.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
+   as3state.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
+   as3state.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
    tempTraceOutputFileName = config.get("mm.cfg","TraceOutputFileName",fallback="")
-   configmodule.ClearLogsOnStartup = config.getint("mm.cfg","ClearLogsOnStartup",fallback=1)
-   if configmodule.ClearLogsOnStartup == 0:
-      configmodule.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
+   as3state.ClearLogsOnStartup = config.getint("mm.cfg","ClearLogsOnStartup",fallback=1)
+   if as3state.ClearLogsOnStartup == 0:
+      as3state.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
    if tempTraceOutputFileName == "":
-      tempTraceOutputFileName = configmodule.defaultTraceFilePath
+      tempTraceOutputFileName = as3state.defaultTraceFilePath
    if Path(tempTraceOutputFileName).is_dir():
       print("Path provided is a directory, writing to defualt location instead.")
-      tempTraceOutputFileName = configmodule.defaultTraceFilePath
-   configmodule.TraceOutputFileName = Path(tempTraceOutputFileName)
-   if configmodule.ClearLogsOnStartup == 1:
-      if configmodule.TraceOutputFileName.exists():
-         with open(configmodule.TraceOutputFileName, "w") as f: 
+      tempTraceOutputFileName = as3state.defaultTraceFilePath
+   as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
+   if as3state.ClearLogsOnStartup == 1:
+      if as3state.TraceOutputFileName.exists():
+         with open(as3state.TraceOutputFileName, "w") as f: 
             f.write("")
    if config != config2 or config2 == "default":
-      with open(configmodule.librarydirectory / "as3lib.cfg","w") as f:
+      with open(as3state.librarydirectory / "as3lib.cfg","w") as f:
          config.write(f)
    del config
 
    #Report errors to user
-   if len(configmodule.initerror) != 0:
-      print(f"Warning: as3lib has initialized with errors, some functionality may be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in configmodule.initerror))}")
+   if len(as3state.initerror) != 0:
+      print(f"Warning: as3lib has initialized with errors, some functionality may be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in as3state.initerror))}")
    
    #Tell others that library has been initialized
-   configmodule.initdone = True
+   as3state.initdone = True
