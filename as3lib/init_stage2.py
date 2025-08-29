@@ -1,6 +1,7 @@
-import platform, subprocess
+import platform
 from . import as3state, config
 from pathlib import Path
+from subprocess import check_output
 
 if platform.system() == "Windows":
    from os import getlogin
@@ -52,7 +53,7 @@ def sm_x11():
    """
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    """
-   xr = subprocess.check_output("xrandr --current", shell=True).decode("utf-8").split("\n")
+   xr = check_output(('xrandr','--current')).decode("utf-8").split("\n")
    for option in xr:
       if option.find("*") != -1:
          ops = [i for i in option.split(" ") if  i != ""]
@@ -62,9 +63,9 @@ def sm_x11():
       if i.find("*") != -1:
          temprr = i.replace("*","").replace("+","")
          break
-   cdp = subprocess.check_output("xwininfo -root | grep Depth", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
-   tempwidth = subprocess.check_output("xwininfo -root | grep Width", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
-   tempheight = subprocess.check_output("xwininfo -root | grep Height", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
+   cdp = check_output("xwininfo -root | grep Depth", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
+   tempwidth = check_output("xwininfo -root | grep Width", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
+   tempheight = check_output("xwininfo -root | grep Height", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
@@ -86,20 +87,20 @@ def getSeparator():
 
 def getDesktopDir():
    if as3state.platform == "Linux":
-      deskdir = subprocess.check_output("echo $XDG_DOCUMENTS_DIR",shell=True).decode("utf-8").replace("\n","")
+      deskdir = check_output(('echo','$XDG_DOCUMENTS_DIR')).decode("utf-8").replace("\n","")
       if deskdir != "":
          return Path(deskdir)
    return as3state.userdirectory / "Desktop"
 
 def getDocumentsDir():
    if as3state.platform == "Linux":
-      deskdir = subprocess.check_output("echo $XDG_DESKTOP_DIR",shell=True).decode("utf-8").replace("\n","")
+      deskdir = check_output(('echo','$XDG_DESKTOP_DIR')).decode("utf-8").replace("\n","")
       if deskdir != "":
          return Path(deskdir)
    return as3state.userdirectory / "Documents"
 
 def getdmtype():
-   temp = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8")
+   temp = check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8")
    for i in temp.split("\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
@@ -108,7 +109,7 @@ def getdmtype():
    return "error"
 
 def getdmname():
-   temp = subprocess.check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True).decode("utf-8")
+   temp = check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True).decode("utf-8")
    for i in temp.split("\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
@@ -118,64 +119,43 @@ def getdmname():
 
 def dependencyCheck():
    global cfg
-   import importlib.util
+   from importlib.util import find_spec
    hasDeps = True
    if as3state.platform == "Linux":
-      wmt = subprocess.check_output("echo $XDG_SESSION_TYPE",shell=True).decode("utf-8")
+      wmt = check_output(('echo','$XDG_SESSION_TYPE')).decode("utf-8").replace("\n","")
       if wmt == "wayland":
          x=0
       else:
-         try:
-            subprocess.check_output("which xwininfo",shell=True)
-         except:
+         if check_output(('which','xwininfo')).decode("utf-8").startswith("which: no"):
             as3state.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
             hasDeps = False
-         try:
-            subprocess.check_output("which xrandr",shell=True)
-         except:
+         if check_output(('which','xrandr')).decode("utf-8").startswith("which: no"):
             as3state.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
             hasDeps = False
-      try:
-         subprocess.check_output("which bash",shell=True)
-      except:
+      if check_output(('which','bash')).decode("utf-8").startswith("which: no"):
          as3state.initerror.append((3,"Linux: requirement 'bash' not found"))
          hasDeps = False
-      try:
-         subprocess.check_output("which awk",shell=True)
-      except:
+      if check_output(('which','awk')).decode("utf-8").startswith("which: no"):
          as3state.initerror.append((3,"Linux: requirement 'awk' not found"))
          hasDeps = False
-      try:
-         subprocess.check_output("which whoami",shell=True)
-      except:
+      if check_output(('which','whoami')).decode("utf-8").startswith("which: no"):
          as3state.initerror.append((3,"Linux: requirement 'whoami' not found"))
          hasDeps = False
-      try:
-         subprocess.check_output("which loginctl",shell=True)
-      except:
+      if check_output(('which','loginctl')).decode("utf-8").startswith("which: no"):
          as3state.initerror.append((3,"Linux: requirement 'loginctl' not found"))
          hasDeps = False
-      try:
-         subprocess.check_output("which echo",shell=True)
-         assert subprocess.check_output("echo test",shell=True).decode("utf-8").replace("\n","") == "test"
-      except:
+      if check_output(('which','echo')).decode("utf-8").startswith("which: no") or check_output(('echo','test')).decode("utf-8").replace("\n","") != "test":
          as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
          hasDeps = False
    elif as3state.platform == "Windows":...
    elif as3state.platform == "Darwin":...
-   try: #https://pypi.org/project/numpy
-      importlib.util.find_spec('numpy').origin
-   except:
+   if find_spec('numpy') == None: #https://pypi.org/project/numpy
       as3state.initerror.append((3,"Python: requirement 'numpy' not found"))
       hasDeps = False
-   try: #https://pypi.org/project/Pillow
-      importlib.util.find_spec('PIL').origin
-   except:
+   if find_spec('PIL') == None: #https://pypi.org/project/Pillow
       as3state.initerror.append((3,"Python: requirement 'Pillow' not found"))
       hasDeps = False
-   try: #https://pypi.org/project/tkhtmlview
-      importlib.util.find_spec('tkhtmlview').origin
-   except:
+   if find_spec('tkhtmlview') == None: #https://pypi.org/project/tkhtmlview
       as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
       hasDeps = False
    cfg['dependenciesPassed'] = hasDeps
