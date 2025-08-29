@@ -1,4 +1,5 @@
 from as3lib import as3state
+from io import StringIO
 try:
    import tomllib
 except:
@@ -151,4 +152,4 @@ def Load(): #!Force values to be correct type
             }
          }
       cfg['migrateOldConfig'] = False
-      return cfg, cfg2
+   return cfg, cfg2
