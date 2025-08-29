@@ -46,7 +46,7 @@ class TOML:
          if len(nontables) > 0:
             text.write('\n')
          for k in tables:
-            text.write(f'[{k}]\n')
+            text.write(f'["{k}"]\n' if str(k).find('.') != -1 else f'[{k}]\n')
             for k2,v2 in valDict[k].items():
                text.write(f'{k2} = {TOML.Value(v2)}\n')
             text.write('\n')
@@ -81,7 +81,7 @@ def Load(): #!Force values to be correct type
       cfg2 = dict(cfg)
    else:
       cfg = {
-         'migrateOldConfig':False,
+         'migrateOldConfig':True,
          'dependenciesPassed':False,
          'mm.cfg':{
             'ErrorReportingEnable':False,
@@ -105,7 +105,7 @@ def Load(): #!Force values to be correct type
       wlcfgpath = as3state.librarydirectory / "wayland.cfg"
       oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
       if mmcfgpath.exists():
-         mmcfg = configparser.ConfigParser()
+         mmcfg = ConfigParser()
          with open(mmcfgpath, 'r') as f:
             mmcfg.read_string('[dummy_section]\n' + f.read())
          cfg['mm.cfg'] = {
@@ -118,7 +118,7 @@ def Load(): #!Force values to be correct type
          }
          del mmcfg
       if wlcfgpath.exists():
-         wlcfg = configparser.ConfigParser()
+         wlcfg = ConfigParser()
          with open(wlcfgpath, 'r') as f:
             wlcfg.read_file(f)
          cfg['wayland'] = {
@@ -130,12 +130,12 @@ def Load(): #!Force values to be correct type
          wlcfgpath.unlink(missing_ok=True)
          del wlcfg
       if oldcfgpath.exists():
-         oldcfg = configparser.ConfigParser()
+         oldcfg = ConfigParser()
          with open(oldcfgpath, 'r') as f:
             oldcfg.read_file(f)
          cfg = {
             'migrateOldConfig':False,
-            'dependenciesPassed':oldcfg.getboolean('dependencies','passed',fallback=False),
+            'dependenciesPassed':False,
             'mm.cfg':{
                'ErrorReportingEnable':oldcfg.getboolean('mm.cfg','ErrorReportingEnable',fallback=False),
                'MaxWarnings':oldcfg.getboolean('mm.cfg','MaxWarnings',fallback=False),
@@ -151,5 +151,7 @@ def Load(): #!Force values to be correct type
                'colordepth':oldcfg.getint('wayland','colordepth',fallback=8)
             }
          }
+         oldcfgpath.unlink(missing_ok=True)
+      cfg['mm.cfg']['TraceOutputFileName'] = cfg['mm.cfg']['TraceOutputFileName'].strip('\'"') #Sometimes the value's quotes are left in the string
       cfg['migrateOldConfig'] = False
    return cfg, cfg2
