@@ -1,5 +1,5 @@
-import platform, subprocess, configparser
-from . import as3state
+import platform, subprocess
+from . import as3state, config
 from pathlib import Path
 
 if platform.system() == "Windows":
@@ -68,7 +68,8 @@ def sm_x11():
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
-   return config.getint("wayland","screenwidth",fallback=1600),config.getint("wayland","screenheight",fallback=900),config.getfloat("wayland","refreshrate",fallback=60.00),config.getint("wayland","colordepth",fallback=8)
+   temp = cfg['wayland']
+   return temp['screenwidth'],temp['screenheight'],temp['refreshrate'],temp['colordepth']
 
 def sm_windows():
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
@@ -116,7 +117,7 @@ def getdmname():
    return "error"
 
 def dependencyCheck():
-   global config
+   global cfg
    import importlib.util
    hasDeps = True
    if as3state.platform == "Linux":
@@ -160,10 +161,8 @@ def dependencyCheck():
       except:
          as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
          hasDeps = False
-   elif as3state.platform == "Windows":
-      pass
-   elif as3state.platform == "Darwin":
-      pass
+   elif as3state.platform == "Windows":...
+   elif as3state.platform == "Darwin":...
    try: #https://pypi.org/project/numpy
       importlib.util.find_spec('numpy').origin
    except:
@@ -179,63 +178,18 @@ def dependencyCheck():
    except:
       as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
       hasDeps = False
-   config.set("dependencies","passed",str(hasDeps))
+   cfg['dependenciesPassed'] = hasDeps
    as3state.hasDependencies = hasDeps
-
-def configLoader():
-   configpath = as3state.librarydirectory / "as3lib.cfg"
-   if configpath.exists():
-      config = configparser.ConfigParser()
-      config.optionxform=str
-      config2 = configparser.ConfigParser()
-      config2.optionxform=str
-      with open(configpath, 'r') as f:
-         config.read_string(f.read())
-         config2.read_string(f.read())
-      return config,config2
-   else:
-      mmcfgpath = as3state.librarydirectory / "mm.cfg"
-      wlcfgpath = as3state.librarydirectory / "wayland.cfg"
-      ErrorReportingEnable = False
-      MaxWarnings = False
-      TraceOutputFileEnable = False
-      TraceOutputFileName = ""
-      ClearLogsOnStartup = 1
-      if mmcfgpath.exists() == True:
-         mmcfg = configparser.ConfigParser()
-         with open(mmcfgpath, 'r') as f:
-            mmcfg.read_string('[dummy_section]\n' + f.read())
-         ErrorReportingEnable = mmcfg.getboolean("dummy_section","ErrorReportingEnable",fallback=False)
-         MaxWarnings = mmcfg.getboolean("dummy_section","MaxWarnings",fallback=False)
-         TraceOutputFileEnable = mmcfg.getboolean("dummy_section","TraceOutputFileEnable",fallback=False)
-         TraceOutputFileName = mmcfg.get("dummy_section","TraceOutputFileName",fallback="")
-         ClearLogsOnStartup = mmcfg.getint("dummy_section","ClearLogsOnStartup",fallback=1)
-      sw = 1600
-      sh = 900
-      rr = 60.00
-      cd = 8
-      if wlcfgpath.exists():
-         wlcfg = configparser.ConfigParser()
-         with open(wlcfgpath, 'r') as f:
-            wlcfg.read_string(f.read())
-         sw = wlcfg.getint("Screen","screenwidth",fallback=1600)
-         sh = wlcfg.getint("Screen","screenheight",fallback=900)
-         rr = wlcfg.getfloat("Screen","refreshrate",fallback=60.00)
-         cd = wlcfg.getint("Screen","colordepth",fallback=8)
-         wlcfgpath.unlink(missing_ok=True)
-      config = configparser.ConfigParser()
-      config.read_string(f"[dependencies]\npassed=false\n\n[mm.cfg]\nErrorReportingEnable={ErrorReportingEnable}\nMaxWarnings={MaxWarnings}\nTraceOutputFileEnable={TraceOutputFileEnable}\nTraceOutputFileName=\"{TraceOutputFileName}\"\nClearLogsOnStartup={ClearLogsOnStartup}\nNoClearWarningNumber=0\n\n[wayland]\nscreenwidth={sw}\nscreenheight={sh}\nrefreshrate={rr}\ncolordepth={cd}")
-      return config,"default"
       
-config = None
+cfg = None
 
-def initconfig():
+def init():
    #set up variables needed by mutiple modules
-   global config
+   global cfg
    as3state.librarydirectory = Path(__file__).resolve().parent
-   config,config2 = configLoader()
+   cfg,cfg2 = config.Load()
    as3state.platform = platform.system()
-   if config.getboolean("dependencies","passed",fallback=False) == False:
+   if not cfg["dependenciesPassed"]:
       dependencyCheck()
    as3state.separator = getSeparator()
    as3state.userdirectory = Path.home()
@@ -263,14 +217,14 @@ def initconfig():
       as3state.initerror.append((4,"Platform could not be determined"))
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
-   as3state.ErrorReportingEnable = config.getboolean("mm.cfg","ErrorReportingEnable",fallback=False)
-   as3state.MaxWarnings = config.getboolean("mm.cfg","MaxWarnings",fallback=False)
-   as3state.TraceOutputFileEnable = config.getboolean("mm.cfg","TraceOutputFileEnable",fallback=False)
-   tempTraceOutputFileName = config.get("mm.cfg","TraceOutputFileName",fallback="")
-   as3state.ClearLogsOnStartup = config.getint("mm.cfg","ClearLogsOnStartup",fallback=1)
+   as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
+   as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
+   as3state.TraceOutputFileEnable = cfg['mm.cfg']['TraceOutputFileEnable']
+   tempTraceOutputFileName = cfg['mm.cfg']['TraceOutputFileName']
+   as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
    if as3state.ClearLogsOnStartup == 0:
-      as3state.CurrentWarnings = config.getint("mm.cfg","NoClearWarningNumber",fallback=0)
-   if tempTraceOutputFileName == "":
+      as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
+   if tempTraceOutputFileName == '':
       tempTraceOutputFileName = as3state.defaultTraceFilePath
    if Path(tempTraceOutputFileName).is_dir():
       print("Path provided is a directory, writing to defualt location instead.")
@@ -279,11 +233,10 @@ def initconfig():
    if as3state.ClearLogsOnStartup == 1:
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
-            f.write("")
-   if config != config2 or config2 == "default":
-      with open(as3state.librarydirectory / "as3lib.cfg","w") as f:
-         config.write(f)
-   del config
+            f.write('')
+   if cfg != cfg2:
+      config.TOML.Write(as3state.librarydirectory / "as3lib.toml",cfg)
+   del cfg
 
    #Report errors to user
    if len(as3state.initerror) != 0:

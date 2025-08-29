@@ -1,6 +1,6 @@
 from . import as3state, init_stage2
 if as3state.initdone == False:
-   init_stage2.initconfig()
+   init_stage2.init()
 
 from .toplevel import *
 from .toplevel import int as Int
