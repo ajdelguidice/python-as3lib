@@ -207,7 +207,7 @@ def Save(saveAnyways:bool=False):
             'screenheight':as3state.height,
             'refreshrate':as3state.refreshrate,
             'colordepth':as3state.colordepth
-         }
+         } if as3state.displayserver == 'wayland' else {'screenwidth':0,'screenheight':0,'refreshrate':0,'colordepth':0}
       }
    if saveAnyways or as3state._cfg != tempcfg:
       TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
