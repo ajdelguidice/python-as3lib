@@ -158,7 +158,6 @@ def dependencyCheck():
    if find_spec('tkhtmlview') == None: #https://pypi.org/project/tkhtmlview
       as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
       hasDeps = False
-   cfg['dependenciesPassed'] = hasDeps
    as3state.hasDependencies = hasDeps
       
 cfg = None
@@ -168,6 +167,7 @@ def init():
    global cfg
    as3state.librarydirectory = Path(__file__).resolve().parent
    cfg,cfg2 = config.Load()
+   as3state.addedFeatures = cfg['addedFeatures']
    as3state.platform = platform.system()
    if not cfg["dependenciesPassed"]:
       dependencyCheck()
@@ -214,8 +214,7 @@ def init():
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
             f.write('')
-   if cfg != cfg2:
-      config.TOML.Write(as3state.librarydirectory / "as3lib.toml",cfg)
+   config.Save(cfg)
    del cfg
 
    #Report errors to user

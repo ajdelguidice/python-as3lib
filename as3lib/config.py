@@ -61,8 +61,9 @@ def Load():
       tempmm = temp.get('mm.cfg')
       tempway = temp.get('wayland')
       cfg = {
-         'migrateOldConfig':bool(temp['migrateOldConfig']),
-         'dependenciesPassed':bool(temp['dependenciesPassed']),
+         'migrateOldConfig':bool(temp.get('migrateOldConfig',False)),
+         'dependenciesPassed':bool(temp.get('dependenciesPassed',False)),
+         'addedFeatures':bool(temp.get('addedFeatures',False)),
          'mm.cfg':{
             'ErrorReportingEnable':bool(tempmm.get('ErrorReportingEnable',False)),
             'MaxWarnings':int(tempmm.get('MaxWarnings',100)),
@@ -83,6 +84,7 @@ def Load():
       cfg = {
          'migrateOldConfig':True,
          'dependenciesPassed':False,
+         'addedFeatures':False,
          'mm.cfg':{
             'ErrorReportingEnable':False,
             'MaxWarnings':100,
@@ -136,6 +138,7 @@ def Load():
          cfg = {
             'migrateOldConfig':False,
             'dependenciesPassed':False,
+            'addedFeatures':False,
             'mm.cfg':{
                'ErrorReportingEnable':oldcfg.getboolean('mm.cfg','ErrorReportingEnable',fallback=False),
                'MaxWarnings':100, #Reset value because I messed up the type
@@ -155,3 +158,26 @@ def Load():
       cfg['mm.cfg']['TraceOutputFileName'] = cfg['mm.cfg']['TraceOutputFileName'].strip('\'"') #Sometimes the value's quotes are left in the string
       cfg['migrateOldConfig'] = False
    return cfg, cfg2
+
+def Save(config):
+   tempcfg = {
+         'migrateOldConfig':False,
+         'dependenciesPassed':as3state.hasDependencies,
+         'addedFeatures':as3state.addedFeatures,
+         'mm.cfg':{
+            'ErrorReportingEnable':as3state.ErrorReportingEnable,
+            'MaxWarnings':as3state.MaxWarnings,
+            'TraceOutputFileEnable':as3state.TraceOutputFileEnable,
+            'TraceOutputFileName':as3state.TraceOutputFileName,
+            'ClearLogsOnStartup':as3state.ClearLogsOnStartup,
+            'NoClearWarningNumber':0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
+         },
+         'wayland':{
+            'screenwidth':as3state.width,
+            'screenheight':as3state.height,
+            'refreshrate':as3state.refreshrate,
+            'colordepth':as3state.colordepth
+         }
+      }
+   if config != tempcfg:
+      TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
