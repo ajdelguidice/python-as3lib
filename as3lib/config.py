@@ -61,21 +61,21 @@ def Load(): #!Force values to be correct type
       tempmm = temp.get('mm.cfg')
       tempway = temp.get('wayland')
       cfg = {
-         'migrateOldConfig':temp['migrateOldConfig'],
-         'dependenciesPassed':temp['dependenciesPassed'],
+         'migrateOldConfig':bool(temp['migrateOldConfig']),
+         'dependenciesPassed':bool(temp['dependenciesPassed']),
          'mm.cfg':{
-            'ErrorReportingEnable':tempmm.get('ErrorReportingEnable',False),
-            'MaxWarnings':tempmm.get('MaxWarnings',False),
-            'TraceOutputFileEnable':tempmm.get('TraceOutputFileEnable',False),
-            'TraceOutputFileName':tempmm.get('TraceOutputFileName',''),
-            'ClearLogsOnStartup':tempmm.get('ClearLogsOnStartup',1),
-            'NoClearWarningNumber':tempmm.get('NoClearWarningNumber',0)
+            'ErrorReportingEnable':bool(tempmm.get('ErrorReportingEnable',False)),
+            'MaxWarnings':bool(tempmm.get('MaxWarnings',False)),
+            'TraceOutputFileEnable':bool(tempmm.get('TraceOutputFileEnable',False)),
+            'TraceOutputFileName':str(tempmm.get('TraceOutputFileName','')),
+            'ClearLogsOnStartup':int(tempmm.get('ClearLogsOnStartup',1)),
+            'NoClearWarningNumber':int(tempmm.get('NoClearWarningNumber',0))
          },
          'wayland':{
-            'screenwidth':tempway.get('screenwidth',1600),
-            'screenheight':tempway.get('screenheight',900),
-            'refreshrate':tempway.get('refreshrate',60.0),
-            'colordepth':tempway.get('colordepth',8)
+            'screenwidth':int(tempway.get('screenwidth',1600)),
+            'screenheight':int(tempway.get('screenheight',900)),
+            'refreshrate':float(tempway.get('refreshrate',60.0)),
+            'colordepth':int(tempway.get('colordepth',8))
          }
       }
       cfg2 = dict(cfg)
