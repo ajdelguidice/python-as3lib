@@ -1,5 +1,6 @@
 from as3lib import as3state, toplevel
 from io import StringIO
+from pathlib import Path
 try:
    import tomllib
 except:
@@ -57,6 +58,7 @@ def Load():
    if as3state._cfg != None:
       toplevel.trace("Error: Config has already been loaded")
       pass
+   #Load config from files
    configpath = as3state.librarydirectory / 'as3lib.toml'
    modified = False
    if configpath.exists():
@@ -68,6 +70,7 @@ def Load():
          'migrateOldConfig':bool(temp.get('migrateOldConfig',False)),
          'dependenciesPassed':bool(temp.get('dependenciesPassed',False)),
          'addedFeatures':bool(temp.get('addedFeatures',False)),
+         'flashVersion':tuple(temp.get('flashVersion',(32,0,0,371))),
          'mm.cfg':{
             'ErrorReportingEnable':bool(tempmm.get('ErrorReportingEnable',False)),
             'MaxWarnings':int(tempmm.get('MaxWarnings',100)),
@@ -88,6 +91,7 @@ def Load():
          'migrateOldConfig':True,
          'dependenciesPassed':False,
          'addedFeatures':False,
+         'flashVersion':(32,0,0,371), #I chose this version because it was the last version of flash before adobe's timebomb
          'mm.cfg':{
             'ErrorReportingEnable':False,
             'MaxWarnings':100,
@@ -143,6 +147,7 @@ def Load():
             'migrateOldConfig':False,
             'dependenciesPassed':False,
             'addedFeatures':False,
+            'flashVersion':(32,0,0,371),
             'mm.cfg':{
                'ErrorReportingEnable':oldcfg.getboolean('mm.cfg','ErrorReportingEnable',fallback=False),
                'MaxWarnings':100, #Reset value because I messed up the type
@@ -161,7 +166,22 @@ def Load():
          oldcfgpath.unlink(missing_ok=True)
       cfg['mm.cfg']['TraceOutputFileName'] = cfg['mm.cfg']['TraceOutputFileName'].strip('\'"') #Sometimes the value's quotes are left in the string
       cfg['migrateOldConfig'] = False
+   #Load some values into global state
    as3state._cfg = cfg
+   as3state.addedFeatures = cfg['addedFeatures']
+   as3state.hasDependencies = cfg['dependenciesPassed']
+   as3state.flashVersion = cfg['flashVersion']
+   as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
+   as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
+   as3state.TraceOutputFileEnable = cfg['mm.cfg']['TraceOutputFileEnable']
+   tempTraceOutputFileName = cfg['mm.cfg']['TraceOutputFileName']
+   as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
+   if not as3state.ClearLogsOnStartup:
+      as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
+   if as3state.TraceOutputFileEnable and (tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir()):
+      print('Warning: Something is wrong with the provided TraceOutputFileName. Using the default instead.')
+      tempTraceOutputFileName = as3state.librarydirectory / "flashlog.txt"
+   as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
    return modified
 
 def Save(saveAnyways:bool=False):

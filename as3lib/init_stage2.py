@@ -162,19 +162,22 @@ def dependencyCheck():
 def init():
    #set up variables needed by mutiple modules
    as3state.librarydirectory = Path(__file__).resolve().parent
-   save = config.Load()
-   as3state.hasDependencies = as3state._cfg['dependenciesPassed']
-   as3state.addedFeatures = as3state._cfg['addedFeatures']
    as3state.platform = platform.system()
-   if not as3state.hasDependencies:
-      dependencyCheck()
    as3state.separator = getSeparator()
    as3state.userdirectory = Path.home()
    as3state.desktopdirectory = getDesktopDir()
    as3state.documentsdirectory = getDocumentsDir()
-   as3state.defaultTraceFilePath = as3state.librarydirectory / "flashlog.txt"
    as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    as3state.pythonversion = platform.python_version()
+   
+   save = config.Load()
+   if not as3state.hasDependencies:
+      dependencyCheck()
+   if as3state.ClearLogsOnStartup:
+      if as3state.TraceOutputFileName.exists():
+         with open(as3state.TraceOutputFileName, "w") as f: 
+            f.write('')
+   
    if as3state.platform == "Linux":
       as3state.displayserver = getdmtype()
       as3state.dmname = getdmname()
@@ -194,23 +197,6 @@ def init():
       as3state.initerror.append((4,"Platform could not be determined"))
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
-   as3state.ErrorReportingEnable = as3state._cfg['mm.cfg']['ErrorReportingEnable']
-   as3state.MaxWarnings = as3state._cfg['mm.cfg']['MaxWarnings']
-   as3state.TraceOutputFileEnable = as3state._cfg['mm.cfg']['TraceOutputFileEnable']
-   tempTraceOutputFileName = as3state._cfg['mm.cfg']['TraceOutputFileName']
-   as3state.ClearLogsOnStartup = as3state._cfg['mm.cfg']['ClearLogsOnStartup']
-   if not as3state.ClearLogsOnStartup:
-      as3state.CurrentWarnings = as3state._cfg['mm.cfg']['NoClearWarningNumber']
-   if tempTraceOutputFileName == '':
-      tempTraceOutputFileName = as3state.defaultTraceFilePath
-   if Path(tempTraceOutputFileName).is_dir():
-      print("Path provided is a directory, writing to defualt location instead.")
-      tempTraceOutputFileName = as3state.defaultTraceFilePath
-   as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
-   if as3state.ClearLogsOnStartup:
-      if as3state.TraceOutputFileName.exists():
-         with open(as3state.TraceOutputFileName, "w") as f: 
-            f.write('')
    config.Save(save)
 
    #Report errors to user

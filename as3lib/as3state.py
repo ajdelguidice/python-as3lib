@@ -30,7 +30,6 @@ colordepth = "" #color depth of the display window (not implemented yet)
 as3DebugEnable = False #(True=enabled, False=disabled) state of debug mode
 CurrentWarnings = 0 #current number of warnings
 MaxWarningsReached = False #(True=yes, False=no)tells if the maximum number of warnings has been reached
-defaultTraceFilePath = "" #default file path for trace output
 defaultTraceFilePath_Flash = "" #default file path for trace output in flash
 appdatadirectory = None #the path to the application specific data directory (must be set by the application, should not be set by other libraries)
 
