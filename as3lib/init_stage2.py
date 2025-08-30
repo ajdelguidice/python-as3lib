@@ -69,7 +69,7 @@ def sm_x11():
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
 def sm_wayland():
-   temp = cfg['wayland']
+   temp = as3state._cfg['wayland']
    return temp['screenwidth'],temp['screenheight'],temp['refreshrate'],temp['colordepth']
 
 def sm_windows():
@@ -118,7 +118,6 @@ def getdmname():
    return "error"
 
 def dependencyCheck():
-   global cfg
    from importlib.util import find_spec
    hasDeps = True
    if as3state.platform == "Linux":
@@ -159,17 +158,14 @@ def dependencyCheck():
       as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
       hasDeps = False
    as3state.hasDependencies = hasDeps
-      
-cfg = None
 
 def init():
    #set up variables needed by mutiple modules
-   global cfg
    as3state.librarydirectory = Path(__file__).resolve().parent
-   cfg,save = config.Load()
-   as3state.addedFeatures = cfg['addedFeatures']
+   save = config.Load()
+   as3state.addedFeatures = as3state._cfg['addedFeatures']
    as3state.platform = platform.system()
-   if not cfg["dependenciesPassed"]:
+   if not as3state._cfg["dependenciesPassed"]:
       dependencyCheck()
    as3state.separator = getSeparator()
    as3state.userdirectory = Path.home()
@@ -197,13 +193,13 @@ def init():
       as3state.initerror.append((4,"Platform could not be determined"))
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
-   as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
-   as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
-   as3state.TraceOutputFileEnable = cfg['mm.cfg']['TraceOutputFileEnable']
-   tempTraceOutputFileName = cfg['mm.cfg']['TraceOutputFileName']
-   as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
+   as3state.ErrorReportingEnable = as3state._cfg['mm.cfg']['ErrorReportingEnable']
+   as3state.MaxWarnings = as3state._cfg['mm.cfg']['MaxWarnings']
+   as3state.TraceOutputFileEnable = as3state._cfg['mm.cfg']['TraceOutputFileEnable']
+   tempTraceOutputFileName = as3state._cfg['mm.cfg']['TraceOutputFileName']
+   as3state.ClearLogsOnStartup = as3state._cfg['mm.cfg']['ClearLogsOnStartup']
    if not as3state.ClearLogsOnStartup:
-      as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
+      as3state.CurrentWarnings = as3state._cfg['mm.cfg']['NoClearWarningNumber']
    if tempTraceOutputFileName == '':
       tempTraceOutputFileName = as3state.defaultTraceFilePath
    if Path(tempTraceOutputFileName).is_dir():
@@ -214,7 +210,7 @@ def init():
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
             f.write('')
-   config.Save(cfg, save)
+   config.Save(save)
 
    #Report errors to user
    if len(as3state.initerror) != 0:

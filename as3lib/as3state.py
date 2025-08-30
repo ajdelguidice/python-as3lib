@@ -13,6 +13,7 @@ spoofedFlashVersion = (32,0,0,371) #[majorVersion,minorVersion,buildNumber,inter
 #Note: this is the version I chose because it was the last version of flash before adobe's timebomb
 
 #Global config
+_cfg = None #DO NOT EDIT THIS. This is for determining if the config needs to be saved.
 hasDependencies = False
 addedFeatures = False #Enables features added by this library.
 ErrorReportingEnable = False #State of error reporting

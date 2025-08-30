@@ -55,7 +55,7 @@ class TOML:
 
 def Load():
    configpath = as3state.librarydirectory / 'as3lib.toml'
-   save = False
+   modified = False
    if configpath.exists():
       with configpath.open("rb") as f:
          temp = tomllib.load(f)
@@ -100,10 +100,10 @@ def Load():
             'colordepth':8
          }
       }
-      save = True
+      modified = True
    if cfg['migrateOldConfig']:
       from configparser import ConfigParser
-      save = True
+      modified = True
       mmcfgpath = as3state.librarydirectory / "mm.cfg"
       wlcfgpath = as3state.librarydirectory / "wayland.cfg"
       oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
@@ -158,9 +158,10 @@ def Load():
          oldcfgpath.unlink(missing_ok=True)
       cfg['mm.cfg']['TraceOutputFileName'] = cfg['mm.cfg']['TraceOutputFileName'].strip('\'"') #Sometimes the value's quotes are left in the string
       cfg['migrateOldConfig'] = False
-   return cfg, save
+   as3state._cfg = cfg
+   return modified
 
-def Save(config, saveAnyways:bool=False):
+def Save(saveAnyways:bool=False):
    tempcfg = {
          'migrateOldConfig':False,
          'dependenciesPassed':as3state.hasDependencies,
@@ -180,5 +181,5 @@ def Save(config, saveAnyways:bool=False):
             'colordepth':as3state.colordepth
          }
       }
-   if saveAnyways or config != tempcfg:
+   if saveAnyways or as3state._cfg != tempcfg:
       TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
