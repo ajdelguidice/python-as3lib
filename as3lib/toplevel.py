@@ -1535,7 +1535,7 @@ def _isValidDirectory(directory,separator=None):
    if isinstance(directory,PurePath):
       #While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
       temp = directory.resolve()
-      if confmod.platform == "Windows":
+      if as3state.platform == "Windows":
          while temp != temp.parent:
             #get directory name and convert it to uppercase since windows is not case sensitive
             tempname = temp.name.upper()
@@ -1563,7 +1563,7 @@ def _isValidDirectory(directory,separator=None):
             temp = temp.parent
    elif separator != None:
       directory = str(directory)
-      if confmod.platform == "Windows":
+      if as3state.platform == "Windows":
          #convert path to uppercase since windows is not cas sensitive
          directory = directory.upper()
          #remove trailing path separator
@@ -1586,7 +1586,7 @@ def _isValidDirectory(directory,separator=None):
             #invalid if last character is " " or "." or if name or name before a period is blacklisted
             if i.endswith((" ",".")) or i.split(".")[0] in WIN_BlacklistedNames:
                return False
-      elif confmod.platform in {"Linux","Darwin"}:
+      elif as3state.platform in {"Linux","Darwin"}:
          #remove trailing path separator
          if directory[-1] == separator:
             directory = directory[:-1]
@@ -1607,10 +1607,8 @@ def _isValidDirectory(directory,separator=None):
                if j in UNIX_BlacklistedChars:
                   return False
    return True
-def _resolveDir(dir_):
-   return str(Path(dir_).resolve())
 def setDataDirectory(directory:str|String):
-   if _isValidDirectory(_resolveDir(directory)) == True:
+   if _isValidDirectory(Path(directory)):
       as3state.appdatadirectory = directory
    else:
       Error(f"setDataDirectory; Directory {directory} not valid")
