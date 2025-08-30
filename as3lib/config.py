@@ -1,4 +1,4 @@
-from as3lib import as3state
+from as3lib import as3state, toplevel
 from io import StringIO
 try:
    import tomllib
@@ -54,6 +54,9 @@ class TOML:
             f.write(text.getvalue())
 
 def Load():
+   if as3state._cfg != None:
+      toplevel.trace("Error: Config has already been loaded")
+      pass
    configpath = as3state.librarydirectory / 'as3lib.toml'
    modified = False
    if configpath.exists():
