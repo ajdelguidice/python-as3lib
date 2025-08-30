@@ -1223,9 +1223,9 @@ class SyntaxError():
       trace(type(self), message, isError=True)
       self.error = message
 def trace(*args, isError=False):
-   if as3state.as3DebugEnable == True:
-      if isError == True and as3state.ErrorReportingEnable == 1:
-         if as3state.MaxWarningsReached == False:
+   if as3state.as3DebugEnable:
+      if isError == True and as3state.ErrorReportingEnable:
+         if not as3state.MaxWarningsReached:
             if as3state.CurrentWarnings < as3state.MaxWarnings or as3state.MaxWarnings == 0:
                output = f"Error:{args[0].__name__}; {args[1]}"
                as3state.CurrentWarnings += 1
@@ -1236,9 +1236,9 @@ def trace(*args, isError=False):
             pass
       else:
          output = ' '.join((str(i) for i in args))
-      if as3state.TraceOutputFileEnable == 1:
-         if as3state.TraceOutputFileName.exists() == True:
-            if as3state.TraceOutputFileName.is_file() == True:
+      if as3state.TraceOutputFileEnable:
+         if as3state.TraceOutputFileName.exists():
+            if as3state.TraceOutputFileName.is_file():
                with open(as3state.TraceOutputFileName, "a") as f:
                   f.write(output + "\n")
             else:

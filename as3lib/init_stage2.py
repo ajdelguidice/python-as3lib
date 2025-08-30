@@ -202,7 +202,7 @@ def init():
    as3state.TraceOutputFileEnable = cfg['mm.cfg']['TraceOutputFileEnable']
    tempTraceOutputFileName = cfg['mm.cfg']['TraceOutputFileName']
    as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
-   if as3state.ClearLogsOnStartup == 0:
+   if not as3state.ClearLogsOnStartup:
       as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
    if tempTraceOutputFileName == '':
       tempTraceOutputFileName = as3state.defaultTraceFilePath
@@ -210,7 +210,7 @@ def init():
       print("Path provided is a directory, writing to defualt location instead.")
       tempTraceOutputFileName = as3state.defaultTraceFilePath
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
-   if as3state.ClearLogsOnStartup == 1:
+   if as3state.ClearLogsOnStartup:
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
             f.write('')

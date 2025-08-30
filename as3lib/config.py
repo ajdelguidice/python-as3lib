@@ -53,7 +53,7 @@ class TOML:
          with open(file,mode) as f:
             f.write(text.getvalue())
 
-def Load(): #!Force values to be correct type
+def Load():
    configpath = as3state.librarydirectory / 'as3lib.toml'
    if configpath.exists():
       with configpath.open("rb") as f:
@@ -65,10 +65,10 @@ def Load(): #!Force values to be correct type
          'dependenciesPassed':bool(temp['dependenciesPassed']),
          'mm.cfg':{
             'ErrorReportingEnable':bool(tempmm.get('ErrorReportingEnable',False)),
-            'MaxWarnings':bool(tempmm.get('MaxWarnings',False)),
+            'MaxWarnings':int(tempmm.get('MaxWarnings',100)),
             'TraceOutputFileEnable':bool(tempmm.get('TraceOutputFileEnable',False)),
             'TraceOutputFileName':str(tempmm.get('TraceOutputFileName','')),
-            'ClearLogsOnStartup':int(tempmm.get('ClearLogsOnStartup',1)),
+            'ClearLogsOnStartup':bool(tempmm.get('ClearLogsOnStartup',True)),
             'NoClearWarningNumber':int(tempmm.get('NoClearWarningNumber',0))
          },
          'wayland':{
@@ -85,10 +85,10 @@ def Load(): #!Force values to be correct type
          'dependenciesPassed':False,
          'mm.cfg':{
             'ErrorReportingEnable':False,
-            'MaxWarnings':False,
+            'MaxWarnings':100,
             'TraceOutputFileEnable':False,
             'TraceOutputFileName':'',
-            'ClearLogsOnStartup':1,
+            'ClearLogsOnStartup':True,
             'NoClearWarningNumber':0
          },
          'wayland':{
@@ -109,12 +109,12 @@ def Load(): #!Force values to be correct type
          with open(mmcfgpath, 'r') as f:
             mmcfg.read_string('[dummy_section]\n' + f.read())
          cfg['mm.cfg'] = {
-            'ErrorReportingEnable':mmcfg.getboolean('dummy_section','ErrorReportingEnable',fallback=False),
-            'MaxWarnings':mmcfg.getboolean('dummy_section','MaxWarnings',fallback=False),
-            'TraceOutputFileEnable':mmcfg.getboolean('dummy_section','TraceOutputFileEnable',fallback=False),
+            'ErrorReportingEnable':True if mmcfg.getint('dummy_section','ErrorReportingEnable',fallback=0) == 1 else False,
+            'MaxWarnings':mmcfg.getint('dummy_section','MaxWarnings',fallback=100),
+            'TraceOutputFileEnable':True if mmcfg.getboolean('dummy_section','TraceOutputFileEnable',fallback=0) == 1 else False,
             'TraceOutputFileName':mmcfg.get('dummy_section','TraceOutputFileName',fallback=''),
-            'ClearLogsOnStartup':mmcfg.getint('dummy_section','ClearLogsOnStartup',fallback=1),
-            'NoClearWarningNumber':mmcfg.getint('dummy_section','ClearLogsOnStartup',fallback=0)
+            'ClearLogsOnStartup':True,
+            'NoClearWarningNumber':0
          }
          del mmcfg
       if wlcfgpath.exists():
@@ -138,10 +138,10 @@ def Load(): #!Force values to be correct type
             'dependenciesPassed':False,
             'mm.cfg':{
                'ErrorReportingEnable':oldcfg.getboolean('mm.cfg','ErrorReportingEnable',fallback=False),
-               'MaxWarnings':oldcfg.getboolean('mm.cfg','MaxWarnings',fallback=False),
+               'MaxWarnings':100, #Reset value because I messed up the type
                'TraceOutputFileEnable':oldcfg.getboolean('mm.cfg','TraceOutputFileEnable',fallback=False),
                'TraceOutputFileName':oldcfg.get('mm.cfg','TraceOutputFileName',fallback=''),
-               'ClearLogsOnStartup':oldcfg.getint('mm.cfg','ClearLogsOnStartup',fallback=1),
+               'ClearLogsOnStartup':True if oldcfg.getint('mm.cfg','ClearLogsOnStartup',fallback=1) == 1 else False,
                'NoClearWarningNumber':oldcfg.getint('mm.cfg','NoClearWarningNumber',fallback=0)
             },
             'wayland':{
