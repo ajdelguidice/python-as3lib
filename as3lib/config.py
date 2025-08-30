@@ -54,6 +54,51 @@ class TOML:
          with open(file,mode) as f:
             f.write(text.getvalue())
 
+def _dependencyCheck(cfgval):
+   if cfgval:
+      return True
+   from importlib.util import find_spec
+   from subprocess import check_output
+   hasDeps = True
+   if as3state.platform == "Linux":
+      wmt = check_output(('echo','$XDG_SESSION_TYPE')).decode("utf-8").replace("\n","")
+      if wmt == "wayland":
+         x=0
+      else:
+         if check_output(('which','xwininfo')).decode("utf-8").startswith("which: no"):
+            as3state.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
+            hasDeps = False
+         if check_output(('which','xrandr')).decode("utf-8").startswith("which: no"):
+            as3state.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
+            hasDeps = False
+      if check_output(('which','bash')).decode("utf-8").startswith("which: no"):
+         as3state.initerror.append((3,"Linux: requirement 'bash' not found"))
+         hasDeps = False
+      if check_output(('which','awk')).decode("utf-8").startswith("which: no"):
+         as3state.initerror.append((3,"Linux: requirement 'awk' not found"))
+         hasDeps = False
+      if check_output(('which','whoami')).decode("utf-8").startswith("which: no"):
+         as3state.initerror.append((3,"Linux: requirement 'whoami' not found"))
+         hasDeps = False
+      if check_output(('which','loginctl')).decode("utf-8").startswith("which: no"):
+         as3state.initerror.append((3,"Linux: requirement 'loginctl' not found"))
+         hasDeps = False
+      if check_output(('which','echo')).decode("utf-8").startswith("which: no") or check_output(('echo','test')).decode("utf-8").replace("\n","") != "test":
+         as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
+         hasDeps = False
+   elif as3state.platform == "Windows":...
+   elif as3state.platform == "Darwin":...
+   if find_spec('numpy') == None: #https://pypi.org/project/numpy
+      as3state.initerror.append((3,"Python: requirement 'numpy' not found"))
+      hasDeps = False
+   if find_spec('PIL') == None: #https://pypi.org/project/Pillow
+      as3state.initerror.append((3,"Python: requirement 'Pillow' not found"))
+      hasDeps = False
+   if find_spec('tkhtmlview') == None: #https://pypi.org/project/tkhtmlview
+      as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
+      hasDeps = False
+   return hasDeps
+
 def Load():
    if as3state._cfg != None:
       toplevel.trace("Error: Config has already been loaded")
@@ -169,7 +214,7 @@ def Load():
    #Load some values into global state
    as3state._cfg = cfg
    as3state.addedFeatures = cfg['addedFeatures']
-   as3state.hasDependencies = cfg['dependenciesPassed']
+   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'])
    as3state.flashVersion = cfg['flashVersion']
    as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
    as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
@@ -187,7 +232,7 @@ def Load():
       as3state.height = cfg['wayland']['screenheight']
       as3state.refreshrate = cfg['wayland']['refreshrate']
       as3state.colordepth = cfg['wayland']['colordepth']
-   return modified
+   Save(modified)
 
 def Save(saveAnyways:bool=False):
    tempcfg = {
@@ -207,7 +252,7 @@ def Save(saveAnyways:bool=False):
             'screenheight':as3state.height,
             'refreshrate':as3state.refreshrate,
             'colordepth':as3state.colordepth
-         } if as3state.displayserver == 'wayland' else {'screenwidth':0,'screenheight':0,'refreshrate':0,'colordepth':0}
+         } if as3state.displayserver == 'wayland' else {'screenwidth':1600,'screenheight':900,'refreshrate':60.0,'colordepth':8}
       }
    if saveAnyways or as3state._cfg != tempcfg:
       TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)

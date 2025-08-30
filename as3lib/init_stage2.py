@@ -106,48 +106,6 @@ def getdmtype():
             return temp2
    return "error"
 
-def dependencyCheck():
-   from importlib.util import find_spec
-   hasDeps = True
-   if as3state.platform == "Linux":
-      wmt = check_output(('echo','$XDG_SESSION_TYPE')).decode("utf-8").replace("\n","")
-      if wmt == "wayland":
-         x=0
-      else:
-         if check_output(('which','xwininfo')).decode("utf-8").startswith("which: no"):
-            as3state.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
-            hasDeps = False
-         if check_output(('which','xrandr')).decode("utf-8").startswith("which: no"):
-            as3state.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
-            hasDeps = False
-      if check_output(('which','bash')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'bash' not found"))
-         hasDeps = False
-      if check_output(('which','awk')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'awk' not found"))
-         hasDeps = False
-      if check_output(('which','whoami')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'whoami' not found"))
-         hasDeps = False
-      if check_output(('which','loginctl')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'loginctl' not found"))
-         hasDeps = False
-      if check_output(('which','echo')).decode("utf-8").startswith("which: no") or check_output(('echo','test')).decode("utf-8").replace("\n","") != "test":
-         as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
-         hasDeps = False
-   elif as3state.platform == "Windows":...
-   elif as3state.platform == "Darwin":...
-   if find_spec('numpy') == None: #https://pypi.org/project/numpy
-      as3state.initerror.append((3,"Python: requirement 'numpy' not found"))
-      hasDeps = False
-   if find_spec('PIL') == None: #https://pypi.org/project/Pillow
-      as3state.initerror.append((3,"Python: requirement 'Pillow' not found"))
-      hasDeps = False
-   if find_spec('tkhtmlview') == None: #https://pypi.org/project/tkhtmlview
-      as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
-      hasDeps = False
-   as3state.hasDependencies = hasDeps
-
 def init():
    #set up variables needed by mutiple modules
    as3state.librarydirectory = Path(__file__).resolve().parent
@@ -179,14 +137,11 @@ def init():
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
    
-   save = config.Load()
-   if not as3state.hasDependencies:
-      dependencyCheck()
+   config.Load()
    if as3state.ClearLogsOnStartup:
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
             f.write('')
-   config.Save(save)
 
    #Report errors to user
    if len(as3state.initerror) != 0:
