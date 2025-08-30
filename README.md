@@ -20,6 +20,6 @@ Linux:
 <br>&emsp;<a href="https://pypi.org/project/numpy">numpy</a>, <a href="https://pypi.org/project/Pillow">Pillow</a>, <a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>, <a href="https://pypi.org/project/tomli/">tomli (python < 3.11)</a>
 <h3>Config Files</h3>
 <b>&lt;library-directory&gt;/as3lib.toml</b> - This library's config file. This includes mm.cfg and wayland.cfg that were included in previous versions. Config will only be migrated if this file does not exist or if "migrateOldConfig" is set to true. |<a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a>|
-<br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - Old config gile.
+<br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - Old config file.
 <br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/mm.cfg</b> - Place your mm.cfg file from adobe flash player here before first running this library if you want to automatically migrate it, otherwise you can just enter the values into as3lib.toml yourself.
-<br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/wayland.cfg</b> - Generated on versions before 0.0.11 to hold the values that can not be fetched automatically. Now integrated into as3lib.toml.
+<br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/wayland.cfg</b> - Generated on versions before 0.0.11 to hold the values that can not be fetched automatically on wayland. Now integrated into as3lib.toml.
