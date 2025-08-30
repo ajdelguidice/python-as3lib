@@ -409,10 +409,9 @@ class Array(list):
       """
       if len(args) == 0:
          return Array(*self)
-      elif len(args) == 1 and isinstance(args[0],(list,tuple)): #!check whether this should be "if any element is array" or if it is only one
+      if len(args) == 1 and isinstance(args[0],(list,tuple)): #!check whether this should be "if any element is array" or if it is only one
          return self+list(args[0])
-      else:
-         return self+list(args)
+      return self+list(args)
    def every(self, callback:callable):
       """
       Executes a test function on each item in the array until an item is reached that returns False for the specified function. You use this method to determine whether all items in an array meet a criterion, such as having values less than a particular number.
@@ -514,10 +513,9 @@ class Array(list):
                result += f"{i}{sep}"
       if result[-lsep:] == sep:
          return result[:-lsep]
-      elif result[-1:] == ",":
+      if result[-1:] == ",":
          return result[:-1]
-      else:
-         return result
+      return result
    def lastIndexOf(self, searchElement, fromIndex:builtins.int|int=None):
       """
       Searches for an item in an array, working backward from the last item, and returns the index position of the matching item using ==.
@@ -627,17 +625,16 @@ class Array(list):
             x,y = str(x),str(y)
             if sortorder.index(x[0]) > sortorder.index(y[0]):
                return 1
-            elif sortorder.index(x[0]) < sortorder.index(y[0]):
+            if sortorder.index(x[0]) < sortorder.index(y[0]):
                return -1
-            elif sortorder.index(x[0]) == sortorder.index(y[0]):
+            if sortorder.index(x[0]) == sortorder.index(y[0]):
                if len(x) > 1 and len(y) > 1:
                   return s(x[1:],y[1:])
-               elif len(x) > 1:
+               if len(x) > 1:
                   return 1
-               elif len(y) > 1:
+               if len(y) > 1:
                   return -1
-               else:
-                  return 0
+               return 0
          with helpers.recursionDepth(100000):
             super().sort(key=cmp_to_key(s))
       elif len(args) == 1:
@@ -646,30 +643,29 @@ class Array(list):
          elif isfunction(args[0]):
             super().sort(key=lambda:cmp_to_key(args[0]))
          elif isinstance(args[0],(builtins.int,float,int,uint,Number)):
-            match args[0]:
-               case 1: #CASEINSENSITIVE
-                  raise Exception("Not Implemented Yet")
-               case 2: #DESCENDING
-                  raise Exception("Not Implemented Yet")
-               case 4: #UNIQUESORT
-                  raise Exception("Not Implemented Yet")
-               case 8: #RETURNINDEXEDARRAY
-                  raise Exception("Not Implemented Yet")
-               case 16: #NUMERIC
-                  def s(x,y):
-                     try:
-                        x,y = float(x),float(y)
-                     except:
-                        raise Exception("Array.sort: Error: Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
-                     if x > y:
-                        return 1
-                     elif x < y:
-                        return -1
-                     elif x == y:
-                        return 0
-                  super().sort(key=cmp_to_key(s))
-               case _:
-                  raise Exception(f"Array.sort: Error: sortOption {sortOption} is not implemented yet")
+            if args[0] == 1: #CASEINSENSITIVE
+               raise Exception("Not Implemented Yet")
+            elif args[0] == 2: #DESCENDING
+               raise Exception("Not Implemented Yet")
+            elif args[0] == 4: #UNIQUESORT
+               raise Exception("Not Implemented Yet")
+            elif args[0] == 8: #RETURNINDEXEDARRAY
+               raise Exception("Not Implemented Yet")
+            elif args[0] == 16: #NUMERIC
+               def s(x,y):
+                  try:
+                     x,y = float(x),float(y)
+                  except:
+                     raise Exception("Array.sort: Error: Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
+                  if x > y:
+                     return 1
+                  if x < y:
+                     return -1
+                  if x == y:
+                     return 0
+               super().sort(key=cmp_to_key(s))
+            else:
+               raise Exception(f"Array.sort: Error: sortOption {sortOption} is not implemented yet")
          elif type(args[0]) in (tuple,list,Array):
             raise Exception(f"Array.sort: Error: Using multiple sortOptions is not implemented yet")
       else:
@@ -722,10 +718,9 @@ class Array(list):
       """
       if formatLikePython == True:
          return super().__str__(self)
-      elif interpretation == 1:
+      if interpretation == 1:
          return self.__listtostr(self)
-      else:
-         return super().__str__(self)[1:-1].replace(", ",",")
+      return super().__str__(self)[1:-1].replace(", ",",")
    def unshift(self, *args):
       """
       Adds one or more elements to the beginning of an array and returns the new length of the array. The other elements in the array are moved from their original position, i, to i+1.
@@ -755,16 +750,16 @@ class Boolean:
    def _Boolean(self, expression=None, strrepbool:bool|Boolean=False):
       if isinstance(expression,bool):
          return expression
-      elif isinstance(expression,Boolean):
+      if isinstance(expression,Boolean):
          return expression._value
-      elif isinstance(expression,(builtins.int,float,uint,int,Number)):
+      if isinstance(expression,(builtins.int,float,uint,int,Number)):
          return False if expression == 0 else True
-      elif isinstance(expression,(NaN,null,undefined,None)):
+      if isinstance(expression,(NaN,null,undefined,None)):
          return False
-      elif isinstance(expression,str):
+      if isinstance(expression,str):
          if expression == "":
             return False
-         elif expression == "false":
+         if expression == "false":
             return False if strrepbool == True else True
          return True
    def toString(self, formatLikePython:bool|Boolean=False):
@@ -841,11 +836,11 @@ class int:
       #!It is unclear if most of this is included here, most is from the Number class
       if isinstance(value,(NaN,Infinity,NInfinity)):
          return value
-      elif isinstance(value,(builtins.int,int)):
+      if isinstance(value,(builtins.int,int)):
          return value
-      elif isinstance(value,(float,Number)):
+      if isinstance(value,(float,Number)):
          return m.floor(value)
-      elif isinstance(value,str):
+      if isinstance(value,str):
          try:
             return builtins.int(value)
          except:
@@ -886,7 +881,7 @@ class int:
          length = len(temp)
          if precision < length:
             return self.toExponential(precision-1)
-         elif precision == length:
+         if precision == length:
             return temp
          return f"{temp}.{'0'*(precision-length)}"
    def toString(self, radix:builtins.int|int|uint=10):
@@ -1026,9 +1021,9 @@ class Number:
       if value == 0:
          if self._value == 0:
             return Number(NaN())
-         elif self._value > 0:
+         if self._value > 0:
             return Number(Infinity())
-         elif self._value < 0:
+         if self._value < 0:
             return Number(NInfinity())
       else:
          try:
@@ -1042,17 +1037,17 @@ class Number:
    def _Number(self, expression):
       if isinstance(expression,(NInfinity,Infinity,float,Number)):
          return expression
-      elif isinstance(expression,(NoneType,NaN,undefined)):
+      if isinstance(expression,(NoneType,NaN,undefined)):
          return NaN()
-      elif isinstance(expression,(builtins.int,int)):
+      if isinstance(expression,(builtins.int,int)):
          return float(expression)
-      elif isinstance(expression,null):
+      if isinstance(expression,null):
          return 0.0
-      elif isinstance(expression,(bool,Boolean)):
+      if isinstance(expression,(bool,Boolean)):
          if expression == True:
             return 1.0
          return 0.0
-      elif isinstance(expression,str):
+      if isinstance(expression,str):
          if expression == "":
             return 0.0
          try:
@@ -1143,13 +1138,13 @@ class String(str):
    def _String(self, expression):
       if isinstance(expression,str):
          return expression
-      elif isinstance(expression,bool):
+      if isinstance(expression,bool):
          if expression == True:
             return "true"
          return "false"
-      elif isinstance(expression,(Array,Boolean,Number)):
+      if isinstance(expression,(Array,Boolean,Number)):
          return expression.toString()
-      elif isinstance(expression,NaN):
+      if isinstance(expression,NaN):
          return "NaN"
       return f"{expression}"
    def __getitem__(self, item):
@@ -1307,11 +1302,11 @@ class U29:
          l = len(bits)
          if l < 8:
             return f"0{'0'*(7-l)}{bits}"
-         elif l < 15:
+         if l < 15:
             return f"1{'0'*(14-l)}{bits[:-7]}0{bits[-7:]}"
-         elif l < 22:
+         if l < 22:
             return f"1{'0'*(21-l)}{bits[:-14]}1{bits[-14:-7]}0{bits[-7:]}"
-         elif l < 30:
+         if l < 30:
             return f"1{'0'*(29-l)}{bits[:-22]}1{bits[-22:-15]}1{bits[-15:-8]}{bits[-8:]}"
       else:
          RangeError("U29 integers must be between 0 and 536870911")
@@ -1511,20 +1506,19 @@ def formatTypeToName(arg:type):
    tempStr = f"{arg}"
    if tempStr.find(".") != -1:
       return tempStr.split(".")[-1].split("'")[0]
-   else:
-      return tempStr.split("'")[1]
+   return tempStr.split("'")[1]
 def isEven(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
    if isinstance(Num,(NaN,Infinity,NInfinity)):
       return False
-   elif isinstance(Num,(builtins.int,int,uint)):
+   if isinstance(Num,(builtins.int,int,uint)):
       return True if Num % 2 == 0 else False
-   elif isinstance(Num,(float,Number)):...
+   if isinstance(Num,(float,Number)):...
 def isOdd(Num:builtins.int|float|int|Number|uint|NaN|Infinity|NInfinity):
    if isinstance(Num,(NaN,Infinity,NInfinity)):
       return False
-   elif isinstance(Num,(builtins.int,int,uint)):
+   if isinstance(Num,(builtins.int,int,uint)):
       return False if Num % 2 == 0 else True
-   elif isinstance(Num,(float,Number)):...
+   if isinstance(Num,(float,Number)):...
 def objIsChildClass(obj,cls):
    """
    Checks both isinstance and issubclass for (obj,cls)
