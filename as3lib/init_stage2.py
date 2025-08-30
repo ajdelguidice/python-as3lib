@@ -3,17 +3,6 @@ from . import as3state, config
 from pathlib import Path
 from subprocess import check_output
 
-if platform.system() == "Windows":
-   from os import getlogin
-   import ctypes
-   try:
-      import win32api
-   except:
-      as3state.initerror.append((3,"pywin32 is required for operation on Windows but is either not installed or not accessible."))
-elif platform.system() in {"Linux","Darwin"}:
-   from os import getuid
-   from pwd import getpwuid
-
 """
 initerrors
 0 - platform not implemented
@@ -29,8 +18,11 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
    Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
    """
    if as3state.platform == "Windows":
+      from os import getlogin
       username = getlogin()
    elif as3state.platform in {"Linux","Darwin"}:
+      from os import getuid
+      from pwd import getpwuid
       username = getpwuid(getuid())[0]
    if versionOverride == True:
       if overrideSystem == "Linux":
@@ -71,6 +63,11 @@ def sm_x11():
 def sm_wayland():...
 
 def sm_windows():
+   import ctypes
+   try:
+      import win32api
+   except:
+      as3state.initerror.append((3,"Windows: requirement pywin32 either not installed or not accessible."))
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
    temp = tuple(getattr(settings,i) for i in ('DisplayFrequency','BitsPerPel'))
    return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[0]), int(temp[1])
