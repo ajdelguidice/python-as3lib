@@ -166,7 +166,7 @@ def init():
    #set up variables needed by mutiple modules
    global cfg
    as3state.librarydirectory = Path(__file__).resolve().parent
-   cfg,cfg2 = config.Load()
+   cfg,save = config.Load()
    as3state.addedFeatures = cfg['addedFeatures']
    as3state.platform = platform.system()
    if not cfg["dependenciesPassed"]:
@@ -214,8 +214,7 @@ def init():
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f: 
             f.write('')
-   config.Save(cfg)
-   del cfg
+   config.Save(cfg, save)
 
    #Report errors to user
    if len(as3state.initerror) != 0:
