@@ -1,15 +1,12 @@
 """
 Note to self: remove all of the things that could change outside of this library
     Display stuff should not change (as defined by the actionscript documentation)
-    Things that can not be changed include things like: spoofedFlashVersion
 """
 platform = "" #Windows, Linux, or Darwin
 displayserver = "" #linux (x11 or wayland) or darwin (x11 or native) only
-dmname = "" #linux only, name of the program managing the display (window manager or compositor)
 librarydirectory = "" #full path to as3lib (this library)
 pythonversion = "" #version of python currently running
 interfaceType = "" #type of interface (Tkinter, or whatever else I decide to use)
-
 
 #Global config
 _cfg = None #DO NOT EDIT THIS. This is for determining if the config needs to be saved.
@@ -27,11 +24,11 @@ refreshrate = "" #refresh rate of the display window (not implemented yet)
 colordepth = "" #color depth of the display window (not implemented yet)
 
 #toplevel
-as3DebugEnable = False #(True=enabled, False=disabled) state of debug mode
-CurrentWarnings = 0 #current number of warnings
-MaxWarningsReached = False #(True=yes, False=no)tells if the maximum number of warnings has been reached
-defaultTraceFilePath_Flash = "" #default file path for trace output in flash
-appdatadirectory = None #the path to the application specific data directory (must be set by the application, should not be set by other libraries)
+as3DebugEnable = False #State of debug mode
+CurrentWarnings = 0 #Current number of warnings
+MaxWarningsReached = False #If the maximum number of warnings has been reached
+defaultTraceFilePath_Flash = "" #Default file path for trace output in flash
+appdatadirectory = None #The path to the application specific data directory (must be set by the application, should not be set by other libraries)
 
 #flash.display
 windows = {} #dictionary containing all of the defined windows (not implemented yet)

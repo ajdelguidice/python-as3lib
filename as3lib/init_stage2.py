@@ -10,7 +10,7 @@ if platform.system() == "Windows":
       import win32api
    except:
       as3state.initerror.append((3,"pywin32 is required for operation on Windows but is either not installed or not accessible."))
-elif platform.system() in ("Linux","Darwin"):
+elif platform.system() in {"Linux","Darwin"}:
    from os import getuid
    from pwd import getpwuid
 
@@ -68,9 +68,7 @@ def sm_x11():
    tempheight = check_output("xwininfo -root | grep Height", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
    return int(tempwidth),int(tempheight),float(temprr),int(cdp)
 
-def sm_wayland():
-   temp = as3state._cfg['wayland']
-   return temp['screenwidth'],temp['screenheight'],temp['refreshrate'],temp['colordepth']
+def sm_wayland():...
 
 def sm_windows():
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
@@ -106,15 +104,6 @@ def getdmtype():
          temp2 = i.split("=")[-1]
          if temp2 in {"x11","wayland"}:
             return temp2
-   return "error"
-
-def getdmname():
-   temp = check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Desktop",shell=True).decode("utf-8")
-   for i in temp.split("\n"):
-      if len(i) > 0:
-         temp2 = i.split("=")[-1]
-         if len(temp2) > 0:
-            return temp2.lower()
    return "error"
 
 def dependencyCheck():
@@ -170,21 +159,13 @@ def init():
    as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    as3state.pythonversion = platform.python_version()
    
-   save = config.Load()
-   if not as3state.hasDependencies:
-      dependencyCheck()
-   if as3state.ClearLogsOnStartup:
-      if as3state.TraceOutputFileName.exists():
-         with open(as3state.TraceOutputFileName, "w") as f: 
-            f.write('')
-   
    if as3state.platform == "Linux":
       as3state.displayserver = getdmtype()
-      as3state.dmname = getdmname()
       if as3state.displayserver == "x11":
          as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_x11()
       elif as3state.displayserver == "wayland":
-         as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
+         #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
+         ... #Loaded from config
       else:
          as3state.initerror.append((2,f"windowmanagertype \"{as3state.windowmanagertype}\" not supported"))
    elif as3state.platform == "Windows":
@@ -197,6 +178,14 @@ def init():
       as3state.initerror.append((4,"Platform could not be determined"))
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
+   
+   save = config.Load()
+   if not as3state.hasDependencies:
+      dependencyCheck()
+   if as3state.ClearLogsOnStartup:
+      if as3state.TraceOutputFileName.exists():
+         with open(as3state.TraceOutputFileName, "w") as f: 
+            f.write('')
    config.Save(save)
 
    #Report errors to user

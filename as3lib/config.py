@@ -182,6 +182,11 @@ def Load():
       print('Warning: Something is wrong with the provided TraceOutputFileName. Using the default instead.')
       tempTraceOutputFileName = as3state.librarydirectory / "flashlog.txt"
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
+   if as3state.displayserver == 'wayland':
+      as3state.width = cfg['wayland']['screenwidth']
+      as3state.height = cfg['wayland']['screenheight']
+      as3state.refreshrate = cfg['wayland']['refreshrate']
+      as3state.colordepth = cfg['wayland']['colordepth']
    return modified
 
 def Save(saveAnyways:bool=False):
