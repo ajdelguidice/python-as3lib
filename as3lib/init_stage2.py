@@ -163,9 +163,10 @@ def init():
    #set up variables needed by mutiple modules
    as3state.librarydirectory = Path(__file__).resolve().parent
    save = config.Load()
+   as3state.hasDependencies = as3state._cfg['dependenciesPassed']
    as3state.addedFeatures = as3state._cfg['addedFeatures']
    as3state.platform = platform.system()
-   if not as3state._cfg["dependenciesPassed"]:
+   if not as3state.hasDependencies:
       dependencyCheck()
    as3state.separator = getSeparator()
    as3state.userdirectory = Path.home()
