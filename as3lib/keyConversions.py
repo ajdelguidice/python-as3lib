@@ -7,22 +7,19 @@ def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       return Linux.mouseButtonNameToTkname(name)
    elif as3state.platform == "Windows":
       return Windows.mouseButtonNameToTkname(name)
-   elif as3state.platform == "Darwin":
-      pass
+   elif as3state.platform == "Darwin":...
 def tkeventToMouseButtonName(event):
    if as3state.platform == "Linux":
       return Linux.tkeventToMouseButtonName(event)
    elif as3state.platform == "Windows":
       return Windows.tkeventToMouseButtonName(event)
-   elif as3state.platform == "Darwin":
-      pass
+   elif as3state.platform == "Darwin":...
 def tkeventToJavascriptKeycode(event):
    if as3state.platform == "Linux":
       return Linux.tkeventToJavascriptKeycode(event)
    elif as3state.platform == "Windows":
       return Windows.tkeventToJavascriptKeycode(event)
-   elif as3state.platform == "Darwin":
-      pass
+   elif as3state.platform == "Darwin":...
 class Linux:
    def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
@@ -43,18 +40,18 @@ class Linux:
 class Windows:
    def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
-         return
+         return 1
       elif name == "Middle":
-         return
+         return 2
       elif name == "Right":
-         return
+         return 3
    def tkeventToMouseButtonName(event):
       if event.num == 1:
-         return
+         return "Left"
       elif event.num == 2:
-         return
+         return "Middle"
       elif event.num == 3:
-         return
+         return "Right"
    def tkeventToJavascriptKeycode(event):
       #!This could possibly just be "return event.keycode" because all values are the same
       return (None,None,None,None,None,None,None,None,8,9,None,None,None,13,None,None,16,17,18,19,20,None,None,None,None,None,None,27,None,None,None,None,32,33,34,35,36,37,38,39,40,None,None,None,None,45,46,None,48,49,50,51,52,53,54,55,56,57,None,None,None,None,None,None,None,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,None,None,None,None,96,97,98,99,100,101,102,103,104,105,106,107,None,109,110,111,112,113,114,115,116,117,118,119,120,121,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,144,145,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,186,187,188,189,190,191,192,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,219,220,221,222)[event.keycode]
@@ -73,8 +70,7 @@ class Darwin_X11:
          return "Middle"
       elif event.num == 3:
          return "Right"
-   def tkeventToJavascriptKeycode(event):
-      pass
+   def tkeventToJavascriptKeycode(event):...
 class Darwin:
    def mouseButtonNameToTkname(name:Union[str, toplevel.String]):
       if name == "Left":
@@ -90,6 +86,4 @@ class Darwin:
          return "Right"
       elif event.num == 3:
          return "Middle"
-   def tkeventToJavascriptKeycode(event):
-      pass
- 
+   def tkeventToJavascriptKeycode(event):...
