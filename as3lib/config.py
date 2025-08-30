@@ -170,7 +170,7 @@ def Save(saveAnyways:bool=False):
             'ErrorReportingEnable':as3state.ErrorReportingEnable,
             'MaxWarnings':as3state.MaxWarnings,
             'TraceOutputFileEnable':as3state.TraceOutputFileEnable,
-            'TraceOutputFileName':as3state.TraceOutputFileName,
+            'TraceOutputFileName':str(as3state.TraceOutputFileName),
             'ClearLogsOnStartup':as3state.ClearLogsOnStartup,
             'NoClearWarningNumber':0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
          },
