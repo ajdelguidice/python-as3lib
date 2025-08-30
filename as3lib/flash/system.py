@@ -81,7 +81,7 @@ class Capabilities:
     #touchscreenType
     @cache
     def _getVer():
-        tempfv = as3state.spoofedFlashVersion
+        tempfv = as3state.flashVersion
         if as3state.platform == "Windows":
             return f"Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
         if as3state.platform == "Linux":

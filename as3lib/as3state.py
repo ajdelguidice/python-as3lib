@@ -9,13 +9,13 @@ dmname = "" #linux only, name of the program managing the display (window manage
 librarydirectory = "" #full path to as3lib (this library)
 pythonversion = "" #version of python currently running
 interfaceType = "" #type of interface (Tkinter, or whatever else I decide to use)
-spoofedFlashVersion = (32,0,0,371) #[majorVersion,minorVersion,buildNumber,internalBuildNumber]
-#Note: this is the version I chose because it was the last version of flash before adobe's timebomb
+
 
 #Global config
 _cfg = None #DO NOT EDIT THIS. This is for determining if the config needs to be saved.
 hasDependencies = False
 addedFeatures = False #Enables features added by this library.
+flashVersion = (32,0,0,371) #this currently doesn't do anything [majorVersion,minorVersion,buildNumber,internalBuildNumber]
 ErrorReportingEnable = False #State of error reporting
 MaxWarnings = 100 #Maximum number of warnings until they are suppressed
 TraceOutputFileEnable = False #Determines whether to output "trace" to a file or to the console
