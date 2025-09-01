@@ -109,6 +109,7 @@ def Load():
    if configpath.exists():
       with configpath.open("rb") as f:
          temp = tomllib.load(f)
+      as3state._cfg = temp
       tempmm = temp.get('mm.cfg')
       tempway = temp.get('wayland')
       cfg = {
@@ -212,7 +213,6 @@ def Load():
       cfg['mm.cfg']['TraceOutputFileName'] = cfg['mm.cfg']['TraceOutputFileName'].strip('\'"') #Sometimes the value's quotes are left in the string
       cfg['migrateOldConfig'] = False
    #Load some values into global state
-   as3state._cfg = cfg
    as3state.addedFeatures = cfg['addedFeatures']
    as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'])
    as3state.flashVersion = cfg['flashVersion']
@@ -258,3 +258,4 @@ def Save(saveAnyways:bool=False):
       }
    if saveAnyways or as3state._cfg != tempcfg:
       TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
+      as3state._cfg = tempcfg
