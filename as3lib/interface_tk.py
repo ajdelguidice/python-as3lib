@@ -3,8 +3,7 @@ from tkinter import filedialog
 from tkinter.ttk import Combobox, Notebook
 import tkhtmlview
 import PIL
-import math
-from io import BytesIO as btio
+from io import BytesIO
 from as3lib import toplevel as as3
 try:
    from as3lib import cmath
@@ -152,8 +151,7 @@ class ComboEntryBox:
             for i in {self.frame,self.label,self.entry,self.button}:
                i[attr] = value
    def configurePlace(self,**kwargs):
-      k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"})
-      for i in k:
+      for i in (set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"}):
          self._properties[i] = kwargs[i]
       self.__resizeandplace()
    def getEntry(self,number,*args):
@@ -162,14 +160,10 @@ class ComboEntryBox:
       return [i.get() for i in self.entries]
    def destroy(self):
       self.frame.destroy()
-class FileBoxWithLabels:
-   pass
-class EntryBoxWithCheckBox:
-   pass
-class CheckBoxWithLabel:
-   pass
-class ComboboxWithCheckBox:
-   pass
+class FileBoxWithLabels:...
+class EntryBoxWithCheckBox:...
+class CheckBoxWithLabel:...
+class ComboboxWithCheckBox:...
 class ComboLabelWithRadioButtons(tkinter.Label):
    def __init__(self, master=None, numOptions:int=2, **kwargs):
       self.frame = tkinter.Frame(master)
@@ -422,12 +416,11 @@ class ComboCheckboxUserEntry:
    background=property(fget=_getBackground,fset=changeBackground)
    def configurePlace(self,**kwargs):
       #add text2
-      k = list(set(kwargs.keys()) & {"x","y","width","height","anchor","indent","entrywidth","text2"})
-      for i in k:
-         if i != "text2":
-            self._properties[i] = kwargs[i]
-         else:
+      for i in (set(kwargs.keys()) & {"x","y","width","height","anchor","indent","entrywidth","text2"}):
+         if i == "text2":
             self._properties["text2"][0] = kwargs[i]
+         else:
+            self._properties[i] = kwargs[i]
       self.__resizeandplace()
    def _getFont(self):
       return self.l1["font"]
@@ -454,29 +447,23 @@ class DefaultIcon:
 
 class window:
    __slots__ = ("windowproperties","children","childproperties","imagedict","htmlproperties","sbsettings","aboutwindow","menubar")
-   def __init__(self,width,height,title="Python",type_="frame",color="#FFFFFF",mainwindow:bool=True,defaultmenu:bool=True,nomenu:bool=None,dwidth=None,dheight=None,flashIcon=False):
+   def __init__(self,width,height,title="Python",color="#FFFFFF",mainwindow:bool=True,defaultmenu:bool=True,nomenu:bool=False,dwidth=None,dheight=None,flashIcon=False):
       self.windowproperties = {"oldmult":100,"fullscreen":False,"startwidth":width,"startheight":height,"dwidth":dwidth,"dheight":dheight,"mainwindow":mainwindow,"color":color}
       self.children = {}
       self.childproperties = {} #{childName: [ChildType,x,y,width,height,font,anchor,<childType>Attributes:list]
+      self.menubar = {}
       self.imagedict = {"":[0,[0,0],"",""]} # imagename:[references=numReferences,osize=[width,height],oimage=data,rimage=data]
       if mainwindow == True:
          self.aboutwindow = [False,"placeholdertext",{}]
-      else:
-         self.aboutwindow = None
-      #if width < 262:
-      #   width = 262
-      self.windowproperties["startwidth"] = width
-      self.windowproperties["startheight"] = height
-      self.menubar = {}
-      if mainwindow == True:
          self.children["root"] = tkinter.Tk()
       else:
+         self.aboutwindow = None
          self.children["root"] = tkinter.Toplevel()
       if flashIcon == False:
          self.setIcon(fileBytes=DefaultIcon.FLASH_PY)
       else:
          self.setIcon(fileBytes=DefaultIcon.FLASH)
-      if nomenu in {None,False}:
+      if nomenu == False:
          if defaultmenu == True:
             self.menubar["root"] = tkinter.Menu(self.children["root"], bd=1)
             self.menubar["filemenu"] = tkinter.Menu(self.menubar["root"], tearoff=0)
@@ -498,24 +485,12 @@ class window:
             self.menubar["root"] = tkinter.Menu(self.children["root"], bd=1)
             self.children["root"].config(menu=self.menubar["root"])
       self.children["root"].title(title)
-      if dwidth == None:
-         self.windowproperties["dwidth"] = self.windowproperties["startwidth"]
-      else:
-         self.windowproperties["dwidth"] = dwidth
-      if dheight == None:
-         self.windowproperties["dheight"] = self.windowproperties["startheight"]
-      else:
-         self.windowproperties["dheight"] = dheight
+      self.windowproperties["dwidth"] = self.windowproperties["startwidth"] if dwidth == None else dwidth
+      self.windowproperties["dheight"] = self.windowproperties["startheight"] if dheight == None else dheight
       if as3state.width not in {-1,None} and as3state.height not in {-1,None}:
          self.children["root"].maxsize(as3state.width,as3state.height)
-      if type_ == "canvas":
-         self.children["display"] = tkinter.Canvas(self.children["root"], background=self.windowproperties["color"], confine=True)
-         self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
-      elif type_ == "frame":
-         self.children["display"] = tkinter.Frame(self.children["root"], background=self.windowproperties["color"])
-         self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
-      else:
-         raise Exception("type_ must be either frame or canvas.")
+      self.children["display"] = tkinter.Frame(self.children["root"], background=self.windowproperties["color"])
+      self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
       self.children["root"].bind("<Configure>",self.doResize)
       self.children["root"].geometry(f"{self.windowproperties['dwidth']}x{self.windowproperties['dheight']}")
       self.children["root"].bind("<Escape>",self.outfullscreen)
@@ -529,11 +504,6 @@ class window:
       self.children["root"].lift()
    def forceFocus(self, child:str):
       self.children[child].focus_force()
-   def round(self, num): #!Unused
-      tempStr = "." + f"{num}".split(".")[1]
-      if float(tempStr) >= 0.5: #0.85? 0.5? 1?
-         return math.ceil(num)
-      return math.floor(num)
    def minimumSize(self,type_:str="b",**kwargs):
       """
       type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
@@ -561,11 +531,11 @@ class window:
          self.children["root"].minsize(262,int((262*self.windowproperties["startheight"])/self.windowproperties["startwidth"]))
    def resizefont(self, font:tuple, mult):
       return (font[0],cmath.resizefont(font[1],mult))
-   def setIcon(self,file=None,fileBytes=None):
+   def setIcon(self, file=None, fileBytes=None):
       if file != None:
          img = file
       elif fileBytes != None:
-         img = btio(fileBytes)
+         img = BytesIO(fileBytes)
       else:
          as3.trace("interface_tk.window.setIcon: Error: called but no icon specified")
          pass
@@ -629,12 +599,10 @@ class window:
    def addButton(self, master:str, name:str, x, y, width, height, font, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Button(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -643,12 +611,10 @@ class window:
    def addLabel(self, master:str, name:str, x, y, width, height, font, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Label(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -657,12 +623,10 @@ class window:
    def addnwhLabel(self, master:str, name:str, x, y, font, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Label(self.children[master])
          self.children[name].place(x=x,y=y,anchor=anchor)
@@ -671,12 +635,10 @@ class window:
    def addFrame(self, master:str, name:str, x, y, width, height, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Frame(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -685,12 +647,10 @@ class window:
    def addHTMLScrolledText(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", sbscaling:bool=True, sbwidth:int=12, border:bool=True):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkhtmlview.HTMLScrolledText(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -701,12 +661,10 @@ class window:
    def addHTMLText(self, master:str, name:str, x, y, width, height, font, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = HTMLText(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -736,18 +694,16 @@ class window:
       if size != None:
          self.imagedict[image_name][1] = [size[0],size[1]]
       else:
-         ims = PIL.Image.open(btio(image_data)).size
+         ims = PIL.Image.open(BytesIO(image_data)).size
          self.imagedict[image_name][1] = [ims[0],ims[1]]
       self.resizeImage((self.imagedict[image_name][1][0],self.imagedict[image_name][1][1]), image_name)
    def addImageLabel(self, master:str, name:str, x, y, width, height, anchor:str="nw", image_name:str=""):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Label(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -758,12 +714,10 @@ class window:
    def addScrolledListbox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", sbscaling:bool=True, sbwidth:int=12):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = ScrolledListbox(self.children[master])
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -776,12 +730,10 @@ class window:
    def addEntry(self, master:str, name:str, x, y, width, height, font, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.childproperties[name] = ["Entry",x,y,width,height,font,anchor,[tkinter.StringVar()]]
          self.children[name] = tkinter.Entry(self.children[master],textvariable=self.childproperties[name][7][0])
@@ -790,12 +742,10 @@ class window:
    def addCheckboxWithLabel(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text=""):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text,entrytype="Single")
          self.childproperties[name] = ["CheckboxWithLabel",x,y,width,height,font,anchor,None]
@@ -803,15 +753,12 @@ class window:
    def addCheckboxlabelWithEntry(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
-      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
+      elif not (isinstance(text2[0],(int,as3.int)) and isinstance(text2[1],str)):
          as3.trace("Invalid text2")
-         pass
       else:
          self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text1=text1,text2=text2,entrytype="Entry",entrywidth=entrywidth,indent=indent)
          self.childproperties[name] = ["CheckboxlabelWithEntry",x,y,width,height,font,anchor,[indent,entrywidth,text2[0]]]
@@ -819,15 +766,12 @@ class window:
    def addCheckboxlabelWithCombobox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0, combovalues:list|tuple=()):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
-      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
+      elif not (isinstance(text2[0],(int,as3.int)) and isinstance(text2[1],str)):
          as3.trace("Invalid text2")
-         pass
       else:
          self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text1=text1,text2=text2,entrytype="Combo",entrywidth=entrywidth,indent=indent,combovalues=combovalues)
          self.childproperties[name] = ["CheckboxlabelWithCombobox",x,y,width,height,font,anchor,[indent,entrywidth,text2[0]]]
@@ -835,15 +779,12 @@ class window:
    def addFileEntryBox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0, filetype:str="dir"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
-      elif not isinstance(text2[0],(int,as3.int)) or not isinstance(text2[1],str):
+      elif not (isinstance(text2[0],(int,as3.int)) and isinstance(text2[1],str)):
          as3.trace("Invalid text2")
-         pass
       else:
          self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text1=text1,text2=text2,entrytype="File",entrywidth=entrywidth,indent=indent,filetype=filetype)
          self.childproperties[name] = ["FileEntryBox",x,y,width,height,font,anchor,[indent,entrywidth,text2[0]]]
@@ -851,12 +792,10 @@ class window:
    def addNotebook(self, master:str, name:str, x:int=None, y:int=None, width:int=None, height:int=None, anchor:str="nw"):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = Notebook(self.children[master])
          if x != None and y != None and width != None and height != None:
@@ -869,12 +808,10 @@ class window:
    def addNBFrame(self, master:str, name:str, width:int, height:int, text:str=""):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = tkinter.Frame(self.children[master],width=width,height=height)
          self.children[master].add(self.children[name],text=text)
@@ -883,12 +820,10 @@ class window:
    def addLabelWithRadioButtons(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", numOptions:int=2):
       if master == "root":
          master = "display"
-      if as3.isXMLName(master) == False:
+      if not as3.isXMLName(master):
          as3.trace("Invalid Master")
-         pass
-      elif as3.isXMLName(name) == False:
+      elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-         pass
       else:
          self.children[name] = ComboLabelWithRadioButtons(self.children[master],numOptions)
          self.children[name].place(x=x,y=y,width=width,height=height,anchor=anchor)
@@ -896,7 +831,7 @@ class window:
          self.resizeChild(name, self.windowproperties["oldmult"])
    def resizeImage(self, size:tuple, image_name):
       if image_name != "":
-         img = PIL.Image.open(btio(self.imagedict[image_name][2]))
+         img = PIL.Image.open(BytesIO(self.imagedict[image_name][2]))
          img.thumbnail(size)
          self.imagedict[image_name][3] = PIL.ImageTk.PhotoImage(img)
    def resizeChildren(self, mult):
@@ -1118,7 +1053,7 @@ if __name__ == "__main__":
    root.configureChild("testtext2", text="HTMLTextTest\n\ntext", cursor="arrow", wrap="word")
    root.configureChild("testbutton1", text="st_colourtest")
    root.configureChild("testlabel1", text="TestLabel")
-   secondwindow = window(400,400,title="Second Window",type_="frame",mainwindow=False,nomenu=True)
+   secondwindow = window(400,400,title="Second Window",mainwindow=False,nomenu=True)
    secondwindow.group(root.children["root"])
    root.addButton("root","testbutton2",0,0,130,30,("Times New Roman",12))
    root.configureChild("testbutton2",command=lambda: secondwindow.toTop()) 
