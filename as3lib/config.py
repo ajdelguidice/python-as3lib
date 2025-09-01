@@ -223,6 +223,8 @@ def Load():
    as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
    if not as3state.ClearLogsOnStartup:
       as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
+      if as3state.MaxWarnings != 0 and as3state.CurrentWarnings >= as3state.MaxWarnings:
+         as3state.MaxWarningsReached = True
    if as3state.TraceOutputFileEnable and (tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir()):
       print('Warning: Something is wrong with the provided TraceOutputFileName. Using the default instead.')
       tempTraceOutputFileName = as3state.librarydirectory / "flashlog.txt"
