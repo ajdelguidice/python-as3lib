@@ -71,9 +71,6 @@ def sm_windows():
 
 def sm_darwin():...
 
-def getSeparator():
-   return "\\" if as3state.platform == "Windows" else "/"
-
 def getDesktopDir():
    if as3state.platform == "Linux":
       deskdir = check_output(('echo','$XDG_DOCUMENTS_DIR')).decode("utf-8").replace("\n","")
@@ -100,7 +97,7 @@ def init():
    #set up variables needed by mutiple modules
    as3state.librarydirectory = Path(__file__).resolve().parent
    as3state.platform = platform.system()
-   as3state.separator = getSeparator()
+   as3state.separator = "\\" if as3state.platform == "Windows" else "/"
    as3state.userdirectory = Path.home()
    as3state.desktopdirectory = getDesktopDir()
    as3state.documentsdirectory = getDocumentsDir()
