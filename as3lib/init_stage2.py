@@ -45,15 +45,12 @@ def sm_x11():
    """
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    """
-   xr = check_output(('xrandr','--current')).decode("utf-8").split("\n")
-   for option in xr:
+   for option in check_output(('xrandr','--current')).decode("utf-8").split("\n"):
       if option.find("*") != -1:
-         ops = [i for i in option.split(" ") if  i != ""]
-         ops.pop(0)
-         break
-   for i in ops:
-      if i.find("*") != -1:
-         temprr = i.replace("*","").replace("+","")
+         for i in [i for i in option.split(" ") if  i != ""][1:]:
+            if i.find("*") != -1:
+               temprr = i.replace("*","").replace("+","")
+               break
          break
    cdp = check_output("xwininfo -root | grep Depth", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
    tempwidth = check_output("xwininfo -root | grep Width", shell=True).decode("utf-8").replace("\n","").replace(" ","").split(":")[1]
@@ -72,13 +69,10 @@ def sm_windows():
    temp = tuple(getattr(settings,i) for i in ('DisplayFrequency','BitsPerPel'))
    return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[0]), int(temp[1])
 
-def sm_darwin():
-   pass
+def sm_darwin():...
 
 def getSeparator():
-   if as3state.platform == "Windows":
-      return "\\"
-   return "/"
+   return "\\" if as3state.platform == "Windows" else "/"
 
 def getDesktopDir():
    if as3state.platform == "Linux":
@@ -95,8 +89,7 @@ def getDocumentsDir():
    return as3state.userdirectory / "Documents"
 
 def getdmtype():
-   temp = check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8")
-   for i in temp.split("\n"):
+   for i in check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8").split("\n"):
       if len(i) > 0:
          temp2 = i.split("=")[-1]
          if temp2 in {"x11","wayland"}:
