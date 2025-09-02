@@ -1,6 +1,6 @@
 import as3lib.toplevel as as3
 from as3lib import metaclasses, as3state
-from subprocess import check_output as co
+from subprocess import check_output
 from subprocess import CalledProcessError as CPE
 from typing import Union
 
@@ -68,13 +68,13 @@ class File:
    def getRootDirectories(self):
       #!Change returned values inside of the arrays into File objects
       if as3state.platform == "Windows":
-         drives = f"{co("fsutil fsinfo drives",shell=True)}".replace(" ","").replace("\\r","").split("Drives:")[1].replace("\\n'","").split("\\")
+         drives = check_output(('fsutil','fsinfo','drives')).decode('utf-8').replace(" ","").replace("\r","").split("Drives:")[1].replace("\n'","").split("\\")
          tempDrives = as3.Array()
          for i in drives:
-            if i == "":
+            if i == '':
                continue
             try:
-               tempStatus = f"{co(f"fsutil fsinfo volumeinfo {i}",shell=True)}"
+               tempStatus = check_output(('fsutil','fsinfo','volumeinfo',i))
                tempDrives.push(File(i))
             except CPE as e:
                if "not ready" in f"{e.output}":
