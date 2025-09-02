@@ -241,6 +241,7 @@ def Save(saveAnyways:bool=False):
          'migrateOldConfig':False,
          'dependenciesPassed':as3state.hasDependencies,
          'addedFeatures':as3state.addedFeatures,
+         'flashVersion':as3state.flashVersion,
          'mm.cfg':{
             'ErrorReportingEnable':as3state.ErrorReportingEnable,
             'MaxWarnings':as3state.MaxWarnings,
