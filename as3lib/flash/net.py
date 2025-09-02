@@ -4,6 +4,7 @@ from as3lib.flash.events import Event, EventDispatcher #, HTTPStatusEvent, IOErr
 from as3lib import metaclasses, as3state
 from tkinter import filedialog
 import as3lib.flash.utils as utils
+from miniamf import sol
 
 def getClassByAlias(aliasName:as3.allString):...
 def navigateToURL(request,window:as3.allString=None):...
@@ -151,96 +152,45 @@ class ObjectEncoding(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 class Responder:...
 class SecureSocket:...
 
-class sodata:
+class SharedObject(dict):
+   defaultObjectEncoding = 3 #This can be set globally
+   def __getSize(self):... #Estimates size
+   size=property(fget=__getSize)
+   def __getData(self):
+      return self['data']
+   data=property(fget=__getData)
    def __init__(self):
-      return None
-   def __str__(self):
-      return f"{vars(self)}"
-   def __repr__(self):
-      return f"{vars(self)}"
-   def toDict(self):
-      return dict(vars(self))
-class _AMFCODEC:
-   class AMF0:
-      number=b"\x00"
-      boolean=b"\x01"
-      string=b"\x02"
-      object=b"\x03"
-      movieclip=b"\x04"
-      null=b"\x05"
-      undefined=b"\x06"
-      reference=b"\x07"
-      ecma_array=b"\x08"
-      object_end="b\x09"
-      strict_array=b"\x0A"
-      date=b"\x0B"
-      long_string=b"\x0C"
-      unsupported=b"\x0D"
-      recordset=b"\x0E"
-      xml_document=b"\x0F"
-      typed_object=b"\x10"
-      avmplus_object=b"\x11"
-      number=b"\x00"
-      number=b"\x00"
-      number=b"\x00"
-   class AMF3:
-      undefined=b"\x00"
-      null=b"\x01"
-      false=b"\x02"
-      true=b"\x03"
-      integer=b"\x04"
-      double=b"\x05"
-      string=b"\x06"
-      xml=b"\x07"
-      date=b"\x08"
-      array=b"\x09"
-      object=b"\x0A"
-      xml=b"\x0B"
-      byte_array=b"\x0C"
-      vector_int=b"\x0D"
-      vector_uint=b"\x0E"
-      vector_double=b"\x0F"
-      vector_object=b"\x10"
-      dictionary=b"\x11"
-
-class SharedObject:
-   def __init__(self):
-      self._name = ""
-      self._path = ""
-      self.data = sodata()
-   def clear(self):
-      #self._name = ""
-      #self._path = ""
-      self.data = sodata()
+      self.objectEncoding = SharedObject.defaultObjectEncoding
+      super().__init__()
+      self._name = None
+      self._path = None
+      self['data'] = {}
+   def clear(self):...
    def close(self):...
    def connect(self):...
-   def flush(slef,minDiskSpace=0):...
-   def getLocal(self,name,localPath=None,secure=False):
-      #gets local shared object; if object exists, set path and load it. if not, just set path
-      #!fix separators and make paths "Path" objects
-      parent = ""
-      directory = f"{as3state.separator}"
-      #localPath is the path (without the file name) with the application specific data directory as root
-      #   application data directory is configmodule.appdatadirectory and needs to be set manually using toplevel.setDataDirectory(directory)
-      #   (implementation specific addition) if the application data directory is not specified, the library directory is used as a default
-      #name is the name of the file excluding the extension because it will always be .sol
-      if localPath != None:
-         directory = localPath
-      if as3state.appdatadirectory == None:
-         #use as3state.librarydirectory
-         parent = as3state.librarydirectory
-      else:
-         #use as3state.appdatadirectory
-         parent = as3state.appdatadirectory
-      if parent[-1] == as3state.separator:
-         parent = parent[:-1]
-      if directory[0] == as3state.separator:
-         directory = directory[1:]
-      if directory[-1] == as3state.separator:
-         directory = directory[:-1]
-      self._path = f"{parent}{as3state.separator}{directory}{as3state.separator}{name}.sol"
-      self._name = name
+   def flush(self,minDiskSpace=0):
+      with self._path.open('wb+') as f:
+         f.write(sol.encode(self._name,self['data'],encoding=self.objectEncoding).getvalue())
       ...
+      return SharedObjectFlushStatus.FLUSHED
+   @staticmethod
+   def getLocal(name,localPath=None,secure=False):
+      #gets local shared object; if object exists, set path and load it. if not, just set path
+      #localPath is relative to as3state.appdatadirectory
+      if as3state.appdatadirectory == None:
+         as3.Error('Application specific data directory was not set. Can not safely determine location.')
+         pass
+      obj = SharedObject()
+      if localPath == None:
+         path = as3state.appdatadirectory
+      else:
+         path = as3state.appdatadirectory / localPath
+      obj._name = name
+      obj._path = path / f'{name}.sol'
+      if obj._path.is_file():
+         with obj._path.open('rb') as f:
+            obj['data'] = dict(sol.load(f))
+      return obj
    def getRemote(self,name,remotePath=None,persistance=False,secure=False):...
    def send(self,*arguments):...
    def setDirty(self,propertyName):...
