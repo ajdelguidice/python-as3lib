@@ -8,6 +8,7 @@ from types import NoneType
 from functools import cmp_to_key
 from inspect import isfunction
 from numpy import nan, inf, base_repr
+from io import StringIO
 
 try:
    from warnings import deprecated
@@ -40,35 +41,24 @@ class NInfinity:
    def __repr__(self):
       return self.__value
    def __lt__(self, value):
-      if isinstance(value,NInfinity):
-         return False
-      return True
+      return not isinstance(value,NInfinity)
    def __le__(self, value):
-      if isinstance(value,NInfinity):
-         return True
-      return False
+      return not isinstance(value,NInfinity)
    def __eq__(self, value):
-      if isinstance(value,NInfinity):
-         return True
-      return False
+      return isinstance(value,NInfinity)
    def __ne__(self, value):
-      if isinstance(value,NInfinity):
-         return False
-      return True
+      return isinstance(value,NInfinity)
    def __gt__(self, value):
       return False
    def __ge__(self, value):
-      if isinstance(value,NInfinity):
-         return False
-      return True
+      return not isinstance(value,NInfinity)
    def __bool__(self):
       return True
    def __getattr__(self, value):
       return "NInfinity"
    def __getattribute__(self, value):
       return "NInfinity"
-   def __setattr__(self, *value):
-      pass
+   def __setattr__(self, *value):...
    def __add__(self, value):
       return self
    def __radd__(self, value):
@@ -96,15 +86,11 @@ class NInfinity:
    def __rshift__(self, value):
       return self
    def __and__(self, value):
-      if bool(value) == True:
-         return True
-      return False
+      return True and value
    def __or__(self, value):
       return True
    def __xor__(self, value):
-      if bool(value) == True:
-         return False
-      return True
+      return not value
    def __neg__(self):
       return self
    def __pos__(self):
@@ -136,21 +122,13 @@ class Infinity:
    def __lt__(self, value):
       return False
    def __le__(self, value):
-      if isinstance(value,Infinity):
-         return True
-      return False
+      return isinstance(value,Infinity)
    def __eq__(self, value):
-      if isinstance(value,Infinity):
-         return True
-      return False
+      return isinstance(value,Infinity)
    def __ne__(self, value):
-      if isinstance(value,Infinity):
-         return False
-      return True
+      return not isinstance(value,Infinity)
    def __gt__(self, value):
-      if isinstance(value,Infinity):
-         return False
-      return True
+      return not isinstance(value,Infinity)
    def __ge__(self, value):
       return True
    def __bool__(self):
@@ -159,8 +137,7 @@ class Infinity:
       return "Infinity"
    def __getattribute__(self, value):
       return "Infinity"
-   def __setattr__(self, *value):
-      pass
+   def __setattr__(self, *value):...
    def __add__(self, value):
       return self
    def __radd__(self, value):
@@ -188,15 +165,11 @@ class Infinity:
    def __rshift__(self, value):
       return self
    def __and__(self, value):
-      if bool(value) == True:
-         return True
-      return False
+      return True and value
    def __or__(self, value):
       return True
    def __xor__(self, value):
-      if bool(value) == True:
-         return False
-      return True
+      return not value
    def __neg__(self):
       return NInfinity()
    def __pos__(self):
@@ -243,8 +216,7 @@ class NaN:
       return "NaN"
    def __getattribute__(self, value):
       return "NaN"
-   def __setattr__(self, *value):
-      pass
+   def __setattr__(self, *value):...
    def __contains__(self, value):
       return False
    def __add__(self, value):
@@ -310,7 +282,7 @@ class undefined:
    def __str__(self):
       return "undefined"
    def __repr__(self):
-      return "undefined"
+      return "as3lib.undefined"
 class null:
    __slots__ = ("value")
    def __init__(self):
@@ -318,7 +290,7 @@ class null:
    def __str__(self):
       return "null"
    def __repr__(self):
-      return "null"
+      return "as3lib.null"
 
 #Custom Types
 allNumber = Union[builtins.int,float,int,uint,Number]
@@ -390,12 +362,12 @@ class Array(list):
       if isinstance(item,(list,tuple)):
          self.extend(item)
       else:
-         self.extend([item])
+         self.append(item)
       return self
    def __str__(self):
       return self.toString()
    def __repr__(self):
-      return f"as3lib.toplevel.Array({self.toString()})"
+      return f"as3lib.Array({self.toString()})"
    length = property(fget=_getLength,fset=_setLength)
    def setFiller(self,newFiller):
       self.filler = newFiller
@@ -470,12 +442,7 @@ class Array(list):
 	      index:int — An integer that specifies the position in the array where the element is to be inserted. You can use a negative integer to specify a position relative to the end of the array (for example, -1 is the last element of the array).
 	      element — The element to be inserted.
       """
-      #can possibly be replaced with just self.insert(index,element) but this is slightly different than current
-      #current inserts from end if negative while insert acts like the array is reversed
-      if index < 0:
-         self.insert((len(self) + index), element)
-      else:
-         self.insert(index, element)
+      self.insert(index, element)
    def join(self, sep:str|String=",", interpretation:int|builtins.int=0, _Array=None):
       """
       Warining: Due to how this works, this will fail if you nest more Arrays than python's maximum recursion depth. If this becomes a problem, you should consider using a different programming language for your project.
@@ -670,8 +637,7 @@ class Array(list):
             raise Exception(f"Array.sort: Error: Using multiple sortOptions is not implemented yet")
       else:
          raise Exception(f"Using more than one arguement is not implemented yet")
-   def sortOn():
-      pass
+   def sortOn():...
    def splice(self, startIndex:builtins.int|int, deleteCount:builtins.int|int, *values):
       """
       Adds elements to and removes elements from an array. This method modifies the array without making a copy.
@@ -700,16 +666,16 @@ class Array(list):
       """
       return self.toString()
    def __listtostr(self,l):
-      a = ""
-      for i in l:
-         if isinstance(i,(list,tuple)):
-            a += self.__listtostr(i) + ","
-            continue
-         elif isinstance(i,(undefined,NoneType)):
-            a += ","
-            continue
-         a += f"{i},"
-      return a[:-1]
+      with StringIO() as res:
+         for i in l:
+            if isinstance(i,(list,tuple)):
+               res.write(self.__listtostr(i) + ",")
+               continue
+            if isinstance(i,(undefined,NoneType)):
+               res.write(",")
+               continue
+            res.write(f"{i},")
+         return res.getvalue()[:-1]
    def toString(self, formatLikePython:bool|Boolean=False, interpretation=1):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
@@ -742,12 +708,14 @@ class Boolean:
    def __init__(self, expression=False):
       self._value = self._Boolean(expression)
    def __str__(self):
-      return f'{self._value}'.lower()
+      return str(self._value).lower()
+   def __repr__(self):
+      return f'as3lib.Boolean({self._value})'
    def __getitem__(self):
       return self._value
    def __setitem__(self, value):
       self._value = value
-   def _Boolean(self, expression=None, strrepbool:bool|Boolean=False):
+   def _Boolean(self, expression=None):
       if isinstance(expression,bool):
          return expression
       if isinstance(expression,Boolean):
@@ -759,11 +727,9 @@ class Boolean:
       if isinstance(expression,str):
          if expression == "":
             return False
-         if expression == "false":
-            return False if strrepbool == True else True
          return True
-   def toString(self, formatLikePython:bool|Boolean=False):
-      return f"{self._value}" if formatLikePython == True else f"{self._value}".lower()
+   def toString(self):
+      return str(self._value).lower()
    def valueOf(self):
       return self._value
 class Date:...
@@ -787,7 +753,7 @@ def escape():
    The following characters are not converted to escape sequences by the escape() function.
    0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@-_.*+/
    """
-   pass
+   ...
 class EvalError():
    __slots__ = ("error")
    def __init__(self, message=""):
@@ -804,7 +770,7 @@ class int:
    def __str__(self):
       return f'{self._value}'
    def __repr__(self):
-      return f'{self._value}'
+      return f'as3lib.int({self._value})'
    def __getitem__(self):
       return self._value
    def __setitem__(self, value):
@@ -894,23 +860,19 @@ def isFinite(num):
       return False
    return True
 def isNaN(num):
-   if num == nan or isinstance(num,NaN):
-      return True
-   return False
+   return True if num == nan or isinstance(num,NaN) else False
 def isXMLName(str_:str|String):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = {"-","_","."}
-   if len(str_) == 0 or str_[0].isalpha() == False and str_[0] != "_" or str_[:3].lower() == "xml" or " " in str_:
+   if len(str_) == 0 or not str_[0].isalpha() and str_[0] != "_" or str_[:3].lower() == "xml" or " " in str_:
       return False
    for i in str_:
-      if i.isalnum() == False and i not in whitelist:
+      if not i.isalnum() and i not in whitelist:
          return False
    return True
 class JSON:
-   def parse():
-      pass
-   def stringify():
-      pass
+   def parse():...
+   def stringify():...
 class Math:
    __slots__ = ()
    E = 2.71828182845905
@@ -995,9 +957,11 @@ class Number:
    def __str__(self):
       if isinstance(self._value,(NaN,Infinity,NInfinity)):
          return str(self._value)
-      if self._value.is_integer() == True:
+      if self._value.is_integer():
          return f'{builtins.int(self._value)}'
       return f'{self._value}'
+   def __repr__(self):
+      return f'as3lib.Number({self._value})'
    def __getitem__(self):
       return self._value
    def __setitem__(self, value):
@@ -1147,6 +1111,8 @@ class String(str):
       if isinstance(expression,NaN):
          return "NaN"
       return f"{expression}"
+   def __repr__(self):
+      return f'as3lib.String({self})'
    def __getitem__(self, item):
       return String(super().__getitem__(item))
    def __add__(self, value):
@@ -1248,68 +1214,6 @@ class TypeError():
    def __init__(self, message=""):
       trace(type(self), message, isError=True)
       self.error = message
-class U29:
-   def decodeUTF8HeaderBytes(data:str,type_="b"):
-      #!Check length
-      if type_ == "b":
-         for i in data:
-            if i not in {"0","1"}:
-               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0 or 1 in bit mode")
-      elif type_ == "B":
-         for i in data:
-            if i not in "0123456789ABCDEF":
-               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
-         data = bin(builtins.int(data,16))[2:]
-      else:...
-      if data[0] == "0":... #U29S-ref
-      else:... #U29S-value
-      return (data[0],result)
-   def encodeUTF8HeaderBytes():...
-   def decodeU29String():...
-   def encodeU29String():...
-   def decodeInt(data:str,type_="b"):
-      """
-      Decodes U29 integer value.
-      
-      Must either be a string of bits or a string of bytes
-      """
-      if type_ == "b":
-         for i in data:
-            if i not in {"0","1"}:
-               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0 or 1 in bit mode")
-      elif type_ == "B":
-         for i in data:
-            if i not in "0123456789ABCDEF":
-               raise Exception("U29.decodeUTF8HeaderBytes: data must only contain 0-F in byte mode")
-         data = bin(builtins.int(data,16))[2:]
-      else:...
-      significantBits = [data[1:8],"","",""]
-      if data[0] == "1":
-         significantBits[1] = data[9:16]
-         if data[8] == "1":
-            significantBits[2] = data[17:24]
-            if data[16] == "1":
-               significantBits[3] = data[24:32]
-      return builtins.int(''.join(significantBits),2)
-   def encodeInt(num:builtins.int,int,uint,Number):
-      """
-      Encodes a U29 integer value.
-      
-      Must either be an integer between 0 and 536870911
-      """
-      if isinstance(num,(builtins.int,int,uint,Number)) and num >= 0 and num <= 536870911: #0 - 29^2-1
-         bits = bin(num)[2:]
-         l = len(bits)
-         if l < 8:
-            return f"0{'0'*(7-l)}{bits}"
-         if l < 15:
-            return f"1{'0'*(14-l)}{bits[:-7]}0{bits[-7:]}"
-         if l < 22:
-            return f"1{'0'*(21-l)}{bits[:-14]}1{bits[-14:-7]}0{bits[-7:]}"
-         if l < 30:
-            return f"1{'0'*(29-l)}{bits[:-22]}1{bits[-22:-15]}1{bits[-15:-8]}{bits[-8:]}"
-      else:
-         RangeError("U29 integers must be between 0 and 536870911")
 class uint:...
 def unescape():...
 class URIError():
@@ -1345,7 +1249,7 @@ class Vector(list):
    def _getLength(self):
       return len(self)
    def _setLength(self,value):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("Can not set vector length while fixed is set to true.")
       elif value > 4294967296:
          RangeError("New vector length outside of accepted range (0-4294967296).")
@@ -1357,12 +1261,14 @@ class Vector(list):
             while len(self) < value:
                self.append(null())
    length = property(fget=_getLength,fset=_setLength)
+   def __repr__(self):
+      return f'as3lib.Vector({self.__type}, {self})'
    def __getitem__(self, item):
       if isinstance(item, slice):...
       else:
          return super().__getitem__(item)
    def __setitem__(self,item,value):
-      if self.__superclass == True:
+      if self.__superclass:
          if isinstance(value,(self._type,null)):
             super().__setitem__(item,value)
       else:
@@ -1405,9 +1311,9 @@ class Vector(list):
             return i
       return -1
    def insertAt(index,element):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("insertAt can not be called on a Vector with fixed set to true.")
-      elif self.__superclass == True:
+      elif self.__superclass:
          if isinstance(element,(self._type,null)):...
       else:...
    def join(self,sep:str=","):...
@@ -1425,19 +1331,19 @@ class Vector(list):
          tempVect[i] = callback(self[i],i,self)
       return tempVect
    def pop(self):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("pop can not be called on a Vector with fixed set to true.")
       else:
          return super().pop(-1)
    def push(self,*args):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("push can not be called on a Vector with fixed set to true.")
       else:
          #!Check item types
          self.extend(args)
          return len(self)
    def removeAt(self,index):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("removeAt can not be called on a Vector with fixed set to true.")
       elif False: #!Index out of bounds
          RangeError("index is out of bounds.")
@@ -1447,7 +1353,7 @@ class Vector(list):
       super().reverse()
       return self
    def shift(self):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("shift can not be called on a Vector with fixed set to true.")
       else:
          return super().pop(0)
@@ -1462,11 +1368,11 @@ class Vector(list):
    def toLocaleString():...
    def toString():...
    def unshift(self,*args):
-      if self.fixed == True:
+      if self.fixed:
          RangeError("unshift can not be called on a Vector with fixed set to true.")
       else:
          argsOK = True
-         if self.__superclass == True:
+         if self.__superclass:
             for i in args:
                if not isinstance(i,(self._type,null)):
                   argsOk = False
@@ -1491,15 +1397,13 @@ class VerifyError():
 
 def EnableDebug():
    """
-   Enables 'debug mode' for this module. This is a substitute for have an entire separate interpreter.
-   If you want to automatically enable debug mode based on the commandline arguements of a file, do something like:
-   if __name__ == "__main__":
-      import sys.argv
-      if "-debug" in sys.argv:
-         <this module>.EnableDebug()
+   Enables as3lib debug mode. This is a substitute for have an entire separate interpreter.
    """
    as3state.as3DebugEnable = True
 def DisableDebug():
+   """
+   Disables as3lib debug mode. This is a substitute for have an entire separate interpreter.
+   """
    as3state.as3DebugEnable = False
 @deprecated("formatTypeToName is deprecated and will be removed in 0.0.13. Use type.__name__ instead.")
 def formatTypeToName(arg:type):
