@@ -22,7 +22,8 @@ dependencies = [
     "setuptools",
     "numpy",
     "tkhtmlview",
-    "Pillow"
+    "Pillow",
+    "as3lib-miniAMF"
 ]
 
 [project.optional-dependencies]
