@@ -6,7 +6,7 @@ from as3lib import metaclasses
 from typing import Union
 import binascii
 from threading import Timer as timedExec
-import miniamf.amf3.ByteArray
+from miniamf.amf3 import ByteArray as _ByteArray
 
 #dummy classes
 class ByteArray:...
@@ -27,7 +27,7 @@ def unescapeMultiByte():...
 class IDataInput:...
 class IDataOutput:...
 
-class ByteArray(miniamf.amf3.ByteArray):
+class ByteArray(_ByteArray):
    #!Implement slice function
    def __getBytesAvailable(self):
       return self.remaining()
