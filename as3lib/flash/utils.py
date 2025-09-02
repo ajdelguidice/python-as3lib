@@ -61,8 +61,8 @@ class ByteArray(_ByteArray):
    def __setSharable(self,value:bool):
       self.__sharable = value
    shareable=property(fget=__getSharable,fset=__setSharable)
-   def __init__(self):
-      super().__init__()
+   def __init__(self,data):
+      super().__init__(data)
       #self.defaultObjectEncoding = fn.ObjectEncoding.AMF3
       #self.objectEncoding = self.defaultObjectEncoding
    def __repr__(self):
