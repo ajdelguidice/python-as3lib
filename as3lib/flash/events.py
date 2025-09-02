@@ -68,16 +68,11 @@ class ErrorEvent:...
 class IEventDispatcher:
    def __init__(self):
       self.eventobjects = {}
-   def addEventListener(type, listener, useCapture=False, priority=0, useWeakReference=False):
-      pass
-   def dispatchEvent(event):
-      pass
-   def hasEventListener(type):
-      pass
-   def removeEventListener(type, listener, useCapture=False):
-      pass
-   def willTrigger(type):
-      pass
+   def addEventListener(type, listener, useCapture=False, priority=0, useWeakReference=False):...
+   def dispatchEvent(event):...
+   def hasEventListener(type):...
+   def removeEventListener(type, listener, useCapture=False):...
+   def willTrigger(type):...
 
 #Classes
 class AccelerometerEvent:...
@@ -219,8 +214,7 @@ class EventDispatcher:
                self._eventsCapture[type].remove(listener)
             except:
                pass
-   def willTrigger(self,type:as3.allString):
-      pass
+   def willTrigger(self,type:as3.allString):...
 class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AT_TARGET = 2
    BUBBLING_PHASE = 3

@@ -61,8 +61,7 @@ class Capabilities:
     @cache
     def _getOS():
         #!add others
-        if as3state.platform == "Windows":
-            pass
+        if as3state.platform == "Windows":...
         if as3state.platform == "Linux":
             return f"Linux {platform.release()}"
         if as3state.platform == "Darwin":...
@@ -91,8 +90,7 @@ class Capabilities:
         if as3state.platform == "Android":
             return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
     version = property(fget=_getVer)
-    def hasMultiChannelAudio(type:Union[str,as3.String]):
-        pass
+    def hasMultiChannelAudio(type:Union[str,as3.String]):...
 def fscommand(command, args=""):
     """
     This is a simplified version of fscommand and does not do everything it should

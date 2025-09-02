@@ -1,6 +1,5 @@
 from as3lib import toplevel as as3
 from os import urandom
-from binascii import b2a_hex
 
 def generateRandomBytes(numberRandomBytes:int|as3.uint|as3.int):
    """

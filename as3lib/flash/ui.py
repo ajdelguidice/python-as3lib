@@ -72,63 +72,63 @@ class ContextMenu:
       except:
          x=0
       self.Menu = tkinter.Menu(self._master, tearoff=0)
-      if self._builtIns == True:
-         if self.builtInItems.forwardAndBack == True:
+      if self._builtIns:
+         if self.builtInItems.forwardAndBack:
             self.Menu.add_command(label="Forward",font=self.font)
             self.Menu.add_command(label="Backward",font=self.font)
-         if self.builtInItems.loop == True:
+         if self.builtInItems.loop:
             self.Menu.add_command(label="Loop",font=self.font)
-         if self.builtInItems.play == True:
+         if self.builtInItems.play:
             self.Menu.add_command(label="Play",font=self.font)
-         if self.builtInItems.print == True:
+         if self.builtInItems.print:
             self.Menu.add_command(label="Print",font=self.font)
-         if self.builtInItems.quality == True:
+         if self.builtInItems.quality:
             self.Menu.add_command(label="Quality",font=self.font)
-         if self.builtInItems.rewind == True:
+         if self.builtInItems.rewind:
             self.Menu.add_command(label="Rewind",font=self.font)
-         if self.builtInItems.save == True:
+         if self.builtInItems.save:
             self.Menu.add_command(label="Save",font=self.font)
-         if self.builtInItems.zoom == True:
+         if self.builtInItems.zoom:
             self.Menu.add_command(label="Zoom",font=self.font)
-      if self.clipboardMenu == True:
+      if self.clipboardMenu:
          self._itemobjects["clipboardMenu"] = tkinter.Menu(self.Menu,tearoff=0)
          self.Menu.add_cascade(label="Clipboard",font=self.font,menu=self._itemobjects["clipboardMenu"])
-         if self.clipboardItems.clear == True:
+         if self.clipboardItems.clear:
             self._itemobjects["clipboardMenu"].add_command(label="Clear",font=self.font)
-         if self.clipboardItems.copy == True:
+         if self.clipboardItems.copy:
             self._itemobjects["clipboardMenu"].add_command(label="Copy",font=self.font)
-         if self.clipboardItems.cut == True:
+         if self.clipboardItems.cut:
             self._itemobjects["clipboardMenu"].add_command(label="Cut",font=self.font)
-         if self.clipboardItems.paste == True:
+         if self.clipboardItems.paste:
             self._itemobjects["clipboardMenu"].add_command(label="Paste",font=self.font)
-         if self.clipboardItems.selectAll == True:
+         if self.clipboardItems.selectAll:
             self._itemobjects["clipboardMenu"].add_command(label="Select All",font=self.font)
       for i in range(self.customItems.length()):
          tempprop = self.customItems.propertiesAt(i)
-         if tempprop["visible"] == True:
+         if tempprop["visible"]:
             if tempprop["type"] == "Menu":
                if tempprop["master"] == "root":
-                  if tempprop["separatorBefore"] == True:
+                  if tempprop["separatorBefore"]:
                      self.Menu.add_separator()
                   self._itemobjects[tempprop["name"]] = tkinter.Menu(self.Menu,tearoff=0)
                   self.Menu.add_cascade(label=tempprop["caption"],font=self.font,menu=self._itemobjects[tempprop["name"]])
                else:
-                  if tempprop["separatorBefore"] == True:
+                  if tempprop["separatorBefore"]:
                      self._itemobjects[tempprop["master"]].add_separator()
                   self._itemobjects[tempprop["name"]] = tkinter.Menu(self._itemobjects[tempprop["master"]],tearoff=0)
                   self._itemobjects[tempprop["master"]].add_cascade(label=tempprop["caption"],font=self.font,menu=self._itemobjects[tempprop["name"]])
             else:
                if tempprop["master"] == "root":
-                  if tempprop["separatorBefore"] == True:
+                  if tempprop["separatorBefore"]:
                      self.Menu.add_separator()
                   self.Menu.add_command(label=tempprop["caption"],font=self.font,command=tempprop["command"])
-                  if tempprop["enabled"] == False:
+                  if not tempprop["enabled"]:
                      self.Menu.entryconfigure(tempprop["caption"], state="disabled")
                else:
-                  if tempprop["separatorBefore"] == True:
+                  if tempprop["separatorBefore"]:
                      self._itemobjects[tempprop["master"]].add_separator()
                   self._itemobjects[tempprop["master"]].add_command(label=tempprop["caption"],font=self.font,command=tempprop["command"])
-                  if tempprop["enabled"] == False:
+                  if not tempprop["enabled"]:
                      self._itemobjects[tempprop["master"]].entryconfigure(tempprop["caption"], state="disabled")
       self._master.bind(keyConversions.mouseButtonNameToTkname("Right"),self._popupMenu)
    def _popupMenu(self, e):

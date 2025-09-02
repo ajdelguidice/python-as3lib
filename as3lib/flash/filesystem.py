@@ -67,23 +67,22 @@ class File:
    def getRelativePath():...
    def getRootDirectories(self):
       #!Change returned values inside of the arrays into File objects
-      match as3state.platform:
-         case "Windows":
-            drives = f"{co("fsutil fsinfo drives",shell=True)}".replace(" ","").replace("\\r","").split("Drives:")[1].replace("\\n'","").split("\\")
-            tempDrives = as3.Array()
-            for i in drives:
-               if i == "":
+      if as3state.platform == "Windows":
+         drives = f"{co("fsutil fsinfo drives",shell=True)}".replace(" ","").replace("\\r","").split("Drives:")[1].replace("\\n'","").split("\\")
+         tempDrives = as3.Array()
+         for i in drives:
+            if i == "":
+               continue
+            try:
+               tempStatus = f"{co(f"fsutil fsinfo volumeinfo {i}",shell=True)}"
+               tempDrives.push(File(i))
+            except CPE as e:
+               if "not ready" in f"{e.output}":
                   continue
-               try:
-                  tempStatus = f"{co(f"fsutil fsinfo volumeinfo {i}",shell=True)}"
-                  tempDrives.push(File(i))
-               except CPE as e:
-                  if "not ready" in f"{e.output}":
-                     continue
-                  tempDrives.push(File(i))
-            return tempDrives
-         case "Linux" | "Darwin":
-            return as3.Array(File("/"))
+               tempDrives.push(File(i))
+         return tempDrives
+      elif as3state.platform in {"Linux","Darwin"}:
+         return as3.Array(File("/"))
    def moveTo():...
    def moveToAsync():...
    def moveToTrash():...

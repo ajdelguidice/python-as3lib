@@ -18,23 +18,22 @@ _windowNameGenerator: Generator[int,None,None] = _winNameGen()
 
 class as3totk:
    def anchors(flashalign:as3.allString):
-      match flashalign:
-         case "B":
-            return "s"
-         case "BL":
-            return "sw"
-         case "BR":
-            return "se"
-         case "L":
-            return "w"
-         case "R":
-            return "e"
-         case "T":
-            return "n"
-         case "TL":
-            return "nw"
-         case "TR":
-            return "ne"
+      if flashalign == "B":
+         return "s"
+      if flashalign == "BL":
+         return "sw"
+      if flashalign == "BR":
+         return "se"
+      if flashalign == "L":
+         return "w"
+      if flashalign == "R":
+         return "e"
+      if flashalign == "T":
+         return "n"
+      if flashalign == "TL":
+         return "nw"
+      if flashalign == "TR":
+         return "ne"
 
 class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ACTIONSCRIPT2 = 2

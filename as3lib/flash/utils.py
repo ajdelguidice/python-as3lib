@@ -328,11 +328,11 @@ class Timer(EventDispatcher):
       self.stop()
       self.__currentCount = 0
    def start(self):
-      if self.running == False:
+      if not self.running:
          self.__timer = timedExec(self.delay/1000,self.__TimerTick)
          self.__running = True
          self.__timer.start()
    def stop(self):
-      if self.running == True:
+      if self.running:
          self.__timer.cancel()
          self.__running = False
