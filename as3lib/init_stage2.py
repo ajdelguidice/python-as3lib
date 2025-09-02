@@ -2,6 +2,8 @@ import platform
 from . import as3state, config
 from pathlib import Path
 from subprocess import check_output
+from datetime import datetime
+from miniamf import util
 
 """
 initerrors
@@ -133,6 +135,9 @@ def init():
    #Report errors to user
    if len(as3state.initerror) != 0:
       print(f"Warning: as3lib has initialized with errors, some functionality may be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in as3state.initerror))}")
+
+   if as3state.startTime == None:
+      as3state.startTime = int(util.get_timestamp(datetime.now()) * 1000)
    
    #Tell others that library has been initialized
    as3state.initdone = True
