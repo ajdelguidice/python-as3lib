@@ -1513,6 +1513,6 @@ def _isValidDirectory(directory,separator=None):
    return True
 def setDataDirectory(directory:str|String):
    if _isValidDirectory(Path(directory)):
-      as3state.appdatadirectory = directory
+      as3state.appdatadirectory = Path(directory)
    else:
       Error(f"setDataDirectory; Directory {directory} not valid")
