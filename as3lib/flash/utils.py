@@ -95,7 +95,9 @@ class ByteArray(_ByteArray):
       self.truncate(0)
    def deflate():...
    def inflate():...
-   def readBytes(self,bytes:ByteArray,offset=0,length=0):...
+   def readBytes(self,bytes:ByteArray,offset=0,length=0):
+      bytes.seek(offset)
+      bytes.write(self.read(length))
    def toJSON(self,k:str):
       """
       Provides an overridable method for customizing the JSON encoding of values in an ByteArray object.
@@ -115,7 +117,11 @@ class ByteArray(_ByteArray):
       return "ByteArray"
    def toString(self):...
    def uncompress():...
-   def writeBytes():...
+   def writeBytes(self,bytes:ByteArray,offset=0,length=0):
+      startpos = bytes.tell()
+      bytes.seek(offset)
+      self.write(bytes.read(length))
+      bytes.seek(startpos) #!I don't know if it is supposed to do this
 
 class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    DEFLATE = "deflate"
