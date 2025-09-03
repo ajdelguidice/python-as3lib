@@ -1,4 +1,4 @@
-from as3lib import as3state, toplevel
+from as3lib import as3state
 from io import StringIO
 from pathlib import Path
 try:
@@ -106,7 +106,7 @@ def _dependencyCheck(cfgval):
 
 def Load():
    if as3state._cfg != None:
-      toplevel.trace("Error: Config has already been loaded")
+      print("Error: Config has already been loaded")
       pass
    #Load config from files
    configpath = as3state.librarydirectory / 'as3lib.toml'
