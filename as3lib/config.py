@@ -7,6 +7,11 @@ except:
    import tomli as tomllib
 
 class TOML:
+   '''
+   A simple TOML writer for as3lib. This class was created out of frustration
+   at tomli_w's formatting (mostly the arrays) and only implements things needed
+   for this library. It is not guaranteed to work for your use case.
+   '''
    def Value(value):
       if isinstance(value,str):
          return f'"{value}"'
