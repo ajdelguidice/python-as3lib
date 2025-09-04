@@ -39,7 +39,7 @@ class TOML:
             text.write(f'{TOML.Value(i)},')
          text.write(']')
          return text.getvalue()
-   def Write(file, valDict, mode='w'):
+   def Return(valDict):
       nontables = []
       tables = []
       for k,v in valDict.items():
@@ -57,8 +57,10 @@ class TOML:
             for k2,v2 in valDict[k].items():
                text.write(f'{k2} = {TOML.Value(v2)}\n')
             text.write('\n')
-         with open(file,mode) as f:
-            f.write(text.getvalue())
+         return text.getvalue()
+   def Write(file, valDict, mode='w'):
+      with open(file,mode) as f:
+         f.write(TOML.Return(valDict))
 
 def _dependencyCheck(cfgval):
    if cfgval:
