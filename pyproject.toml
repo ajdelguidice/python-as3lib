@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "as3lib"
-version = "0.0.11"
+version = "11"
 authors = [{name = "ajdelguidice", email = "ajdelguidice@gmail.com"}]
 description = "Partial implementation of ActionScript3 in Python"
 readme = {file = "README.md", content-type = "text/markdown"}
