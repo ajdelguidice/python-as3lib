@@ -1,5 +1,5 @@
 import math as m
-import random as r
+import random
 from pathlib import Path, PurePath
 from . import as3state, helpers
 import builtins
@@ -9,15 +9,14 @@ from functools import cmp_to_key
 from inspect import isfunction
 from numpy import base_repr
 from io import StringIO
-
-_NaN_value = 1e300000 / -1e300000
-_NegInf_value = -1e300000
-_PosInf_value = 1e300000
-
 try:
    from warnings import deprecated
 except:
    from as3lib.py_backports import deprecated
+
+_NaN_value = 1e300000 / -1e300000
+_NegInf_value = -1e300000
+_PosInf_value = 1e300000
 
 #Static values
 true = True
@@ -919,20 +918,16 @@ class Math:
       return m.log(val)
    @staticmethod
    def max(*values):
-      if len(values) == 1:
-         return values[0]
-      return max(values)
+      return values[0] if len(values) == 1 else max(values)
    @staticmethod
    def min(*values):
-      if len(values) == 1:
-         return values[0]
-      return min(values)
+      return values[0] if len(values) == 1 else min(values)
    @staticmethod
    def pow(base, power):
       return m.pow(base,power)
    @staticmethod
    def random():
-      return r.random()
+      return random.random()
    @staticmethod
    def round(val):
       return round(val)
