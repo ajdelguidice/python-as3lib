@@ -6,7 +6,8 @@ If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead. This li
 <br>Tkinter can not fetch the information needed when used on wayland (linux). It must be manually entered into as3lib.toml. I plan on making this less painfull later.
 <br>Use of multiple displays has not been tested yet.
 <br>interface_tk is a testing module, it does not function like actionscript and is only there to work things out. Do not expect consistency between versions and do not expect it to be kept around.
-<br>Using "from as3lib import *" currently imports everything from the toplevel module with int renamed to Int so it doesn't conflict with python's int.
+<br>Using "from as3lib import *" imports all ActionScript toplevel stuff with int renamed to Int so it doesn't conflict with python's int.
+<br>The toplevel is now deprecated and only remains for backwards compatibility. Import the library instead.
 <h3>Requirements</h3>
 Linux:
 <br>&emsp;a posix compatible shell, grep, which
