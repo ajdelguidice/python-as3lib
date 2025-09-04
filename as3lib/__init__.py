@@ -43,20 +43,6 @@ def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
    if as3state.platform == "Darwin":
       return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
 
-def getDesktopDir():
-   if as3state.platform == 'Linux':
-      deskdir = os.environ.get('XDG_DESKTOP_DIR')
-      if deskdir != None:
-         return Path(deskdir)
-   return as3state.userdirectory / "Desktop"
-
-def getDocumentsDir():
-   if as3state.platform == "Linux":
-      deskdir = os.environ.get('XDG_DOCUMENTS_DIR')
-      if deskdir != None:
-         return Path(deskdir)
-   return as3state.userdirectory / "Documents"
-
 def sm_x11():
    """
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
@@ -99,8 +85,8 @@ if not as3state.initdone:
    as3state.pythonversion = platform.python_version()
    as3state.librarydirectory = Path(__file__).resolve().parent
    as3state.userdirectory = Path.home()
-   as3state.desktopdirectory = getDesktopDir()
-   as3state.documentsdirectory = getDocumentsDir()
+   as3state.desktopdirectory = Path(os.environ.get('XDG_DESKTOP_DIR',as3state.userdirectory / "Desktop"))
+   as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR',as3state.userdirectory / "Documents"))
    as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    if as3state.platform == "Linux":
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE','error')
