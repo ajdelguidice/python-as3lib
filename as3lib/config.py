@@ -74,21 +74,6 @@ def _dependencyCheck(cfgval):
          if check_output(('which','xrandr')).decode("utf-8").startswith("which: no"):
             as3state.initerror.append((3,"Linux (xorg): requirement 'xrandr' not found"))
             hasDeps = False
-      if check_output(('which','bash')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'bash' not found"))
-         hasDeps = False
-      if check_output(('which','awk')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'awk' not found"))
-         hasDeps = False
-      if check_output(('which','whoami')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'whoami' not found"))
-         hasDeps = False
-      if check_output(('which','loginctl')).decode("utf-8").startswith("which: no"):
-         as3state.initerror.append((3,"Linux: requirement 'loginctl' not found"))
-         hasDeps = False
-      if check_output(('which','echo')).decode("utf-8").startswith("which: no") or check_output(('echo','test')).decode("utf-8").replace("\n","") != "test":
-         as3state.initerror.append((3,"Linux: requirement 'echo' not found"))
-         hasDeps = False
    elif as3state.platform == "Windows":...
    elif as3state.platform == "Darwin":...
    if find_spec('numpy') == None: #https://pypi.org/project/numpy
@@ -99,6 +84,12 @@ def _dependencyCheck(cfgval):
       hasDeps = False
    if find_spec('tkhtmlview') == None: #https://pypi.org/project/tkhtmlview
       as3state.initerror.append((3,"Python: requirement 'tkhtmlview' not found"))
+      hasDeps = False
+   if find_spec('miniamf') == None:
+      as3state.initerror.append((3,"Python: requirement 'Mini-AMF' or 'as3lib-miniAMF' not found"))
+      hasDeps = False
+   if find_spec('tomllib') == None and find_spec('tomli') == None:
+      as3state.initerror.append((3,"Python: requirement 'tomllib' or 'tomli' not found"))
       hasDeps = False
    return hasDeps
 
