@@ -66,9 +66,7 @@ def _dependencyCheck(cfgval):
    from subprocess import check_output
    hasDeps = True
    if as3state.platform == "Linux":
-      wmt = check_output(('echo','$XDG_SESSION_TYPE')).decode("utf-8").replace("\n","")
-      if wmt == "wayland":
-         x=0
+      if as3state.displayserver == "wayland":...
       else:
          if check_output(('which','xwininfo')).decode("utf-8").startswith("which: no"):
             as3state.initerror.append((3,"Linux (xorg): requirement 'xwininfo' not found"))
