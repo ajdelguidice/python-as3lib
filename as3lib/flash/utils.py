@@ -32,13 +32,10 @@ class IDataInput:...
 class IDataOutput:...
 
 class ByteArray(_ByteArray):
-   #!Implement slice function
    def __getBytesAvailable(self):
       return self.remaining()
    bytesAvailable=property(fget=__getBytesAvailable)
-   #def __getDefObjectEncoding(self):...
-   #def __setDefObjectEncoding(self,value):...
-   #defaultObjectEncoding=property(fget=__getDefObjectEncoding,fset=__setDefObjectEncoding)
+   defaultObjectEncoding = 3 # This can be set globally
    def __getEndian(self):
       return super().endian
    def __setEndian(self,endian):
@@ -48,9 +45,6 @@ class ByteArray(_ByteArray):
       return len(self)
    def __setLength(self,value:int):...
    length=property(fget=__getLength,fset=__setLength)
-   #def __getObjectEncoding(self):...
-   #def __setObjectEncoding(self,value):...
-   #objectEncoding=property(fget=__getObjectEncoding,fset=__setObjectEncoding)
    def __getPosition(self):
       return self.tell()
    def __setPosition(self,value):
@@ -63,11 +57,13 @@ class ByteArray(_ByteArray):
    shareable=property(fget=__getSharable,fset=__setSharable)
    def __init__(self,data=None):
       super().__init__(data)
-      #self.defaultObjectEncoding = fn.ObjectEncoding.AMF3
-      #self.objectEncoding = self.defaultObjectEncoding
+      self.objectEncoding = ByteArray.defaultObjectEncoding # This currently does nothing
    def __repr__(self):
       return f"ByteArray({self.getvalue()})"
-   def atomicCompareAndSwapIntAt():...
+   def atomicCompareAndSwapIntAt(self,byteIndex:int,expectedValue:int,newValue:int):
+      if byteIndex % 4 != 0 or byteIndex < 0:
+         as3.ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
+      ...
    def atomicCompareAndSwapLength(self,expectedLength:int,newLength:int):
       """
       In a single atomic operation, compares this byte array's length with a provided value and, if they match, changes the length of this byte array.
@@ -87,9 +83,10 @@ class ByteArray(_ByteArray):
       Returns
          int — the previous length value of the ByteArray, regardless of whether or not it changed 
       """
-      #self.length = newLength if self.length == expectedLength else self.length
+      oldlen = self.length
       if self.length == expectedLength:
          self.length = newLength
+      return oldlen
    def clear(self):
       "Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance."
       self.truncate(0)
