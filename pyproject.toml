@@ -3,8 +3,8 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "as3lib"
-version = "11"
 authors = [{name = "ajdelguidice", email = "ajdelguidice@gmail.com"}]
 description = "Partial implementation of ActionScript3 in Python"
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -37,3 +37,6 @@ packages = ["as3lib"]
 ext-modules = [
     {name = "as3lib.cmath", sources = ["sourcecode/cmath.c"]},
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "as3lib.as3state.__version__"}
