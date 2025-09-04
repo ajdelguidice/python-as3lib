@@ -7,8 +7,12 @@ from typing import Union
 from types import NoneType
 from functools import cmp_to_key
 from inspect import isfunction
-from numpy import nan, inf, base_repr
+from numpy import base_repr
 from io import StringIO
+
+_NaN_value = 1e300000 / -1e300000
+_NegInf_value = -1e300000
+_PosInf_value = 1e300000
 
 try:
    from warnings import deprecated
@@ -35,7 +39,7 @@ class Infinity:...
 class NInfinity:
    __slots__ = ("__value")
    def __init__(self):
-      self.__value = -inf
+      self.__value = _NegInf_value
    def __str__(self):
       return "-Infinity"
    def __repr__(self):
@@ -114,7 +118,7 @@ class NInfinity:
 class Infinity:
    __slots__ = ("__value")
    def __init__(self):
-      self.__value = inf
+      self.__value = _PosInf_value
    def __str__(self):
       return "Infinity"
    def __repr__(self):
@@ -193,7 +197,7 @@ class Infinity:
 class NaN:
    __slots__ = ("__value")
    def __init__(self):
-      self.__value = nan
+      self.__value = _NaN_value
    def __str__(self):
       return "NaN"
    def __repr__(self):
@@ -856,11 +860,11 @@ class int:
    def valueOf(self):
       return self._value
 def isFinite(num):
-   if num in (inf,NINF,NaN) or isinstance(num,(NInfinity,Infinity,NaN)):
+   if num in (_PosInf_value,_NegInf_value,_NaN_value) or isinstance(num,(NInfinity,Infinity,NaN)):
       return False
    return True
 def isNaN(num):
-   return True if num == nan or isinstance(num,NaN) else False
+   return True if num == _NaN_value or isinstance(num,NaN) else False
 def isXMLName(str_:str|String):
    #currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = {"-","_","."}
