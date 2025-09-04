@@ -2,6 +2,8 @@
 Note to self: remove all of the things that could change outside of this library
     Display stuff should not change (as defined by the actionscript documentation)
 """
+__version__ = 11
+
 platform = "" #Windows, Linux, or Darwin
 displayserver = "" #linux (x11 or wayland) or darwin (x11 or native) only
 librarydirectory = "" #full path to as3lib (this library)
