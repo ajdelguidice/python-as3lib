@@ -9,7 +9,7 @@ If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead. This li
 <br>Using "from as3lib import *" currently imports everything from the toplevel module with int renamed to Int so it doesn't conflict with python's int.
 <h3>Requirements</h3>
 Linux:
-<br>&emsp;a posix compatible shell, echo, grep, awk, loginctl, whoami, which
+<br>&emsp;a posix compatible shell, grep, which
 <br>&emsp;(xorg): xwininfo, xrandr
 <br>Windows:
 <br>&emsp;PyLaucher
@@ -17,7 +17,7 @@ Linux:
 <br>Python built-ins:
 <br>&emsp;tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (linux), pathlib, configparser, webbrowser, textwrap, typing, tomllib
 <br>Python external:
-<br>&emsp;<a href="https://pypi.org/project/numpy">numpy</a>, <a href="https://pypi.org/project/Pillow">Pillow</a>, <a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>, <a href="https://pypi.org/project/tomli/">tomli (python < 3.11)</a>
+<br>&emsp;<a href="https://pypi.org/project/numpy">numpy</a>, <a href="https://pypi.org/project/Pillow">Pillow</a>, <a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>, <a href="https://pypi.org/project/tomli/">tomli (python < 3.11)</a>, <a href="https://pypi.org/project/as3lib-miniAMF/">as3lib-miniAMF</a>
 <h3>Config Files</h3>
 <b>&lt;library-directory&gt;/as3lib.toml</b> - This library's config file. This includes mm.cfg and wayland.cfg that were included in previous versions. Config will only be migrated if this file does not exist or if "migrateOldConfig" is set to true. |<a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a>|
 <br><br><b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - Old config file.
