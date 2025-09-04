@@ -154,7 +154,8 @@ class SecureSocket:...
 
 class SharedObject(dict):
    defaultObjectEncoding = 3 #This can be set globally
-   def __getSize(self):... #Estimates size
+   def __getSize(self):
+      return len(sol.encode(self._name,self['data'],encoding=self.objectEncoding))
    size=property(fget=__getSize)
    def __getData(self):
       return self['data']
