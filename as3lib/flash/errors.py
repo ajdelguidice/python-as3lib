@@ -1,58 +1,58 @@
-import as3lib.toplevel as as3
+from as3lib._toplevel.Errors import Error
 
 #finish implementing everything from these classes
-class DRMManagerError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+class DRMManagerError(Error):
+   name = 'DRMManagerError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class EOFError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'EOFError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class IllegalOperationError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'IllegalOperationError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class InvalidSWFError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'InvalidSWFError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class IOError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'IOError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class MemoryError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'MemoryError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class PermissionError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'PermissionError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class ScriptTimeoutError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'ScriptTimeoutError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class SQLError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'SQLError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class SQLErrorOperation():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'SQLErrorOperation'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)
 class StackOverflowError():
-   __slots__ = ("error")
-   def __init__(self, message=""):
-      as3.trace(type(self), message, isError=True)
-      self.error = message
+   name = 'StackOverflowError'
+   def __init__(self, message):
+      self.message = message
+      super().__init__(message)

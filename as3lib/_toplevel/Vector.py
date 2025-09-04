@@ -1,0 +1,172 @@
+from as3lib._toplevel.Object import *
+from as3lib._toplevel.Constants import *
+from as3lib._toplevel.Errors import *
+
+class Vector(list, Object):
+   """
+   AS3 Vector datatype.
+   
+   Since python does not allow for multiple things to have the same name, the function and the class constructor have been merged. Here's how it works now:
+     - If sourceArray is defined, the behavior for the function is used and the arguements are ignored.
+     - The arguement "superclass" is provided for convinience. It makes the Vector object check the type as a superclass instead of as a strict type. Passing sourceArray sets this to true
+   """
+   def __init__(self,type,length=0,fixed=False,superclass=False,sourceArray:list|tuple=None):
+      self.__type = type
+      if sourceArray != None:
+         self.__superclass = True
+         super().__init__(sourceArray) #!Temporary, must convert first in real implementation
+      else:
+         self.__superclass = superclass
+         super().__init__((null() for i in range(length)))
+      self.fixed = fixed
+   def _getType(self):
+      return self.__type
+   _type = property(fget=_getType)
+   def _getFixed(self):
+      return self.__fixed
+   def _setFixed(self,value):
+      self.__fixed = value
+   fixed = property(fget=_getFixed,fset=_setFixed)
+   def _getLength(self):
+      return len(self)
+   def _setLength(self,value):
+      if self.fixed:
+         RangeError("Can not set vector length while fixed is set to true.")
+      elif value > 4294967296:
+         RangeError("New vector length outside of accepted range (0-4294967296).")
+      else:
+         if len(self) > value:
+            while len(self) > value:
+               self.pop()
+         elif len(self) < value:
+            while len(self) < value:
+               self.append(null())
+   length = property(fget=_getLength,fset=_setLength)
+   def __repr__(self):
+      return f'as3lib.Vector({self.__type}, {self})'
+   def __getitem__(self, item):
+      if isinstance(item, slice):...
+      else:
+         return super().__getitem__(item)
+   def __setitem__(self,item,value):
+      if self.__superclass:
+         if isinstance(value,(self._type,null)):
+            super().__setitem__(item,value)
+      else:
+         if type(value) == (self._type,type(null())):
+            super().__setitem__(item,value)
+   def concat(self,*args):
+      temp = Vector(self._type,superclass=True)
+      temp.extend(self)
+      if len(args) > 0:
+         for i in args:
+            if isinstance(i,Vector) and issubclass(i._type,self._type):
+               temp.extend(i)
+            elif not isinstance(i,Vector):
+               TypeError("Vector.concat; One or more arguements are not of type Vector")
+               pass
+            else:
+               TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
+               pass
+      temp.fixed = self.fixed
+      return temp
+   def every(self,callback,thisObject):
+      for i in range(len(self)):
+         if callback(self[i],i,self) == False:
+            return False
+      return True
+   def filter(self,callback,thisObject):
+      tempVect = Vector(type_=self._type,superclass=self.__superclass)
+      for i in range(len(self)):
+         if callback(self[i], i, self) == True:
+            tempVector.push(self[i])
+      return tempVector
+   def forEach(self,callback,thisObject):
+      for i in range(len(self)):
+         callback(self[i], i, self)
+   def indexOf(self,searchElement,fromIndex=0):
+      if fromIndex < 0:
+         fromIndex = len(self) - fromIndex
+      for i in range(fromIndex,len(self)):
+         if self[i] == searchElement:
+            return i
+      return -1
+   def insertAt(index,element):
+      if self.fixed:
+         RangeError("insertAt can not be called on a Vector with fixed set to true.")
+      elif self.__superclass:
+         if isinstance(element,(self._type,null)):...
+      else:...
+   def join(self,sep:str=","):...
+   def lastIndexOf(searchElement,fromIndex=None):
+      if fromIndex == None:
+         fromIndex = len(self)
+      elif fromIndex < 0:
+         fromIndex = len(self) - fromIndex
+      ...
+      #index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
+      #return index if index == -1 else len(self)-1-index
+   def map(self,callback,thisObject):
+      tempVect = Vector(type_=self._type,length=len(self),superclass=self.__superclass)
+      for i in range(len(self)):
+         tempVect[i] = callback(self[i],i,self)
+      return tempVect
+   def pop(self):
+      if self.fixed:
+         RangeError("pop can not be called on a Vector with fixed set to true.")
+      else:
+         return super().pop(-1)
+   def push(self,*args):
+      if self.fixed:
+         RangeError("push can not be called on a Vector with fixed set to true.")
+      else:
+         #!Check item types
+         self.extend(args)
+         return len(self)
+   def removeAt(self,index):
+      if self.fixed:
+         RangeError("removeAt can not be called on a Vector with fixed set to true.")
+      elif False: #!Index out of bounds
+         RangeError("index is out of bounds.")
+      else:
+         return super().pop(index)
+   def reverse(self):
+      super().reverse()
+      return self
+   def shift(self):
+      if self.fixed:
+         RangeError("shift can not be called on a Vector with fixed set to true.")
+      else:
+         return super().pop(0)
+   def slice():...
+   def some(self,callback,thisObject):
+      for i in range(len(self)):
+         if callback(self[i], i, self) == True:
+            return True
+      return False
+   def sort():...
+   def splice():...
+   def toLocaleString():...
+   def toString():...
+   def unshift(self,*args):
+      if self.fixed:
+         RangeError("unshift can not be called on a Vector with fixed set to true.")
+      else:
+         argsOK = True
+         if self.__superclass:
+            for i in args:
+               if not isinstance(i,(self._type,null)):
+                  argsOk = False
+                  break
+         else:
+            for i in args:
+               if not (isinstance(i,null) or type(i) == self._type):
+                  argsOk = False
+                  break
+         if not argsOK:
+            TypeError("One or more args is not of the Vector's base type.")
+         else:
+            tempVect = (*args,*self)
+            self.clear()
+            self.extend(tempVect)
+            return len(self)

@@ -1,5 +1,5 @@
 from as3lib import metaclasses
-import as3lib.toplevel as as3
+import as3lib as as3
 from copy import copy
 
 #BaseEvent

@@ -1,10 +1,8 @@
-from as3lib import toplevel as as3
-from as3lib.flash import net as fn
+import as3lib as as3
+import as3lib.flash.net as fn
 from as3lib.flash.events import EventDispatcher, TimerEvent
 from as3lib.flash import errors
 from as3lib import metaclasses
-from typing import Union
-import binascii
 from threading import Timer as timedExec
 from miniamf.amf3 import ByteArray as _ByteArray
 from as3lib import as3state
@@ -90,6 +88,10 @@ class ByteArray(_ByteArray):
    def clear(self):
       "Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance."
       self.truncate(0)
+   def compress(self,algorithm:str):
+      if algorithm != "zlib":
+         raise NotImplemented('The underlying stream currently only supports zlib compression.')
+      self.compressed = True
    def deflate():...
    def inflate():...
    def readBytes(self,bytes:ByteArray,offset=0,length=0):
@@ -113,7 +115,10 @@ class ByteArray(_ByteArray):
       """
       return "ByteArray"
    def toString(self):...
-   def uncompress():...
+   def uncompress(self,algorithm:str):
+      if algorithm != "zlib":
+         raise NotImplemented('The underlying stream currently only supports zlib compression.')
+      self.compressed = False
    def writeBytes(self,bytes:ByteArray,offset=0,length=0):
       startpos = bytes.tell()
       bytes.seek(offset)

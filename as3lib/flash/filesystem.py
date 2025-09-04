@@ -1,4 +1,4 @@
-import as3lib.toplevel as as3
+import as3lib as as3
 from as3lib import metaclasses, as3state
 from subprocess import check_output
 from subprocess import CalledProcessError as CPE

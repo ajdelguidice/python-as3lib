@@ -1,0 +1,69 @@
+import math as m
+import random
+from as3lib._toplevel.Object import *
+
+
+class Math(Object):
+   __slots__ = ()
+   E = 2.71828182845905
+   LN10 = 2.302585092994046
+   LN2 = 0.6931471805599453
+   LOG10E = 0.4342944819032518
+   LOG2E = 1.442695040888963387
+   PI = 3.141592653589793
+   SQRT1_2 = 0.7071067811865476
+   SQRT2 = 1.4142135623730951
+   @staticmethod
+   def abs(val):
+      return abs(val)
+   @staticmethod
+   def acos(val):
+      return m.acos(val)
+   @staticmethod
+   def asin(val):
+      return m.asin(val)
+   @staticmethod
+   def atan(val):
+      return m.atan(val)
+   @staticmethod
+   def atan2(y, x):
+      return m.atan2(y,x)
+   @staticmethod
+   def ceil(val):
+      return m.ceil(val)
+   @staticmethod
+   def cos(angleRadians):
+      return m.cos(angleRadians)
+   @staticmethod
+   def exp(val):
+      return m.exp(val)
+   @staticmethod
+   def floor(val):
+      return m.floor(val)
+   @staticmethod
+   def log(val):
+      return m.log(val)
+   @staticmethod
+   def max(*values):
+      return values[0] if len(values) == 1 else max(values)
+   @staticmethod
+   def min(*values):
+      return values[0] if len(values) == 1 else min(values)
+   @staticmethod
+   def pow(base, power):
+      return m.pow(base,power)
+   @staticmethod
+   def random():
+      return random.random()
+   @staticmethod
+   def round(val):
+      return round(val)
+   @staticmethod
+   def sin(angleRadians):
+     return m.sin(angleRadians)
+   @staticmethod
+   def sqrt(val):
+      return m.sqrt(val)
+   @staticmethod
+   def tan(angleRadians):
+      return m.tan(angleRadians)

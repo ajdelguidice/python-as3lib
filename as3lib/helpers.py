@@ -1,5 +1,4 @@
 import sys
-from . import toplevel as as3
 
 def help():
     return "This module inlcudes many things that might be useful when using this library but aren't in actionscript. EX: a helper for increasing python's maximum recursion depth."

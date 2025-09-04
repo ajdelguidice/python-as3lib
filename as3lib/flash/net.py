@@ -1,9 +1,8 @@
-import as3lib.toplevel as as3
-from typing import Union
+import as3lib as as3
 from as3lib.flash.events import Event, EventDispatcher #, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent, DataEvent
 from as3lib import metaclasses, as3state
 from tkinter import filedialog
-import as3lib.flash.utils as utils
+from as3lib.flash import utils
 from miniamf import sol
 import miniamf
 
@@ -22,7 +21,7 @@ def sendToURL(request):...
 
 class DatagramSocket:...
 class FileFilter:
-   def __init__(self,description:Union[str,as3.String],extension:Union[str,as3.String],macType:Union[str,as3.String]=None):
+   def __init__(self,description:str,extension:str,macType:str=None):
       self.description = description
       self.extension = extension
       self.macType = macType
@@ -64,7 +63,7 @@ class FileReference(EventDispatcher):
    def _setFile(self,file):
       #Sets the file and all of its details
       ...
-   def browse(self,typeFilter:Union[as3.Array,list,tuple]=None):
+   def browse(self,typeFilter:list|tuple=None):
       #typeFilter is an Array/list/tuple of FileFilter objects
       if typeFilter != None:
          filename = filedialog.askopenfilename(title="Select a file to upload",filetypes=tuple(i.toTkTuple() for i in typeFilter))

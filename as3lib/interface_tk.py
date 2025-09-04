@@ -4,7 +4,7 @@ from tkinter.ttk import Combobox, Notebook
 import tkhtmlview
 import PIL
 from io import BytesIO
-from as3lib import toplevel as as3
+import as3lib as as3
 try:
    from as3lib import cmath
 except:

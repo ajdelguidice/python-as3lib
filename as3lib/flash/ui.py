@@ -1,6 +1,6 @@
 import tkinter
 from as3lib import keyConversions, metaclasses
-from as3lib import toplevel as as3
+import as3lib as as3
 
 class CMItemList:
    def __init__(self):

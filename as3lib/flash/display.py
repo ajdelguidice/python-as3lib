@@ -1,8 +1,7 @@
-from as3lib import as3state,metaclasses
-import as3lib.toplevel as as3
-from typing import Union
+from as3lib import as3state, metaclasses
+import as3lib as as3
 import tkinter
-from typing import Generator, Any
+from typing import Generator
 from as3.flash.events import EventDispatcher
 
 #Dummy classes

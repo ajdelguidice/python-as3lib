@@ -1,4 +1,4 @@
-from as3lib import toplevel as as3
+import as3lib as as3
 from os import urandom
 from as3lib.flash.utils import ByteArray
 

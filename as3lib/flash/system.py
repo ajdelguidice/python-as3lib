@@ -1,4 +1,4 @@
-from as3lib import toplevel as as3
+import as3lib as as3
 from as3lib import as3state, metaclasses
 import platform
 from typing import Union
@@ -90,7 +90,7 @@ class Capabilities:
         if as3state.platform == "Android":
             return f"AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}"
     version = property(fget=_getVer)
-    def hasMultiChannelAudio(type:Union[str,as3.String]):...
+    def hasMultiChannelAudio(type:str):...
 def fscommand(command, args=""):
     """
     This is a simplified version of fscommand and does not do everything it should
