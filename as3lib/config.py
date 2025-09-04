@@ -1,4 +1,5 @@
 from as3lib import as3state
+from as3lib.as3state import __version__
 from io import StringIO
 from pathlib import Path
 try:
