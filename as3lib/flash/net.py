@@ -5,10 +5,19 @@ from as3lib import metaclasses, as3state
 from tkinter import filedialog
 import as3lib.flash.utils as utils
 from miniamf import sol
+import miniamf
 
-def getClassByAlias(aliasName:as3.allString):...
-def navigateToURL(request,window:as3.allString=None):...
-def registerClassAlias(aliasName:as3.allString,classObject):...
+def getClassByAlias(aliasName:str):
+   try:
+      return miniamf.get_class_alias(aliasName)
+   except miniamf.UnknownClassAlias:
+      as3.ReferenceError(f'Alias {aliasName} was not registered.')
+def navigateToURL(request,window:str=None):...
+def registerClassAlias(aliasName:str,classObject):
+   if aliasName == None or classObject == None:
+      as3.TypeError('Arguements to registerClassAlias can not be null.')
+      pass
+   miniamf.register_class(classObject,aliasName)
 def sendToURL(request):...
 
 class DatagramSocket:...
