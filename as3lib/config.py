@@ -107,6 +107,7 @@ def Load():
       tempmm = temp.get('mm.cfg')
       tempway = temp.get('wayland')
       cfg = {
+         'version':int(temp.get('version',as3state.__version__)),
          'migrateOldConfig':bool(temp.get('migrateOldConfig',False)),
          'dependenciesPassed':bool(temp.get('dependenciesPassed',False)),
          'addedFeatures':bool(temp.get('addedFeatures',False)),
@@ -128,6 +129,7 @@ def Load():
       }
    else:
       cfg = {
+         'version':as3state.__version__,
          'migrateOldConfig':True,
          'dependenciesPassed':False,
          'addedFeatures':False,
@@ -184,6 +186,7 @@ def Load():
          with open(oldcfgpath, 'r') as f:
             oldcfg.read_file(f)
          cfg = {
+            'version':as3state.__version__,
             'migrateOldConfig':False,
             'dependenciesPassed':False,
             'addedFeatures':False,
@@ -208,7 +211,7 @@ def Load():
       cfg['migrateOldConfig'] = False
    #Load some values into global state
    as3state.addedFeatures = cfg['addedFeatures']
-   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'])
+   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'] and cfg['version'] == as3state.__version__)
    as3state.flashVersion = cfg['flashVersion']
    as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
    as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
@@ -232,25 +235,26 @@ def Load():
 
 def Save(saveAnyways:bool=False):
    tempcfg = {
-         'migrateOldConfig':False,
-         'dependenciesPassed':as3state.hasDependencies,
-         'addedFeatures':as3state.addedFeatures,
-         'flashVersion':as3state.flashVersion,
-         'mm.cfg':{
-            'ErrorReportingEnable':as3state.ErrorReportingEnable,
-            'MaxWarnings':as3state.MaxWarnings,
-            'TraceOutputFileEnable':as3state.TraceOutputFileEnable,
-            'TraceOutputFileName':str(as3state.TraceOutputFileName),
-            'ClearLogsOnStartup':as3state.ClearLogsOnStartup,
-            'NoClearWarningNumber':0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
-         },
-         'wayland':{
-            'screenwidth':as3state.width,
-            'screenheight':as3state.height,
-            'refreshrate':as3state.refreshrate,
-            'colordepth':as3state.colordepth
-         } if as3state.displayserver == 'wayland' else {'screenwidth':1600,'screenheight':900,'refreshrate':60.0,'colordepth':8}
-      }
+      'version':as3state.__version__,
+      'migrateOldConfig':False,
+      'dependenciesPassed':as3state.hasDependencies,
+      'addedFeatures':as3state.addedFeatures,
+      'flashVersion':as3state.flashVersion,
+      'mm.cfg':{
+         'ErrorReportingEnable':as3state.ErrorReportingEnable,
+         'MaxWarnings':as3state.MaxWarnings,
+         'TraceOutputFileEnable':as3state.TraceOutputFileEnable,
+         'TraceOutputFileName':str(as3state.TraceOutputFileName),
+         'ClearLogsOnStartup':as3state.ClearLogsOnStartup,
+         'NoClearWarningNumber':0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
+      },
+      'wayland':{
+         'screenwidth':as3state.width,
+         'screenheight':as3state.height,
+         'refreshrate':as3state.refreshrate,
+         'colordepth':as3state.colordepth
+      } if as3state.displayserver == 'wayland' else {'screenwidth':1600,'screenheight':900,'refreshrate':60.0,'colordepth':8}
+   }
    if saveAnyways or as3state._cfg != tempcfg:
       TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
       as3state._cfg = tempcfg
