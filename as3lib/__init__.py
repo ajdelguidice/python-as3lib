@@ -1,6 +1,7 @@
 from . import as3state, config
 from pathlib import Path
 from subprocess import check_output
+import os
 
 """
 initerrors
@@ -43,26 +44,18 @@ def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
       return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
 
 def getDesktopDir():
-   if as3state.platform == "Linux":
-      deskdir = check_output(('echo','$XDG_DOCUMENTS_DIR')).decode("utf-8").replace("\n","")
-      if deskdir != "":
+   if as3state.platform == 'Linux':
+      deskdir = os.environ.get('XDG_DESKTOP_DIR')
+      if deskdir != None:
          return Path(deskdir)
    return as3state.userdirectory / "Desktop"
 
 def getDocumentsDir():
    if as3state.platform == "Linux":
-      deskdir = check_output(('echo','$XDG_DESKTOP_DIR')).decode("utf-8").replace("\n","")
-      if deskdir != "":
+      deskdir = os.environ.get('XDG_DOCUMENTS_DIR')
+      if deskdir != None:
          return Path(deskdir)
    return as3state.userdirectory / "Documents"
-
-def getdmtype():
-   for i in check_output("loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') -p Type", shell=True).decode("utf-8").split("\n"):
-      if len(i) > 0:
-         temp2 = i.split("=")[-1]
-         if temp2 in {"x11","wayland"}:
-            return temp2
-   return "error"
 
 def sm_x11():
    """
@@ -110,7 +103,7 @@ if not as3state.initdone:
    as3state.documentsdirectory = getDocumentsDir()
    as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
    if as3state.platform == "Linux":
-      as3state.displayserver = getdmtype()
+      as3state.displayserver = os.environ.get('XDG_SESSION_TYPE','error')
       if as3state.displayserver == "x11":
          as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_x11()
       elif as3state.displayserver == "wayland":
@@ -124,7 +117,7 @@ if not as3state.initdone:
       as3state.initerror.append((1,"Darwin: Fetching screen properties is not implemented."))
       #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
       ...
-   elif as3state.platform == "":
+   elif as3state.platform == '':
       as3state.initerror.append((4,"Detected platform is blank. Something is very wrong."))
    else:
       as3state.initerror.append((0,f"Current platform {as3state.platform} not supported."))
