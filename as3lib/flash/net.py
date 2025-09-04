@@ -153,6 +153,8 @@ class Responder:...
 class SecureSocket:...
 
 class SharedObject(dict):
+   #! Make this a child of EventDispatcher
+   #! Implement remote shared objects
    defaultObjectEncoding = 3 #This can be set globally
    def __getSize(self):
       return len(sol.encode(self._name,self['data'],encoding=self.objectEncoding))
@@ -166,7 +168,9 @@ class SharedObject(dict):
       self._name = None
       self._path = None
       self['data'] = {}
-   def clear(self):...
+   def clear(self):
+      self._path.unlink(missing_ok=True)
+      self['data'].clear()
    def close(self):...
    def connect(self):...
    def flush(self,minDiskSpace=0):
@@ -192,6 +196,7 @@ class SharedObject(dict):
          with obj._path.open('rb') as f:
             obj['data'] = dict(sol.load(f))
       return obj
+   @staticmethod
    def getRemote(self,name,remotePath=None,persistance=False,secure=False):...
    def send(self,*arguments):...
    def setDirty(self,propertyName):...
