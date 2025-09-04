@@ -11,10 +11,12 @@ initerrors
 4 - other error
 """
 
-def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=None,overrideVersion:str=None):
+def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
    """
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
+   Arguements:
+      sysverOverride: A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
    """
    if as3state.platform == "Windows":
       from os import getlogin
@@ -23,15 +25,15 @@ def defaultTraceFilePath_Flash(versionOverride:bool=False,overrideSystem:str=Non
       from os import getuid
       from pwd import getpwuid
       username = getpwuid(getuid())[0]
-   if versionOverride == True:
-      if overrideSystem == "Linux":
+   if sysverOverride != None:
+      if sysverOverride[0] == "Linux":
          return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
-      if overrideSystem == "Darwin":
+      if sysverOverride[0] == "Darwin":
          return fr"/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt"
-      if overrideSystem == "Windows":
-         if overrideVersion in {"95","98","ME","XP"}:
+      if sysverOverride[0] == "Windows":
+         if sysverOverride[1] in {"95","98","ME","XP"}:
             return fr"C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt"
-         if overrideVersion in {"Vista","7","8","8.1","10","11"}:
+         if sysverOverride[1] in {"Vista","7","8","8.1","10","11"}:
             return fr"C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt"
    if as3state.platform == "Linux":
       return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
