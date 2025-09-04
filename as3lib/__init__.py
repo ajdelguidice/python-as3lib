@@ -11,12 +11,12 @@ initerrors
 4 - other error
 """
 
+# Helper functions
 def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
    """
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
-   Since anything earlier than Windows 7 isn't supported by python 3, you normally wouldn't be able to get the file path for these systems but I have included an optional parameter to force this function to return it.
    Arguements:
-      sysverOverride: A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
+      sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
    """
    if as3state.platform == "Windows":
       from os import getlogin
@@ -87,19 +87,19 @@ def sm_windows():
    try:
       import win32api
    except:
-      as3state.initerror.append((3,"Windows: requirement pywin32 either not installed or not accessible."))
+      as3state.initerror.append((3,"Windows: Requirement pywin32 either not installed or not accessible."))
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
    temp = tuple(getattr(settings,i) for i in ('DisplayFrequency','BitsPerPel'))
    return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[0]), int(temp[1])
 
 def sm_darwin():...
 
+# Initialise as3lib
 if as3state.startTime == None:
    from datetime import datetime
    from miniamf import util
    as3state.startTime = int(util.get_timestamp(datetime.now()) * 1000)
 if not as3state.initdone:
-   #set up variables needed by mutiple modules
    import platform
    as3state.platform = platform.system()
    as3state.separator = "\\" if as3state.platform == "Windows" else "/"
@@ -115,9 +115,9 @@ if not as3state.initdone:
          as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_x11()
       elif as3state.displayserver == "wayland":
          #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
-         ... #Loaded from config
+         ... # Loaded from config
       else:
-         as3state.initerror.append((2,f"windowmanagertype \"{as3state.windowmanagertype}\" not supported"))
+         as3state.initerror.append((2,f"Linux: Display server \"{as3state.windowmanagertype}\" not supported."))
    elif as3state.platform == "Windows":
       as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_windows()
    elif as3state.platform == "Darwin":
@@ -125,27 +125,27 @@ if not as3state.initdone:
       #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
       ...
    elif as3state.platform == "":
-      as3state.initerror.append((4,"Platform could not be determined"))
+      as3state.initerror.append((4,"Detected platform is blank. Something is very wrong."))
    else:
-      as3state.initerror.append((0,f"Current platform {as3state.platform} not supported"))
+      as3state.initerror.append((0,f"Current platform {as3state.platform} not supported."))
 
-   #Load the config
+   # Load the config
    config.Load()
    if as3state.ClearLogsOnStartup:
       if as3state.TraceOutputFileName.exists():
          with open(as3state.TraceOutputFileName, "w") as f:
             f.write('')
 
-   #Report errors to user
+   # Display errors to user
    if len(as3state.initerror) != 0:
-      print(f"Warning: as3lib has initialized with errors, some functionality may be broken.\n{''.join((f"\tType={i[0]}; Message={i[1]}\n" for i in as3state.initerror))}")
+      print(f"Warning: as3lib has initialised with errors, some functionality may be broken.\n{''.join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}")
 
-   #Tell others that library has been initialized
+   # Tell others that library has been initialised
    as3state.initdone = True
 
 
 
-
+# Export toplevel and set up miniamf adapters
 from .toplevel import *
 from .toplevel import int as Int
 try:
