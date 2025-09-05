@@ -2,7 +2,6 @@ import as3lib as as3
 from as3lib import metaclasses, as3state
 from subprocess import check_output
 from subprocess import CalledProcessError as CPE
-from typing import Union
 
 class File:
    applicationDirectory
@@ -39,7 +38,7 @@ class File:
       #linux and macos:
       # make sure file name doesn't contain a slash
       ...
-   def __init__(self,path:Union[str,as3.String]):
+   def __init__(self,path:str):
       #!detect url path
       #!convert path to native path and url
       #!Throw exception ArguementError if path is invalid

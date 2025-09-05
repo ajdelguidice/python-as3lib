@@ -16,7 +16,7 @@ def _winNameGen()-> Generator[int,None,None]:
 _windowNameGenerator: Generator[int,None,None] = _winNameGen()
 
 class as3totk:
-   def anchors(flashalign:as3.allString):
+   def anchors(flashalign:str):
       if flashalign == "B":
          return "s"
       if flashalign == "BL":
@@ -199,11 +199,11 @@ class NativeWindowInitOptions:
       self.maximizable:as3.allBoolean = kwargs.get('maximizable', True)
       self.minimizable:as3.allBoolean = kwargs.get('minimizable', True)
       self.owner:NativeWindow = kwargs.get('owner', as3.null)
-      self.renderMode:as3.allString = kwargs.get('renderMode')
+      self.renderMode:str = kwargs.get('renderMode')
       self.resizable:as3.allBoolean = kwargs.get('resizable', True)
-      self.systemChrome:as3.allString = kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD)
+      self.systemChrome:str = kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD)
       self.transparent:as3.allBoolean = kwargs.get('transparent', False)
-      self.type:as3.allString = kwargs.get('type', NativeWindowType.NORMAL)
+      self.type:str = kwargs.get('type', NativeWindowType.NORMAL)
 class NativeWindowRenderMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AUTO = "auto"
    CPU = "cpu"

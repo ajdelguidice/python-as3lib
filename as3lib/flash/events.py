@@ -163,7 +163,7 @@ class EventDispatcher:
       #!Implement target
       self._events = {}
       self._eventsCapture = {}
-   def addEventListener(self,type:as3.allString,listener,useCapture:as3.allBoolean=False,priority:as3.allInt=0,useWeakReference:as3.allBoolean=False):
+   def addEventListener(self,type:str,listener,useCapture:as3.allBoolean=False,priority:as3.allInt=0,useWeakReference:as3.allBoolean=False):
       #!Add error
       if useCapture == False:
          if self._events.get(type) == None:
@@ -201,7 +201,7 @@ class EventDispatcher:
       if self._events.get(type) != None or self._eventsCapture.get(type) != None:
          return True
       return False
-   def removeEventListener(self,type:as3.allString,listener,useCapture:as3.allBoolean=False):
+   def removeEventListener(self,type:str,listener,useCapture:as3.allBoolean=False):
       if useCapture == False:
          if self._events.get(type) != None:
             try:
@@ -214,7 +214,7 @@ class EventDispatcher:
                self._eventsCapture[type].remove(listener)
             except:
                pass
-   def willTrigger(self,type:as3.allString):...
+   def willTrigger(self,type:str):...
 class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    AT_TARGET = 2
    BUBBLING_PHASE = 3
