@@ -2,14 +2,20 @@ from as3lib._toplevel.Functions import trace
 from as3lib._toplevel.Object import Object
 import traceback
 
+def _genErrNum():
+   i = 0
+   while True:
+      yield i
+      i += 1
+
 #! Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
 class Error(Exception, Object):
    #! Make this a child of Object
    name = 'Error'
    message = 'Error'
-   errorID = 0 # This isn't implemented yet
+   errorID = 0
    def __init__(self, message="", id=0):
-      self.errorID = id
+      self.errorID = _genErrNum() if id == 0 else id
       self.message = message
       trace(self.toString(),isError=True)
    def getStackTrace(self):
