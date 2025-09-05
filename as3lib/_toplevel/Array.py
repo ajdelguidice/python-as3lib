@@ -1,8 +1,8 @@
 import builtins
-from io import StringIO
 from functools import cmp_to_key
 from inspect import isfunction
 from types import NoneType
+from as3lib.helpers import *
 from as3lib._toplevel.int import *
 from as3lib._toplevel.Constants import *
 from as3lib._toplevel.Errors import *
@@ -11,7 +11,7 @@ from as3lib._toplevel.Functions import trace
 from as3lib._toplevel.Boolean import *
 from as3lib._toplevel.Number import *
 from as3lib._toplevel.uint import *
-from as3lib import helpers
+
 
 class Array(list, Object):
    #!Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
@@ -309,7 +309,7 @@ class Array(list, Object):
                if len(y) > 1:
                   return -1
                return 0
-         with helpers.recursionDepth(100000):
+         with recursionDepth(100000):
             super().sort(key=cmp_to_key(s))
       elif len(args) == 1:
          if isinstance(args[0],(bool,Boolean)) and args[0] == True:
@@ -373,7 +373,7 @@ class Array(list, Object):
       """
       return self.toString()
    def __listtostr(self,l):
-      with StringIO() as res:
+      with textObject() as res:
          for i in l:
             if isinstance(i,(list,tuple)):
                res.write(self.__listtostr(i) + ",")
@@ -382,7 +382,7 @@ class Array(list, Object):
                res.write(",")
                continue
             res.write(f"{i},")
-         return res.getvalue()[:-1]
+         return res.get()[:-1]
    def toString(self, formatLikePython:bool|Boolean=False, interpretation=1):
       """
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
