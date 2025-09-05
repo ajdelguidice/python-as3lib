@@ -29,7 +29,7 @@ class Array(list, Object):
          super().__init__(args)
       else:
          if numElements < 0:
-            RangeError(f"Array; numElements can not be less than 0. numElements is {numElements}")
+            raise RangeError(f"Array; numElements can not be less than 0. numElements is {numElements}")
          else:
             super().__init__([self.filler for i in range(numElements)])
    def __getitem__(self, item):
@@ -52,7 +52,7 @@ class Array(list, Object):
       return len(self)
    def _setLength(self,value:builtins.int|int):
       if value < 0:
-         RangeError(f"Array; new length {value} is below zero")
+         raise RangeError(f"Array.length can not be negative. got {value}")
       elif value == 0:
          self.clear()
       elif len(self) > value:
@@ -202,8 +202,7 @@ class Array(list, Object):
       if fromIndex == None:
          fromIndex = len(self)
       elif fromIndex < 0:
-         RangeError(f"Array.lastIndexOf; fromIndex can not be less than 0, fromIndex is {fromIndex}")
-         return None
+         raise RangeError(f"Array.lastIndexOf; fromIndex can not negative. got {fromIndex}")
       index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
       return index if index == -1 else len(self)-1-index
    def map(self, callback:callable):
@@ -318,19 +317,19 @@ class Array(list, Object):
             super().sort(key=lambda:cmp_to_key(args[0]))
          elif isinstance(args[0],(builtins.int,float,int,uint,Number)):
             if args[0] == 1: #CASEINSENSITIVE
-               raise Exception("Not Implemented Yet")
+               raise NotImplementedError("Array.sort(1)")
             elif args[0] == 2: #DESCENDING
-               raise Exception("Not Implemented Yet")
+               raise NotImplementedError("Array.sort(2)")
             elif args[0] == 4: #UNIQUESORT
-               raise Exception("Not Implemented Yet")
+               raise NotImplementedError("Array.sort(4)")
             elif args[0] == 8: #RETURNINDEXEDARRAY
-               raise Exception("Not Implemented Yet")
+               raise NotImplementedError("Array.sort(8)")
             elif args[0] == 16: #NUMERIC
                def s(x,y):
                   try:
                      x,y = float(x),float(y)
                   except:
-                     raise Exception("Array.sort: Error: Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
+                     raise Error("Array.sort; Can not use Array.NUMERIC (16) when array doesn't only contain numbers or strings that convert to numbers")
                   if x > y:
                      return 1
                   if x < y:
@@ -339,11 +338,11 @@ class Array(list, Object):
                      return 0
                super().sort(key=cmp_to_key(s))
             else:
-               raise Exception(f"Array.sort: Error: sortOption {sortOption} is not implemented yet")
+               raise NotImplementedError(f"Array.sort({sortOption})")
          elif type(args[0]) in (tuple,list,Array):
-            raise Exception(f"Array.sort: Error: Using multiple sortOptions is not implemented yet")
+            raise NotImplementedError(f"Array.sort with multiple sortOptions")
       else:
-         raise Exception(f"Using more than one arguement is not implemented yet")
+         raise NotImplementedError(f"Array.sort with more than one arguement")
    def sortOn():...
    def splice(self, startIndex:builtins.int|int, deleteCount:builtins.int|int, *values):
       """
@@ -358,8 +357,7 @@ class Array(list, Object):
       if startIndex < 0:
          startIndex = len(self) + startIndex
       if deleteCount < 0:
-         RangeError(f"Array.splice; deleteCount can not be less than 0, deleteCount is {deleteCount}")
-         return None
+         raise RangeError(f"Array.splice; deleteCount can not negative. got {deleteCount}")
       removedValues = self[startIndex:startIndex+deleteCount]
       self[startIndex:startIndex+deleteCount] = values
       return removedValues

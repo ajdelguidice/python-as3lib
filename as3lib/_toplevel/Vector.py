@@ -31,16 +31,15 @@ class Vector(list, Object):
       return len(self)
    def _setLength(self,value):
       if self.fixed:
-         RangeError("Can not set vector length while fixed is set to true.")
-      elif value > 4294967296:
-         RangeError("New vector length outside of accepted range (0-4294967296).")
-      else:
-         if len(self) > value:
-            while len(self) > value:
-               self.pop()
-         elif len(self) < value:
-            while len(self) < value:
-               self.append(null())
+         raise RangeError("Can not set vector length while fixed is set to true.")
+      if value > 4294967296:
+         raise RangeError("New vector length outside of accepted range (0-4294967296).")
+      if len(self) > value:
+         while len(self) > value:
+            self.pop()
+      elif len(self) < value:
+         while len(self) < value:
+            self.append(null())
    length = property(fget=_getLength,fset=_setLength)
    def __repr__(self):
       return f'as3lib.Vector({self.__type}, {self})'
@@ -63,11 +62,9 @@ class Vector(list, Object):
             if isinstance(i,Vector) and issubclass(i._type,self._type):
                temp.extend(i)
             elif not isinstance(i,Vector):
-               TypeError("Vector.concat; One or more arguements are not of type Vector")
-               pass
+               raise TypeError("Vector.concat; One or more arguements are not of type Vector")
             else:
-               TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
-               pass
+               raise TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
       temp.fixed = self.fixed
       return temp
    def every(self,callback,thisObject):
@@ -93,7 +90,7 @@ class Vector(list, Object):
       return -1
    def insertAt(index,element):
       if self.fixed:
-         RangeError("insertAt can not be called on a Vector with fixed set to true.")
+         raise RangeError("insertAt can not be called on a Vector with fixed set to true.")
       elif self.__superclass:
          if isinstance(element,(self._type,null)):...
       else:...
@@ -113,31 +110,27 @@ class Vector(list, Object):
       return tempVect
    def pop(self):
       if self.fixed:
-         RangeError("pop can not be called on a Vector with fixed set to true.")
-      else:
-         return super().pop(-1)
+         raise RangeError("pop can not be called on a Vector with fixed set to true.")
+      return super().pop(-1)
    def push(self,*args):
       if self.fixed:
-         RangeError("push can not be called on a Vector with fixed set to true.")
-      else:
-         #!Check item types
-         self.extend(args)
-         return len(self)
+         raise RangeError("push can not be called on a Vector with fixed set to true.")
+      #!Check item types
+      self.extend(args)
+      return len(self)
    def removeAt(self,index):
       if self.fixed:
-         RangeError("removeAt can not be called on a Vector with fixed set to true.")
+         raise RangeError("removeAt can not be called on a Vector with fixed set to true.")
       elif False: #!Index out of bounds
-         RangeError("index is out of bounds.")
-      else:
-         return super().pop(index)
+         raise RangeError("index is out of bounds.")
+      return super().pop(index)
    def reverse(self):
       super().reverse()
       return self
    def shift(self):
       if self.fixed:
-         RangeError("shift can not be called on a Vector with fixed set to true.")
-      else:
-         return super().pop(0)
+         raise RangeError("shift can not be called on a Vector with fixed set to true.")
+      return super().pop(0)
    def slice():...
    def some(self,callback,thisObject):
       for i in range(len(self)):
@@ -150,23 +143,21 @@ class Vector(list, Object):
    def toString():...
    def unshift(self,*args):
       if self.fixed:
-         RangeError("unshift can not be called on a Vector with fixed set to true.")
+         raise RangeError("unshift can not be called on a Vector with fixed set to true.")
+      argsOK = True
+      if self.__superclass:
+         for i in args:
+            if not isinstance(i,(self._type,null)):
+               argsOk = False
+               break
       else:
-         argsOK = True
-         if self.__superclass:
-            for i in args:
-               if not isinstance(i,(self._type,null)):
-                  argsOk = False
-                  break
-         else:
-            for i in args:
-               if not (isinstance(i,null) or type(i) == self._type):
-                  argsOk = False
-                  break
-         if not argsOK:
-            TypeError("One or more args is not of the Vector's base type.")
-         else:
-            tempVect = (*args,*self)
-            self.clear()
-            self.extend(tempVect)
-            return len(self)
+         for i in args:
+            if not (isinstance(i,null) or type(i) == self._type):
+               argsOk = False
+               break
+      if not argsOK:
+         raise TypeError("One or more args is not of the Vector's base type.")
+      tempVect = (*args,*self)
+      self.clear()
+      self.extend(tempVect)
+      return len(self)

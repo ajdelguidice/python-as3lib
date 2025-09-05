@@ -57,8 +57,7 @@ def parseInt(str_:str,radix:int|uint=0):
       radix = 16
       str_ = str_[2:]
    elif radix < 2 or radix > 36:
-      trace("parseInt",f"radix {radix} is outside of the acceptable range",isError=True)
-      pass
+      raise Error(f"parseInt; radix {radix} is outside of the acceptable range")
    if str_.startswith("0"):
       zero = True
       str_.lstrip("0")
@@ -191,7 +190,7 @@ def isValidDirectory(directory,separator=None):
                   return False
    return True
 def setDataDirectory(directory:str):
-   if isValidDirectory(Path(directory)):
-      as3state.appdatadirectory = Path(directory)
-   else:
-      Error(f"setDataDirectory; Directory {directory} not valid")
+   if not isValidDirectory(Path(directory)):
+      raise Error(f"setDataDirectory; Directory {directory} not valid")
+   as3state.appdatadirectory = Path(directory)
+      

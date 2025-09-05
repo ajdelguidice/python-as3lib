@@ -60,42 +60,39 @@ class int(Object):
       raise TypeError(f"Can not convert type {type(value)} to integer")
    def toExponential(self, fractionDigits:builtins.int|int):
       if fractionDigits < 0 and fractionDigits > 20:
-         RangeError("fractionDigits is outside of acceptable range")
+         raise RangeError("fractionDigits is outside of acceptable range")
+      temp = str(self._value)
+      if temp[0] == "-":
+         whole = temp[:2]
+         temp = temp[2:]
       else:
-         temp = str(self._value)
-         if temp[0] == "-":
-            whole = temp[:2]
-            temp = temp[2:]
-         else:
-            whole = temp[:1]
-            temp = temp[1:]
-         decpos = temp.find(".")
-         if decpos == -1:
-            exponent = len(temp)
-         else:
-            exponent = len(temp[:decpos])
-         temp = temp.replace(".","") + "0"*20
-         if fractionDigits > 0:
-            return f"{whole}.{''.join([temp[i] for i in range(fractionDigits)])}e+{exponent}"
-         return f"{whole}e+{exponent}"
+         whole = temp[:1]
+         temp = temp[1:]
+      decpos = temp.find(".")
+      if decpos == -1:
+         exponent = len(temp)
+      else:
+         exponent = len(temp[:decpos])
+      temp = temp.replace(".","") + "0"*20
+      if fractionDigits > 0:
+         return f"{whole}.{''.join([temp[i] for i in range(fractionDigits)])}e+{exponent}"
+      return f"{whole}e+{exponent}"
    def toFixed(self, fractionDigits:builtins.int|int):
       if fractionDigits < 0 or fractionDigits > 20:
-         RangeError("fractionDigits is outside of acceptable range")
-      else:
-         if fractionDigits == 0:
-            return f"{self._value}"
-         return f"{self._value}.{'0'*fractionDigits}"
+         raise RangeError("fractionDigits is outside of acceptable range")
+      if fractionDigits == 0:
+         return f"{self._value}"
+      return f"{self._value}.{'0'*fractionDigits}"
    def toPrecision(self,precision:builtins.int|int|uint):
       if precision < 1 or precision > 21:
-         RangeError("fractionDigits is outside of acceptable range")
-      else:
-         temp = str(self._value)
-         length = len(temp)
-         if precision < length:
-            return self.toExponential(precision-1)
-         if precision == length:
-            return temp
-         return f"{temp}.{'0'*(precision-length)}"
+         raise RangeError("fractionDigits is outside of acceptable range")
+      temp = str(self._value)
+      length = len(temp)
+      if precision < length:
+         return self.toExponential(precision-1)
+      if precision == length:
+         return temp
+      return f"{temp}.{'0'*(precision-length)}"
    def toString(self, radix:builtins.int|int|uint=10):
       if radix <= 36 and radix >= 2:
          return base_repr(self._value, base=radix)
