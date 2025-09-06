@@ -6,6 +6,7 @@ try:
    import tomllib
 except:
    import tomli as tomllib
+from as3lib._toplevel.Errors import *
 
 class TOML:
    '''
@@ -98,8 +99,7 @@ def _dependencyCheck(cfgval):
 
 def Load():
    if as3state._cfg != None:
-      print("Error: Config has already been loaded")
-      pass
+      raise Error('Config has already been loaded')
    #Load config from files
    configpath = as3state.librarydirectory / 'as3lib.toml'
    modified = False
