@@ -8,13 +8,15 @@ def _genErrNum():
       yield i
       i += 1
 
+_ErNo = _genErrNum()
+
 #! Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
 class Error(Exception, Object):
    name = 'Error'
    message = 'Error'
    errorID = 0
    def __init__(self, message="", id=0):
-      self.errorID = _genErrNum() if id == 0 else id
+      self.errorID = next(_ErNo) if id == 0 else id
       self.message = message
       errorTrace(self.toString())
    def getStackTrace(self):
