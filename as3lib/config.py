@@ -154,20 +154,20 @@ def Load():
       }
       modified = True
    if cfg['migrateOldConfig']:
-      from configparser import ConfigParser
+      from configparser import ConfigParser, UNNAMED_SECTION
       modified = True
       mmcfgpath = as3state.librarydirectory / "mm.cfg"
       wlcfgpath = as3state.librarydirectory / "wayland.cfg"
       oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
       if mmcfgpath.exists():
-         mmcfg = ConfigParser()
+         mmcfg = ConfigParser(allow_unnamed_section=True)
          with open(mmcfgpath, 'r') as f:
-            mmcfg.read_string('[dummy_section]\n' + f.read())
+            mmcfg.read_file(f)
          cfg['mm.cfg'] = {
-            'ErrorReportingEnable':True if mmcfg.getint('dummy_section','ErrorReportingEnable',fallback=0) == 1 else False,
-            'MaxWarnings':mmcfg.getint('dummy_section','MaxWarnings',fallback=100),
-            'TraceOutputFileEnable':True if mmcfg.getboolean('dummy_section','TraceOutputFileEnable',fallback=0) == 1 else False,
-            'TraceOutputFileName':mmcfg.get('dummy_section','TraceOutputFileName',fallback=''),
+            'ErrorReportingEnable':True if mmcfg.getint(UNNAMED_SECTION,'ErrorReportingEnable',fallback=0) == 1 else False,
+            'MaxWarnings':mmcfg.getint(UNNAMED_SECTION,'MaxWarnings',fallback=100),
+            'TraceOutputFileEnable':True if mmcfg.getboolean(UNNAMED_SECTION,'TraceOutputFileEnable',fallback=0) == 1 else False,
+            'TraceOutputFileName':mmcfg.get(UNNAMED_SECTION,'TraceOutputFileName',fallback=''),
             'ClearLogsOnStartup':True,
             'NoClearWarningNumber':0
          }
