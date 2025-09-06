@@ -153,30 +153,29 @@ def as3import(packageName:str,namespace,name:str=None):
       raise NotImplemented("\"*\" imports are not implemented yet")
    else:
       file = as3state.librarydirectory / ("/".join(pkg) + ".py")
-      if file.exists():
-         if file.is_file():
-            with open(file,"rb") as f:
-               b = (b := f.read())[:b.find(b"\n")].split(b" ")
-            if b[0] == b"#?as3package":
-               if len(b) == 1: #Import the object inside of the file that is the same as the file name
-                  package = getattr(__import__(f"as3lib.{'.'.join(pkg)}",globals(),locals(),(pkg[-1]),0),pkg[-1])
-                  if namespace == "*":
-                     return package
-                  if isinstance(namespace,dict) and namespace.get("__name__") != None: #Is a globals() dict
-                     if name == None:
-                        namespace.update({pkg[-1]:package})
-                     else:
-                        namespace.update({name:package})
-                  elif name == None:
-                     setattr(namespace,pkg[-1],package)
-                  else:
-                     setattr(namespace,name,package)
-               else: #!When package has specific place to be
-                  raise NotImplemented("Packages with specific locations are not implemented.")
-         else: #!Is directory
-            raise NotImplemented("Importing directories as packages is not implemented yet.")
-      else:
+      if not file.exists():
          raise Exception(f"Package \"as3lib.{packageName}\" does not exist.")
+      if file.is_file():
+         raise NotImplemented("Importing directories as packages is not implemented yet.")
+      with open(file,"rb") as f:
+         b = (b := f.read())[:b.find(b"\n")].split(b" ")
+      if b[0] == b"#?as3package":
+         if len(b) == 1: #Import the object inside of the file that is the same as the file name
+            package = getattr(__import__(f"as3lib.{'.'.join(pkg)}",globals(),locals(),(pkg[-1]),0),pkg[-1])
+            if namespace == "*":
+               return package
+            if isinstance(namespace,dict) and namespace.get("__name__") != None: #Is a globals() dict
+               if name == None:
+                  namespace.update({pkg[-1]:package})
+               else:
+                  namespace.update({name:package})
+            elif name == None:
+               setattr(namespace,pkg[-1],package)
+            else:
+               setattr(namespace,name,package)
+         else: #!When package has specific place to be
+            raise NotImplemented("Packages with specific locations are not implemented.")
+         
 
 
 # Export toplevel and set up miniamf adapters
