@@ -237,15 +237,21 @@ class ComboCheckboxUserEntry:
          self._properties["mul"] = 2
       self.frame = tkinter.Frame(master,borderwidth=0,highlightthickness=0)
       self.frame.place(x=x,y=y,width=width,height=height*self._properties["mul"],anchor=anchor)
-      if entrytype != "Single":
+      if entrytype == "Single":
+         self.cbvar = tkinter.BooleanVar()
+         self.cb = tkinter.Checkbutton(self.frame,variable=self.cbvar,command=self.checkCB)
+         self.cb.place(x=0,y=0,width=height,height=height,anchor="nw")
          self.l1 = tkinter.Label(self.frame,text=text1,font=font,anchor="w")
-         if entrytype != "File":
-            self.cbvar = tkinter.IntVar()
+         self.l1.place(x=height,y=0,width=width-height,height=height,anchor="nw")
+      else:
+         self.l1 = tkinter.Label(self.frame,text=text1,font=font,anchor="w")
+         if entrytype == "File":
+            self.l1.place(x=0,y=0,width=width-height,height=height,anchor="nw")
+         else:
+            self.cbvar = tkinter.BooleanVar()
             self.cb = tkinter.Checkbutton(self.frame,variable=self.cbvar,command=self.checkCB)
             self.cb.place(x=0,y=0,width=height,height=height,anchor="nw")
             self.l1.place(x=height,y=0,width=width-height,height=height,anchor="nw")
-         else:
-            self.l1.place(x=0,y=0,width=width-height,height=height,anchor="nw")
          #create second line
          self.l2 = tkinter.Label(self.frame,text=text2[1],anchor="w")
          self.l2.place(x=indent,y=height,width=text2[0],height=height,anchor="nw")
@@ -264,12 +270,6 @@ class ComboCheckboxUserEntry:
             self.checkCB()
          else:
             self.ue.place(x=indent+text2[0],y=height,width=entrywidth-height,height=height,anchor="nw")
-      else:
-         self.cbvar = tkinter.IntVar()
-         self.cb = tkinter.Checkbutton(self.frame,variable=self.cbvar,command=self.checkCB)
-         self.cb.place(x=0,y=0,width=height,height=height,anchor="nw")
-         self.l1 = tkinter.Label(self.frame,text=text1,font=font,anchor="w")
-         self.l1.place(x=height,y=0,width=width-height,height=height,anchor="nw")
    def setUEBehavior(self,which):
       if which in {"Keep","Restore","Discard"}:
          self.uevalbehavior = which
@@ -286,7 +286,7 @@ class ComboCheckboxUserEntry:
       else:
          self.uevar.set(file)
    def checkCB(self):
-      if self.cbvar.get() == 1:
+      if self.cbvar.get():
          self.enableue()
       else:
          self.disableue()
