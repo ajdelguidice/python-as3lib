@@ -6,11 +6,7 @@ from as3lib._toplevel.trace import *
 from as3lib._toplevel.Number import *
 
 class Boolean(Object):
-   """
-   Lets you create boolean object similar to ActionScript3
-   Since python has to be different, values are "True" and "False" instead of "true" and "false"
-   """
-   __slots__ = ("_value")
+   __slots__ = ('_value')
    def __init__(self, expression=False):
       self._value = self._Boolean(expression)
    def __str__(self):
@@ -21,19 +17,21 @@ class Boolean(Object):
       return self._value
    def __setitem__(self, value):
       self._value = value
+   def __bool__(self):
+      return self._value
+   def __float__(self):
+      return float(self._value)
+   def __int__(self):
+      return int(self._value)
    def _Boolean(self, expression=None):
       if isinstance(expression,bool):
          return expression
-      if isinstance(expression,Boolean):
-         return expression._value
-      if isinstance(expression,(builtins.int,float,uint,int,Number)):
+      if isinstance(expression,(uint,Number)):
          return False if expression == 0 else True
       if isinstance(expression,(NaN,null,undefined,None)):
          return False
-      if isinstance(expression,str):
-         if expression == "":
-            return False
-         return True
+      if hasattr(expression,'__bool__'):
+         return bool(expression)
    def toString(self):
       return str(self._value).lower()
    def valueOf(self):

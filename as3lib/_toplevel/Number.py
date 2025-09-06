@@ -6,7 +6,7 @@ from as3lib._toplevel.int import *
 from as3lib._toplevel.Boolean import *
 
 class Number(Object):
-   __slots__ = ("_value")
+   __slots__ = ('_value')
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
    NaN = NaN()
@@ -30,17 +30,17 @@ class Number(Object):
       try:
          return Number(self._value + float(value))
       except ValueError:
-         raise TypeError(f"can not add {type(value)} to Number")
+         raise TypeError(f'can not add {type(value)} to Number')
    def __sub__(self, value):
       try:
          return Number(self._value - float(value))
       except ValueError:
-         raise TypeError(f"can not subtract {type(value)} from Number")
+         raise TypeError(f'can not subtract {type(value)} from Number')
    def __mul__(self, value):
       try:
          return Number(self._value * float(value))
       except ValueError:
-         raise TypeError(f"can not multiply Number by {type(value)}")
+         raise TypeError(f'can not multiply Number by {type(value)}')
    def __truediv__(self, value):
       if value == 0:
          if self._value == 0:
@@ -49,28 +49,25 @@ class Number(Object):
             return Number(Infinity())
          if self._value < 0:
             return Number(NInfinity())
-      else:
-         try:
-            return Number(self._value / float(value))
-         except:
-            raise TypeError(f"Can not divide Number by {type(value)}")
+      try:
+         return Number(self._value / float(value))
+      except:
+         raise TypeError(f'Can not divide Number by {type(value)}')
    def __float__(self):
       return float(self._value)
    def __int__(self):
       return builtins.int(self._value)
+   def __bool__(self):
+      bool(self._value)
    def _Number(self, expression):
       if isinstance(expression,(NInfinity,Infinity,float,Number)):
          return expression
       if isinstance(expression,(NoneType,NaN,undefined)):
          return NaN()
-      if isinstance(expression,(builtins.int,int)):
-         return float(expression)
       if isinstance(expression,null):
          return 0.0
-      if isinstance(expression,(bool,Boolean)):
-         if expression == True:
-            return 1.0
-         return 0.0
+      if hasattr(expression,'__float__'):
+         return float(expression)
       if isinstance(expression,str):
          if expression == "":
             return 0.0

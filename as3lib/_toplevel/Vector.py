@@ -3,13 +3,13 @@ from as3lib._toplevel.Constants import *
 from as3lib._toplevel.Errors import *
 
 class Vector(list, Object):
-   """
+   '''
    AS3 Vector datatype.
    
    Since python does not allow for multiple things to have the same name, the function and the class constructor have been merged. Here's how it works now:
      - If sourceArray is defined, the behavior for the function is used and the arguements are ignored.
      - The arguement "superclass" is provided for convinience. It makes the Vector object check the type as a superclass instead of as a strict type. Passing sourceArray sets this to true
-   """
+   '''
    def __init__(self,type,length=0,fixed=False,superclass=False,sourceArray:list|tuple=None):
       self.__type = type
       if sourceArray != None:
@@ -31,9 +31,9 @@ class Vector(list, Object):
       return len(self)
    def _setLength(self,value):
       if self.fixed:
-         raise RangeError("Can not set vector length while fixed is set to true.")
+         raise RangeError('Can not set vector length while fixed is set to true.')
       if value > 4294967296:
-         raise RangeError("New vector length outside of accepted range (0-4294967296).")
+         raise RangeError('New vector length outside of accepted range (0-4294967296).')
       if len(self) > value:
          while len(self) > value:
             self.pop()
@@ -62,9 +62,9 @@ class Vector(list, Object):
             if isinstance(i,Vector) and issubclass(i._type,self._type):
                temp.extend(i)
             elif not isinstance(i,Vector):
-               raise TypeError("Vector.concat; One or more arguements are not of type Vector")
+               raise TypeError('Vector.concat; One or more arguements are not of type Vector')
             else:
-               raise TypeError("Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.")
+               raise TypeError('Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.')
       temp.fixed = self.fixed
       return temp
    def every(self,callback,thisObject):
@@ -90,11 +90,11 @@ class Vector(list, Object):
       return -1
    def insertAt(index,element):
       if self.fixed:
-         raise RangeError("insertAt can not be called on a Vector with fixed set to true.")
+         raise RangeError('insertAt can not be called on a Vector with fixed set to true.')
       elif self.__superclass:
          if isinstance(element,(self._type,null)):...
       else:...
-   def join(self,sep:str=","):...
+   def join(self,sep:str=','):...
    def lastIndexOf(searchElement,fromIndex=None):
       if fromIndex == None:
          fromIndex = len(self)
@@ -110,26 +110,26 @@ class Vector(list, Object):
       return tempVect
    def pop(self):
       if self.fixed:
-         raise RangeError("pop can not be called on a Vector with fixed set to true.")
+         raise RangeError('pop can not be called on a Vector with fixed set to true.')
       return super().pop(-1)
    def push(self,*args):
       if self.fixed:
-         raise RangeError("push can not be called on a Vector with fixed set to true.")
+         raise RangeError('push can not be called on a Vector with fixed set to true.')
       #!Check item types
       self.extend(args)
       return len(self)
    def removeAt(self,index):
       if self.fixed:
-         raise RangeError("removeAt can not be called on a Vector with fixed set to true.")
+         raise RangeError('removeAt can not be called on a Vector with fixed set to true.')
       elif False: #!Index out of bounds
-         raise RangeError("index is out of bounds.")
+         raise RangeError('index is out of bounds.')
       return super().pop(index)
    def reverse(self):
       super().reverse()
       return self
    def shift(self):
       if self.fixed:
-         raise RangeError("shift can not be called on a Vector with fixed set to true.")
+         raise RangeError('shift can not be called on a Vector with fixed set to true.')
       return super().pop(0)
    def slice():...
    def some(self,callback,thisObject):
@@ -143,7 +143,7 @@ class Vector(list, Object):
    def toString():...
    def unshift(self,*args):
       if self.fixed:
-         raise RangeError("unshift can not be called on a Vector with fixed set to true.")
+         raise RangeError('unshift can not be called on a Vector with fixed set to true.')
       argsOK = True
       if self.__superclass:
          for i in args:
@@ -156,7 +156,7 @@ class Vector(list, Object):
                argsOk = False
                break
       if not argsOK:
-         raise TypeError("One or more args is not of the Vector's base type.")
+         raise TypeError('One or more args is not of the Vector\'s base type.')
       tempVect = (*args,*self)
       self.clear()
       self.extend(tempVect)

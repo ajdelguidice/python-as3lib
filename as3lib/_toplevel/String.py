@@ -5,9 +5,9 @@ from as3lib._toplevel.int import *
 from as3lib._toplevel.Functions import parseInt
 
 class String(str, Object):
-   def __init__(self, value=""):
-      self.__hiddeninit(self._String(value))
-   def __hiddeninit(self, value):
+   def __init__(self, value=''):
+      self.__init2(self._String(value))
+   def __init2(self, value):
       super().__init__()
    def _getLength(self):
       return len(self)
@@ -16,23 +16,21 @@ class String(str, Object):
       if isinstance(expression,str):
          return expression
       if isinstance(expression,bool):
-         if expression == True:
-            return "true"
-         return "false"
+         return 'true' if expression else 'false'
       if isinstance(expression,NaN):
-         return "NaN"
+         return 'NaN'
       if hasattr(expression, 'toString'):
          return expression.toString()
-      return f"{expression}"
+      return f'{expression}'
    def __repr__(self):
       return f'as3lib.String({self})'
    def __getitem__(self, item):
       return String(super().__getitem__(item))
    def __add__(self, value):
-      return String(f"{self}{self._String(value)}")
+      return String(f'{self}{self._String(value)}')
    def charAt(self, index:builtins.int|int=0):
       if index < 0 or index > len(self) - 1:
-         return ""
+         return ''
       return self[index]
    def charCodeAt(self, index:builtins.int|int=0):
       if index < 0 or index > len(self) - 1:
@@ -56,19 +54,19 @@ class String(str, Object):
    def split(delimiter = None, limit = 0x7fffffff):
       if isinstance(delimiter,(undefined,NoneType)):
          arr = Array(self)
-      elif delimiter == "" or False: #an empty string, an empty regular expression, or a regular expression that can match an empty string
+      elif delimiter == '' or False: #an empty string, an empty regular expression, or a regular expression that can match an empty string
          arr = Array(sourceArray=[i for i in self])
       elif False:... #If the delimiter parameter is a regular expression, only the first match at a given position of the string is considered, even if backtracking could find a nonempty substring match at that position.
       elif False:... #If the delimiter parameter is a regular expression containing grouping parentheses, then each time the delimiter is matched, the results (including any undefined results) of the grouping parentheses are spliced into the output array.
       if limit != 0x7fffffff:
          return arr[:limit]
       return arr
-   def substr(self, startIndex:builtins.int|int=0, len_:builtins.int|int=None):
-      if len_ < 0:
-         trace("Error")
+   def substr(self, startIndex:builtins.int|int=0, len:builtins.int|int=None):
+      if len < 0:
+         len = 0
       if startIndex < 0:
          startIndex = len(self) + startIndex
-      if len_ == None:
+      if len == None:
          return self[startIndex:]
       return self[startIndex:startIndex+len_]
    def substring(self, startIndex:builtins.int|int=0, endIndex:builtins.int|int=None):
@@ -82,9 +80,9 @@ class String(str, Object):
          return self[endIndex:startIndex]
       return self[startIndex:endIndex]
    def toLocaleLowerCase(self):
-      return self.toLowerCase()
+      return self.lower()
    def toLocaleUpperCase(self):
-      return self.toUpperCase()
+      return self.upper()
    def toLowerCase(self):
       return self.lower()
    def toUpperCase(self):
