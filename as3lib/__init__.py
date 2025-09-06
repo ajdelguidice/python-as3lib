@@ -155,7 +155,7 @@ def as3import(packageName:str,namespace,name:str=None):
       file = as3state.librarydirectory / ("/".join(pkg) + ".py")
       if not file.exists():
          raise Exception(f"Package \"as3lib.{packageName}\" does not exist.")
-      if file.is_file():
+      if file.is_dir():
          raise NotImplemented("Importing directories as packages is not implemented yet.")
       with open(file,"rb") as f:
          b = (b := f.read())[:b.find(b"\n")].split(b" ")
