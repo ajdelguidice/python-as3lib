@@ -10,12 +10,11 @@ def getClassByAlias(aliasName:str):
    try:
       return miniamf.get_class_alias(aliasName)
    except miniamf.UnknownClassAlias:
-      as3.ReferenceError(f'Alias {aliasName} was not registered.')
+      raise as3.ReferenceError(f'Alias {aliasName} was not registered.')
 def navigateToURL(request,window:str=None):...
 def registerClassAlias(aliasName:str,classObject):
    if aliasName == None or classObject == None:
-      as3.TypeError('Arguements to registerClassAlias can not be null.')
-      pass
+      raise as3.TypeError('Arguements to registerClassAlias can not be null.')
    miniamf.register_class(classObject,aliasName)
 def sendToURL(request):...
 
@@ -71,8 +70,6 @@ class FileReference(EventDispatcher):
          filename = filedialog.askopenfilename(title="Select a file to upload")
       try:
          return True
-      except:
-         print("You somhow messed it up")
       finally:
          if filename in (None,()):
             self.dispatchEvent(self.cancel)
@@ -87,8 +84,7 @@ class FileReference(EventDispatcher):
       file = defaultFileName.split(".")
       savetype = 0 # 1=UTF-8 2=XML 3=ByteArray
       if data == None:
-         as3.ArguementError("Invalid Data")
-         return False
+         raise as3.ArguementError("Invalid Data")
       elif isinstance(data,str):
          #write a UTF-8 text file
          savetype = 1
@@ -103,8 +99,7 @@ class FileReference(EventDispatcher):
          try:
             data = str(data)
          except:
-            as3.ArguementError("Invalid Data")
-            return False
+            raise as3.ArguementError("Invalid Data")
       if len(file) == 1:
          #no extension
          filename = filedialog.asksaveasfilename(title="Select location for download")
@@ -115,8 +110,6 @@ class FileReference(EventDispatcher):
          filename = filedialog.asksaveasfilename(title="Select location for download",defaultextension=ext)
       try:
          return True
-      except:
-         print("You somhow messed it up")
       finally:
          if filename in (None,()):
             self.dispatchEvent(self.cancel)
@@ -191,8 +184,7 @@ class SharedObject(dict):
       #gets local shared object; if object exists, set path and load it. if not, just set path
       #localPath is relative to as3state.appdatadirectory
       if as3state.appdatadirectory == None:
-         as3.Error('Application specific data directory was not set. Can not safely determine location.')
-         pass
+         raise as3.Error('Application specific data directory was not set. Can not safely determine location.')
       obj = SharedObject()
       if localPath == None:
          path = as3state.appdatadirectory

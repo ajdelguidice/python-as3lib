@@ -60,7 +60,7 @@ class ByteArray(_ByteArray):
       return f"ByteArray({self.getvalue()})"
    def atomicCompareAndSwapIntAt(self,byteIndex:int,expectedValue:int,newValue:int):
       if byteIndex % 4 != 0 or byteIndex < 0:
-         as3.ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
+         raise as3.ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
       ...
    def atomicCompareAndSwapLength(self,expectedLength:int,newLength:int):
       """

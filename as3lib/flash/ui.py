@@ -25,14 +25,13 @@ class CMItemList:
    def indexOfItem(self, item:str):
       return self.itemorder.indexOf(item)
    def addContextMenuItem(self, obj:object, index:int=-1):
-      if isinstance(obj,ContextMenuItem):
-         tempproperties = {"master":obj.master, "type":obj.type_, "command":obj.command, "caption":obj.caption, "separatorBefore":obj.separatorBefore, "enabled":obj.enabled, "visible":obj.visible}
-         if index == -1:
-            self.append(obj.name, tempproperties)
-         else:
-            self.addItemAt(index, obj.name, tempproperties)
+      if not isinstance(obj,ContextMenuItem):
+         raise as3.TypeError("Item not of type ContextMenuItem")
+      tempproperties = {"master":obj.master, "type":obj.type_, "command":obj.command, "caption":obj.caption, "separatorBefore":obj.separatorBefore, "enabled":obj.enabled, "visible":obj.visible}
+      if index == -1:
+         self.append(obj.name, tempproperties)
       else:
-         as3.TypeError("Item not of type ContextMenuItem")
+         self.addItemAt(index, obj.name, tempproperties)
    def append(self, name:str, properties:dict):
       self.itemorder.push(name)
       self.itemproperties[name] = properties
@@ -69,8 +68,7 @@ class ContextMenu:
       self._itemobjects = {}
       try:
          self._master.unbind()
-      except:
-         x=0
+      except:...
       self.Menu = tkinter.Menu(self._master, tearoff=0)
       if self._builtIns:
          if self.builtInItems.forwardAndBack:
@@ -141,27 +139,24 @@ class ContextMenu:
    #def set(self, item:str, value):
    #   pass
    def addItemAt(self, item:object, index:int=-1):
-      if isinstance(item,ContextMenuItem):
-         self.customItems.addContextMenuItem(item, index)
-         self._createAndBindMenu()
-      else:
-         as3.TypeError("Item not of type ContextMenuItem")
+      if not isinstance(item,ContextMenuItem):
+         raise as3.TypeError("Item not of type ContextMenuItem")
+      self.customItems.addContextMenuItem(item, index)
+      self._createAndBindMenu()
    def clone(self):
       return self
    def containsItem(self, item:object):
-      if isinstance(item,ContextMenuItem):
-         temp = self.customItems.idexOfItem(item.name)
-         if temp == -1:
-            return False
-         return True
-      else:
-         as3.TypeError("Item not of type ContextMenuItem")
+      if not isinstance(item,ContextMenuItem):
+         raise as3.TypeError("Item not of type ContextMenuItem")
+      temp = self.customItems.idexOfItem(item.name)
+      if temp == -1:
+         return False
+      return True
    def display(self, stage:object, stageX, stageY):...
    def getItemAt(self, item:object):
-      if isinstance(item,ContextMenuItem):
-         return self.customItems.indexOfItem(item.name)
-      else:
-         as3.TypeError("Item not of type ContextMenuItem")
+      if not isinstance(item,ContextMenuItem):
+         raise as3.TypeError("Item not of type ContextMenuItem")
+      return self.customItems.indexOfItem(item.name)
    def getItemAt_Name(self, item:str):
       return self.customItems.indexOfItem(item)
    def hideBuiltInItems(self):
@@ -268,12 +263,11 @@ class ContextMenuItem:
       self.name = name
       if type_ == "Item":
          self.command = command
-      if type_ in {"Item","Menu"}:
-         self.type_ = type_
-      else:
-         as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
+      if type_ not in {"Item","Menu"}:
          self.type_ = "Item"
          self.command = ""
+         raise as3.TypeError("Invalid menu type. Must be 'Item' or 'Menu'. Making type the default ('Item').")
+      self.type_ = type_
 class GameInput:...
 class GameInputControl:...
 class GameInputDevice:...
