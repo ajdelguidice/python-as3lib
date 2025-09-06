@@ -1,4 +1,4 @@
-from as3lib._toplevel.Functions import trace
+from as3lib._toplevel.trace import *
 from as3lib._toplevel.Object import Object
 import traceback
 
@@ -16,7 +16,7 @@ class Error(Exception, Object):
    def __init__(self, message="", id=0):
       self.errorID = _genErrNum() if id == 0 else id
       self.message = message
-      trace(self.toString(),isError=True)
+      errorTrace(self.toString())
    def getStackTrace(self):
       return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
    def toString(self):
