@@ -10,6 +10,7 @@ try:
 except:
    from as3lib.cfail import cmath
 from as3lib import helpers, as3state
+from as3lib._toplevel.Errors import *
 """
 Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
 Notes:
@@ -687,9 +688,8 @@ class window:
       size - the target (display) size of the image before resizing
       if size is not defined it is assumed to be the actual image size
       """
-      if image_name == "":
-         as3.trace("interfacetkError","image_name can not be empty string",isError=True)
-         pass
+      if image_name == '':
+         raise Error('interface_tk.window.addImage; image_name can not be empty string')
       self.imagedict[image_name] = [0,[],image_data,""]
       if size != None:
          self.imagedict[image_name][1] = [size[0],size[1]]
