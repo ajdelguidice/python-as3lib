@@ -21,12 +21,10 @@ def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
       sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
    """
    if as3state.platform == "Windows":
-      from os import getlogin
-      username = getlogin()
+      username = os.getlogin()
    elif as3state.platform in {"Linux","Darwin"}:
-      from os import getuid
       from pwd import getpwuid
-      username = getpwuid(getuid())[0]
+      username = getpwuid(os.getuid())[0]
    if sysverOverride != None:
       if sysverOverride[0] == "Linux":
          return fr"/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt"
@@ -74,7 +72,13 @@ def sm_windows():
 
 def sm_darwin():...
 
+
 # Initialise as3lib
+try:
+   import miniamf
+   from . import adapters
+except:...
+
 if as3state.startTime == None:
    from datetime import datetime
    from miniamf import util
@@ -177,7 +181,6 @@ def as3import(packageName:str,namespace,name:str=None):
             raise NotImplemented("Packages with specific locations are not implemented.")
          
 
-
 # Export toplevel and set up miniamf adapters
 from as3lib._toplevel.Array import *
 from as3lib._toplevel.Boolean import *
@@ -198,10 +201,6 @@ from as3lib._toplevel.trace import *
 from as3lib._toplevel.Types import *
 from as3lib._toplevel.uint import *
 from as3lib._toplevel.Vector import *
-try:
-   import miniamf
-   from . import adapters
-except:...
 
 __all__ = (
    'formatToString',
