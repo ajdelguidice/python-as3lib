@@ -20,11 +20,11 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 > <br><a href="https://pypi.org/project/tomli/">tomli</a> (python < 3.11)
 > <br><a href="https://pypi.org/project/as3lib-miniAMF/">as3lib-miniAMF</a>
 
-- Windows specific
+Windows specific<br>
 > PyLaucher
 > <br><a href="https://pypi.org/project/pywin32/">pywin32</a>
 
-- Unix specific
+Unix specific<br>
 > a posix compatible shell, grep, which
 > <br>(xorg): xwininfo, xrandr
 
