@@ -59,9 +59,13 @@ class TOML:
                text.write(f'{k2} = {TOML.Value(v2)}\n')
             text.write('\n')
          return text.getvalue()
-   def Write(file, valDict, mode='w'):
+   def write(file, valDict, mode='w'):
       with open(file,mode) as f:
          f.write(TOML.Return(valDict))
+   def readFile(file):
+      return tomllib.load(file)
+   def readString(string):
+      return tomllib.loads(file)
 
 def _dependencyCheck(cfgval):
    if cfgval:
@@ -259,5 +263,5 @@ def Save(saveAnyways:bool=False):
       } if as3state.displayserver == 'wayland' else {'screenwidth':1600,'screenheight':900,'refreshrate':60.0,'colordepth':8}
    }
    if saveAnyways or as3state._cfg != tempcfg:
-      TOML.Write(as3state.librarydirectory / "as3lib.toml",tempcfg)
+      TOML.write(as3state.librarydirectory / "as3lib.toml",tempcfg)
       as3state._cfg = tempcfg
