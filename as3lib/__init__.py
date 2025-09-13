@@ -124,6 +124,13 @@ if not as3state.initdone:
    if len(as3state.initerror) != 0:
       print(f"Warning: as3lib has initialised with errors, some functionality may be broken.\n{''.join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}")
 
+   # Set the default appdatadirectory
+   import __main__
+   if hasattr(__main__, "__file__"):
+      as3state.appdatadirectory = Path(__main__.__file__).resolve().parent
+   else: # Fall back to working directory
+      as3state.appdatadirectory = Path.cwd()
+
    # Tell others that library has been initialised
    as3state.initdone = True
 
