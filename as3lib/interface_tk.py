@@ -997,9 +997,10 @@ class window:
             for child in children:
                if self.childproperties[child][0] == "Notebook":
                   self.children[child].add(self.children[value[0]],text=value[1])
-         elif self.childproperties[child][0] not in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
+         else:
             for child in children:
-               self.children[child][attr] = value
+               if self.childproperties[child][0] not in {"CheckboxWithLabel","CheckboxlabelWithEntry","CheckboxlabelWithCombobox","FileEntryBox"}:
+                  self.children[child][attr] = value
    def configureChild(self, child:str, **args):
       if child == "root":
          return
