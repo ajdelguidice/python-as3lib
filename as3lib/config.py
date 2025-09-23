@@ -51,13 +51,11 @@ class TOML:
       with StringIO() as text:
          for k in nontables:
             text.write(f'{k} = {TOML.Value(valDict[k])}\n')
-         if len(nontables) > 0:
-            text.write('\n')
          for k in tables:
+            text.write('\n') # this doesn't work when combined with next line for some reason
             text.write(f'["{k}"]\n' if str(k).find('.') != -1 else f'[{k}]\n')
             for k2,v2 in valDict[k].items():
                text.write(f'{k2} = {TOML.Value(v2)}\n')
-            text.write('\n')
          return text.getvalue()
    def write(file, valDict, mode='w'):
       with open(file,mode) as f:
