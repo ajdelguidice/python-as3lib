@@ -227,8 +227,8 @@ def Load():
       as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
       if as3state.MaxWarnings != 0 and as3state.CurrentWarnings >= as3state.MaxWarnings:
          as3state.MaxWarningsReached = True
-   if as3state.TraceOutputFileEnable and (tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir()):
-      print('Warning: Something is wrong with the provided TraceOutputFileName. Using the default instead.')
+   if tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir():
+      print('as3lib: Using defualt TraceOutputFileName')
       tempTraceOutputFileName = as3state.librarydirectory / "flashlog.txt"
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
    if as3state.displayserver == 'wayland':
