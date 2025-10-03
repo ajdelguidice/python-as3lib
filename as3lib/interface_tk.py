@@ -515,6 +515,7 @@ class _ComboLabelWithRadioButtons(tkinter.Label):
 class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
    _intName = 'ComboLabelWithRadioButtons'
    def __init__(self, master=None, *args, **kwargs):
+      #! Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
       bg = kwargs.pop('background','')
       fg = kwargs.pop('foreground','')
       itkBaseWidget.__init__(self, _ComboLabelWithRadioButtons, master, *args, **kwargs)
@@ -1261,7 +1262,7 @@ class window:
          if attr == "background":
             for child in children:
                self.children[child].background = value
-         elif attr in {"x","y","width","height","font","anchor"}: #! Exclude display from this
+         elif attr in {"x","y","width","height","font","anchor"}:
             for child in children:
                setattr(self.children[child], attr, value)
                self.resizeChild(child)
@@ -1299,7 +1300,6 @@ class window:
       for attr,value in args.items():
          if attr == "background":
             self.children[child].background = value
-         elif child == "display":...  # Below attributes do not apply to display
          elif attr in {"x","y","width","height","font","anchor"}:
             setattr(self.children[child], attr, value)
             self.resizeChild(child)
