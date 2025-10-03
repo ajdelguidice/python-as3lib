@@ -669,6 +669,12 @@ class FileBoxWithLabels(itkBaseWidget, tkinter.Entry):
    def update(self):...
    def updateText(self):...
 
+class itkDisplay(itkFrame):
+   _intName = 'display'
+   def update(self):
+      nm = self._window.windowproperties['nm']
+      self.place(x=self._window.windowproperties['width']//2, y=self._window.windowproperties['height']//2, width=self._window.windowproperties["startwidth"]*nm, height=self._window.windowproperties["startheight"]*nm, anchor="center")
+
 class ComboCheckboxUserEntry:
    #!Add a way to use this to window class
    #!Rewrite this as a proper tkinter widget instead of a custom, integrated nightmare
@@ -864,7 +870,7 @@ class DefaultIcon:
 class window:
    __slots__ = ("windowproperties","children","childproperties","imagedict","htmlproperties","sbsettings","aboutwindow","menubar")
    def __init__(self,width,height,title="Python",color="#FFFFFF",mainwindow:bool=True,defaultmenu:bool=True,nomenu:bool=False,dwidth=None,dheight=None,flashIcon=False):
-      self.windowproperties = {"mult":100,"fullscreen":False,"startwidth":width,"startheight":height,"dwidth":dwidth,"dheight":dheight,"mainwindow":mainwindow,"color":color,"nm":1}
+      self.windowproperties = {"mult":100,"fullscreen":False,"startwidth":width,"startheight":height,"dwidth":dwidth,"dheight":dheight,"mainwindow":mainwindow,"color":color,"nm":1,'width':width,'height':height}
       self.children = {}
       self.childproperties = {} #{childName: [ChildType,x,y,width,height,font,anchor,<childType>Attributes:list]
       self.menubar = {}
@@ -905,8 +911,8 @@ class window:
       self.windowproperties["dheight"] = self.windowproperties["startheight"] if dheight == None else dheight
       if as3state.width not in {-1,None} and as3state.height not in {-1,None}:
          self.children["root"].maxsize(as3state.width,as3state.height)
-      self.children["display"] = itkFrame(self.children["root"], bg=self.windowproperties["color"])
-      self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"], height=self.windowproperties["startheight"], x=self.windowproperties["startwidth"]/2, y=self.windowproperties["startheight"]/2)
+      self.children["display"] = itkDisplay(self.children["root"],itkWindow=self,background=self.windowproperties["color"])
+      self.children["display"].update()
       self.children["root"].bind("<Configure>",self.doResize)
       self.children["root"].geometry(f"{self.windowproperties['dwidth']}x{self.windowproperties['dheight']}")
       self.children["root"].bind("<Escape>",self.outfullscreen)
@@ -1155,7 +1161,8 @@ class window:
       else:
          self.children[name] = CheckboxWithEntry(self.children[master],itkWindow=self,**kwargs)
          self.childproperties[name] = ["CheckboxWithEntry",None,None,None,None,None,None,None]
-         self.resizeChild(name)
+         self.children[name].update()
+         self.children[name].updateText()
    def addCheckboxlabelWithCombobox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0, combovalues:list|tuple=()):
       if master == "root":
          master = "display"
@@ -1223,7 +1230,6 @@ class window:
          img.thumbnail(size)
          self.imagedict[image_name][3] = PIL.ImageTk.PhotoImage(img)
    def resizeChildren(self):
-      mult = self.windowproperties["mult"]
       nm = self.windowproperties["nm"]
       for i in self.imagedict:
          self.resizeImage((int(self.imagedict[i][1][0]*nm),int(self.imagedict[i][1][1]*nm)),i)
@@ -1233,20 +1239,19 @@ class window:
          else:
             self.children[i].update()
          if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            self.children[i].font = self.resizefont(cl[5],mult)
+            self.children[i].font = self.resizefont(cl[5],self.windowproperties["mult"])
          elif cl[0] not in {'Notebook','NBFrame'}:
             self.children[i].updateText()
    def resizeChild(self, child:str):
       if child in self.childproperties:
-         mult = self.windowproperties["mult"]
-         nm = self.windowproperties["nm"]
          cl = self.childproperties[child]
          if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
+            nm = self.windowproperties["nm"]
             self.children[child].configurePlace(x=cl[1]*nm,y=cl[2]*nm,width=cl[3]*nm,height=cl[4]*nm,anchor=cl[6],indent=cl[7][0]*nm,entrywidth=cl[7][1]*nm,text2=cl[7][2]*nm)
          else:
             self.children[child].update()
          if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            self.children[child].font = self.resizefont(cl[5],mult)
+            self.children[child].font = self.resizefont(cl[5],self.windowproperties["mult"])
          elif cl[0] not in {'Notebook','NBFrame'}:
             self.children[child].updateText()
    def bindChild(self, child:str, tkevent, function):
@@ -1336,19 +1341,13 @@ class window:
       return {i:self.getChildAttribute(child,i) for i in args}
    def doResize(self, event):
       if event.widget == self.children["root"]:
-         newwidth = self.children["root"].winfo_width()
-         newheight = self.children["root"].winfo_height()
-         mult = self.calculate(newwidth,newheight)
+         self.windowproperties['width'], self.windowproperties['height'] = self.children["root"].winfo_width(), self.children["root"].winfo_height()
+         mult = cmath.calculate(self.windowproperties['width'],self.windowproperties['height'],self.windowproperties["startwidth"],self.windowproperties["startheight"])
          if mult != self.windowproperties["mult"]:
             self.windowproperties["mult"] = mult
-            self.windowproperties["nm"] = mult/100
-            self.set_size(newwidth,newheight)
+            nm = self.windowproperties["nm"] = mult/100
+            self.children["display"].update()
             self.resizeChildren()
-   def calculate(self,newwidth,newheight):
-      return cmath.calculate(newwidth,newheight,self.windowproperties["startwidth"],self.windowproperties["startheight"])
-   def set_size(self,newwidth,newheight):
-      nm = self.windowproperties["nm"]
-      self.children["display"].place(anchor="center", width=self.windowproperties["startwidth"]*nm, height=self.windowproperties["startheight"]*nm, x=newwidth//2, y=newheight//2)
 
 if __name__ == "__main__": #! Update this
    #Test
