@@ -976,66 +976,28 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.aboutwindow[2]["window"].destroy()
          self.aboutwindow[2].clear()
          self.aboutwindow[0] = False
+   def addWidget(self, widget, master:str, name:str, **kwargs):
+      if master == "root":
+         master = "display"
+      if not as3.isXMLName(master):
+         as3.trace("Invalid Master")
+      elif not as3.isXMLName(name):
+         as3.trace("Invalid Name")
+      else:
+         self.children[name] = widget(self.children[master],itkWindow=self,**kwargs)
+         self.children[name].resize()
    def addButton(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkButton(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkButton, master, name, **kwargs)
    def addLabel(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkLabel(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkLabel, master, name, **kwargs)
    def addnwhLabel(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itknwhLabel(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itknwhLabel, master, name, **kwargs)
    def addFrame(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkFrame(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkFrame, master, name, **kwargs)
    def addHTMLScrolledText(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkHTMLScrolledText(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkHTMLScrolledText, master, name, **kwargs)
    def addHTMLText(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = HTMLText(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(HTMLText, master, name, **kwargs)
    def addImage(self, image_name:str, image_data, size:tuple=None):
       """
       size - the target (display) size of the image before resizing
@@ -1046,110 +1008,31 @@ class window: #! Make this a toplevel and get rid of children['root']
       self.images[image_name] = itkImage(self,image_data,size)
       self.images[image_name].resize()
    def addImageLabel(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkImageLabel(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkImageLabel, master, name, **kwargs)
    def addScrolledListbox(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkScrolledListBox(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkScrolledListBox, master, name, **kwargs)
    def slb_Insert(self, child:str, position, item):
       self.children[child].insert(position,item)
    def slb_Delete(self, child:str, start, end):
       self.children[child].delete(start, end)
    def addEntry(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkEntry(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(itkEntry, master, name, **kwargs)
    def addCheckboxWithLabel(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = CheckboxWithLabel(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(CheckboxWithLabel, master, name, **kwargs)
    def addCheckboxWithEntry(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = CheckboxWithEntry(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(CheckboxWithEntry, master, name, **kwargs)
    def addCheckboxWithCombobox(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = CheckboxWithCombobox(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(CheckboxWithCombobox, master, name, **kwargs)
    def addFileEntryBox(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = FileEntryBox(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(FileEntryBox, master, name, **kwargs)
    def addNotebook(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkNotebook(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
-   def addNBFrame(self, master:str, name:str, width:int, height:int, text:str=""):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = itkNBFrame(self.children[master],itkWindow=self,width=width,height=height)
-         self.children[master].add(self.children[name],text=text)
-         self.children[name].resize()
+      self.addWidget(itkNotebook, master, name, **kwargs)
+   def addNBFrame(self, master:str, name:str, **kwargs):
+      text = kwargs.pop('text','')
+      self.addWidget(itkNBFrame, master, name, **kwargs)
+      self.children[master].add(self.children[name],text=text)
    def addLabelWithRadioButtons(self, master:str, name:str, **kwargs):
-      if master == "root":
-         master = "display"
-      if not as3.isXMLName(master):
-         as3.trace("Invalid Master")
-      elif not as3.isXMLName(name):
-         as3.trace("Invalid Name")
-      else:
-         self.children[name] = ComboLabelWithRadioButtons(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+      self.addWidget(ComboLabelWithRadioButtons, master, name, **kwargs)
    def resizeChildren(self):
       for i in self.images.values():
          i.resize()
