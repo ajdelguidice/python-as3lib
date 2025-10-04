@@ -17,9 +17,8 @@ Notes:
 - Canvas is not supported yet even though there is an option for it
 - When setting commands, they must be accessible from the scope of where they are called
 - When grouping windows together, the object that should be used is <windowobject>.children["root"]
-- If using wayland, windows made using tkinter.Tk() will not group with windows made using tkinter.Toplevel(). This will hopefully be fixed if the ext-zones protocol is merged (tcl/tk would also have to support it as well).
+- If using wayland, windows made using tkinter.Tk() will not group with windows made using tkinter.Toplevel(). This will hopefully be fixed if the ext-zones protocol is merged (tcl/tk would have to support it as well).
 """
-#Adobe flash minimum size is 262x0 for a window that starts out at 1176x662
 
 as3state.interfaceType = "Tkinter"
 
@@ -134,7 +133,7 @@ def _nullProp(*args):...
 
 class itkBaseWidget:
    _intName = None  # This is to replace the class name from childproperties
-   def __init__(self, klass, master, *args, **kwargs):
+   def __init__(self, klass, master, **kwargs):
       self._x = kwargs.pop('x',None)
       self._y = kwargs.pop('y',None)
       self._width = kwargs.pop('width',None)
@@ -145,7 +144,7 @@ class itkBaseWidget:
       self._fontSize = tempfont[1]
       self._fontStyle = tempfont[2] if len(tempfont) == 3 else ''
       self._window = kwargs.pop('itkWindow',None)
-      klass.__init__(self, master, *args, **kwargs)
+      klass.__init__(self, master, **kwargs)
    def update(self):
       nm = self._window.properties['nm']
       self.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm,anchor=self._anchor)
@@ -197,8 +196,8 @@ class itkBaseWidget:
 
 class itkFrame(itkBaseWidget, tkinter.Frame):
    _intName = 'Frame'
-   def __init__(self, master=None, *args, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Frame, master, *args, **kwargs)
+   def __init__(self, master=None, **kwargs):
+      itkBaseWidget.__init__(self, tkinter.Frame, master, **kwargs)
    def _getBackground(self):
       return self['bg']
    def _setBackground(self, color):
@@ -208,8 +207,8 @@ class itkFrame(itkBaseWidget, tkinter.Frame):
    
 class itkLabel(itkBaseWidget, tkinter.Label):
    _intName = 'Label'
-   def __init__(self, master=None, *args, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Label, master, *args, **kwargs)
+   def __init__(self, master=None, **kwargs):
+      itkBaseWidget.__init__(self, tkinter.Label, master, **kwargs)
    def _getBackground(self):
       return self['background']
    def _setBackground(self, color):
@@ -236,8 +235,8 @@ class itknwhLabel(itkLabel):
 
 class itkButton(itkBaseWidget, tkinter.Button):
    _intName = 'Button'
-   def __init__(self, master=None, *args, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Button, master, *args, **kwargs)
+   def __init__(self, master=None, **kwargs):
+      itkBaseWidget.__init__(self, tkinter.Button, master, **kwargs)
    def _getBackground(self):
       return self['background']
    def _setBackground(self, color):
@@ -256,11 +255,11 @@ class itkButton(itkBaseWidget, tkinter.Button):
 
 class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
    _intName = 'HTMLScrolledText'
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling',True)
       self._sbwidth = kwargs.pop('sbwidth',12)
       self._text = kwargs.pop('text','')
-      itkBaseWidget.__init__(self, tkhtmlview.HTMLScrolledText, master, *args, **kwargs)
+      itkBaseWidget.__init__(self, tkhtmlview.HTMLScrolledText, master, **kwargs)
       self._bold = False
       self._textCache = ''
       self._border = False
@@ -330,12 +329,12 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
 
 class itkEntry(itkBaseWidget, tkinter.Entry):
    _intName = 'Entry'
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       if 'textvariable' in kwargs:
          self._text = kwargs.pop('textvariable')
       else:
          self._text = tkinter.StringVar()
-      itkBaseWidget.__init__(self, tkinter.Entry, master, textvariable=self._text, *args, **kwargs)
+      itkBaseWidget.__init__(self, tkinter.Entry, master, textvariable=self._text, **kwargs)
    def _getBackground(self):
       return self['background']
    def _setBackground(self, color):
@@ -355,8 +354,8 @@ class itkEntry(itkBaseWidget, tkinter.Entry):
 
 class itkNotebook(itkBaseWidget, Notebook):
    _intName = 'Notebook'
-   def __init__(self, master=None, *args, **kwargs):
-      itkBaseWidget.__init__(self, Notebook, master, *args, **kwargs)
+   def __init__(self, master=None, **kwargs):
+      itkBaseWidget.__init__(self, Notebook, master, **kwargs)
    def update(self):
       if self._x != None and self._y != None and self._width != None and self._height != None:
          nm = self._window.properties['nm']
@@ -386,9 +385,9 @@ class itkNBFrame(itkFrame):
 
 class itkImageLabel(itkLabel):
    _intName = 'ImageLabel'
-   def __init__(self, master, *args, **kwargs):
+   def __init__(self, master, **kwargs):
       temp = kwargs.pop('image_name','')
-      itkLabel.__init__(self, master, *args, **kwargs)
+      itkLabel.__init__(self, master, **kwargs)
       self._imgname = ''
       self.image_name = temp
    def updateText(self):
@@ -408,7 +407,7 @@ class itkImageLabel(itkLabel):
 #This section contains code that is a modification of code from tkhtmlview
 class ScrolledListbox(tkinter.Listbox):
    # Uses HTMLScrolledText as a reference but uses a listbox instead of HTMLText
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       self.frame = tkinter.Frame(master)
       self.vbar = tkinter.Scrollbar(self.frame)
 
@@ -456,10 +455,10 @@ class HTMLText(itkHTMLScrolledText):
 
 class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
    _intName = "ScrolledListBox"
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling',True)
       self._sbwidth = kwargs.pop('sbwidth',12)
-      itkBaseWidget.__init__(self, ScrolledListbox, master, *args, **kwargs)
+      itkBaseWidget.__init__(self, ScrolledListbox, master, **kwargs)
    def update(self):
       nm = self._window.properties['nm']
       if self._sbscaling:
@@ -495,7 +494,7 @@ class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
    sbwidth = property(fset=_setSBWidth,fget=_getSBWidth)
 
 class _ComboLabelWithRadioButtons(tkinter.Label):
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       numOptions = kwargs.pop('numOptions',2)
       self.frame = tkinter.Frame(master)
       self.radiobuttons = []
@@ -514,11 +513,11 @@ class _ComboLabelWithRadioButtons(tkinter.Label):
 
 class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
    _intName = 'ComboLabelWithRadioButtons'
-   def __init__(self, master=None, *args, **kwargs):
+   def __init__(self, master=None, **kwargs):
       #! Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
       bg = kwargs.pop('background','')
       fg = kwargs.pop('foreground','')
-      itkBaseWidget.__init__(self, _ComboLabelWithRadioButtons, master, *args, **kwargs)
+      itkBaseWidget.__init__(self, _ComboLabelWithRadioButtons, master, **kwargs)
       self.background = bg
       self.foreground = fg
    def updateText(self):
@@ -865,6 +864,7 @@ class ComboCheckboxUserEntry:
       self.frame.destroy()
 
 class itkImage:
+   _intName = 'Image'
    def __init__(self, window, data='', size=(0,0)):
       self._window = window
       self._data = data
@@ -1225,7 +1225,7 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[master].add(self.children[name],text=text)
          self.children[name].update()
          self.childproperties[name] = ["NBFrame",None,None,None,None,None,None,None]
-   def addLabelWithRadioButtons(self, master:str, name:str, numOptions:int=2, **kwargs):
+   def addLabelWithRadioButtons(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
       if not as3.isXMLName(master):
@@ -1233,7 +1233,7 @@ class window: #! Make this a toplevel and get rid of children['root']
       elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
       else:
-         self.children[name] = ComboLabelWithRadioButtons(self.children[master],numOptions,itkWindow=self,**kwargs)
+         self.children[name] = ComboLabelWithRadioButtons(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
          self.childproperties[name] = ["ComboLabelWithRadioButtons",None,None,None,None,None,None,None]
@@ -1336,7 +1336,7 @@ class window: #! Make this a toplevel and get rid of children['root']
          return
       temppref = self.childproperties.pop(child)
       if temppref[0] == "ImageLabel":
-         self.images[self.children[child].image_name][0] -= 1
+         self.images[self.children[child].image_name].references -= 1
       self.children[child].destroy()
       self.children.pop(child)
    def getChildAttribute(self, child:str, attribute:str):
