@@ -331,6 +331,9 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self._sbwidth = value
       self.update()
    sbwidth = property(fset=_setSBWidth,fget=_getSBWidth)
+   def destroy(self):
+      super().destroy()
+      self.frame.destroy()
 
 class itkEntry(itkBaseWidget, tkinter.Entry):
    _intName = 'Entry'
