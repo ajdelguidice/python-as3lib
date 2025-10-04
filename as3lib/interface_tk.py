@@ -198,6 +198,7 @@ class itkFrame(itkBaseWidget, tkinter.Frame):
    _intName = 'Frame'
    def __init__(self, master=None, **kwargs):
       itkBaseWidget.__init__(self, tkinter.Frame, master, **kwargs)
+   def updateText(self):...
    def _getBackground(self):
       return self['bg']
    def _setBackground(self, color):
@@ -626,15 +627,19 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self.l2['font'] = temp
    def checkCB(self):
       if self._cbvar.get():
-         self["state"] = "normal"
+         self._enable()
       else:
-         self["state"] = "disabled"
+         self._disable()
+   def _enable(self):
+      self['state'] = 'normal'
+   def _disable(self):
+      self['state'] = 'disabled'
    def select(self):
       self.cb.select()
-      self.enableue()
+      self._enable()
    def deselect(self):
       self.cb.deselect()
-      self.disableue()
+      self._disable()
    def get(self):
       return self._entryvar.get()
    def set(self,value):
@@ -642,7 +647,7 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
    def getcb(self):
       return self._cbvar.get()
    def _getBackground(self):
-      return self['background']
+      return self.l1['background']
    def _setBackground(self, color):
       self.frame["bg"] = color
       self.cb["background"] = color
@@ -651,217 +656,140 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self.l2["background"] = color
    background = property(fset=_setBackground,fget=_getBackground)
    def _getForeground(self):
-      return self['foreground']
+      return self.l1['foreground']
    def _setForeground(self, color):
       self.l1["foreground"] = color
       self.l2["foreground"] = color
    foreground = property(fset=_setForeground,fget=_getForeground)
 
-class ComboboxWithCheckBox(itkBaseWidget, Combobox):
-   _intName = 'CheckboxlabelWithCombobox'
-   def __init__(self, master=None, **kwargs):...
-   def update(self):...
-   def updateText(self):...
+class CheckboxWithCombobox(itkBaseWidget, Combobox):
+   _intName = 'CheckboxWithCombobox'
+   def __init__(self, master=None, **kwargs):
+      self._indent = kwargs.pop('indent',0)
+      self._cbvar = tkinter.BooleanVar()
+      self.frame = tkinter.Frame(master)
+      self.cb = tkinter.Checkbutton(self.frame,variable=self._cbvar,command=self.checkCB)
+      self.l1 = tkinter.Label(self.frame,text=kwargs.pop('text',''),anchor="w")
+      self.l2 = tkinter.Label(self.frame,anchor="w")
+      self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext',(0,''))
+      bg = kwargs.pop('background','')
+      fg = kwargs.pop('foreground','')
+      itkBaseWidget.__init__(self, Combobox, self.frame, **kwargs)
+      self.background = bg
+      self.foreground = fg
+      self.checkCB()
+   def update(self):
+      nm = self._window.properties['nm']
+      h = self._height*nm
+      self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=h*2,anchor=self._anchor)
+      self.cb.place(x=0,y=0,width=h,height=h,anchor="nw")
+      self.l1.place(x=h,y=0,width=(self._width-self._height)*nm,height=h,anchor="nw")
+      self.l2.place(x=self._indent*nm,y=h,width=self._entrytextwidth*nm,height=h,anchor="nw")
+      self.place(x=(self._indent+self._entrytextwidth)*nm,y=h,width=(self._width-self._indent-self._entrytextwidth)*nm,height=h,anchor="nw")
+   def updateText(self):
+      temp = (self._font,cmath.resizefont(self._fontSize,self._window.properties['mult']),self._fontStyle)
+      self.l1['font'] = temp
+      self.l2['font'] = temp
+      self['font'] = temp
+   def checkCB(self):
+      if self._cbvar.get():
+         self._enable()
+      else:
+         self._disable()
+   def _enable(self):
+      self['state'] = 'normal'
+   def _disable(self):
+      self['state'] = 'disabled'
+   def select(self):
+      self.cb.select()
+      self._enable()
+   def deselect(self):
+      self.cb.deselect()
+      self._disable()
+   def getcb(self):
+      return self._cbvar.get()
+   def _getBackground(self):
+      return self.l1['background']
+   def _setBackground(self, color):
+      self.frame["bg"] = color
+      self.l1["background"] = color
+      self.l2["background"] = color
+      self.cb["background"] = color
+      self.cb["highlightbackground"] = color
+   background = property(fset=_setBackground,fget=_getBackground)
+   def _getForeground(self):
+      return self.l1['foreground']
+   def _setForeground(self, color):
+      self.l1["foreground"] = color
+      self.l2["foreground"] = color
+      self.filebutton["foreground"] = color
+   foreground = property(fset=_setForeground,fget=_getForeground)
 
-class FileBoxWithLabels(itkBaseWidget, tkinter.Entry):
+class FileEntryBox(itkBaseWidget, tkinter.Entry):
    _intName = 'FileEntryBox'
-   def __init__(self, master=None, **kwargs):...
-   def update(self):...
-   def updateText(self):...
+   def __init__(self, master=None, **kwargs):
+      self.filetype = kwargs.pop('filetype','dir')
+      self.fileaction = kwargs.pop('fileaction','open')
+      self.initdir = kwargs.pop('initdir',None)
+      self.initfile = kwargs.pop('initfile',None)
+      self._indent = kwargs.pop('indent',0)
+      self._entryvar = tkinter.StringVar()
+      self.frame = tkinter.Frame(master)
+      self.l1 = tkinter.Label(self.frame,text=kwargs.pop('text',''),anchor="w")
+      self.l2 = tkinter.Label(self.frame,anchor="w")
+      self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext',(0,''))
+      bg = kwargs.pop('background','')
+      fg = kwargs.pop('foreground','')
+      itkBaseWidget.__init__(self, tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
+      self.filebutton = tkinter.Button(self.frame,command=self.selectfile)
+      self.background = bg
+      self.foreground = fg
+   def update(self):
+      nm = self._window.properties['nm']
+      self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm*2,anchor=self._anchor)
+      self.l1.place(x=0,y=0,width=(self._width-self._height)*nm,height=self._height*nm,anchor="nw")
+      self.l2.place(x=self._indent*nm,y=self._height*nm,width=self._entrytextwidth*nm,height=self._height*nm,anchor="nw")
+      self.place(x=(self._indent+self._entrytextwidth)*nm,y=self._height*nm,width=(self._width-self._indent-self._entrytextwidth-self._height)*nm,height=self._height*nm,anchor="nw")
+      self.filebutton.place(x=(self._width-self._height)*nm,y=self._height*nm,width=self._height*nm,height=self._height*nm,anchor="nw")
+   def updateText(self):
+      temp = (self._font,cmath.resizefont(self._fontSize,self._window.properties['mult']),self._fontStyle)
+      self.l1['font'] = temp
+      self.l2['font'] = temp
+      self['font'] = temp
+   def selectfile(self):
+      if self.fileType == 'dir':
+         file = filedialog.askdirectory(initialdir=self.initDir)
+      elif self.fileType == 'file':
+         if self.fileAction == 'open':
+            file = filedialog.askopenfilename(initialdir=self.initDir,initialfile=self.initFile)
+         elif self.fileAction == 'save':
+            file = filedialog.asksaveasfilename(initialdir=self.initDir,initialfile=self.initFile)
+      if not (isinstance(file,tuple) or file == ''):
+         self._entryvar.set(file)
+   def get(self):
+      return self._entryvar.get()
+   def set(self, value):
+      self._entryvar.set(value)
+   def _getBackground(self):
+      return self.l1['background']
+   def _setBackground(self, color):
+      self.frame["bg"] = color
+      self.l1["background"] = color
+      self.l2["background"] = color
+      self.filebutton["background"] = color
+   background = property(fset=_setBackground,fget=_getBackground)
+   def _getForeground(self):
+      return self.l1['foreground']
+   def _setForeground(self, color):
+      self.l1["foreground"] = color
+      self.l2["foreground"] = color
+   foreground = property(fset=_setForeground,fget=_getForeground)
 
 class itkDisplay(itkFrame):
    _intName = 'display'
    def update(self):
       nm = self._window.properties['nm']
       self.place(x=self._window.properties['width']//2, y=self._window.properties['height']//2, width=self._window.properties["startwidth"]*nm, height=self._window.properties["startheight"]*nm, anchor="center")
-
-class ComboCheckboxUserEntry:
-   #!Add a way to use this to window class
-   #!Rewrite this as a proper tkinter widget instead of a custom, integrated nightmare
-   #!Split each widget type into separate classes
-   """
-   |x| Text1
-      Text2 |User_Entry|
-   """
-   __slots__ = ("_properties","frame","cbvar","cb","l1","l2","uevar","ue","fb")
-   def __init__(self,master,x,y,width,height,anchor,font,text1,text2:list|tuple=[0,""],entrytype:str="Entry",entrywidth:int=None,indent:int=0,filetype=["dir","open"],combovalues:list|tuple=()):
-      text2 = list(text2)
-      if entrywidth == None and entrytype != "Single":
-         entrywidth = width-(indent+text2[0])
-      if entrytype == "File" and filetype[0] not in {"dir","file"}:
-         #error, filetype not valid
-         pass
-      if entrytype not in {"Combo","File"}:
-         #error, entrytype not valid
-         pass
-      self._properties = {"x":x,"y":y,"width":width,"height":height,"anchor":anchor,"font":font,"text1":text1,"text2":text2,"entrytype":entrytype,"entrywidth":entrywidth,"indent":indent,"filetype":filetype,"combovalues":combovalues,"fileboxinitdir":None,"fileboxinitfile":None}
-      self._properties["mul"] = 2
-      self.frame = tkinter.Frame(master,borderwidth=0,highlightthickness=0)
-      self.frame.place(x=x,y=y,width=width,height=height*self._properties["mul"],anchor=anchor)
-      self.l1 = tkinter.Label(self.frame,text=text1,font=font,anchor="w")
-      if entrytype == "File":
-         self.l1.place(x=0,y=0,width=width-height,height=height,anchor="nw")
-      else:
-         self.cbvar = tkinter.BooleanVar()
-         self.cb = tkinter.Checkbutton(self.frame,variable=self.cbvar,command=self.checkCB)
-         self.cb.place(x=0,y=0,width=height,height=height,anchor="nw")
-         self.l1.place(x=height,y=0,width=width-height,height=height,anchor="nw")
-      #create second line
-      self.l2 = tkinter.Label(self.frame,text=text2[1],anchor="w")
-      self.l2.place(x=indent,y=height,width=text2[0],height=height,anchor="nw")
-      self.uevar = tkinter.StringVar()
-      if entrytype == "Combo":
-         self.ue = Combobox(self.frame)
-         self.ue["values"] = combovalues
-         self.ue.place(x=indent+text2[0],y=height,width=entrywidth,height=height,anchor="nw")
-         self.checkCB()
-      else:
-         self.ue = tkinter.Entry(self.frame,textvariable=self.uevar)
-         self.fb = tkinter.Button(self.frame,command=self.selectfile)
-         self.fb.place(x=width-height,y=height,width=height,height=height,anchor="nw")
-         self.ue.place(x=indent+text2[0],y=height,width=entrywidth-height,height=height,anchor="nw")
-   def selectfile(self):
-      if self._properties["filetype"][0] == "dir":
-         file = filedialog.askdirectory(initialdir=self._properties["fileboxinitdir"])
-      elif self._properties["filetype"][0] == "file":
-         if self._properties["filetype"][1] == "open":
-            file = filedialog.askopenfilename(initialdir=self._properties["fileboxinitdir"],initialfile=self._properties["fileboxinitfile"])
-         elif self._properties["filetype"][1] == "save":
-            file = filedialog.asksaveasfilename(initialdir=self._properties["fileboxinitdir"],initialfile=self._properties["fileboxinitfile"])
-      if isinstance(file,tuple) or file == "":
-         self.uevar.set(self.uevar.get())
-      else:
-         self.uevar.set(file)
-   def checkCB(self):
-      if self.cbvar.get():
-         self.enableue()
-      else:
-         self.disableue()
-   def enableue(self):
-      self.ue["state"] = "normal"
-   def disableue(self):
-      self.ue["state"] = "disabled"
-   def select(self):
-      if self._properties["entrytype"] == "Combo":
-         self.cb.select()
-         self.enableue()
-   def deselect(self):
-      if self._properties["entrytype"] == "Combo":
-         self.cb.deselect()
-         self.disableue()
-   def get(self):
-      if self._properties["entrytype"] == "Combo":
-         return self.ue.get()
-      return self.uevar.get()
-   def set(self,value):
-      #!Add combobox
-      self.uevar.set(value)
-   def getcb(self):
-      if self._properties["entrytype"] == "Combo":
-         return self.cbvar.get()
-   def __resizeandplace(self):
-      #!make use of entrywidth
-      et = self._properties["entrytype"]
-      w = self._properties["width"]
-      h = self._properties["height"]
-      i = self._properties["indent"]
-      t2_0 = self._properties["text2"][0]
-      ew = self._properties["entrywidth"]
-      self.frame.place(x=self._properties["x"],y=self._properties["y"],width=w,height=(h*self._properties["mul"]),anchor=self._properties["anchor"])
-      if et == "Combo":
-         self.cb.place(x=0,y=0,width=h,height=h,anchor="nw")
-         self.l1.place(x=h,y=0,width=w-h,height=h,anchor="nw")
-         self.l2.place(x=i,y=h,width=t2_0,height=h,anchor="nw")
-         self.ue.place(x=i+t2_0,y=h,width=ew,height=h,anchor="nw")
-      else:
-         self.l1.place(x=0,y=0,width=w-h,height=h,anchor="nw")
-         self.l2.place(x=i,y=h,width=t2_0,height=h,anchor="nw")
-         self.fb.place(x=w-h,y=h,width=h,height=h,anchor="nw")
-         self.ue.place(x=i+t2_0,y=h,width=ew-h,height=h,anchor="nw")
-   def configure(self,**kwargs):
-      for attr,value in kwargs.items():
-         if attr in {"x","y","anchor"}:
-            self._properties[attr] = value
-            self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
-         elif attr in {"width","height","entrywidth","indent"}:
-            self._properties[attr] = value
-            self.__resizeandplace()
-         elif attr == "font":
-            self._properties["font"] = value
-            """
-            for j in range(self._properties["rows"]):
-               self.labels[j].configure(font=value)
-               self.entrys[j].configure(font=value)
-            self.button.configure(font=value)
-            """
-         elif attr == "text1":
-            self._properties["text1"] = value
-            self.l1["text"] = value
-         elif attr == "text2":
-            if isinstance(value,(list,tuple)) and len(value) == 2:
-               self._properties["text2"] = list(value)
-               self.l2["text"] = value[1]
-               self.__resizeandplace()
-         elif attr == "filetype":
-            if value in {"dir","file"}:
-               self._properties["filetype"] = list(value)
-            else:
-               print(f"Invalid filetype '{value}', must be 'file' or 'dir'.")
-         elif attr == "values":
-            if isinstance(value,(list,tuple)) and self._properties["entrytype"] == "Combo":
-               self._properties["combovalues"] = list(value)
-               self.ue["values"] = list(value)
-         elif attr in {"foreground","fg"}:
-            self.changeForeground(value)
-         elif attr in {"background","bg"}:
-            self.changeBackground(value)
-         else:
-            for i in {self.frame,self.label,self.entry,self.button}:
-               i[attr] = value
-   def _getForeground(self):
-      return self.l1["foreground"]
-   def changeForeground(self,color):
-      et = self._properties["entrytype"]
-      self.l1["foreground"] = color
-      self.l2["foreground"] = color
-      if et == "File":
-         self.fb["foreground"] = color
-   foreground=property(fget=_getForeground,fset=changeForeground)
-   def _getBackground(self):
-      return self.l1["background"]
-   def changeBackground(self,color):
-      et = self._properties["entrytype"]
-      self.frame["bg"] = color
-      self.l1["background"] = color
-      self.l2["background"] = color
-      if et == "Combo":
-         self.cb["background"] = color
-         self.cb["highlightbackground"] = color
-      else:
-         self.fb["background"] = color
-   background=property(fget=_getBackground,fset=changeBackground)
-   def configurePlace(self,**kwargs):
-      #add text2
-      for i in (set(kwargs.keys()) & {"x","y","width","height","anchor","indent","entrywidth","text2"}):
-         if i == "text2":
-            self._properties["text2"][0] = kwargs[i]
-         else:
-            self._properties[i] = kwargs[i]
-      self.__resizeandplace()
-   def _getFont(self):
-      return self.l1["font"]
-   def changeFont(self,font):
-      et = self._properties["entrytype"]
-      self.l1["font"] = font
-      self.l2["font"] = font
-      self.ue["font"] = font
-      if et == "Combo":
-         self.cb["font"] = font
-      else:
-         self.fb["font"] = font
-   font=property(fget=_getFont,fset=changeFont)
-   def destroy(self):
-      self.frame.destroy()
 
 class itkImage:
    _intName = 'Image'
@@ -890,7 +818,6 @@ class window: #! Make this a toplevel and get rid of children['root']
    def __init__(self,width,height,title="Python",color="#FFFFFF",mainwindow:bool=True,defaultmenu:bool=True,nomenu:bool=False,dwidth=None,dheight=None,flashIcon=False):
       self.properties = {"mult":100,"fullscreen":False,"startwidth":width,"startheight":height,"dwidth":dwidth,"dheight":dheight,"mainwindow":mainwindow,"color":color,"nm":1,'width':width,'height':height}
       self.children = {}
-      self.childproperties = {} #{childName: [ChildType,x,y,width,height,font,anchor,<childType>Attributes:list]
       self.menubar = {}
       self.images = {'':itkBlankImage(self,'',(0,0))}
       if mainwindow == True:
@@ -1043,7 +970,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkButton(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["Button",None,None,None,None,None,None,None]
    def addLabel(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1055,7 +981,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkLabel(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["Label",None,None,None,None,None,None,None]
    def addnwhLabel(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1067,7 +992,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itknwhLabel(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["nwhLabel",None,None,None,None,None,None,None]
    def addFrame(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1078,7 +1002,6 @@ class window: #! Make this a toplevel and get rid of children['root']
       else:
          self.children[name] = itkFrame(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
-         self.childproperties[name] = ["Frame",None,None,None,None,None,None,None]
    def addHTMLScrolledText(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1090,7 +1013,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkHTMLScrolledText(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["HTMLScrolledText",None,None,None,None,None,None,None]
    def addHTMLText(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1102,7 +1024,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = HTMLText(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["HTMLText",None,None,None,None,None,None,None]
    def addImage(self, image_name:str, image_data, size:tuple=None):
       """
       size - the target (display) size of the image before resizing
@@ -1123,7 +1044,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkImageLabel(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["ImageLabel",None,None,None,None,None,None,None]
    def addScrolledListbox(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1135,7 +1055,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkScrolledListBox(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["ScrolledListbox",None,None,None,None,None,None,None]
    def slb_Insert(self, child:str, position, item):
       self.children[child].insert(position,item)
    def slb_Delete(self, child:str, start, end):
@@ -1148,7 +1067,6 @@ class window: #! Make this a toplevel and get rid of children['root']
       elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
       else:
-         self.childproperties[name] = ["Entry",None,None,None,None,None,None,None]
          self.children[name] = itkEntry(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
@@ -1161,7 +1079,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          as3.trace("Invalid Name")
       else:
          self.children[name] = CheckboxWithLabel(self.children[master],itkWindow=self,**kwargs)
-         self.childproperties[name] = ["CheckboxWithLabel",None,None,None,None,None,None,None]
          self.children[name].update()
          self.children[name].updateText()
    def addCheckboxWithEntry(self, master:str, name:str, **kwargs):
@@ -1173,35 +1090,30 @@ class window: #! Make this a toplevel and get rid of children['root']
          as3.trace("Invalid Name")
       else:
          self.children[name] = CheckboxWithEntry(self.children[master],itkWindow=self,**kwargs)
-         self.childproperties[name] = ["CheckboxWithEntry",None,None,None,None,None,None,None]
          self.children[name].update()
          self.children[name].updateText()
-   def addCheckboxlabelWithCombobox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0, combovalues:list|tuple=()):
+   def addCheckboxWithCombobox(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
       if not as3.isXMLName(master):
          as3.trace("Invalid Master")
       elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-      elif not (isinstance(text2[0],(int,as3.int)) and isinstance(text2[1],str)):
-         as3.trace("Invalid text2")
       else:
-         self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text1=text1,text2=text2,entrytype="Combo",entrywidth=entrywidth,indent=indent,combovalues=combovalues)
-         self.childproperties[name] = ["CheckboxlabelWithCombobox",x,y,width,height,font,anchor,[indent,entrywidth,text2[0]]]
-         self.resizeChild(name)
-   def addFileEntryBox(self, master:str, name:str, x, y, width, height, font, anchor:str="nw", text1:str="", text2:list|tuple=[0,""], entrywidth:int=0, indent:int=0, filetype:str="dir"):
+         self.children[name] = CheckboxWithCombobox(self.children[master],itkWindow=self,**kwargs)
+         self.children[name].update()
+         self.children[name].updateText()
+   def addFileEntryBox(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
       if not as3.isXMLName(master):
          as3.trace("Invalid Master")
       elif not as3.isXMLName(name):
          as3.trace("Invalid Name")
-      elif not (isinstance(text2[0],(int,as3.int)) and isinstance(text2[1],str)):
-         as3.trace("Invalid text2")
       else:
-         self.children[name] = ComboCheckboxUserEntry(self.children[master],x,y,width,height,anchor,font,text1=text1,text2=text2,entrytype="File",entrywidth=entrywidth,indent=indent,filetype=filetype)
-         self.childproperties[name] = ["FileEntryBox",x,y,width,height,font,anchor,[indent,entrywidth,text2[0]]]
-         self.resizeChild(name)
+         self.children[name] = FileEntryBox(self.children[master],itkWindow=self,**kwargs)
+         self.children[name].update()
+         self.children[name].updateText()
    def addNotebook(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1212,7 +1124,6 @@ class window: #! Make this a toplevel and get rid of children['root']
       else:
          self.children[name] = itkNotebook(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
-         self.childproperties[name] = ["Notebook",None,None,None,None,None,None,None]
    def addNBFrame(self, master:str, name:str, width:int, height:int, text:str=""):
       if master == "root":
          master = "display"
@@ -1224,7 +1135,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = itkNBFrame(self.children[master],itkWindow=self,width=width,height=height)
          self.children[master].add(self.children[name],text=text)
          self.children[name].update()
-         self.childproperties[name] = ["NBFrame",None,None,None,None,None,None,None]
    def addLabelWithRadioButtons(self, master:str, name:str, **kwargs):
       if master == "root":
          master = "display"
@@ -1236,31 +1146,19 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children[name] = ComboLabelWithRadioButtons(self.children[master],itkWindow=self,**kwargs)
          self.children[name].update()
          self.children[name].updateText()
-         self.childproperties[name] = ["ComboLabelWithRadioButtons",None,None,None,None,None,None,None]
    def resizeChildren(self):
       for i in self.images.values():
          i.resize()
-      for i, cl in self.childproperties.items():
-         if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            nm = self.properties["nm"]
-            self.children[i].configurePlace(x=cl[1]*nm,y=cl[2]*nm,width=cl[3]*nm,height=cl[4]*nm,anchor=cl[6],indent=cl[7][0]*nm,entrywidth=cl[7][1]*nm,text2=cl[7][2]*nm)
-         else:
-            self.children[i].update()
-         if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            self.children[i].font = self.resizefont(cl[5],self.properties["mult"])
-         elif cl[0] not in {'Notebook','NBFrame'}:
-            self.children[i].updateText()
+      c = self.children.copy()
+      c.pop('root')
+      for i in c.values():
+         i.update()
+         if i._intName not in {'Notebook','NBFrame'}:
+            i.updateText()
    def resizeChild(self, child:str):
-      if child in self.childproperties:
-         cl = self.childproperties[child]
-         if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            nm = self.properties["nm"]
-            self.children[child].configurePlace(x=cl[1]*nm,y=cl[2]*nm,width=cl[3]*nm,height=cl[4]*nm,anchor=cl[6],indent=cl[7][0]*nm,entrywidth=cl[7][1]*nm,text2=cl[7][2]*nm)
-         else:
-            self.children[child].update()
-         if cl[0] in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-            self.children[child].font = self.resizefont(cl[5],self.properties["mult"])
-         elif cl[0] not in {'Notebook','NBFrame'}:
+      if child in self.children:
+         self.children[child].update()
+         if self.children[child]._intName not in {'Notebook','NBFrame'}:
             self.children[child].updateText()
    def bindChild(self, child:str, tkevent, function):
       self.children[child].bind(tkevent, function)
@@ -1295,12 +1193,11 @@ class window: #! Make this a toplevel and get rid of children['root']
                self.children[child].sbwidth = int(value)
          elif attr == "addTab":
             for child in children:
-               if self.childproperties[child][0] == "Notebook":
+               if self.children[child]._intNanem == "Notebook":
                   self.children[child].add(self.children[value[0]],text=value[1])
          else:
             for child in children:
-               if self.childproperties[child][0] not in {"CheckboxlabelWithCombobox","FileEntryBox"}:
-                  self.children[child][attr] = value
+               self.children[child][attr] = value
    def configureChild(self, child:str, **args):
       if child == "root":
          return
@@ -1323,25 +1220,20 @@ class window: #! Make this a toplevel and get rid of children['root']
          elif attr == "htmlfontbold":
             self.children[child].bold = value
          elif attr == "sbwidth":
-            if self.childproperties[child][0] == "HTMLScrolledText":
-               self.childproperties[child][7][6] = int(value)
-            elif self.childproperties[child][0] == "ScrolledListBox":
-               self.childproperties[child][7][1] = int(value)
-         elif attr == "addTab" and self.childproperties[child][0] == "Notebook":
+            self.children[child].sbwidth = int(value)
+         elif attr == "addTab" and self.children[child]._intName == "Notebook":
             self.children[child].add(self.children[value[0]],text=value[1])
-         elif self.childproperties[child][0] not in {"CheckboxlabelWithCombobox","FileEntryBox"}:
+         else:
             self.children[child][attr] = value
    def destroyChild(self, child:str):
       if child in {"display","root"}:
          return
-      temppref = self.childproperties.pop(child)
-      if temppref[0] == "ImageLabel":
+      if self.children[child]._intName == "ImageLabel":
          self.images[self.children[child].image_name].references -= 1
       self.children[child].destroy()
       self.children.pop(child)
    def getChildAttribute(self, child:str, attribute:str):
-      #!add combocheckboxuserentry
-      if child in self.children and self.childproperties[child][0] == "Entry" and attribute == "text":
+      if child in self.children and self.children[child]._intName == "Entry" and attribute == "text":
          return self.children[child].text
       return self.children[child].cget(attribute)
    def getChildAttributes(self, child:str, *args:str):
@@ -1353,7 +1245,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          if mult != self.properties["mult"]:
             self.properties["mult"] = mult
             self.properties["nm"] = mult/100
-            self.children["display"].update()
             self.resizeChildren()
 
 if __name__ == "__main__": #! Update this
