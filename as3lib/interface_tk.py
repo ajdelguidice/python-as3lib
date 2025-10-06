@@ -368,10 +368,17 @@ class itkNotebook(itkBaseWidget, Notebook):
 
 class itkNBFrame(itkFrame):
    _intName = 'NBFrame'
+   def __init__(self, master, **kwargs):
+      self._text = kwargs.pop('text','')
+      super().__init__(master, **kwargs)
+      master.add(self, text=self._text)
    def update(self):
       nm = self._window._nm
       self["width"] = self._width*nm
       self["height"] = self._height*nm
+   def _getText(self):
+      return self._text
+   text = property(fget=_getText)
    x = property(fset=_nullProp,fget=_nullProp)
    y = property(fset=_nullProp,fget=_nullProp)
    anchor = property(fset=_nullProp,fget=_nullProp)
@@ -972,9 +979,7 @@ class window: #! Make this a toplevel and get rid of children['root']
    def addNotebook(self, master:str, name:str, **kwargs):
       self.addWidget(itkNotebook, master, name, **kwargs)
    def addNBFrame(self, master:str, name:str, **kwargs):
-      text = kwargs.pop('text','')
       self.addWidget(itkNBFrame, master, name, **kwargs)
-      self.children[master].add(self.children[name],text=text)  #! Move this stuff to itkNBFrame
    def addLabelWithRadioButtons(self, master:str, name:str, **kwargs):
       self.addWidget(ComboLabelWithRadioButtons, master, name, **kwargs)
    def resizeChildren(self):
