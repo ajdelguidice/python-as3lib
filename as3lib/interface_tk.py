@@ -143,6 +143,8 @@ class itkBaseWidget:
       self._font = tempfont[0]
       self._fontSize = tempfont[1]
       self._fontStyle = tempfont[2] if len(tempfont) == 3 else ''
+      self._bg = kwargs.pop('background', kwargs.pop('bg', 'White'))
+      self._fg = kwargs.pop('foreground', kwargs.pop('fg', 'Black'))
       self._window = kwargs.pop('itkWindow',None)
       klass.__init__(self, master, **kwargs)
    def update(self):
@@ -150,11 +152,25 @@ class itkBaseWidget:
       self.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm,anchor=self._anchor)
    def updateText(self):
       self['font'] = (self._font,cmath.resizefont(self._fontSize,self._window.properties['mult']),self._fontStyle)
+   def updateBackground(self):
+      self['background'] = self._bg
+   def updateForeground(self):
+      self['foreground'] = self._fg
    def resize(self):
       self.update()
       self.updateText()
-   background = property(fset=_nullProp,fget=_nullProp)
-   foreground = property(fset=_nullProp,fget=_nullProp)
+   def _getBackground(self):
+      return self._bg
+   def _setBackground(self, color):
+      self._bg = color
+      self.updateBackground()
+   background = property(fset=_setBackground,fget=_getBackground)
+   def _getForeground(self):
+      return self._fg
+   def _setForeground(self, color):
+      self._fg = color
+      self.updateForeground()
+   foreground = property(fset=_setForeground,fget=_getForeground)
    text = property(fset=_nullProp,fget=_nullProp)
    bold = property(fset=_nullProp,fget=_nullProp)
    border = property(fset=_nullProp,fget=_nullProp)
@@ -202,28 +218,20 @@ class itkFrame(itkBaseWidget, tkinter.Frame):
    _intName = 'Frame'
    def __init__(self, master=None, **kwargs):
       itkBaseWidget.__init__(self, tkinter.Frame, master, **kwargs)
+      self.updateBackground()
    def updateText(self):...
-   def _getBackground(self):
-      return self['bg']
-   def _setBackground(self, color):
-      self['bg'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
+   def updateBackground(self):
+      self['bg'] = self._bg
+   def updateForeground(self):...
+   foreground = property(fset=_nullProp,fget=_nullProp)
    font = property(fset=_nullProp,fget=_nullProp)
    
 class itkLabel(itkBaseWidget, tkinter.Label):
    _intName = 'Label'
    def __init__(self, master=None, **kwargs):
       itkBaseWidget.__init__(self, tkinter.Label, master, **kwargs)
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+      self.updateBackground()
+      self.updateForeground()
    def _getText(self):
       return self['text']
    def _setText(self, text):
@@ -242,16 +250,8 @@ class itkButton(itkBaseWidget, tkinter.Button):
    _intName = 'Button'
    def __init__(self, master=None, **kwargs):
       itkBaseWidget.__init__(self, tkinter.Button, master, **kwargs)
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+      self.updateBackground()
+      self.updateForeground()
    def _getText(self):
       return self['text']
    def _setText(self, text):
@@ -268,6 +268,8 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self._bold = False
       self._textCache = ''
       self._border = False
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       if self._sbscaling:
@@ -276,20 +278,14 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
    def updateText(self):
       self['state'] = 'normal'
       temp = ('<b>','</b>') if self.bold else ('','')
-      self.set_html(f'{temp[0]}<pre style="color: {self.foreground}; background-color: {self.background}; font-size: {cmath.resizefont(self._fontSize,self._window.properties["mult"])}px; font-family: {self._font}">{self._textCache}</pre>{temp[1]}')
+      self.set_html(f'{temp[0]}<pre style="color: {self._fg}; background-color: {self._bg}; font-size: {cmath.resizefont(self._fontSize,self._window.properties["mult"])}px; font-family: {self._font}">{self._textCache}</pre>{temp[1]}')
       self["state"] = "disabled"
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
+   def updateBackground(self):
+      self['background'] = self._bg
       self.updateText()
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
+   def updateForeground(self):
+      self['foreground'] = self._bg
       self.updateText()
-   foreground = property(fset=_setForeground,fget=_getForeground)
    def _getText(self):
       return self._text
    def _setText(self, text):
@@ -343,17 +339,11 @@ class itkEntry(itkBaseWidget, tkinter.Entry):
       else:
          self._text = tkinter.StringVar()
       itkBaseWidget.__init__(self, tkinter.Entry, master, textvariable=self._text, **kwargs)
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['insertbackground'] = color
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+      self.updateBackground()
+      self.updateForeground()
+   def updateBackground(self):
+      self['insertbackground'] = self._bg
+      self['background'] = self._bg
    def _getText(self):
       return self._text.get()
    def _setText(self, text):
@@ -364,6 +354,8 @@ class itkNotebook(itkBaseWidget, Notebook):
    _intName = 'Notebook'
    def __init__(self, master=None, **kwargs):
       itkBaseWidget.__init__(self, Notebook, master, **kwargs)
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       if self._x != None and self._y != None and self._width != None and self._height != None:
          nm = self._window.properties['nm']
@@ -371,16 +363,8 @@ class itkNotebook(itkBaseWidget, Notebook):
       else:
          self.pack(expand=True)
    def updateText(self):...
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+   def updateBackground(self):...
+   def updateForeground(self):...
 
 class itkNBFrame(itkFrame):
    _intName = 'NBFrame'
@@ -439,16 +423,6 @@ class ScrolledListbox(tkinter.Listbox):
    def destroy(self):
       super().destroy()
       self.frame.destroy()
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
 class HTMLText(itkHTMLScrolledText):
    #Modified to have no borders by default
    def __init__(self, *args, html=None, **kwargs):
@@ -468,21 +442,13 @@ class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
       self._sbscaling = kwargs.pop('sbscaling',True)
       self._sbwidth = kwargs.pop('sbwidth',12)
       itkBaseWidget.__init__(self, ScrolledListbox, master, **kwargs)
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       if self._sbscaling:
          self.vbar["width"] = self._sbwidth*nm
       self.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm,anchor=self._anchor)
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
    def _getFont(self):
       return (self._font,self._fontSize)
    def _setFont(self, font):
@@ -524,11 +490,9 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
    _intName = 'ComboLabelWithRadioButtons'
    def __init__(self, master=None, **kwargs):
       #! Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
-      bg = kwargs.pop('background','')
-      fg = kwargs.pop('foreground','')
       itkBaseWidget.__init__(self, _ComboLabelWithRadioButtons, master, **kwargs)
-      self.background = bg
-      self.foreground = fg
+      self.updateBackground()
+      self.updateForeground()
    def updateText(self):
       temp = (self._font,cmath.resizefont(self._fontSize,self._window.properties['mult']),self._fontStyle)
       self['font'] = temp
@@ -539,21 +503,15 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
    def _getSelected(self):
       return self.rbvar.get()
    selected = property(fget=_getSelected,fset=_setSelected)
-   def _setBackground(self, color):
-      self.frame["bg"] = color
-      self["background"] = color
+   def updateBackground(self):
+      self.frame["bg"] = self._bg
+      self["background"] = self._bg
       for i in self.radiobuttons:
-         i.configure(background=color,highlightbackground=color)
-   def _getBackground(self):
-      return self["background"]
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _setForeground(self, color):
-      self["foreground"] = color
+         i.configure(background=self._bg,highlightbackground=self._bg)
+   def updateForeground(self):
+      self["foreground"] = self._fg
       for i in self.radiobuttons:
-         i.configure(foreground=color)
-   def _getForeground(self):
-      return self["background"]
-   foreground = property(fset=_setForeground,fget=_getForeground)
+         i.configure(foreground=self._fg)
    def _setText(self, text):
       if isinstance(text,(list,tuple)) and len(text) == 2:
          self.radiobuttons[text[0]]["text"] = text[1]
@@ -565,16 +523,12 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
    def __init__(self, master=None, **kwargs):
       self.frame = tkinter.Frame(master)
       self._cbvar = tkinter.BooleanVar()
-      bg = kwargs.pop('background')
-      fg = kwargs.pop('foreground')
       self.cb = tkinter.Checkbutton(self.frame,variable=self._cbvar)
       itkBaseWidget.__init__(self, tkinter.Label, self.frame, **kwargs)
       self['anchor'] = 'w'  # Right align text
-      if bg != None:
-         self._setBackground(bg)
-      if fg != None:
-         self._setForeground(fg)
       self.update()
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm,anchor=self._anchor)
@@ -588,19 +542,11 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
       self.cb.deselect()
    def getcb(self):
       return self._cbvar.get()
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self.frame['bg'] = color
-      self['background'] = color
-      self.cb['background'] = color
-      self.cb['highlightbackground'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+   def updateBackground(self):
+      self.frame['bg'] = self._bg
+      self['background'] = self._bg
+      self.cb['background'] = self._bg
+      self.cb['highlightbackground'] = self._bg
 
 class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
    _intName = 'CheckboxWithEntry'
@@ -613,14 +559,12 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self.l1 = tkinter.Label(self.frame,text=kwargs.pop('text',''),anchor="w")
       self.l2 = tkinter.Label(self.frame,anchor="w")
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext',(0,''))
-      bg = kwargs.pop('background','')
-      fg = kwargs.pop('foreground','')
       itkBaseWidget.__init__(self, tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
-      self.background = bg
-      self.foreground = fg
       self["state"] = "disabled"
       self.update()
       self.updateText()
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm*2,anchor=self._anchor)
@@ -654,21 +598,15 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self._entryvar.set(value)
    def getcb(self):
       return self._cbvar.get()
-   def _getBackground(self):
-      return self.l1['background']
-   def _setBackground(self, color):
-      self.frame["bg"] = color
-      self.cb["background"] = color
-      self.cb["highlightbackground"] = color
-      self.l1["background"] = color
-      self.l2["background"] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self.l1['foreground']
-   def _setForeground(self, color):
-      self.l1["foreground"] = color
-      self.l2["foreground"] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+   def updateBackground(self):
+      self.frame["bg"] = self._bg
+      self.cb["background"] = self._bg
+      self.cb["highlightbackground"] = self._bg
+      self.l1["background"] = self._bg
+      self.l2["background"] = self._bg
+   def updateForeground(self):
+      self.l1["foreground"] = self._fg
+      self.l2["foreground"] = self._fg
 
 class CheckboxWithCombobox(itkBaseWidget, Combobox):
    _intName = 'CheckboxWithCombobox'
@@ -680,12 +618,10 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.l1 = tkinter.Label(self.frame,text=kwargs.pop('text',''),anchor="w")
       self.l2 = tkinter.Label(self.frame,anchor="w")
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext',(0,''))
-      bg = kwargs.pop('background','')
-      fg = kwargs.pop('foreground','')
       itkBaseWidget.__init__(self, Combobox, self.frame, **kwargs)
-      self.background = bg
-      self.foreground = fg
       self.checkCB()
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       h = self._height*nm
@@ -716,22 +652,16 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self._disable()
    def getcb(self):
       return self._cbvar.get()
-   def _getBackground(self):
-      return self.l1['background']
-   def _setBackground(self, color):
-      self.frame["bg"] = color
-      self.l1["background"] = color
-      self.l2["background"] = color
-      self.cb["background"] = color
-      self.cb["highlightbackground"] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self.l1['foreground']
-   def _setForeground(self, color):
-      self.l1["foreground"] = color
-      self.l2["foreground"] = color
-      self.filebutton["foreground"] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+   def updateBackground(self):
+      self.frame["bg"] = self._bg
+      self.l1["background"] = self._bg
+      self.l2["background"] = self._bg
+      self.cb["background"] = self._bg
+      self.cb["highlightbackground"] = self._bg
+   def updateForeground(self):
+      self.l1["foreground"] = self._fg
+      self.l2["foreground"] = self._fg
+      self.filebutton["foreground"] = self._fg
 
 class FileEntryBox(itkBaseWidget, tkinter.Entry):
    _intName = 'FileEntryBox'
@@ -746,12 +676,10 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       self.l1 = tkinter.Label(self.frame,text=kwargs.pop('text',''),anchor="w")
       self.l2 = tkinter.Label(self.frame,anchor="w")
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext',(0,''))
-      bg = kwargs.pop('background','')
-      fg = kwargs.pop('foreground','')
       itkBaseWidget.__init__(self, tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
       self.filebutton = tkinter.Button(self.frame,command=self.selectfile)
-      self.background = bg
-      self.foreground = fg
+      self.updateBackground()
+      self.updateForeground()
    def update(self):
       nm = self._window.properties['nm']
       self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=self._height*nm*2,anchor=self._anchor)
@@ -778,20 +706,14 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       return self._entryvar.get()
    def set(self, value):
       self._entryvar.set(value)
-   def _getBackground(self):
-      return self.l1['background']
-   def _setBackground(self, color):
-      self.frame["bg"] = color
-      self.l1["background"] = color
-      self.l2["background"] = color
-      self.filebutton["background"] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self.l1['foreground']
-   def _setForeground(self, color):
-      self.l1["foreground"] = color
-      self.l2["foreground"] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
+   def updateBackground(self):
+      self.frame["bg"] = self._bg
+      self.l1["background"] = self._bg
+      self.l2["background"] = self._bg
+      self.filebutton["background"] = self._bg
+   def updateForeground(self):
+      self.l1["foreground"] = self._fg
+      self.l2["foreground"] = self._fg
 
 class itkDisplay(itkFrame):
    _intName = 'display'
