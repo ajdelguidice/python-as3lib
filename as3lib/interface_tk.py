@@ -23,110 +23,6 @@ as3state.interfaceType = "Tkinter"
 def help():
    print("If you are confused about how to use this module, please run this module by itself and look at the test code at the bottom. This is more of a test module so don't expect it to make any sense.")
 
-class ComboEntryBox:  #! Update this
-   __slots__ = ("_properties","labels","entries","frame","button")
-   def __init__(self,master,x,y,width,height,anchor,font,textwidth,buttonwidth,text:list|tuple|str|as3.String|as3.Array,buttontext="Ok",rows=1,textalign="w"):
-      self._properties = {"x":x,"y":y,"width":width,"height":height,"anchor":anchor,"font":font,"textwidth":textwidth,"buttonwidth":buttonwidth,"text":text,"buttontext":buttontext,"rows":rows,"textalign":textalign}
-      self.labels = []
-      self.entries = []
-      self.frame = tkinter.Frame(master)
-      if rows < 1:
-         raise Exception(f"ComboEntryBox; rows must be greater than or equal to 1, got {rows}")
-      if rows == 1:
-         self.frame.place(x=x,y=y,width=width,height=height,anchor=anchor)
-         self.frame.configure(borderwidth=0,highlightthickness=0)
-         if isinstance(text,str):
-            self.labels.append(tkinter.Label(self.frame,text=text,font=font,anchor=textalign))
-         else:
-            self.labels.append(tkinter.Label(self.frame,text=text[0],font=font,anchor=textalign))
-         self.labels[0].place(x=0-2,y=0,width=textwidth+2,height=height,anchor="nw")
-         self.entries.append(tkinter.Entry(self.frame,font=font))
-         self.entries[0].place(x=textwidth,y=0,width=width-(textwidth+buttonwidth),height=height,anchor="nw")
-         self.button = tkinter.Button(self.frame,text=buttontext,font=font)
-         self.button.place(x=textwidth+(width-(textwidth+buttonwidth)),y=0,width=buttonwidth,height=height,anchor="nw")
-      else:
-         self.frame.place(x=x,y=y,width=width,height=(height*rows),anchor=anchor)
-         self.frame.configure(borderwidth=0,highlightthickness=0)
-         if isinstance(text,str):
-            for i in range(rows):
-               self.labels.append(tkinter.Label(self.frame,text=text,font=font,anchor=textalign))
-               self.labels[i].place(x=0-2,y=i*height,width=textwidth+2,height=height,anchor="nw")
-         else:
-            for i in range(rows):
-               self.labels.append(tkinter.Label(self.frame,text=text[i],font=font,anchor=textalign))
-               self.labels[i].place(x=0-2,y=i*height,width=textwidth+2,height=height,anchor="nw")
-         for i in range(rows):
-            self.entries.append(tkinter.Entry(self.frame,font=font))
-            self.entries[i].place(x=textwidth,y=i*height,width=width-(textwidth+buttonwidth),height=height,anchor="nw")
-         self.button = tkinter.Button(self.frame,text=buttontext,font=font)
-         self.button.place(x=textwidth+(width-(textwidth+buttonwidth)),y=(rows-1)*height,width=buttonwidth,height=height,anchor="nw")
-   def __resizeandplace(self):
-      w = self._properties["width"]
-      h = self._properties["height"]
-      tw = self._properties["textwidth"]
-      bw = self._properties["buttonwidth"]
-      r = self._properties["rows"]
-      self.frame.place(x=self._properties["x"],y=self._properties["y"],width=w,height=(h*r),anchor=self._properties["anchor"])
-      for i in range(r):
-         self.labels[i].place(x=0-2,y=i*h,width=tw+2,height=h,anchor="nw")
-         self.entries[i].place(x=tw,y=i*h,width=w-(tw+bw),height=h,anchor="nw")
-      self.button.place(x=tw+(w-(tw+bw)),y=(r-1)*h,width=bw,height=h,anchor="nw")
-   def configure(self,**kwargs):
-      for attr,value in kwargs.items():
-         if attr in {"x","y","anchor"}:
-            self._properties[attr] = value
-            self.frame.place(x=self._properties["x"],y=self._properties["y"],width=self._properties["width"],height=self._properties["height"],anchor=self._properties["anchor"])
-         elif attr in {"width","height","textwidth","buttonwidth"}:
-            self._properties[attr] = value
-            self.__resizeandplace()
-         elif attr == "font":
-            self._properties["font"] = value
-            for j in range(self._properties["rows"]):
-               self.labels[j].configure(font=value)
-               self.entrys[j].configure(font=value)
-            self.button.configure(font=value)
-         elif attr == "text":
-            if isinstance(value,(str,list,tuple)):
-               self._properties["text"] = value
-               if isinstance(value,str):
-                  for j in range(self._properties["rows"]):
-                     self.labels[j].configure(text=value)
-               else:
-                  for j in range(self._properties["rows"]):
-                     self.labels[j].configure(text=value[j])
-         elif attr == "buttontext":
-            self._properties["buttontext"] = value
-            self.button.configure(text=value)
-         elif attr == "command":
-            self.button.configure(command=value)
-         elif attr == "rows":
-            print("Changing number of rows not implemented yet.")
-         elif attr == "textalign":
-            print("Changing text alignment not implemented yet.")
-         else:
-            for i in {self.frame,self.label,self.entry,self.button}:
-               i[attr] = value
-   def configurePlace(self,**kwargs):
-      for i in (set(kwargs.keys()) & {"x","y","width","height","anchor","textwidth","buttonwidth"}):
-         self._properties[i] = kwargs[i]
-      self.__resizeandplace()
-   def getEntry(self,number,*args):
-      return self.entries[number].get()
-   def getEntries(self,*args):
-      return [i.get() for i in self.entries]
-   def destroy(self):
-      self.frame.destroy()
-   def _getBackground(self):
-      return self['background']
-   def _setBackground(self, color):
-      self['background'] = color
-   background = property(fset=_setBackground,fget=_getBackground)
-   def _getForeground(self):
-      return self['foreground']
-   def _setForeground(self, color):
-      self['foreground'] = color
-   foreground = property(fset=_setForeground,fget=_getForeground)
-
 def _nullProp(*args):...
 
 class itkBaseWidget:
@@ -725,6 +621,56 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       self.l1["foreground"] = self._fg
       self.l2["foreground"] = self._fg
 
+class ComboEntryBox(itkBaseWidget, tkinter.Button):
+   def __init__(self, master=None, **kwargs):
+      self._textwidth = kwargs.pop('textwidth')
+      self._buttonwidth = kwargs.pop('buttonwidth')
+      self._rows = kwargs.pop('rows',1)
+      self._buttontext = kwargs.pop('buttontext','Ok')
+      text = list(kwargs.pop('text'))
+      if len(text) != self._rows:
+         raise Error()
+      
+      self.frame = tkinter.Frame(master)
+      if self._rows < 1:
+         raise Exception(f"ComboEntryBox; rows must be greater than or equal to 1, got {self._rows}")
+      self.labels = [tkinter.Label(self.frame,text=text[i],anchor='w') for i in range(self._rows)]
+      self.entries = [tkinter.Entry(self.frame) for i in range(self._rows)]
+      itkBaseWidget.__init__(self, tkinter.Button, self.frame, text=self._buttontext, **kwargs)
+      self.updateBackground()
+      self.updateForeground()
+   def update(self):
+      nm = self._window._nm
+      self.frame.place(x=self._x*nm,y=self._y*nm,width=self._width*nm,height=(self._height*self._rows)*nm,anchor=self._anchor)
+      for i, item in enumerate(self.labels):
+         item.place(x=-2*nm,y=i*self._height*nm,width=(self._textwidth+2)*nm,height=self._height*nm,anchor="nw")
+      for i, item in enumerate(self.entries):
+         item.place(x=self._textwidth*nm,y=i*self._height*nm,width=(self._width-(self._textwidth+self._buttonwidth)-1)*nm,height=self._height*nm,anchor="nw")
+      self.place(x=(self._textwidth+(self._width-(self._textwidth+self._buttonwidth)))*nm,y=((self._rows-1)*self._height)*nm if self._rows > 1 else 0,width=self._buttonwidth*nm,height=self._height*nm,anchor="nw")
+   def updateText(self):
+      temp = (self._font,cmath.resizefont(self._fontSize,self._window._mult),self._fontStyle)
+      for i in self.labels:
+         i['font'] = temp
+      for i in self.entries:
+         i['font'] = temp
+      self['font'] = temp
+   def updateBackground(self):
+      self.frame['bg'] = self._bg
+      for i in self.labels:
+         i['background'] = self._bg
+      self['background'] = self._bg
+   def updateForeground(self):
+      for i in self.labels:
+         i['foreground'] = self._fg
+      self['foreground'] = self._fg
+   def getEntry(self,number,*args):
+      return self.entries[number].get()
+   def getEntries(self,*args):
+      return [i.get() for i in self.entries]
+   def destroy(self):
+      super().destroy()
+      self.frame.destroy()
+
 class itkDisplay(itkFrame):
    _intName = 'display'
    def update(self):
@@ -866,7 +812,7 @@ class itkRootBase:
       elif isinstance(fileorbytes, (str, BytesIO)):
          self._setIcon2(fileorbytes)
       else:
-         Error("interface_tk.window.setIcon; called but no icon specified")
+         raise Error("interface_tk.window.setIcon; called but no icon specified")
    icon = property(fset=_setIcon)
    def _getFullscreen(self):
       return self._fullscreen
@@ -876,9 +822,9 @@ class itkRootBase:
    fullscreen = property(fset=_setFullscreen,fget=_getFullscreen)
    def addWidget(self, widget, master:str, name:str, **kwargs):
       if not as3.isXMLName(master):
-         Error("interface_tk.window.addWidget; Invalid Master")
+         raise Error("interface_tk.window.addWidget; Invalid Master")
       elif not as3.isXMLName(name):
-         Error("interface_tk.window.addWidget; Invalid Name")
+         raise Error("interface_tk.window.addWidget; Invalid Name")
       else:
          self._children[name] = widget(self._children[master],itkWindow=self,**kwargs)
          self._children[name].resize()
@@ -1066,7 +1012,7 @@ class itkRootToplevel(itkRootBase, tkinter.Toplevel):
    def minimumSizeReset(self):
       self.minsize(262,int((262*self._startheight)/self._startwidth))
    def mainloop(self):
-      Error("interface_tk.window.mainloop; Can not run mainloop on a child window.")
+      raise Error("interface_tk.window.mainloop; Can not run mainloop on a child window.")
 
 def window(**kwargs):
    if kwargs.pop('main', True):
