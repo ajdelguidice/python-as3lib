@@ -958,6 +958,8 @@ class itkRootBase:
             self._mult = mult
             self._nm = mult/100
             self.resizeChildren()
+         else:
+            self._children['display'].update()
 
 class itkRootTk(itkRootBase, tkinter.Tk):
    _intName = 'Window'
