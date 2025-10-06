@@ -838,8 +838,6 @@ class window: #! Make this a toplevel and get rid of children['root']
          self.children["root"].minsize(262,int((262*self.properties["startheight"])/self.properties["startwidth"]) + 28)
       else:
          self.children["root"].minsize(262,int((262*self.properties["startheight"])/self.properties["startwidth"]))
-   def resizefont(self, font:tuple, mult):
-      return (font[0],cmath.resizefont(font[1],mult))
    def setIcon(self, file=None, fileBytes=None):
       if file != None:
          img = file
