@@ -765,13 +765,13 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       self.l2['font'] = temp
       self['font'] = temp
    def selectfile(self):
-      if self.fileType == 'dir':
-         file = filedialog.askdirectory(initialdir=self.initDir)
-      elif self.fileType == 'file':
-         if self.fileAction == 'open':
-            file = filedialog.askopenfilename(initialdir=self.initDir,initialfile=self.initFile)
-         elif self.fileAction == 'save':
-            file = filedialog.asksaveasfilename(initialdir=self.initDir,initialfile=self.initFile)
+      if self.filetype == 'dir':
+         file = filedialog.askdirectory(initialdir=self.initdir)
+      elif self.filetype == 'file':
+         if self.fileaction == 'open':
+            file = filedialog.askopenfilename(initialdir=self.initdir,initialfile=self.initfile)
+         elif self.fileaction == 'save':
+            file = filedialog.asksaveasfilename(initialdir=self.initdir,initialfile=self.initfile)
       if not (isinstance(file,tuple) or file == ''):
          self._entryvar.set(file)
    def get(self):
