@@ -143,8 +143,8 @@ class itkBaseWidget:
       self._font = tempfont[0]
       self._fontSize = tempfont[1]
       self._fontStyle = tempfont[2] if len(tempfont) == 3 else ''
-      self._bg = kwargs.pop('background', kwargs.pop('bg', 'White'))
-      self._fg = kwargs.pop('foreground', kwargs.pop('fg', 'Black'))
+      self._bg = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
+      self._fg = kwargs.pop('foreground', kwargs.pop('fg', '#000000'))
       self._window = kwargs.pop('itkWindow',None)
       klass.__init__(self, master, **kwargs)
    def update(self):
@@ -263,13 +263,13 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
    def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling',True)
       self._sbwidth = kwargs.pop('sbwidth',12)
-      self._text = kwargs.pop('text','')
+      self._text = ''
+      text = kwargs.pop('text','')
       itkBaseWidget.__init__(self, tkhtmlview.HTMLScrolledText, master, **kwargs)
       self._bold = False
       self._textCache = ''
       self._border = False
-      self.updateBackground()
-      self.updateForeground()
+      self.text = text
    def update(self):
       nm = self._window._nm
       if self._sbscaling:
@@ -748,18 +748,6 @@ class itkBlankImage(itkImage):
    def __init__(self, window):
       super().__init__(window, '', (0,0))
    def resize(self):...
-   
-class itkRootTk(tkinter.Tk):
-   _intName = 'Window'
-   def update(self):...
-   def updateText(self):...
-   def resize(self):...
-
-class itkRootToplevel(tkinter.Toplevel):
-   _intName = 'Window'
-   def update(self):...
-   def updateText(self):...
-   def resize(self):...
 
 class itkAboutWindow:
    '''
@@ -776,7 +764,7 @@ class itkAboutWindow:
          self.toplevel = tkinter.Toplevel()
          self.toplevel.geometry(f'350x155')
          self.toplevel.resizable(False,False)
-         self.toplevel.transient(self._window.children["root"])
+         self.toplevel.transient(self._window)
          self.toplevel.bind("<Destroy>", self.close)
          self.label = tkinter.Label(self.toplevel, font=("TkTextFont",9), anchor="w", justify="left", text=self._text)
          self.label.place(x=7, y=9, anchor="nw")
@@ -798,42 +786,37 @@ class itkAboutWindow:
       return self._open
    isOpen = property(fget=_getOpen)
 
-DefaultIcon = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00d\x00\x00\x00d\x08\x06\x00\x00\x00p\xe2\x95T\x00\x00\x01\x84iCCPICC profile\x00\x00(\x91}\x91=H\xc3@\x1c\xc5_[\xa5R*\n\x16\x11q\xc8P\x9d\xecbE\x1ck\x15\x8aP!\xd4\n\xad:\x98\\\xfa\x05M\x1a\x92\x14\x17G\xc1\xb5\xe0\xe0\xc7b\xd5\xc1\xc5YW\x07WA\x10\xfc\x00qvpRt\x91\x12\xff\x97\x14Z\xc4xp\xdc\x8fw\xf7\x1ew\xef\x00\x7f\xb3\xcaT\xb3\'\x01\xa8\x9aedRI!\x97_\x15\x82\xaf\x08a\x10\xc3\x88#&1S\x9f\x13\xc54<\xc7\xd7=||\xbd\x8b\xf1,\xefs\x7f\x8e~\xa5`2\xc0\'\x10\'\x98nX\xc4\x1b\xc43\x9b\x96\xcey\x9f8\xc2\xca\x92B|N<i\xd0\x05\x89\x1f\xb9.\xbb\xfc\xc6\xb9\xe4\xb0\x9fgF\x8clf\x9e8B,\x94\xbaX\xeebV6T\xe2i\xe2\xa8\xa2j\x94\xef\xcf\xb9\xacp\xde\xe2\xacV\xeb\xac}O\xfe\xc2pA[Y\xe6:\xcd1\xa4\xb0\x88%\x88\x10 \xa3\x8e\n\xaa\xb0\x10\xa3U#\xc5D\x86\xf6\x93\x1e\xfeQ\xc7/\x92K&W\x05\x8c\x1c\x0b\xa8A\x85\xe4\xf8\xc1\xff\xe0w\xb7f1>\xe5&\x85\x93@\xef\x8bm\x7f\x8c\x03\xc1]\xa0\xd5\xb0\xed\xefc\xdbn\x9d\x00\x81g\xe0J\xeb\xf8kM`\xf6\x93\xf4FG\x8b\x1e\x01\x03\xdb\xc0\xc5uG\x93\xf7\x80\xcb\x1d`\xe4I\x97\x0c\xc9\x91\x024\xfd\xc5"\xf0~F\xdf\x94\x07\x86n\x81\xd0\x9a\xdb[{\x1f\xa7\x0f@\x96\xbaJ\xdf\x00\x07\x87\xc0D\x89\xb2\xd7=\xde\xdd\xd7\xdd\xdb\xbfg\xda\xfd\xfd\x00\x05xr\xe1\xf0a\xe0\x07\x00\x00\x00\x06bKGD\x00\xff\x00\xff\x00\xff\xa0\xbd\xa7\x93\x00\x00\x00\tpHYs\x00\x00\x0fa\x00\x00\x0fa\x01\xa8?\xa7i\x00\x00\x00\x07tIME\x07\xe8\n\x10\x164\x05\xff\x81\xa4\xcb\x00\x00\x07nIDATx\xda\xed\xddkP\x94U\x18\x07\xf0\xff^`wA\x04aq\x11\xc6\x15\r\xb1`0\xc7\x0b:\xa2\x94\x95]Dq\xfcP*\xe3P\xe9\x989YF^\xc6\x19\xbb\xd9\xe8\xe8\x98a\xa3ejcN\x9a\xd0\xa81~\xc84\t\x99Ra\x08\xc4\xcb\x98\xa6\x90\x86\x88\x97PP\x89\xe5\xba\x9c>,\x97].\xc9\xbb\xbb\xe7\xbc\xe7=\xbc\xe7\xd3\xb2\x03\xbb\xcf\xf2\x9bs\x9es_MN\xcc(\x82>P\x08\x00B\x00\x02\xe2x\xdc\xfa\xa4\xe3q\xc7s\x84\xb4\xfd>q\xfa\x9b\xd6\xdf\xef\xe69\xd2\xfa"\x1d?\x03\x84\x10\x10\xe7\xf7\xed\xee\xb9N\xef\xdd\xf6\x1aZ\x15\x83\x1f\x8c>\x01\xa2$\x0c\x02"6\x88\xd20\x84\xae!J\xc4 DP\x10\xa5b@\xc4\x1a\xa2d\x0c\xe1\x9a,\xa5c\x08\x95\xd4E\xc0\x10&\x87\x88\x82!D\x93%\x12\x86\xe2AD\xc3Pt/KD\x0cB\x14\x9a\xd4E\xc5Pd\x93%2\x86\xe2@D\xc7P\x14H_\xc0 \x00\xf4*FW\x0c\xe8t\xe8?\xc4\x8a~\x91V\x18\x82\x83a2\x9b\xe1\x13\xd0\x0f\xa77\xa6S\xc5\x00!\xfc\x83\xb0\xc2\x08\x8a\x8dA\xf8\x94DX&\x8c\x87\xf9\xc98\xe8\x8c\xc6.\xb1\x14mL\xa7\x8a\xc1}\r\xa1\x8da\x08\t\xc6\xb0\xb9\xb3\x119s:\x02"\x87<:\x1e\xca\x18\\\x83\xd0\xc4\xf0\x8f\x88@\xcc[obHr\x12\xb4\xbe\xbe\xd2b\xa2\x88\xc1-\x08-\x0c\x9d\x9f\t#\x16\xbc\x86\xc7\xdfX\x00\x9d\xc1\xe0F\\t1\x08\xe1\x10\x84\x16\x86%1\x01\xf1\xeb\xd7\xc2\x18j\xf6(6\x9a\x18\x04\x9c%u\x1a\x18Z\x83\x01q+\xd30|^\n\xa0\xd1x\x1c M\x0c\xf0\xd4d\xd1\xc0\xf0\t\x0cD\xc2\xf6-0\x8f\x19\xed\xbd\x18)bp\x93Ch`\xf8E\x84c\xf2\xae\xed\x08\x186\xd4\xbbqR\xc4\xe0"\x87\xd0\xc0\xf0\xb7\x0e\xc6\x94\xccoa\x0c\r\xf5r\xact1d\x9f:\xa1\x81\xe1;`\x00&}\xbd\xcd\xeb\x18\xe8\x12\x8b\xf71d]S\xa7\x92\xc0\x8d\x06L\xfcj\x0b\x02\x86F\xd2\x89\x992\x86l9\x84V\xd7v\xec\xba50\x8f\x1e\xe5\xf5x\x9b\xeb\xea\x1ds\\\x941d\xe9e\xd1\xc2\xb0&\'\xc1:#\xc9\xe3\xf8\xea\xab\xabq\xed\xc81\xdc)>\x8b\xca\x0b\x7f\xa0\xba\xf4/\xd8\x9b\xedL0\x98\'uZ\x18\xa6\xf00\x8c\xfep\xb5G\xb1U\x97\x94\xe2\xec\x97;p\xf5\xf0Q\xd8\x9b\x9b\x99$\xf0\xce\x18L\x9b,\x9asS\xf1\x1b\xd6\xc1\xa7\x7f\x80[q5\xd5\xd6\xa2h\xd3\xe7\xb8\xb8\'\x03---L\xba\xb6=a0\x03\xa1\x89\x111\xf5Y\x0c\x9c\x10\xefV\\U\x97\xfeD\xf6\xa2%\xa8)\xaf`2\xe8{\x14\x06\x93\xa9\x13\x9a\x18\x1a\xad\x0e#\x97\xa7\xb9\x15WYv\x0er\xd3V\xa0\xb9\xb6\x8e\x1b\x0c\xea9\x84\xf6z\xc6\xb09/\xbb\xd5\xc5\xbd\xf1\xdbI\x1c\x7f\xfb=\xd8\x1b\x1a\xb9\xc2\x00\xcd\x81!m\x0c\xad\xd1\x80\xd8%\x8b%\xc7u\xbb\xa0\x10\xd9\x8b\x96p\x89Am\xa4\xceb\xd9\xd5:#\tFs\x88\xa4\xb8\xea\xee\xde\xc3\xf1\xa5\xcb`\xafo\xe0\x12\x83\n\x08\xab5\xf0\xa8\xb9\xb3\xa5\xc5e\xb7\xe3\xf8\xd2e\xb0\xdd\xa9\xe4\x16\xc3\xebS\'\xac0\x82G\xc6!8.VRl\x972\xf7\xe3V^\x01\xd7\x18^=\x8e\xc0r\xabNT\x8a\xb4\xda\xd1p\xff\x01\x8a\xd3\xb7r\x8f\xe1\xb5&\x8b%\x86\xceh\x80u\xda\x8b\x92\xe2+\xfct3\xea\xaa\xab\xb9\xc7\xf0J/\x8b\xf5&6K\xc2D\xe8M\xc6^\xc7W{\xfb6.\x1f\xc8R\x04\x86\xc7#u9\xb6wF<\xf3\x94\xb4\x01\xe0/\xb9\x08\x8b\x1f\xeb\xf2\xa1\xe1\xfc\xde\x9d0\xda\xfe\xf1e\'\xf3\x98c\x10B\xa0q\xf7\xae\x13Y\xf6\xdaj4\x98u2\x07~\x16\x0b\xf5\xe9\x9etk4s\x0c\xb7s\x88\\\x1b\x9f\x07\xc4\xc60\xc1\x80\x0c5\xc3\xedq\x88\x9c\xbb\xd0\xa56W\x9e.\x0f\xb2\xc6\x90\x9c\xd4\xe5>\x12\x10\x918\x99\xed\xda\rc\x0cI\xe3\x10\xb91|\x03\xfb#D\xe2`\xd0+ \x0c1z=R\xe7\xe1\xb0\xcc\xa0I\t\xd0\xe8t\xb2\xacn\xb2\xc2\xe8U\x0e\xe1\xe5\xe4Rxb\x02\xdb\xb5\x7f\x190\x1e\t\xc2\x0b\x86F\xa7c\x9a?:\xa2f\x8b\xf1\xbf <\x9d\xe9\xb3\x8c\x1f\x07\x93\x07\xbb\xd6=o\xb6\xd8`\xa0\xa7\xa4\xce\xdb\x01\xcb\xa1\xd3\xa7\xf5\t\x8cn\x93:o\x18\x1a\xbd\x0f\x86\xbc0\x95=\x88\x0c\x18]\x9a,\x1e\x8f\x1e\x0f~\xe6i\x18\x82\x02\xe5\xa9!\x8c1\\&\x17y=\x07\xfeDj\x8a\xa4\x7f\xe4\xe9m;q\xfdT~\xb7\xa3m\xe7t\xdd\xf93\xa2\x87\xcf\xcc\x12\xa3}\xd7\t\xaf\x18A\xd1Q\x18$e\xcf\x15!8\xbb{\x0fj\xff\xa9\x94u\n\xdd]\x0c\x02@\xcb\xf3\r\t\xb1\xaf\xa7J:\x86v\xaf\xa4T\xd1\x18\x00\x81\x96W\x0c\xff\x88pD\xcdJ\x96\xd4\\\x95\xfe\xf4\xb3\xa21Zk\x08\x9fw\x87\x8cI{\x07:\tg\xc8A\x08.\xfdpH\xd1\x18\x84\xb45Y\x9ca\x04GG#j\xe6tI\xb5\xe3fQ1\xee\x97]W4F{\x0e\xe1\tC\xa3\xd1"a\xedG\x92\'\x12/\x1e\xccR<\x86c\x1c\xc2\xd9\x15G\xb1\xf3Sa\x19+\xed\x18s\xe3\xbf\xb5\xb8\xf2\xe3Q\xc5c\x10\x90\xb6&\x8b\x0f\x0c\xf3\xc88\x8c[\xfe\xae\xe4A\xdc\xb9\xbd\xfbP_S\xa3x\x0ctN\xearb\x98\x06\x86b\xea\x8e\xad\x92\xef i\xb2\xd5\xa1h\xe77B`\xb8$u91\x8c\xe6\x10\xbc\xb4w\x17\xfc\xc3,n\xd4\x8e\x0c\xd8\xeeU\t\x81\xe120\x94\x0b#h\xf8cH>\x98\x81\xe0\xe8\xe1\x921\x1ajjP\xb8c\x970\x18\x04\x80^.\x0c\xadV\x87\x11)\xaf`\xfc\xaa\x15\xd0\xfb\x99\xdc\x9a\x00<\xb1\xe13\xd8*+\x85\xc1h\x9f\\d\x89\xe1\x17\x16\x86\xc8\xe7\x9fCLj\n\x02=\xb8\x87\xa4\xa2\xa8\x18\xe7\xbf\xcb\x14\n\x83\x10\x02=\x0b\x8c9\xbf\x9f@\xb3\xcd\x06\xbd\xbf\x1fL!!\xf0\xb4\xd8\x1b\x1b\x91\xbdr\xb5\xd3\xa9Y10\x00@\xcf\xa2f\x98\xcc!\x00<\x87h+9\xef\xaf\xc1\xdd\x92R\xe10\x1cI\x9dA3\xe5\xcdrf\xf7\x1e\x9c\xcf\xdc/$\x06\xe0<\x97E\xb37\xe5\xa5Rv"\x0f\xb9\x9f\xac\x17\x16\xa3\x1d\x84v\xd7\xd6\x1b\xe5FA!\x0e-\\\xdcz\xed\x85\x98\x18p\xac\xa9\xd3\xbf~\xdb\xf3\x9aq\n\x07\xe7\xcdGc\xadMh\x0c\xb8\xae\x18\xd2\xbb\x0b\xdd\x93r~\xdf\xf7\xc8zu!\x9a\xea\xeb\x85\xc7@\xdb\xc0\x90\xf6\xc5\xf4\xee\x94\xa6\xba:\xe4\xac\xfe\x18\x17\x0ed\t\x9d3\xba\x82P\xc6p\x87\xa3<\xbf\x00\xd9\xab>@\xd5\xd5k}\n\xc3\t\x84\xfeW6\xf4\xa6\xdc\xbd|\x05\xf9\x9b\xbf\xc0\x95\xc3G\x84\x1b\x81\xf7\xb6\x7f\xa3\x97\x1b\x83\xb4\xb4\xa0<\xbf\x00\xe7\xf6f\xa0\xe4h6\x88\xdd\xdeg1\x00@\xcf\xe2\xcbL\xba[\xc3\xb8U|\x06\x7f\xe7\xfe\x8a\x92#\xc7\xf0\xe0F\x850\xeb\x19\x9e`t\xca!\xf4\xbeY&o\xc3&4\xd9\xea\xf0\xb0\xe2&\x1e\x96\x97\xa3\xaa\xf5\x1eC\x11\xd6\xc0\xbd\x89\x01\x00\x9a\xcc\xa8X"\xf7\xd7\xfc\xa8\x18]\xc6!*\x06\x0f\x18\x0e\x10\x15\x83\x1b\x0c\xa7\xb9,\x15\x83\x07\x8c\xd6\xb9,\x15\x83\x17\x0c\x97\xe9w\x15C~\x8c\x9e\x93\xba\x8a!\x0bF\xf7I]\xc5\x90\r\xa3kRW1d\xc5pM\xea*\x86\xec\x18\xdd,P\xa9\x18rb\xc0u\xd7\x89\x8a!7\x86S\xb7W\xc5\xe0\x01\xa3\x15D\xc5\xe0\x05\xa3\xa3\x97\xa5bp\x81\xe1\xe8e\xa9\x18\xdc`\xb8N\x9d\xa8\x18\xb2c\x00\xc0\x7f\xe7\x06\xe8\xb1iL\xc9O\x00\x00\x00\x00IEND\xaeB`\x82'
-
-class window: #! Make this a toplevel
-   def __init__(self, width, height, **kwargs):
+class itkRootBase:
+   def __init__(self, klass, **kwargs):
+      width = kwargs.pop('width')
+      height = kwargs.pop('height')
       self._startwidth = kwargs.pop('defaultWidth', width)
       self._startheight = kwargs.pop('defaultHeight', height)
       self._width = width
       self._height = height
       self._title = kwargs.pop('title', 'Python')
       self._color = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
-      self._isMain = kwargs.pop('main', True)
       self._menu = kwargs.pop('menu', True)
       self._defaultMenu = kwargs.pop('defaultMenu', True)  # Use default menu items
       self._flashIcon = kwargs.pop('flashIcon', False)
       self._mult = 100
       self._nm = 1  # self._mult / 100
       self._fullscreen = False
-      self.children = {}
+      self._children = {}
       self.menubar = {}
       self.images = {'':itkBlankImage(self)}
-      if self._isMain:
-         self.root = itkRootTk()
-         self.aboutwindow = kwargs.pop('aboutWindow', itkAboutWindow(self))
-      else:
-         self.root = itkRootToplevel()
-         self.aboutwindow = None
-      self.root.geometry(f"{self._startwidth}x{self._startheight}")
-      self.root.title(self._title)
+      ico = kwargs.pop('icon', DefaultIcon)
+      klass.__init__(self, **kwargs)
+      self.geometry(f"{self._startwidth}x{self._startheight}")
+      self.title(self._title)
       if as3state.width not in {-1,None} and as3state.height not in {-1,None}:
-         self.root.maxsize(as3state.width,as3state.height)
-      self.root.bind("<Configure>",self.doResize)
-      self.root.bind("<Escape>",self.outfullscreen)
-      self.icon = kwargs.pop('icon', DefaultIcon)
+         self.maxsize(as3state.width,as3state.height)
+      self.bind("<Configure>",self.doResize)
+      self.bind("<Escape>",self.outfullscreen)
+      self.icon = ico
       if self._menu:
          if self._defaultMenu:
-            self.menubar["root"] = tkinter.Menu(self.root, bd=1)
+            self.menubar["root"] = tkinter.Menu(self, bd=1)
             self.menubar["filemenu"] = tkinter.Menu(self.menubar["root"], tearoff=0)
             self.menubar["filemenu"].add_command(label="Quit", font=("Terminal",8), command=self.endProcess)
             self.menubar["root"].add_cascade(label="File", font=("Terminal",8), menu=self.menubar["filemenu"])
@@ -844,82 +827,33 @@ class window: #! Make this a toplevel
             self.menubar["controlmenu"] = tkinter.Menu(self.menubar["root"], tearoff=0)
             self.menubar["controlmenu"].add_command(label="Controls", font=("Terminal",8))
             self.menubar["root"].add_cascade(label="Control", font=("Terminal",8), menu=self.menubar["controlmenu"])
-            if self._isMain:
-               self.menubar["helpmenu"] = tkinter.Menu(self.menubar["root"], tearoff=0)
-               self.menubar["helpmenu"].add_command(label="About", font=("Terminal",8), command=self.aboutwin)
-               self.menubar["root"].add_cascade(label="Help", font=("Terminal",8), menu=self.menubar["helpmenu"])
-            self.root.config(menu=self.menubar["root"])
+            self.config(menu=self.menubar["root"])
          else:
-            self.menubar["root"] = tkinter.Menu(self.root, bd=1)
-            self.root.config(menu=self.menubar["root"])
-      self.children["display"] = itkDisplay(self.root,itkWindow=self,background=self._color)
-      self.children["display"].update()
-   def __getattr__(self, key):
-      return self.children[key]
-   def bind(self, *args):
-      self.root.bind(*args)
-   def transient(self, *args):
-      self.root.transient(*args)
-   def geometry(self, *args):
-      self.root.geometry(*args)
-   def lift(self):
-      self.root.lift()
+            self.menubar["root"] = tkinter.Menu(self, bd=1)
+            self.config(menu=self.menubar["root"])
+      self._children["display"] = itkDisplay(self,itkWindow=self,background=self._color)
+      self._children["display"].update()
    def resetSize(self):
-      self.root.geometry(f"{self._startwidth}x{self._startheight}")
-   def group(self, object_:object):
-      self.root.group(object_)
-   def toTop(self):
-      self.root.lift()
+      self.geometry(f"{self._startwidth}x{self._startheight}")
    def forceFocus(self, child:str):
-      self.children[child].focus_force()
-   def minimumSize(self,type_:str="b",**kwargs):
-      """
-      type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
-      kwargs must include width, height, or both depending on what you chose for type_
-      if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
-      """
-      if type_ == "w":
-         if self._isMain:
-            self.root.minsize(kwargs["width"],int((kwargs["width"]*self._startheight)/self._startwidth) + 28)
-         else:
-            self.root.minsize(kwargs["width"],int((kwargs["width"]*self._startheight)/self._startwidth))
-      elif type_ == "h":
-         if self._isMain:
-            self.root.minsize(int((self._startwidth*kwargs["height"])/self._startheght) - 52,kwargs["height"])
-         else:
-            self.root.minsize(int((self._startwidth*kwargs["height"])/self._startheight),kwargs["height"])
-      elif type_ == "b":
-         self.root.minsize(kwargs["width"],kwargs["height"])
-      else:
-         as3.trace("Invalid type")
-   def minimumSizeReset(self):
-      if self._isMain:
-         self.root.minsize(262,int((262*self._startheight)/self_startwidth) + 28)
-      else:
-         self.root.minsize(262,int((262*self._startheight)/self._startwidth))
-   def mainloop(self):
-      if self._isMain:
-         self.resizeChildren()
-         self.root.mainloop()
-      else:
-         Error("interface_tk.window.mainloop; Can not run mainloop on a child window.")
+      self._children[child].focus_force()
    def enableResizing(self):
-      self.root.resizable(True,True)
+      self.resizable(True,True)
    def disableResizing(self):
-      self.root.resizable(False,False)
+      self.resizable(False,False)
    def endProcess(self):
       with helpers.recursionDepth(100000): # Workaround for python sefaulting while doing this
-         self.root.destroy()
+         self.destroy()
    def closeWindow(self):
-      self.root.destroy()
+      self.destroy()
    def togglefullscreen(self, *e):
       self.fullscreen = not self._fullscreen
-   def gofullscreen(self, *e):  # Backwards compatibility
+   def gofullscreen(self, *e):
       self.fullscreen = True
-   def outfullscreen(self, *e):  # Backwards compatibility
+   def outfullscreen(self, *e):
       self.fullscreen = False
    def _setIcon2(self, img):
-      self.root.iconphoto(True,PIL.ImageTk.PhotoImage(PIL.Image.open(img)))
+      self.iconphoto(True,PIL.ImageTk.PhotoImage(PIL.Image.open(img)))
    def _setIcon(self, fileorbytes):
       if isinstance(fileorbytes, bytes):
          with BytesIO(fileorbytes) as i:  # This doesn't need to stay open as far as I can tell
@@ -933,7 +867,7 @@ class window: #! Make this a toplevel
       return self._fullscreen
    def _setFullscreen(self, value:bool):
       self._fullscreen = value
-      self.root.attributes("-fullscreen", value)
+      self.attributes("-fullscreen", value)
    fullscreen = property(fset=_setFullscreen,fget=_getFullscreen)
    def addWidget(self, widget, master:str, name:str, **kwargs):
       if not as3.isXMLName(master):
@@ -941,8 +875,8 @@ class window: #! Make this a toplevel
       elif not as3.isXMLName(name):
          Error("interface_tk.window.addWidget; Invalid Name")
       else:
-         self.children[name] = widget(self.children[master],itkWindow=self,**kwargs)
-         self.children[name].resize()
+         self._children[name] = widget(self._children[master],itkWindow=self,**kwargs)
+         self._children[name].resize()
    def addButton(self, master:str, name:str, **kwargs):
       self.addWidget(itkButton, master, name, **kwargs)
    def addLabel(self, master:str, name:str, **kwargs):
@@ -968,10 +902,6 @@ class window: #! Make this a toplevel
       self.addWidget(itkImageLabel, master, name, **kwargs)
    def addScrolledListbox(self, master:str, name:str, **kwargs):
       self.addWidget(itkScrolledListBox, master, name, **kwargs)
-   def slb_Insert(self, child:str, position, item):
-      self.children[child].insert(position,item)
-   def slb_Delete(self, child:str, start, end):
-      self.children[child].delete(start, end)
    def addEntry(self, master:str, name:str, **kwargs):
       self.addWidget(itkEntry, master, name, **kwargs)
    def addCheckboxWithLabel(self, master:str, name:str, **kwargs):
@@ -991,96 +921,154 @@ class window: #! Make this a toplevel
    def resizeChildren(self):
       for i in self.images.values():
          i.resize()
-      for i in self.children.values():
+      for i in self._children.values():
          i.resize()
    def bindChild(self, child:str, tkevent, function):
-      self.children[child].bind(tkevent, function)
+      self._children[child].bind(tkevent, function)
    def configureChildren(self, children:list|tuple, **kwargs):
       for attr,value in kwargs.items():
          if attr == "background":
             for child in children:
-               self.children[child].background = value
+               self._children[child].background = value
          elif attr in {"x","y","width","height","font","anchor"}:
             for child in children:
-               setattr(self.children[child], attr, value)
-               self.children[child].resize()
+               setattr(self._children[child], attr, value)
+               self._children[child].resize()
          elif attr == "text":
             for child in children:
-               self.children[child].text = value
+               self._children[child].text = value
          elif attr == "textadd":
             for child in children:
-               self.children[child].text = self.children[child].text + value
+               self._children[child].text = self._children[child].text + value
          elif attr in {"text1","text2"}:...
          elif attr == "indent":...
          elif attr == "foreground":
             for child in children:
-               self.children[child].foreground = value
+               self._children[child].foreground = value
          elif attr == "image":
             for child in children:
-               self.children[child].image_name = value
+               self._children[child].image_name = value
          elif attr == "htmlfontbold":
             for child in children:
-               self.children[child].bold = value
+               self._children[child].bold = value
          elif attr == "sbwidth":
             for child in children:
-               self.children[child].sbwidth = int(value)
+               self._children[child].sbwidth = int(value)
          elif attr == "addTab":
             for child in children:
-               if self.children[child]._intNanem == "Notebook":
-                  self.children[child].add(self.children[value[0]],text=value[1])
+               if self._children[child]._intNanem == "Notebook":
+                  self._children[child].add(self._children[value[0]],text=value[1])
          else:
             for child in children:
-               self.children[child][attr] = value
+               self._children[child][attr] = value
    def configureChild(self, child:str, **args):
-      if child == "root":
-         return
       for attr,value in args.items():
          if attr == "background":
-            self.children[child].background = value
+            self._children[child].background = value
          elif attr in {"x","y","width","height","font","anchor"}:
-            setattr(self.children[child], attr, value)
-            self.children[child].resize()
+            setattr(self._children[child], attr, value)
+            self._children[child].resize()
          elif attr == "text":
-            self.children[child].text = value
+            self._children[child].text = value
          elif attr == "textadd":
-            self.children[child].text = self.children[child].text + value
+            self._children[child].text = self._children[child].text + value
          elif attr in {"text1","text2"}:...
          elif attr == "indent":...
          elif attr == "foreground":
-            self.children[child].foreground = value
+            self._children[child].foreground = value
          elif attr == "image":
-            self.children[child].image_name = value
+            self._children[child].image_name = value
          elif attr == "htmlfontbold":
-            self.children[child].bold = value
+            self._children[child].bold = value
          elif attr == "sbwidth":
-            self.children[child].sbwidth = int(value)
-         elif attr == "addTab" and self.children[child]._intName == "Notebook":
-            self.children[child].add(self.children[value[0]],text=value[1])
+            self._children[child].sbwidth = int(value)
+         elif attr == "addTab" and self._children[child]._intName == "Notebook":
+            self._children[child].add(self._children[value[0]],text=value[1])
          else:
-            self.children[child][attr] = value
+            self._children[child][attr] = value
    def destroyChild(self, child:str):
-      if child in {"display","root"}:
+      if child == "display":
          return
-      if self.children[child]._intName == "ImageLabel":
-         self.images[self.children[child].image_name].references -= 1
-      self.children[child].destroy()
-      self.children.pop(child)
+      if self._children[child]._intName == "ImageLabel":
+         self.images[self._children[child].image_name].references -= 1
+      self._children[child].destroy()
+      self._children.pop(child)
    def getChildAttribute(self, child:str, attribute:str):
-      if child in self.children and self.children[child]._intName == "Entry" and attribute == "text":
-         return self.children[child].text
-      return self.children[child].cget(attribute)
+      if child in self._children and self._children[child]._intName == "Entry" and attribute == "text":
+         return self._children[child].text
+      return self._children[child].cget(attribute)
    def getChildAttributes(self, child:str, *args:str):
       return {i:self.getChildAttribute(child,i) for i in args}
    def doResize(self, event):
-      if event.widget == self.root:
-         self._width, self._height = self.root.winfo_width(), self.root.winfo_height()
+      if event.widget == self:
+         self._width, self._height = self.winfo_width(), self.winfo_height()
          mult = cmath.calculate(self._width,self._height,self._startwidth,self._startheight)
          if mult != self._mult:
             self._mult = mult
             self._nm = mult/100
             self.resizeChildren()
 
-if __name__ == "__main__": #! Update this
+class itkRootTk(itkRootBase, tkinter.Tk):
+   _intName = 'Window'
+   def __init__(self, **kwargs):
+      aw = kwargs.pop('aboutWindow', itkAboutWindow(self))
+      itkRootBase.__init__(self, tkinter.Tk, **kwargs)
+      self.aboutwindow = aw
+      self.menubar["helpmenu"] = tkinter.Menu(self.menubar["root"], tearoff=0)
+      self.menubar["helpmenu"].add_command(label="About", font=("Terminal",8), command=self.aboutwindow.open)
+      self.menubar["root"].add_cascade(label="Help", font=("Terminal",8), menu=self.menubar["helpmenu"])
+   def minimumSize(self,type_:str="b",**kwargs):
+      """
+      type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
+      kwargs must include width, height, or both depending on what you chose for type_
+      if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
+      """
+      if type_ == "w":
+         self.minsize(kwargs["width"],int((kwargs["width"]*self._startheight)/self._startwidth) + 28)
+      elif type_ == "h":
+         self.minsize(int((self._startwidth*kwargs["height"])/self._startheght) - 52,kwargs["height"])
+      elif type_ == "b":
+         self.minsize(kwargs["width"],kwargs["height"])
+      else:
+         as3.trace("Invalid type")
+   def minimumSizeReset(self):
+      self.minsize(262,int((262*self._startheight)/self_startwidth) + 28)
+   def mainloop(self):
+      self.resizeChildren()
+      super().mainloop()
+         
+
+class itkRootToplevel(itkRootBase, tkinter.Toplevel):
+   _intName = 'Window'
+   def __init__(self, **kwargs):
+      itkRootBase.__init__(self, tkinter.Toplevel, **kwargs)
+   def minimumSize(self,type_:str="b",**kwargs):
+      """
+      type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
+      kwargs must include width, height, or both depending on what you chose for type_
+      if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
+      """
+      if type_ == "w":
+         self.minsize(kwargs["width"],int((kwargs["width"]*self._startheight)/self._startwidth))
+      elif type_ == "h":
+         self.minsize(int((self._startwidth*kwargs["height"])/self._startheight),kwargs["height"])
+      elif type_ == "b":
+         self.minsize(kwargs["width"],kwargs["height"])
+      else:
+         as3.trace("Invalid type")
+   def minimumSizeReset(self):
+      self.minsize(262,int((262*self._startheight)/self._startwidth))
+   def mainloop(self):
+      Error("interface_tk.window.mainloop; Can not run mainloop on a child window.")
+
+DefaultIcon = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00d\x00\x00\x00d\x08\x06\x00\x00\x00p\xe2\x95T\x00\x00\x01\x84iCCPICC profile\x00\x00(\x91}\x91=H\xc3@\x1c\xc5_[\xa5R*\n\x16\x11q\xc8P\x9d\xecbE\x1ck\x15\x8aP!\xd4\n\xad:\x98\\\xfa\x05M\x1a\x92\x14\x17G\xc1\xb5\xe0\xe0\xc7b\xd5\xc1\xc5YW\x07WA\x10\xfc\x00qvpRt\x91\x12\xff\x97\x14Z\xc4xp\xdc\x8fw\xf7\x1ew\xef\x00\x7f\xb3\xcaT\xb3\'\x01\xa8\x9aedRI!\x97_\x15\x82\xaf\x08a\x10\xc3\x88#&1S\x9f\x13\xc54<\xc7\xd7=||\xbd\x8b\xf1,\xefs\x7f\x8e~\xa5`2\xc0\'\x10\'\x98nX\xc4\x1b\xc43\x9b\x96\xcey\x9f8\xc2\xca\x92B|N<i\xd0\x05\x89\x1f\xb9.\xbb\xfc\xc6\xb9\xe4\xb0\x9fgF\x8clf\x9e8B,\x94\xbaX\xeebV6T\xe2i\xe2\xa8\xa2j\x94\xef\xcf\xb9\xacp\xde\xe2\xacV\xeb\xac}O\xfe\xc2pA[Y\xe6:\xcd1\xa4\xb0\x88%\x88\x10 \xa3\x8e\n\xaa\xb0\x10\xa3U#\xc5D\x86\xf6\x93\x1e\xfeQ\xc7/\x92K&W\x05\x8c\x1c\x0b\xa8A\x85\xe4\xf8\xc1\xff\xe0w\xb7f1>\xe5&\x85\x93@\xef\x8bm\x7f\x8c\x03\xc1]\xa0\xd5\xb0\xed\xefc\xdbn\x9d\x00\x81g\xe0J\xeb\xf8kM`\xf6\x93\xf4FG\x8b\x1e\x01\x03\xdb\xc0\xc5uG\x93\xf7\x80\xcb\x1d`\xe4I\x97\x0c\xc9\x91\x024\xfd\xc5"\xf0~F\xdf\x94\x07\x86n\x81\xd0\x9a\xdb[{\x1f\xa7\x0f@\x96\xbaJ\xdf\x00\x07\x87\xc0D\x89\xb2\xd7=\xde\xdd\xd7\xdd\xdb\xbfg\xda\xfd\xfd\x00\x05xr\xe1\xf0a\xe0\x07\x00\x00\x00\x06bKGD\x00\xff\x00\xff\x00\xff\xa0\xbd\xa7\x93\x00\x00\x00\tpHYs\x00\x00\x0fa\x00\x00\x0fa\x01\xa8?\xa7i\x00\x00\x00\x07tIME\x07\xe8\n\x10\x164\x05\xff\x81\xa4\xcb\x00\x00\x07nIDATx\xda\xed\xddkP\x94U\x18\x07\xf0\xff^`wA\x04aq\x11\xc6\x15\r\xb1`0\xc7\x0b:\xa2\x94\x95]Dq\xfcP*\xe3P\xe9\x989YF^\xc6\x19\xbb\xd9\xe8\xe8\x98a\xa3ejcN\x9a\xd0\xa81~\xc84\t\x99Ra\x08\xc4\xcb\x98\xa6\x90\x86\x88\x97PP\x89\xe5\xba\x9c>,\x97].\xc9\xbb\xbb\xe7\xbc\xe7=\xbc\xe7\xd3\xb2\x03\xbb\xcf\xf2\x9bs\x9es_MN\xcc(\x82>P\x08\x00B\x00\x02\xe2x\xdc\xfa\xa4\xe3q\xc7s\x84\xb4\xfd>q\xfa\x9b\xd6\xdf\xef\xe69\xd2\xfa"\x1d?\x03\x84\x10\x10\xe7\xf7\xed\xee\xb9N\xef\xdd\xf6\x1aZ\x15\x83\x1f\x8c>\x01\xa2$\x0c\x02"6\x88\xd20\x84\xae!J\xc4 DP\x10\xa5b@\xc4\x1a\xa2d\x0c\xe1\x9a,\xa5c\x08\x95\xd4E\xc0\x10&\x87\x88\x82!D\x93%\x12\x86\xe2AD\xc3Pt/KD\x0cB\x14\x9a\xd4E\xc5Pd\x93%2\x86\xe2@D\xc7P\x14H_\xc0 \x00\xf4*FW\x0c\xe8t\xe8?\xc4\x8a~\x91V\x18\x82\x83a2\x9b\xe1\x13\xd0\x0f\xa77\xa6S\xc5\x00!\xfc\x83\xb0\xc2\x08\x8a\x8dA\xf8\x94DX&\x8c\x87\xf9\xc98\xe8\x8c\xc6.\xb1\x14mL\xa7\x8a\xc1}\r\xa1\x8da\x08\t\xc6\xb0\xb9\xb3\x119s:\x02"\x87<:\x1e\xca\x18\\\x83\xd0\xc4\xf0\x8f\x88@\xcc[obHr\x12\xb4\xbe\xbe\xd2b\xa2\x88\xc1-\x08-\x0c\x9d\x9f\t#\x16\xbc\x86\xc7\xdfX\x00\x9d\xc1\xe0F\\t1\x08\xe1\x10\x84\x16\x86%1\x01\xf1\xeb\xd7\xc2\x18j\xf6(6\x9a\x18\x04\x9c%u\x1a\x18Z\x83\x01q+\xd30|^\n\xa0\xd1x\x1c M\x0c\xf0\xd4d\xd1\xc0\xf0\t\x0cD\xc2\xf6-0\x8f\x19\xed\xbd\x18)bp\x93Ch`\xf8E\x84c\xf2\xae\xed\x08\x186\xd4\xbbqR\xc4\xe0"\x87\xd0\xc0\xf0\xb7\x0e\xc6\x94\xccoa\x0c\r\xf5r\xact1d\x9f:\xa1\x81\xe1;`\x00&}\xbd\xcd\xeb\x18\xe8\x12\x8b\xf71d]S\xa7\x92\xc0\x8d\x06L\xfcj\x0b\x02\x86F\xd2\x89\x992\x86l9\x84V\xd7v\xec\xba50\x8f\x1e\xe5\xf5x\x9b\xeb\xea\x1ds\\\x941d\xe9e\xd1\xc2\xb0&\'\xc1:#\xc9\xe3\xf8\xea\xab\xabq\xed\xc81\xdc)>\x8b\xca\x0b\x7f\xa0\xba\xf4/\xd8\x9b\xedL0\x98\'uZ\x18\xa6\xf00\x8c\xfep\xb5G\xb1U\x97\x94\xe2\xec\x97;p\xf5\xf0Q\xd8\x9b\x9b\x99$\xf0\xce\x18L\x9b,\x9asS\xf1\x1b\xd6\xc1\xa7\x7f\x80[q5\xd5\xd6\xa2h\xd3\xe7\xb8\xb8\'\x03---L\xba\xb6=a0\x03\xa1\x89\x111\xf5Y\x0c\x9c\x10\xefV\\U\x97\xfeD\xf6\xa2%\xa8)\xaf`2\xe8{\x14\x06\x93\xa9\x13\x9a\x18\x1a\xad\x0e#\x97\xa7\xb9\x15WYv\x0er\xd3V\xa0\xb9\xb6\x8e\x1b\x0c\xea9\x84\xf6z\xc6\xb09/\xbb\xd5\xc5\xbd\xf1\xdbI\x1c\x7f\xfb=\xd8\x1b\x1a\xb9\xc2\x00\xcd\x81!m\x0c\xad\xd1\x80\xd8%\x8b%\xc7u\xbb\xa0\x10\xd9\x8b\x96p\x89Am\xa4\xceb\xd9\xd5:#\tFs\x88\xa4\xb8\xea\xee\xde\xc3\xf1\xa5\xcb`\xafo\xe0\x12\x83\n\x08\xab5\xf0\xa8\xb9\xb3\xa5\xc5e\xb7\xe3\xf8\xd2e\xb0\xdd\xa9\xe4\x16\xc3\xebS\'\xac0\x82G\xc6!8.VRl\x972\xf7\xe3V^\x01\xd7\x18^=\x8e\xc0r\xabNT\x8a\xb4\xda\xd1p\xff\x01\x8a\xd3\xb7r\x8f\xe1\xb5&\x8b%\x86\xceh\x80u\xda\x8b\x92\xe2+\xfct3\xea\xaa\xab\xb9\xc7\xf0J/\x8b\xf5&6K\xc2D\xe8M\xc6^\xc7W{\xfb6.\x1f\xc8R\x04\x86\xc7#u9\xb6wF<\xf3\x94\xb4\x01\xe0/\xb9\x08\x8b\x1f\xeb\xf2\xa1\xe1\xfc\xde\x9d0\xda\xfe\xf1e\'\xf3\x98c\x10B\xa0q\xf7\xae\x13Y\xf6\xdaj4\x98u2\x07~\x16\x0b\xf5\xe9\x9etk4s\x0c\xb7s\x88\\\x1b\x9f\x07\xc4\xc60\xc1\x80\x0c5\xc3\xedq\x88\x9c\xbb\xd0\xa56W\x9e.\x0f\xb2\xc6\x90\x9c\xd4\xe5>\x12\x10\x918\x99\xed\xda\rc\x0cI\xe3\x10\xb91|\x03\xfb#D\xe2`\xd0+ \x0c1z=R\xe7\xe1\xb0\xcc\xa0I\t\xd0\xe8t\xb2\xacn\xb2\xc2\xe8U\x0e\xe1\xe5\xe4Rxb\x02\xdb\xb5\x7f\x190\x1e\t\xc2\x0b\x86F\xa7c\x9a?:\xa2f\x8b\xf1\xbf <\x9d\xe9\xb3\x8c\x1f\x07\x93\x07\xbb\xd6=o\xb6\xd8`\xa0\xa7\xa4\xce\xdb\x01\xcb\xa1\xd3\xa7\xf5\t\x8cn\x93:o\x18\x1a\xbd\x0f\x86\xbc0\x95=\x88\x0c\x18]\x9a,\x1e\x8f\x1e\x0f~\xe6i\x18\x82\x02\xe5\xa9!\x8c1\\&\x17y=\x07\xfeDj\x8a\xa4\x7f\xe4\xe9m;q\xfdT~\xb7\xa3m\xe7t\xdd\xf93\xa2\x87\xcf\xcc\x12\xa3}\xd7\t\xaf\x18A\xd1Q\x18$e\xcf\x15!8\xbb{\x0fj\xff\xa9\x94u\n\xdd]\x0c\x02@\xcb\xf3\r\t\xb1\xaf\xa7J:\x86v\xaf\xa4T\xd1\x18\x00\x81\x96W\x0c\xff\x88pD\xcdJ\x96\xd4\\\x95\xfe\xf4\xb3\xa21Zk\x08\x9fw\x87\x8cI{\x07:\tg\xc8A\x08.\xfdpH\xd1\x18\x84\xb45Y\x9ca\x04GG#j\xe6tI\xb5\xe3fQ1\xee\x97]W4F{\x0e\xe1\tC\xa3\xd1"a\xedG\x92\'\x12/\x1e\xccR<\x86c\x1c\xc2\xd9\x15G\xb1\xf3Sa\x19+\xed\x18s\xe3\xbf\xb5\xb8\xf2\xe3Q\xc5c\x10\x90\xb6&\x8b\x0f\x0c\xf3\xc88\x8c[\xfe\xae\xe4A\xdc\xb9\xbd\xfbP_S\xa3x\x0ctN\xearb\x98\x06\x86b\xea\x8e\xad\x92\xef i\xb2\xd5\xa1h\xe77B`\xb8$u91\x8c\xe6\x10\xbc\xb4w\x17\xfc\xc3,n\xd4\x8e\x0c\xd8\xeeU\t\x81\xe120\x94\x0b#h\xf8cH>\x98\x81\xe0\xe8\xe1\x921\x1ajjP\xb8c\x970\x18\x04\x80^.\x0c\xadV\x87\x11)\xaf`\xfc\xaa\x15\xd0\xfb\x99\xdc\x9a\x00<\xb1\xe13\xd8*+\x85\xc1h\x9f\\d\x89\xe1\x17\x16\x86\xc8\xe7\x9fCLj\n\x02=\xb8\x87\xa4\xa2\xa8\x18\xe7\xbf\xcb\x14\n\x83\x10\x02=\x0b\x8c9\xbf\x9f@\xb3\xcd\x06\xbd\xbf\x1fL!!\xf0\xb4\xd8\x1b\x1b\x91\xbdr\xb5\xd3\xa9Y10\x00@\xcf\xa2f\x98\xcc!\x00<\x87h+9\xef\xaf\xc1\xdd\x92R\xe10\x1cI\x9dA3\xe5\xcdrf\xf7\x1e\x9c\xcf\xdc/$\x06\xe0<\x97E\xb37\xe5\xa5Rv"\x0f\xb9\x9f\xac\x17\x16\xa3\x1d\x84v\xd7\xd6\x1b\xe5FA!\x0e-\\\xdcz\xed\x85\x98\x18p\xac\xa9\xd3\xbf~\xdb\xf3\x9aq\n\x07\xe7\xcdGc\xadMh\x0c\xb8\xae\x18\xd2\xbb\x0b\xdd\x93r~\xdf\xf7\xc8zu!\x9a\xea\xeb\x85\xc7@\xdb\xc0\x90\xf6\xc5\xf4\xee\x94\xa6\xba:\xe4\xac\xfe\x18\x17\x0ed\t\x9d3\xba\x82P\xc6p\x87\xa3<\xbf\x00\xd9\xab>@\xd5\xd5k}\n\xc3\t\x84\xfeW6\xf4\xa6\xdc\xbd|\x05\xf9\x9b\xbf\xc0\x95\xc3G\x84\x1b\x81\xf7\xb6\x7f\xa3\x97\x1b\x83\xb4\xb4\xa0<\xbf\x00\xe7\xf6f\xa0\xe4h6\x88\xdd\xdeg1\x00@\xcf\xe2\xcbL\xba[\xc3\xb8U|\x06\x7f\xe7\xfe\x8a\x92#\xc7\xf0\xe0F\x850\xeb\x19\x9e`t\xca!\xf4\xbeY&o\xc3&4\xd9\xea\xf0\xb0\xe2&\x1e\x96\x97\xa3\xaa\xf5\x1eC\x11\xd6\xc0\xbd\x89\x01\x00\x9a\xcc\xa8X"\xf7\xd7\xfc\xa8\x18]\xc6!*\x06\x0f\x18\x0e\x10\x15\x83\x1b\x0c\xa7\xb9,\x15\x83\x07\x8c\xd6\xb9,\x15\x83\x17\x0c\x97\xe9w\x15C~\x8c\x9e\x93\xba\x8a!\x0bF\xf7I]\xc5\x90\r\xa3kRW1d\xc5pM\xea*\x86\xec\x18\xdd,P\xa9\x18rb\xc0u\xd7\x89\x8a!7\x86S\xb7W\xc5\xe0\x01\xa3\x15D\xc5\xe0\x05\xa3\xa3\x97\xa5bp\x81\xe1\xe8e\xa9\x18\xdc`\xb8N\x9d\xa8\x18\xb2c\x00\xc0\x7f\xe7\x06\xe8\xb1iL\xc9O\x00\x00\x00\x00IEND\xaeB`\x82'
+
+def window(**kwargs):
+   if kwargs.pop('main', True):
+      return itkRootTk(**kwargs)
+   return itkRootToplevel(**kwargs)
+
+if __name__ == "__main__":
    #Test
    from platform import python_version
    testcolor = 0
@@ -1100,26 +1088,17 @@ if __name__ == "__main__": #! Update this
       if testcolor >= 3:
          testcolor = 0
       return testcolorlist[testcolor]
-   root = window(1176,662,title="Adobe Flash Projector-like Window Demo")
-   root.setAboutWindowText(f"Adobe Flash Projector-like window demo.\n\nPython {python_version()}")
-   root.addButton("root","testbutton1",130,0,130,30,("Times New Roman",12))
-   root.configureChild("testbutton1",command=lambda: root.configureChild("testtext", background=test_cyclecolor()))
-   root.addLabel("root","testlabel1",0,30,100,20,("Times New Roman",12))
-   root.addHTMLScrolledText("root","testtext",0,50,600,400,("Times New Roman",12),anchor="nw")
-   root.addHTMLText("root","testtext2",601,50,400,400,("Times New Roman",12),anchor="nw")
-   root.configureChild("testtext", text="TestTextpt1\n\nTestTextpt2", cursor="arrow", wrap="word")
-   root.configureChild("testtext2", text="HTMLTextTest\n\ntext", cursor="arrow", wrap="word")
-   root.configureChild("testbutton1", text="st_colourtest")
-   root.configureChild("testlabel1", text="TestLabel")
-   secondwindow = window(400,400,title="Second Window",mainwindow=False,nomenu=True)
-   secondwindow.group(root.children["root"])
-   root.addButton("root","testbutton2",0,0,130,30,("Times New Roman",12))
-   root.configureChild("testbutton2",command=lambda: secondwindow.toTop()) 
-   root.configureChild("testbutton2", text="liftsecondwindow")
-   root.addButton("root","testbutton3",260,0,130,30,("Times New Roman",12))
-   root.configureChild("testbutton3",command=lambda: root.configureChild("testtext",htmlfontbold=test_changebold()))
-   root.configureChild("testbutton3", text="st_boldtest")
-   root.addScrolledListbox("root","testslb",0,450,150,150,("Times New Roman",12))
+   root = window(width=1176,height=662,title="Adobe Flash Projector-like Window Demo")
+   root.aboutwindow.text = f"Adobe Flash Projector-like window demo.\n\nPython {python_version()}"
+   root.addButton("display","testbutton1",x=130,y=0,width=130,height=30,font=("Times New Roman",12),command=lambda: root.configureChild("testtext", background=test_cyclecolor()), text="st_colourtest")
+   root.addLabel("display","testlabel1",x=0,y=30,width=100,height=20,font=("Times New Roman",12), text="TestLabel")
+   root.addHTMLScrolledText("display","testtext",x=0,y=50,width=600,height=400,font=("Times New Roman",12), text="TestTextpt1\n\nTestTextpt2", cursor="arrow", wrap="word")
+   root.addHTMLText("display","testtext2",x=601,y=50,width=400,height=400,font=("Times New Roman",12), text="HTMLTextTest\n\ntext", cursor="arrow", wrap="word")
+   secondwindow = window(width=400,height=400,title="Second Window",main=False,menu=False)
+   secondwindow.group(root)
+   root.addButton("display","testbutton2",x=0,y=0,width=130,height=30,font=("Times New Roman",12),command=lambda: secondwindow.lift(), text="liftsecondwindow")
+   root.addButton("display","testbutton3",x=260,y=0,width=130,height=30,font=("Times New Roman",12),command=lambda: root.configureChild("testtext",htmlfontbold=test_changebold()), text="st_boldtest")
+   root.addScrolledListbox("display","testslb",x=0,y=450,width=150,height=150,font=("Times New Roman",12))
    for i in range(1,21):
-      root.slb_Insert("testslb", "end", i)
+      root._children["testslb"].insert("end", i)
    root.mainloop()
