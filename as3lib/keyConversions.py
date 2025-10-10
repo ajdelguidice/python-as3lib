@@ -1,38 +1,6 @@
 from as3lib import as3state
 
 
-def mouseButtonNameToTkNumber(name: str):
-   if as3state.platform == 'Linux':
-      return Linux.mouseButtonNameToTkNumber(name)
-   elif as3state.platform == 'Windows':
-      return Windows.mouseButtonNameToTkNumber(name)
-   elif as3state.platform == 'Darwin':
-      return Darwin.mouseButtonNameToTkNumber(name)
-
-def mouseButtonNameToTkname(name: str):
-   if as3state.platform == 'Linux':
-      return Linux.mouseButtonNameToTkname(name)
-   elif as3state.platform == 'Windows':
-      return Windows.mouseButtonNameToTkname(name)
-   elif as3state.platform == 'Darwin':
-      return Darwin.mouseButtonNameToTkname(name)
-
-def tkeventToMouseButtonName(event):
-   if as3state.platform == 'Linux':
-      return Linux.tkeventToMouseButtonName(event)
-   elif as3state.platform == 'Windows':
-      return Windows.tkeventToMouseButtonName(event)
-   elif as3state.platform == 'Darwin':
-      return Darwin.tkeventToMouseButtonName(event)
-
-def tkeventToJavascriptKeycode(event):
-   if as3state.platform == 'Linux':
-      return Linux.tkeventToJavascriptKeycode(event)
-   elif as3state.platform == 'Windows':
-      return Windows.tkeventToJavascriptKeycode(event)
-   elif as3state.platform == 'Darwin':
-      return Darwin.tkeventToJavascriptKeycode(event)
-
 class Linux:
    def mouseButtonNameToTkNumber(name: str):
       if name == 'Left':
@@ -118,3 +86,20 @@ class Darwin:
          return 'Middle'
 
    def tkeventToJavascriptKeycode(event):...
+
+
+if as3state.platform == 'Linux':
+   mouseButtonNameToTkNumber = Linux.mouseButtonNameToTkNumber
+   mouseButtonNameToTkname = Linux.mouseButtonNameToTkname
+   tkeventToMouseButtonName = Linux.tkeventToMouseButtonName
+   tkeventToJavascriptKeycode = Linux.tkeventToJavascriptKeycode
+elif as3state.platform == 'Windows':
+   mouseButtonNameToTkNumber = Windows.mouseButtonNameToTkNumber
+   mouseButtonNameToTkname = Windows.mouseButtonNameToTkname
+   tkeventToMouseButtonName = Windows.tkeventToMouseButtonName
+   tkeventToJavascriptKeycode = Windows.tkeventToJavascriptKeycode
+elif as3state.platform == 'Darwin':
+   mouseButtonNameToTkNumber = Darwin.mouseButtonNameToTkNumber
+   mouseButtonNameToTkname = Darwin.mouseButtonNameToTkname
+   tkeventToMouseButtonName = Darwin.tkeventToMouseButtonName
+   tkeventToJavascriptKeycode = Darwin.tkeventToJavascriptKeycode
