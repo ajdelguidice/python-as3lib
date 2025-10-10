@@ -4,9 +4,10 @@ from io import StringIO
 from pathlib import Path
 try:
    import tomllib
-except:
+except Exception:
    import tomli as tomllib
-from as3lib._toplevel.Errors import *
+from as3lib._toplevel.Errors import Error
+
 
 class TOML:
    '''
@@ -24,6 +25,7 @@ class TOML:
       if isinstance(value, dict):
          return TOML.Table(value)
       return f'{value}'
+
    def Table(value):
       with StringIO() as text:
          text.write('{')
@@ -33,6 +35,7 @@ class TOML:
          if temp.endswith(','):  # TODO: Make this better
             return temp[:-1] + '}'
          return temp + '}'
+
    def Array(value):
       with StringIO() as text:
          text.write('[')
@@ -40,6 +43,7 @@ class TOML:
             text.write(f'{TOML.Value(i)},')
          text.write(']')
          return text.getvalue()
+
    def Return(valDict):
       nontables = []
       tables = []
@@ -57,13 +61,17 @@ class TOML:
             for k2, v2 in valDict[k].items():
                text.write(f'{k2} = {TOML.Value(v2)}\n')
          return text.getvalue()
+
    def write(file, valDict, mode='w'):
       with open(file, mode) as f:
          f.write(TOML.Return(valDict))
+
    def readFile(file):
       return tomllib.load(file)
+
    def readString(string):
-      return tomllib.loads(file)
+      return tomllib.loads(string)
+
 
 def _dependencyCheck(cfgval):
    if cfgval:
@@ -82,27 +90,28 @@ def _dependencyCheck(cfgval):
             hasDeps = False
    elif as3state.platform == 'Windows':...
    elif as3state.platform == 'Darwin':...
-   if find_spec('numpy') == None:  # https://pypi.org/project/numpy
+   if find_spec('numpy') is None:  # https://pypi.org/project/numpy
       as3state.initerror.append((3, 'Python: requirement "numpy" not found'))
       hasDeps = False
-   if find_spec('PIL') == None:  # https://pypi.org/project/Pillow
+   if find_spec('PIL') is None:  # https://pypi.org/project/Pillow
       as3state.initerror.append((3, 'Python: requirement "Pillow" not found'))
       hasDeps = False
-   if find_spec('tkhtmlview') == None:  # https://pypi.org/project/tkhtmlview
+   if find_spec('tkhtmlview') is None:  # https://pypi.org/project/tkhtmlview
       as3state.initerror.append((3, 'Python: requirement "tkhtmlview" not found'))
       hasDeps = False
-   if find_spec('miniamf') == None:
+   if find_spec('miniamf') is None:
       as3state.initerror.append((3, 'Python: requirement "Mini-AMF" or "as3lib-miniAMF" not found'))
       hasDeps = False
-   if find_spec('tomllib') == None and find_spec('tomli') == None:
+   if find_spec('tomllib') is None and find_spec('tomli') is None:
       as3state.initerror.append((3, 'Python: requirement "tomllib" or "tomli" not found'))
       hasDeps = False
    return hasDeps
 
+
 def Load():
-   if as3state._cfg != None:
+   if as3state._cfg is not None:
       raise Error('Config has already been loaded')
-   #Load config from files
+   # Load config from files
    configpath = as3state.librarydirectory / 'as3lib.toml'
    modified = False
    if configpath.exists():
@@ -112,46 +121,46 @@ def Load():
       tempmm = temp.get('mm.cfg')
       tempway = temp.get('wayland')
       cfg = {
-         'version':int(temp.get('version', as3state.__version__)),
-         'migrateOldConfig':bool(temp.get('migrateOldConfig', False)),
-         'dependenciesPassed':bool(temp.get('dependenciesPassed', False)),
-         'addedFeatures':bool(temp.get('addedFeatures', False)),
-         'flashVersion':tuple(temp.get('flashVersion', (32,0,0,371))),
-         'mm.cfg':{
-            'ErrorReportingEnable':bool(tempmm.get('ErrorReportingEnable', False)),
-            'MaxWarnings':int(tempmm.get('MaxWarnings', 100)),
-            'TraceOutputFileEnable':bool(tempmm.get('TraceOutputFileEnable', False)),
-            'TraceOutputFileName':str(tempmm.get('TraceOutputFileName', '')),
-            'ClearLogsOnStartup':bool(tempmm.get('ClearLogsOnStartup', True)),
-            'NoClearWarningNumber':int(tempmm.get('NoClearWarningNumber', 0))
+         'version': int(temp.get('version', __version__)),
+         'migrateOldConfig': bool(temp.get('migrateOldConfig', False)),
+         'dependenciesPassed': bool(temp.get('dependenciesPassed', False)),
+         'addedFeatures': bool(temp.get('addedFeatures', False)),
+         'flashVersion': tuple(temp.get('flashVersion', (32, 0, 0, 371))),
+         'mm.cfg': {
+            'ErrorReportingEnable': bool(tempmm.get('ErrorReportingEnable', False)),
+            'MaxWarnings': int(tempmm.get('MaxWarnings', 100)),
+            'TraceOutputFileEnable': bool(tempmm.get('TraceOutputFileEnable', False)),
+            'TraceOutputFileName': str(tempmm.get('TraceOutputFileName', '')),
+            'ClearLogsOnStartup': bool(tempmm.get('ClearLogsOnStartup', True)),
+            'NoClearWarningNumber': int(tempmm.get('NoClearWarningNumber', 0))
          },
-         'wayland':{
-            'screenwidth':int(tempway.get('screenwidth', 1600)),
-            'screenheight':int(tempway.get('screenheight', 900)),
-            'refreshrate':float(tempway.get('refreshrate', 60.0)),
-            'colordepth':int(tempway.get('colordepth', 8))
+         'wayland': {
+            'screenwidth': int(tempway.get('screenwidth', 1600)),
+            'screenheight': int(tempway.get('screenheight', 900)),
+            'refreshrate': float(tempway.get('refreshrate', 60.0)),
+            'colordepth': int(tempway.get('colordepth', 8))
          }
       }
    else:
       cfg = {
-         'version':as3state.__version__,
-         'migrateOldConfig':True,
-         'dependenciesPassed':False,
-         'addedFeatures':False,
-         'flashVersion':(32,0,0,371),  # I chose this version because it was the last version of flash before adobe's timebomb
-         'mm.cfg':{
-            'ErrorReportingEnable':False,
-            'MaxWarnings':100,
-            'TraceOutputFileEnable':False,
-            'TraceOutputFileName':'',
-            'ClearLogsOnStartup':True,
-            'NoClearWarningNumber':0
+         'version': __version__,
+         'migrateOldConfig': True,
+         'dependenciesPassed': False,
+         'addedFeatures': False,
+         'flashVersion': (32, 0, 0, 371),  # I chose this version because it was the last version of flash before adobe's timebomb
+         'mm.cfg': {
+            'ErrorReportingEnable': False,
+            'MaxWarnings': 100,
+            'TraceOutputFileEnable': False,
+            'TraceOutputFileName': '',
+            'ClearLogsOnStartup': True,
+            'NoClearWarningNumber': 0
          },
-         'wayland':{
-            'screenwidth':1600,
-            'screenheight':900,
-            'refreshrate':60.00,
-            'colordepth':8
+         'wayland': {
+            'screenwidth': 1600,
+            'screenheight': 900,
+            'refreshrate': 60.00,
+            'colordepth': 8
          }
       }
       modified = True
@@ -166,12 +175,12 @@ def Load():
          with open(mmcfgpath, 'r') as f:
             mmcfg.read_file(f)
          cfg['mm.cfg'] = {
-            'ErrorReportingEnable':True if mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1 else False,
-            'MaxWarnings':mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
-            'TraceOutputFileEnable':True if mmcfg.getboolean(UNNAMED_SECTION, 'TraceOutputFileEnable', fallback=0) == 1 else False,
-            'TraceOutputFileName':mmcfg.get(UNNAMED_SECTION, 'TraceOutputFileName', fallback=''),
-            'ClearLogsOnStartup':True,
-            'NoClearWarningNumber':0
+            'ErrorReportingEnable': True if mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1 else False,
+            'MaxWarnings': mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
+            'TraceOutputFileEnable': True if mmcfg.getboolean(UNNAMED_SECTION, 'TraceOutputFileEnable', fallback=0) == 1 else False,
+            'TraceOutputFileName': mmcfg.get(UNNAMED_SECTION, 'TraceOutputFileName', fallback=''),
+            'ClearLogsOnStartup': True,
+            'NoClearWarningNumber': 0
          }
          del mmcfg
       if wlcfgpath.exists():
@@ -179,10 +188,10 @@ def Load():
          with open(wlcfgpath, 'r') as f:
             wlcfg.read_file(f)
          cfg['wayland'] = {
-            'screenwidth':wlcfg.getint('Screen', 'screenwidth', fallback=1600),
-            'screenheight':wlcfg.getint('Screen', 'screenheight', fallback=900),
-            'refreshrate':wlcfg.getfloat('Screen', 'refreshrate', fallback=60.00),
-            'colordepth':wlcfg.getint('Screen', 'colordepth', fallback=8)
+            'screenwidth': wlcfg.getint('Screen', 'screenwidth', fallback=1600),
+            'screenheight': wlcfg.getint('Screen', 'screenheight', fallback=900),
+            'refreshrate': wlcfg.getfloat('Screen', 'refreshrate', fallback=60.00),
+            'colordepth': wlcfg.getint('Screen', 'colordepth', fallback=8)
          }
          wlcfgpath.unlink(missing_ok=True)
          del wlcfg
@@ -191,24 +200,24 @@ def Load():
          with open(oldcfgpath, 'r') as f:
             oldcfg.read_file(f)
          cfg = {
-            'version':as3state.__version__,
-            'migrateOldConfig':False,
-            'dependenciesPassed':False,
-            'addedFeatures':False,
-            'flashVersion':(32,0,0,371),
-            'mm.cfg':{
-               'ErrorReportingEnable':oldcfg.getboolean('mm.cfg', 'ErrorReportingEnable', fallback=False),
-               'MaxWarnings':100,  # Reset value because I messed up the type
-               'TraceOutputFileEnable':oldcfg.getboolean('mm.cfg', 'TraceOutputFileEnable', fallback=False),
-               'TraceOutputFileName':oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback=''),
-               'ClearLogsOnStartup':True if oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1 else False,
-               'NoClearWarningNumber':oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
+            'version': __version__,
+            'migrateOldConfig': False,
+            'dependenciesPassed': False,
+            'addedFeatures': False,
+            'flashVersion': (32, 0, 0, 371),
+            'mm.cfg': {
+               'ErrorReportingEnable': oldcfg.getboolean('mm.cfg', 'ErrorReportingEnable', fallback=False),
+               'MaxWarnings': 100,  # Reset value because I messed up the type
+               'TraceOutputFileEnable': oldcfg.getboolean('mm.cfg', 'TraceOutputFileEnable', fallback=False),
+               'TraceOutputFileName': oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback=''),
+               'ClearLogsOnStartup': True if oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1 else False,
+               'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
             },
-            'wayland':{
-               'screenwidth':oldcfg.getint('wayland', 'screenwidth', fallback=1600),
-               'screenheight':oldcfg.getint('wayland', 'screenheight', fallback=900),
-               'refreshrate':oldcfg.getfloat('wayland', 'refreshrate', fallback=60.0),
-               'colordepth':oldcfg.getint('wayland', 'colordepth', fallback=8)
+            'wayland': {
+               'screenwidth': oldcfg.getint('wayland', 'screenwidth', fallback=1600),
+               'screenheight': oldcfg.getint('wayland', 'screenheight', fallback=900),
+               'refreshrate': oldcfg.getfloat('wayland', 'refreshrate', fallback=60.0),
+               'colordepth': oldcfg.getint('wayland', 'colordepth', fallback=8)
             }
          }
          oldcfgpath.unlink(missing_ok=True)
@@ -216,7 +225,7 @@ def Load():
       cfg['migrateOldConfig'] = False
    # Load some values into global state
    as3state.addedFeatures = cfg['addedFeatures']
-   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'] and cfg['version'] == as3state.__version__)
+   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'] and cfg['version'] == __version__)
    as3state.flashVersion = cfg['flashVersion']
    as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
    as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
@@ -238,27 +247,28 @@ def Load():
       as3state.colordepth = cfg['wayland']['colordepth']
    Save(modified)
 
-def Save(saveAnyways:bool=False):
+
+def Save(saveAnyways: bool = False):
    tempcfg = {
-      'version':as3state.__version__,
-      'migrateOldConfig':False,
-      'dependenciesPassed':as3state.hasDependencies,
-      'addedFeatures':as3state.addedFeatures,
-      'flashVersion':as3state.flashVersion,
-      'mm.cfg':{
-         'ErrorReportingEnable':as3state.ErrorReportingEnable,
-         'MaxWarnings':as3state.MaxWarnings,
-         'TraceOutputFileEnable':as3state.TraceOutputFileEnable,
-         'TraceOutputFileName':str(as3state.TraceOutputFileName),
-         'ClearLogsOnStartup':as3state.ClearLogsOnStartup,
-         'NoClearWarningNumber':0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
+      'version': __version__,
+      'migrateOldConfig': False,
+      'dependenciesPassed': as3state.hasDependencies,
+      'addedFeatures': as3state.addedFeatures,
+      'flashVersion': as3state.flashVersion,
+      'mm.cfg': {
+         'ErrorReportingEnable': as3state.ErrorReportingEnable,
+         'MaxWarnings': as3state.MaxWarnings,
+         'TraceOutputFileEnable': as3state.TraceOutputFileEnable,
+         'TraceOutputFileName': str(as3state.TraceOutputFileName),
+         'ClearLogsOnStartup': as3state.ClearLogsOnStartup,
+         'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
       },
-      'wayland':{
-         'screenwidth':as3state.width,
-         'screenheight':as3state.height,
-         'refreshrate':as3state.refreshrate,
-         'colordepth':as3state.colordepth
-      } if as3state.displayserver == 'wayland' else {'screenwidth':1600, 'screenheight':900, 'refreshrate':60.0, 'colordepth':8}
+      'wayland': {
+         'screenwidth': as3state.width,
+         'screenheight': as3state.height,
+         'refreshrate': as3state.refreshrate,
+         'colordepth': as3state.colordepth
+      } if as3state.displayserver == 'wayland' else {'screenwidth': 1600, 'screenheight': 900, 'refreshrate': 60.0, 'colordepth': 8}
    }
    if saveAnyways or as3state._cfg != tempcfg:
       TOML.write(as3state.librarydirectory / 'as3lib.toml', tempcfg)
