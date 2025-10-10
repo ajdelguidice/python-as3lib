@@ -26,7 +26,7 @@ def help():
 def _nullProp(*args):...
 
 class itkBaseWidget:
-   _intName = None  # This is to replace the class name from childproperties
+   _intName = None
    def __init__(self, klass, master, **kwargs):
       self._x = kwargs.pop('x',None)
       self._y = kwargs.pop('y',None)
@@ -39,6 +39,7 @@ class itkBaseWidget:
       self._fontStyle = tempfont[2] if len(tempfont) == 3 else ''
       self._bg = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
       self._fg = kwargs.pop('foreground', kwargs.pop('fg', '#000000'))
+      self._state = kwargs.pop('state','normal')
       self._window = kwargs.pop('itkWindow',None)
       klass.__init__(self, master, **kwargs)
    def update(self):
@@ -50,6 +51,8 @@ class itkBaseWidget:
       self['background'] = self._bg
    def updateForeground(self):
       self['foreground'] = self._fg
+   def updateState(self):
+      self['state'] = self._state
    def resize(self):
       self.update()
       self.updateText()
@@ -107,6 +110,12 @@ class itkBaseWidget:
       self.update()
    anchor = property(fset=_setAnchor,fget=_getAnchor)
    mult = property(fset=_nullProp,fget=_nullProp)
+   def _getState(self):
+      return self._state
+   def _setState(self, state):
+      self._state = state
+      self.updateState()
+   state = property(fset=_setState,fget=_getState)
 
 class itkFrame(itkBaseWidget, tkinter.Frame):
    _intName = 'Frame'
@@ -164,7 +173,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self._textCache = ''
       self._border = False
       self['background'] = self._bg
-      self['foreground'] = self._bg
+      self['foreground'] = self._fg
       self.text = text
    def update(self):
       nm = self._window._nm
@@ -230,10 +239,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
 class itkEntry(itkBaseWidget, tkinter.Entry):
    _intName = 'Entry'
    def __init__(self, master=None, **kwargs):
-      if 'textvariable' in kwargs:
-         self._text = kwargs.pop('textvariable')
-      else:
-         self._text = tkinter.StringVar()
+      self._text = kwargs.pop('textvariable',tkinter.StringVar())
       itkBaseWidget.__init__(self, tkinter.Entry, master, textvariable=self._text, **kwargs)
       self.updateBackground()
       self.updateForeground()
@@ -415,6 +421,10 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
       self["foreground"] = self._fg
       for i in self.radiobuttons:
          i.configure(foreground=self._fg)
+   def updateState(self):
+      self['state'] = self._state
+      for i in self.radiobuttons:
+         i.configure(state=self._state)
    def _setText(self, text):
       if isinstance(text,(list,tuple)) and len(text) == 2:
          self.radiobuttons[text[0]]["text"] = text[1]
@@ -440,6 +450,9 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
       self.place(x=h,y=0,width=(self._width-self._height)*nm,height=h,anchor='nw')
    def updateText(self):
       self['font'] = (self._font,cmath.resizefont(self._fontSize,self._window._mult),self._fontStyle)
+   def updateState(self):
+      self['state'] = self._state
+      self.cb['state'] = self._state
    def select(self):
       self.cb.select()
    def deselect(self):
@@ -482,6 +495,11 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self['font'] = temp
       self.l1['font'] = temp
       self.l2['font'] = temp
+   def updateState(self):
+      self['state'] = self._state
+      self.l1['state'] = self._state
+      self.l2['state'] = self._state
+      self.cb['state'] = self._state
    def checkCB(self):
       if self._cbvar.get():
          self._enable()
@@ -540,6 +558,11 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.l1['font'] = temp
       self.l2['font'] = temp
       self['font'] = temp
+   def updateState(self):
+      self['state'] = self._state
+      self.l1['state'] = self._state
+      self.l2['state'] = self._state
+      self.cb['state'] = self._state
    def checkCB(self):
       if self._cbvar.get():
          self._enable()
