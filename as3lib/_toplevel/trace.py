@@ -9,12 +9,14 @@ def _traceFileOutput(output):
       with open(as3state.TraceOutputFileName, 'w') as f:
          f.write(output + '\n')
 
+
 def trace(*args):
    if as3state.as3DebugEnable:
       output = ' '.join((str(i) for i in args))
       print(output)
       if as3state.TraceOutputFileEnable:
          _traceFileOutput(output)
+
 
 def errorTrace(*args):
    output = ' '.join(str(i) for i in args)
