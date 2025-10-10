@@ -39,3 +39,12 @@ ext-modules = [
 
 [tool.setuptools.dynamic]
 version = {attr = "as3lib.as3state.__version__"}
+
+[tool.tox]
+requires = ["tox"]
+env_list = ["py3"]
+
+[tool.tox.env_run_base]
+runner = "uv-venv-runner"
+deps = ["flake8"]
+commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles"]]
