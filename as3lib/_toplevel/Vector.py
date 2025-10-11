@@ -21,23 +21,24 @@ class Vector(list, Object):
          super().__init__((null() for i in range(length)))
       self.fixed = fixed
 
-   def _getType(self):
+   @property
+   def _type(self):
       return self.__type
 
-   _type = property(fget=_getType)
-
-   def _getFixed(self):
+   @property
+   def fixed(self):
       return self.__fixed
 
-   def _setFixed(self, value):
+   @fixed.setter
+   def fixed(self, value):
       self.__fixed = value
 
-   fixed = property(fget=_getFixed, fset=_setFixed)
-
-   def _getLength(self):
+   @property
+   def length(self):
       return len(self)
 
-   def _setLength(self, value):
+   @length.setter
+   def length(self, value):
       if self.fixed:
          raise RangeError('Can not set vector length while fixed is set to true.')
       if value > 4294967296:
@@ -48,8 +49,6 @@ class Vector(list, Object):
       elif len(self) < value:
          while len(self) < value:
             self.append(null())
-
-   length = property(fget=_getLength, fset=_setLength)
 
    def __repr__(self):
       return f'as3lib.Vector({self.__type}, {self})'

@@ -52,10 +52,12 @@ class Array(list, Object):
          self.length = item+1
       super().__setitem__(item, value)
 
-   def _getLength(self):
+   @property
+   def length(self):
       return len(self)
 
-   def _setLength(self, value: builtins.int | int):
+   @length.setter
+   def length(self, value: builtins.int | int):
       if value < 0:
          raise RangeError(f'Array.length can not be negative. got {value}')
       elif value == 0:
@@ -84,8 +86,6 @@ class Array(list, Object):
 
    def __repr__(self):
       return f'as3lib.Array({self.toString()})'
-
-   length = property(fget=_getLength, fset=_setLength)
 
    def setFiller(self, newFiller):
       self.filler = newFiller

@@ -14,10 +14,9 @@ class String(str, Object):
    def __init2(self, value):
       super().__init__()
 
-   def _getLength(self):
+   @property
+   def length(self):
       return len(self)
-
-   length = property(fget=_getLength)
 
    def _String(self, expression):
       if isinstance(expression, str):
