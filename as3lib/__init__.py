@@ -13,8 +13,9 @@ initerrors
 4 - other error
 '''
 
+
 # Helper functions
-def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
+def defaultTraceFilePath_Flash(sysverOverride: tuple = None):
    '''
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Arguements:
@@ -25,7 +26,7 @@ def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
    elif as3state.platform in {'Linux', 'Darwin'}:
       from pwd import getpwuid
       username = getpwuid(os.getuid())[0]
-   if sysverOverride != None:
+   if sysverOverride is not None:
       if sysverOverride[0] == 'Linux':
          return fr'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
       if sysverOverride[0] == 'Darwin':
@@ -42,6 +43,7 @@ def defaultTraceFilePath_Flash(sysverOverride:tuple=None):
    if as3state.platform == 'Darwin':
       return fr'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
 
+
 def sm_x11():
    '''
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
@@ -56,19 +58,22 @@ def sm_x11():
    cdp = check_output('xwininfo -root | grep Depth', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
    tempwidth = check_output('xwininfo -root | grep Width', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
    tempheight = check_output('xwininfo -root | grep Height', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
-   return int(tempwidth),int(tempheight),float(temprr),int(cdp)
+   return int(tempwidth), int(tempheight), float(temprr), int(cdp)
+
 
 def sm_wayland():...
+
 
 def sm_windows():
    import ctypes
    try:
       import win32api
-   except:
-      as3state.initerror.append((3,'Windows: Requirement pywin32 either not installed or not accessible.'))
+   except ModuleNotFoundError:
+      as3state.initerror.append((3, 'Windows: Requirement pywin32 either not installed or not accessible.'))
+      return 1600, 900, 60.0, 16
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   temp = tuple(getattr(settings, i) for i in ('DisplayFrequency', 'BitsPerPel'))
-   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(temp[0]), int(temp[1])
+   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
+
 
 def sm_darwin():...
 
@@ -77,9 +82,9 @@ def sm_darwin():...
 try:
    import miniamf
    from . import adapters
-except:...
+except ModuleNotFoundError:...
 
-if as3state.startTime == None:
+if as3state.startTime is None:
    from datetime import datetime
    from miniamf import util
    as3state.startTime = int(util.get_timestamp(datetime.now()) * 1000)
@@ -96,17 +101,17 @@ if not as3state.initdone:
    if as3state.platform == 'Linux':
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
       if as3state.displayserver == 'x11':
-         as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_x11()
+         as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = sm_x11()
       elif as3state.displayserver == 'wayland':
-         #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
-         ... # Loaded from config
+         # as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
+         ...  # Loaded from config
       else:
          as3state.initerror.append((2, f'Linux: Display server "{as3state.windowmanagertype}" not supported.'))
    elif as3state.platform == 'Windows':
-      as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_windows()
+      as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = sm_windows()
    elif as3state.platform == 'Darwin':
       as3state.initerror.append((1, 'Darwin: Fetching screen properties is not implemented.'))
-      #as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
+      # as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
       ...
    elif as3state.platform == '':
       as3state.initerror.append((4, 'Detected platform is blank. Something is very wrong.'))
@@ -128,7 +133,7 @@ if not as3state.initdone:
    import __main__
    if hasattr(__main__, '__file__'):
       as3state.appdatadirectory = Path(__main__.__file__).resolve().parent
-   else: # Fall back to working directory
+   else:  # Fall back to working directory
       as3state.appdatadirectory = Path.cwd()
 
    # Tell others that library has been initialised
@@ -144,16 +149,17 @@ def formatToString(obj, objname, *args):
    '''
    return ''.join(['[', objname] + [f' {i}={getattr(obj, i)}' for i in args] + [']'])
 
-def as3import(packageName:str, namespace, name:str=None):  # This will likely be replace with a proper importlib importer
-   #!Implement * imports
+
+def as3import(packageName: str, namespace, name: str = None):  # This will likely be replace with a proper importlib importer
+   # !Implement * imports
    '''
    DO NOT USE THIS YET. I have not decided on the final form this will take as most of it is not implemented yet. The behaviour might change and break things.
-   
+
    Import implementation similar to actionscript. It functions as described below:
    All imports are relative to as3lib
    Will import the object inside of the package with the name of the package (This is currently the best way that I could think of to emulate what actionscript does)
    namespace must be provided as python's globals are global to each module
-   
+
    Arguements:
       packageName - The name and location (with "." as the path separator) of the package. Does not currently support "*" imports
       namespace - The object in which to import the module into. If "*" is provided as the namespace, name is ignored and the package is returned. EX: if an object called obj is provided, the package will be imported as obj.name
@@ -161,53 +167,53 @@ def as3import(packageName:str, namespace, name:str=None):  # This will likely be
    '''
    pkg = packageName.split('.')
    if pkg[-1] == '*':
-      raise NotImplemented('"*" imports are not implemented yet')
+      raise NotImplementedError('"*" imports are not implemented yet')
    else:
       file = as3state.librarydirectory / ('/'.join(pkg) + '.py')
       if not file.exists():
          raise Exception(f'Package "as3lib.{packageName}" does not exist.')
       if file.is_dir():
-         raise NotImplemented('Importing directories as packages is not implemented yet.')
+         raise NotImplementedError('Importing directories as packages is not implemented yet.')
       with open(file, 'rb') as f:
          b = (b := f.read())[:b.find(b'\n')].split(b' ')
       if b[0] == b'#?as3package':
-         if len(b) == 1: #Import the object inside of the file that is the same as the file name
+         if len(b) == 1:  # Import the object inside of the file that is the same as the file name
             package = getattr(__import__(f'as3lib.{".".join(pkg)}', globals(), locals(), (pkg[-1]), 0), pkg[-1])
             if namespace == '*':
                return package
-            if isinstance(namespace,dict) and namespace.get('__name__') != None: #Is a globals() dict
-               if name == None:
-                  namespace.update({pkg[-1]:package})
+            if isinstance(namespace, dict) and namespace.get('__name__') is not None:  # Is a globals() dict
+               if name is None:
+                  namespace.update({pkg[-1]: package})
                else:
-                  namespace.update({name:package})
-            elif name == None:
+                  namespace.update({name: package})
+            elif name is None:
                setattr(namespace, pkg[-1], package)
             else:
                setattr(namespace, name, package)
-         else: #!When package has specific place to be
-            raise NotImplemented('Packages with specific locations are not implemented.')
-         
+         else:  # !When package has specific place to be
+            raise NotImplementedError('Packages with specific locations are not implemented.')
+
 
 # Export toplevel and set up miniamf adapters
-from as3lib._toplevel.Array import *
-from as3lib._toplevel.Boolean import *
+from as3lib._toplevel.Array import Array
+from as3lib._toplevel.Boolean import Boolean
 from as3lib._toplevel.Constants import *
-from as3lib._toplevel.Date import *
+from as3lib._toplevel.Date import Date
 from as3lib._toplevel.Errors import *
 from as3lib._toplevel.Functions import *
 from as3lib._toplevel.int import int as Int
-from as3lib._toplevel.JSON import *
-from as3lib._toplevel.Math import *
-from as3lib._toplevel.Namespace import *
-from as3lib._toplevel.Number import *
-from as3lib._toplevel.Object import *
-from as3lib._toplevel.QName import *
-from as3lib._toplevel.RegExp import *
-from as3lib._toplevel.String import *
+from as3lib._toplevel.JSON import JSON
+from as3lib._toplevel.Math import Math
+from as3lib._toplevel.Namespace import Namespace
+from as3lib._toplevel.Number import Number
+from as3lib._toplevel.Object import Object
+from as3lib._toplevel.QName import QName
+from as3lib._toplevel.RegExp import RegExp
+from as3lib._toplevel.String import String
 from as3lib._toplevel.trace import *
 from as3lib._toplevel.Types import *
-from as3lib._toplevel.uint import *
-from as3lib._toplevel.Vector import *
+from as3lib._toplevel.uint import uint
+from as3lib._toplevel.Vector import Vector
 
 __all__ = (
    'formatToString',
@@ -268,4 +274,3 @@ __all__ = (
    'isValidDirectory',
    'setDataDirectory'
 )
-
