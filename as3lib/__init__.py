@@ -3,6 +3,9 @@ from pathlib import Path
 from subprocess import check_output
 import os
 from importlib import __import__
+import builtins
+from functools import partial
+from miniamf import add_type
 
 '''
 initerrors
@@ -79,11 +82,6 @@ def sm_darwin():...
 
 
 # Initialise as3lib
-try:
-   import miniamf
-   from . import adapters
-except ModuleNotFoundError:...
-
 if as3state.startTime is None:
    from datetime import datetime
    from miniamf import util
@@ -195,25 +193,40 @@ def as3import(packageName: str, namespace, name: str = None):  # This will likel
 
 
 # Export toplevel and set up miniamf adapters
-from as3lib._toplevel.Array import Array
-from as3lib._toplevel.Boolean import Boolean
-from as3lib._toplevel.Constants import *
-from as3lib._toplevel.Date import Date
-from as3lib._toplevel.Errors import *
-from as3lib._toplevel.Functions import *
-from as3lib._toplevel.int import int as Int
-from as3lib._toplevel.JSON import JSON
-from as3lib._toplevel.Math import Math
-from as3lib._toplevel.Namespace import Namespace
-from as3lib._toplevel.Number import Number
-from as3lib._toplevel.Object import Object
-from as3lib._toplevel.QName import QName
-from as3lib._toplevel.RegExp import RegExp
-from as3lib._toplevel.String import String
-from as3lib._toplevel.trace import *
-from as3lib._toplevel.Types import *
-from as3lib._toplevel.uint import uint
-from as3lib._toplevel.Vector import Vector
+from ._toplevel.Array import Array
+from ._toplevel.Boolean import Boolean
+from ._toplevel.Constants import *
+from ._toplevel.Date import Date
+from ._toplevel.Errors import *
+from ._toplevel.Functions import *
+from ._toplevel.int import int as Int
+from ._toplevel.JSON import JSON
+from ._toplevel.Math import Math
+from ._toplevel.Namespace import Namespace
+from ._toplevel.Number import Number
+from ._toplevel.Object import Object
+from ._toplevel.QName import QName
+from ._toplevel.RegExp import RegExp
+from ._toplevel.String import String
+from ._toplevel.trace import *
+from ._toplevel.Types import *
+from ._toplevel.uint import uint
+from ._toplevel.Vector import Vector
+
+
+try:
+   def adapter(func, obj, encoder):
+      return func(obj)
+
+   add_type(Array, partial(adapter, list))
+   add_type(Boolean, partial(adapter, bool))
+   add_type(int, partial(adapter, builtins.int))
+   add_type(Number, partial(adapter, float))
+   add_type(String, partial(adapter, str))
+   add_type(uint, partial(adapter, int))
+except Exception as e:
+   raise Error('Failed to set up miniamf type adapters.') from e
+
 
 __all__ = (
    'formatToString',
