@@ -195,10 +195,10 @@ def as3import(packageName: str, namespace, name: str = None):  # This will likel
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
 from ._toplevel.Boolean import Boolean
-from ._toplevel.Constants import *
+from ._toplevel.Constants import true, false, NInfinity, Infinity, NaN, undefined, null
 from ._toplevel.Date import Date
-from ._toplevel.Errors import *
-from ._toplevel.Functions import *
+from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
+from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
 from ._toplevel.int import int as Int
 from ._toplevel.JSON import JSON
 from ._toplevel.Math import Math
@@ -208,8 +208,8 @@ from ._toplevel.Object import Object
 from ._toplevel.QName import QName
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
-from ._toplevel.trace import *
-from ._toplevel.Types import *
+from ._toplevel.trace import trace
+from ._toplevel.Types import allArray, allBoolean, allNumber, allNone, allString
 from ._toplevel.uint import uint
 from ._toplevel.Vector import Vector
 
@@ -240,13 +240,13 @@ __all__ = (
    'undefined',
    'null',
 
-   'allBoolean',
    'allArray',
-   'allNone',
+   'allBoolean',
    'allNumber',
+   'allNone',
    'allString',
 
-   'ArguementError',
+   'ArgumentError',
    'Array',
    'Boolean',
    'Date',
@@ -266,6 +266,7 @@ __all__ = (
    'Math',
    'Namespace',
    'Number',
+   'Object',
    'parseFloat',
    'parseInt',
    'QName',
