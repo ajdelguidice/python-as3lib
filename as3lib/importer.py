@@ -74,6 +74,8 @@ class ModuleFinder(object):
          raise e
 
       return sys.modules[name]
+   
+   def exec_module(self, module):...
 
 
 def _init():
