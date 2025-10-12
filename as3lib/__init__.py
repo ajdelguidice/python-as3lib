@@ -2,7 +2,6 @@ from . import as3state, config, importer
 from pathlib import Path
 from subprocess import check_output
 import os
-from importlib import __import__
 import builtins
 from functools import partial
 from miniamf import add_type
@@ -52,16 +51,16 @@ def sm_x11():
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    '''
    for option in check_output(('xrandr', '--current')).decode('utf-8').split('\n'):
-      if option.find('*') != -1:
-         for i in [i for i in option.split(' ') if i != ''][1:]:
-            if i.find('*') != -1:
-               temprr = i.replace('*', '').replace('+', '')
+      if '*' in option:
+         for i in option.split(' '):
+            if i != '' and '*' in i:
+               rr = i.strip('*+')
                break
          break
-   cdp = check_output('xwininfo -root | grep Depth', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
-   tempwidth = check_output('xwininfo -root | grep Width', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
-   tempheight = check_output('xwininfo -root | grep Height', shell=True).decode('utf-8').replace('\n', '').replace(' ', '').split(':')[1]
-   return int(tempwidth), int(tempheight), float(temprr), int(cdp)
+   depth = check_output('xwininfo -root | grep Depth', shell=True).decode('utf-8').split(':')[1].strip(' \n')
+   width = check_output('xwininfo -root | grep Width', shell=True).decode('utf-8').split(':')[1].strip(' \n')
+   height = check_output('xwininfo -root | grep Height', shell=True).decode('utf-8').split(':')[1].strip(' \n')
+   return int(width), int(height), float(rr), int(depth)
 
 
 def sm_wayland():...
