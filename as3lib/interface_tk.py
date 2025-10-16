@@ -47,6 +47,8 @@ class itkBaseWidget:
       self._state = kwargs.pop('state', 'normal')
       self._window = kwargs.pop('itkWindow', None)
       klass.__init__(self, master, **kwargs)
+      self.updateBackground()
+      self.updateForeground()
 
    def update(self):
       nm = self._window._nm
@@ -161,8 +163,7 @@ class itkFrame(itkBaseWidget, tkinter.Frame):
    _intName = 'Frame'
 
    def __init__(self, master=None, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Frame, master, **kwargs)
-      self.updateBackground()
+      super().__init__(tkinter.Frame, master, **kwargs)
 
    def updateBackground(self):
       self['bg'] = self._bg
@@ -177,9 +178,7 @@ class itkLabel(itkBaseWidget, tkinter.Label):
    _intName = 'Label'
 
    def __init__(self, master=None, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Label, master, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(tkinter.Label, master, **kwargs)
 
    @property
    def text(self):
@@ -205,9 +204,7 @@ class itkButton(itkBaseWidget, tkinter.Button):
    _intName = 'Button'
 
    def __init__(self, master=None, **kwargs):
-      itkBaseWidget.__init__(self, tkinter.Button, master, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(tkinter.Button, master, **kwargs)
 
    @property
    def text(self):
@@ -226,13 +223,11 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self._sbwidth = kwargs.pop('sbwidth', 12)
       self._text = ''
       text = kwargs.pop('text', '')
-      border = kwargs.pop('border',False)
-      itkBaseWidget.__init__(self, tkhtmlview.HTMLScrolledText, master, **kwargs)
+      border = kwargs.pop('border', False)
       self._bold = False
       self._textCache = ''
+      super().__init__(tkhtmlview.HTMLScrolledText, master, **kwargs)
       self.border = border
-      self['background'] = self._bg
-      self['foreground'] = self._fg
       self.text = text
 
    def update(self):
@@ -315,9 +310,7 @@ class itkEntry(itkBaseWidget, tkinter.Entry):
 
    def __init__(self, master=None, **kwargs):
       self._text = kwargs.pop('textvariable', tkinter.StringVar())
-      itkBaseWidget.__init__(self, tkinter.Entry, master, textvariable=self._text, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(tkinter.Entry, master, textvariable=self._text, **kwargs)
 
    def updateBackground(self):
       self['insertbackground'] = self._bg
@@ -336,9 +329,7 @@ class itkNotebook(itkBaseWidget, Notebook):
    _intName = 'Notebook'
 
    def __init__(self, master=None, **kwargs):
-      itkBaseWidget.__init__(self, Notebook, master, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(Notebook, master, **kwargs)
 
    def update(self):
       if not (self._x is None or self._y is None or self._width is None or self._height is None):
@@ -379,8 +370,8 @@ class itkImageLabel(itkLabel):
 
    def __init__(self, master, **kwargs):
       temp = kwargs.pop('image_name', '')
-      itkLabel.__init__(self, master, **kwargs)
       self._imgname = ''
+      super().__init__(master, **kwargs)
       self.image_name = temp
 
    def updateText(self):
@@ -453,9 +444,7 @@ class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
    def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling', True)
       self._sbwidth = kwargs.pop('sbwidth', 12)
-      itkBaseWidget.__init__(self, ScrolledListbox, master, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(ScrolledListbox, master, **kwargs)
 
    def update(self):
       nm = self._window._nm
@@ -506,9 +495,7 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
 
    def __init__(self, master=None, **kwargs):
       # !Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
-      itkBaseWidget.__init__(self, _ComboLabelWithRadioButtons, master, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(_ComboLabelWithRadioButtons, master, **kwargs)
 
    def updateText(self):
       temp = (self._font, cmath.resizefont(self._fontSize, self._window._mult), self._fontStyle)
@@ -556,11 +543,8 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
       self.frame = tkinter.Frame(master)
       self._cbvar = tkinter.BooleanVar()
       self.cb = tkinter.Checkbutton(self.frame, variable=self._cbvar)
-      itkBaseWidget.__init__(self, tkinter.Label, self.frame, **kwargs)
+      super().__init__(tkinter.Label, self.frame, **kwargs)
       self['anchor'] = 'w'  # Right align text
-      self.update()
-      self.updateBackground()
-      self.updateForeground()
 
    def update(self):
       nm = self._window._nm
@@ -604,12 +588,8 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self.l1 = tkinter.Label(self.frame, text=kwargs.pop('text', ''), anchor='w')
       self.l2 = tkinter.Label(self.frame, anchor='w')
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext', (0, ''))
-      itkBaseWidget.__init__(self, tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
+      super().__init__(tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
       self['state'] = 'disabled'
-      self.update()
-      self.updateText()
-      self.updateBackground()
-      self.updateForeground()
 
    def update(self):
       nm = self._window._nm
@@ -684,10 +664,8 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.l1 = tkinter.Label(self.frame, text=kwargs.pop('text', ''), anchor='w')
       self.l2 = tkinter.Label(self.frame, anchor='w')
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext', (0, ''))
-      itkBaseWidget.__init__(self, Combobox, self.frame, **kwargs)
+      super().__init__(Combobox, self.frame, **kwargs)
       self.checkCB()
-      self.updateBackground()
-      self.updateForeground()
 
    def update(self):
       nm = self._window._nm
@@ -760,10 +738,8 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       self.l1 = tkinter.Label(self.frame, text=kwargs.pop('text', ''), anchor='w')
       self.l2 = tkinter.Label(self.frame, anchor='w')
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext', (0, ''))
-      itkBaseWidget.__init__(self, tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
       self.filebutton = tkinter.Button(self.frame, command=self.selectfile)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
 
    def update(self):
       nm = self._window._nm
@@ -824,9 +800,7 @@ class ComboEntryBox(itkBaseWidget, tkinter.Button):
          raise Exception(f'ComboEntryBox; rows must be greater than or equal to 1, got {self._rows}')
       self.labels = [tkinter.Label(self.frame, text=text[i], anchor='w') for i in range(self._rows)]
       self.entries = [tkinter.Entry(self.frame) for i in range(self._rows)]
-      itkBaseWidget.__init__(self, tkinter.Button, self.frame, text=self._buttontext, **kwargs)
-      self.updateBackground()
-      self.updateForeground()
+      super().__init__(tkinter.Button, self.frame, text=self._buttontext, **kwargs)
 
    def update(self):
       nm = self._window._nm
@@ -1216,7 +1190,7 @@ class itkRootTk(itkRootBase, tkinter.Tk):
    def __init__(self, **kwargs):
       aw = kwargs.pop('aboutWindow', itkAboutWindow(self))
       menu = 'menu' in kwargs and 'defaultMenu' in kwargs
-      itkRootBase.__init__(self, tkinter.Tk, **kwargs)
+      super().__init__(tkinter.Tk, **kwargs)
       self.aboutwindow = aw
       if menu:
          self.menubar['helpmenu'] = tkinter.Menu(self.menubar['root'], tearoff=0)
@@ -1250,7 +1224,7 @@ class itkRootToplevel(itkRootBase, tkinter.Toplevel):
    _intName = 'Window'
 
    def __init__(self, **kwargs):
-      itkRootBase.__init__(self, tkinter.Toplevel, **kwargs)
+      super().__init__(tkinter.Toplevel, **kwargs)
 
    def minimumSize(self, type_: str = 'b', **kwargs):
       '''
