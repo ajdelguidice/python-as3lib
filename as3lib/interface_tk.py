@@ -156,7 +156,6 @@ class itkBaseWidget:
       self.updateState()
    
    def destroy(self, *e):
-      self._window._mult.trace_remove('write', self._resizeCallback)
       self._class.destroy(self)
 
    text = property(fset=_nullFunc, fget=_nullFunc)
@@ -944,7 +943,6 @@ class itkRootBase:
       self._color = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
       self._menu = kwargs.pop('menu', True)
       self._defaultMenu = kwargs.pop('defaultMenu', True)  # Use default menu items
-      self._flashIcon = kwargs.pop('flashIcon', False)
       self._fullscreen = False
       self._children = {}
       self.menubar = {}
@@ -1185,6 +1183,8 @@ class itkRootBase:
          return
       if self._children[child]._intName == 'ImageLabel':
          self.images[self._children[child].image_name].references -= 1
+      if self._children[child]._resizeCallback:
+         self._mult.trace_remove('write', self._children[child]._resizeCallback)
       self._children[child].destroy()
       self._children.pop(child)
 
