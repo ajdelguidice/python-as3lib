@@ -154,9 +154,6 @@ class itkBaseWidget:
    def state(self, state):
       self._state = state
       self.updateState()
-   
-   def destroy(self, *e):
-      self._class.destroy(self)
 
    text = property(fset=_nullFunc, fget=_nullFunc)
    bold = property(fset=_nullFunc, fget=_nullFunc)
