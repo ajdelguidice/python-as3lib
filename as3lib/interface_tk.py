@@ -1192,9 +1192,9 @@ class itkRootBase:
       if event.widget == self:
          self._width, self._height = self.winfo_width(), self.winfo_height()
          mult = cmath.calculate(self._width, self._height, self._startwidth, self._startheight)
-         if mult != self._mult:
-            self._mult = mult
-            self.nm = mult/100
+         if mult != self.nm:
+            self._mult = mult*100
+            self.nm = mult
          else:
             self._children['display'].update()
 

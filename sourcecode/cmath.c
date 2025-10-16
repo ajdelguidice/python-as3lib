@@ -2,17 +2,18 @@
 #include <Python.h>
 #include <math.h>
 
-double itkwcalc(int neww, int newh, int startw, int starth) {
-   double xmult = (double)(100*neww)/startw;
-   double ymult = (double)(100*newh)/starth;
+double itkwcalc(double neww, double newh, int startw, int starth) {
+   double xmult = neww/startw;
+   double ymult = newh/starth;
    if (xmult > ymult)
       return ymult;
    return xmult;
 };
 
 static PyObject * itk_windowcalculate(PyObject *self, PyObject *args) {
-   int sw, sh, nw, nh;
-   if (!PyArg_ParseTuple(args, "iiii", &nw, &nh, &sw, &sh))
+   double nw, nh;
+   int sw, sh;
+   if (!PyArg_ParseTuple(args, "ddii", &nw, &nh, &sw, &sh))
       return NULL;
    return PyFloat_FromDouble(itkwcalc(nw,nh,sw,sh));
 };

@@ -1,6 +1,6 @@
-def itk_windowcalculate(neww: int, newh: int, startw: int, starth: int):
-   xmult = (100 * neww) / startw
-   ymult = (100 * newh) / starth
+def itk_windowcalculate(neww: float, newh: float, startw: int, starth: int):
+   xmult = neww / startw
+   ymult = newh / starth
    return ymult if xmult > ymult else xmult
 
 
