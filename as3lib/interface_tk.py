@@ -226,10 +226,11 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self._sbwidth = kwargs.pop('sbwidth', 12)
       self._text = ''
       text = kwargs.pop('text', '')
+      border = kwargs.pop('border',False)
       itkBaseWidget.__init__(self, tkhtmlview.HTMLScrolledText, master, **kwargs)
       self._bold = False
       self._textCache = ''
-      self._border = False
+      self.border = border
       self['background'] = self._bg
       self['foreground'] = self._fg
       self.text = text
