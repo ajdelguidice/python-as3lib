@@ -46,12 +46,14 @@ class itkBaseWidget:
       self._fg = kwargs.pop('foreground', kwargs.pop('fg', '#000000'))
       self._state = kwargs.pop('state', 'normal')
       self._window = kwargs.pop('itkWindow', None)
+      self._resizeCallback = None
+      self._class = klass
       klass.__init__(self, master, **kwargs)
       self.updateBackground()
       self.updateForeground()
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
 
    def updateText(self):
@@ -66,7 +68,7 @@ class itkBaseWidget:
    def updateState(self):
       self['state'] = self._state
 
-   def resize(self):
+   def resize(self, *e):
       self.update()
       self.updateText()
 
@@ -152,6 +154,10 @@ class itkBaseWidget:
    def state(self, state):
       self._state = state
       self.updateState()
+   
+   def destroy(self, *e):
+      self._window._nm.trace_remove('write', self._resizeCallback)
+      self._class.destroy(self)
 
    text = property(fset=_nullFunc, fget=_nullFunc)
    bold = property(fset=_nullFunc, fget=_nullFunc)
@@ -193,7 +199,7 @@ class itknwhLabel(itkLabel):
    _intName = 'nwhLabel'
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       self.place(x=self._x*nm, y=self._y*nm, anchor=self._anchor)
 
    width = property(fset=_nullFunc, fget=_nullFunc)
@@ -231,7 +237,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
       self.text = text
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       if self._sbscaling:
          self.vbar['width'] = self._sbwidth*nm
       self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
@@ -333,7 +339,7 @@ class itkNotebook(itkBaseWidget, Notebook):
 
    def update(self):
       if not (self._x is None or self._y is None or self._width is None or self._height is None):
-         nm = self._window._nm
+         nm = self._window.nm
          self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
       else:
          self.pack(expand=True)
@@ -352,7 +358,7 @@ class itkNBFrame(itkFrame):
       master.add(self, text=self._text)
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       self['width'] = self._width*nm
       self['height'] = self._height*nm
 
@@ -447,7 +453,7 @@ class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
       super().__init__(ScrolledListbox, master, **kwargs)
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       if self._sbscaling:
          self.vbar['width'] = self._sbwidth*nm
       self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
@@ -547,7 +553,7 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
       self['anchor'] = 'w'  # Right align text
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       h = self._height*nm
       self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=h, anchor=self._anchor)
       self.cb.place(x=0, y=0, width=h, height=h, anchor='nw')
@@ -592,7 +598,7 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
       self['state'] = 'disabled'
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       h = self._height*nm
       self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=h*2, anchor=self._anchor)
       self.cb.place(x=0, y=0, width=h, height=h, anchor='nw')
@@ -668,7 +674,7 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.checkCB()
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       h = self._height*nm
       self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=h*2, anchor=self._anchor)
       self.cb.place(x=0, y=0, width=h, height=h, anchor='nw')
@@ -742,7 +748,7 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
       super().__init__(tkinter.Entry, self.frame, textvariable=self._entryvar, **kwargs)
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       h = self._height*nm
       self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=h*2, anchor=self._anchor)
       self.l1.place(x=0, y=0, width=(self._width-self._height)*nm, height=h, anchor='nw')
@@ -803,7 +809,7 @@ class ComboEntryBox(itkBaseWidget, tkinter.Button):
       super().__init__(tkinter.Button, self.frame, text=self._buttontext, **kwargs)
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=(self._height*self._rows)*nm, anchor=self._anchor)
       for i, item in enumerate(self.labels):
          item.place(x=-2*nm, y=i*self._height*nm, width=(self._textwidth+2)*nm, height=self._height*nm, anchor='nw')
@@ -845,7 +851,7 @@ class itkDisplay(itkFrame):
    _intName = 'display'
 
    def update(self):
-      nm = self._window._nm
+      nm = self._window.nm
       self.place(x=self._window._width//2, y=self._window._height//2, width=self._window._startwidth*nm, height=self._window._startheight*nm, anchor='center')
 
 
@@ -855,17 +861,21 @@ class itkImage:
    def __init__(self, window, data, size):
       self._window = window
       self._data = data
+      self._resizeCallback = None
       self.img = ''
       self.references = 0
       if size is None:
          size = PIL.Image.open(BytesIO(data)).size
       self._size = [size[0], size[1]]
 
-   def resize(self):
-      nm = self._window._nm
+   def resize(self, *e):
+      nm = self._window.nm
       img = PIL.Image.open(BytesIO(self._data))
       img.thumbnail((self._size[0]*nm, self._size[1]*nm))
       self.img = PIL.ImageTk.PhotoImage(img)
+   
+   def destroy(self, *e):
+      self._window._nm.trace_remove('write', self._resizeCallback)
 
 
 class itkBlankImage(itkImage):
@@ -936,13 +946,14 @@ class itkRootBase:
       self._defaultMenu = kwargs.pop('defaultMenu', True)  # Use default menu items
       self._flashIcon = kwargs.pop('flashIcon', False)
       self._mult = 100
-      self._nm = 1  # self._mult / 100
       self._fullscreen = False
       self._children = {}
       self.menubar = {}
       self.images = {'': itkBlankImage(self)}
       ico = kwargs.pop('icon', DefaultIcon)
       klass.__init__(self, **kwargs)
+      self._nm = tkinter.DoubleVar()
+      self._nm.set(1)
       self.geometry(f'{self._startwidth}x{self._startheight}')
       self.title(self._title)
       if as3state.width not in {-1, None} and as3state.height not in {-1, None}:
@@ -969,6 +980,7 @@ class itkRootBase:
             self.config(menu=self.menubar['root'])
       self._children['display'] = itkDisplay(self, itkWindow=self, background=self._color)
       self._children['display'].update()
+      self._children['display']._resizeCallback = self._nm.trace_add('write', self._children['display'].resize)
 
    def resetSize(self):
       self.geometry(f'{self._startwidth}x{self._startheight}')
@@ -1021,6 +1033,14 @@ class itkRootBase:
       self._fullscreen = value
       self.attributes('-fullscreen', value)
 
+   @property
+   def nm(self):
+      return self._nm.get()
+   
+   @nm.setter
+   def nm(self, value):
+      self._nm.set(value)
+
    def addWidget(self, widget, master: str, name: str, **kwargs):
       if not as3.isXMLName(master):
          raise Error('interface_tk.window.addWidget; Invalid Master')
@@ -1029,6 +1049,7 @@ class itkRootBase:
       else:
          self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
          self._children[name].resize()
+         self._children[name]._resizeCallback = self._nm.trace_add('write', self._children[name].resize)
 
    def addButton(self, master: str, name: str, **kwargs):
       self.addWidget(itkButton, master, name, **kwargs)
@@ -1057,6 +1078,7 @@ class itkRootBase:
          raise Error('interface_tk.window.addImage; image_name can not be empty string')
       self.images[image_name] = itkImage(self, image_data, size)
       self.images[image_name].resize()
+      self.images[image_name]._resizeCallback = self._nm.trace_add('write', self.images[image_name].resize)
 
    def addImageLabel(self, master: str, name: str, **kwargs):
       self.addWidget(itkImageLabel, master, name, **kwargs)
@@ -1087,12 +1109,6 @@ class itkRootBase:
 
    def addLabelWithRadioButtons(self, master: str, name: str, **kwargs):
       self.addWidget(ComboLabelWithRadioButtons, master, name, **kwargs)
-
-   def resizeChildren(self):
-      for i in self.images.values():
-         i.resize()
-      for i in self._children.values():
-         i.resize()
 
    def bindChild(self, child: str, tkevent, function):
       self._children[child].bind(tkevent, function)
@@ -1178,8 +1194,7 @@ class itkRootBase:
          mult = cmath.calculate(self._width, self._height, self._startwidth, self._startheight)
          if mult != self._mult:
             self._mult = mult
-            self._nm = mult/100
-            self.resizeChildren()
+            self.nm = mult/100
          else:
             self._children['display'].update()
 
@@ -1216,7 +1231,7 @@ class itkRootTk(itkRootBase, tkinter.Tk):
       self.minsize(262, int((262*self._startheight)/self._startwidth) + 28)
 
    def mainloop(self):
-      self.resizeChildren()
+      self.nm = 1
       super().mainloop()
 
 
