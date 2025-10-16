@@ -47,7 +47,6 @@ class itkBaseWidget:
       self._state = kwargs.pop('state', 'normal')
       self._window = kwargs.pop('itkWindow', None)
       self._resizeCallback = None
-      self._class = klass
       klass.__init__(self, master, **kwargs)
       self.updateBackground()
       self.updateForeground()
@@ -1034,15 +1033,12 @@ class itkRootBase:
    
    @mult.setter
    def mult(self, value):
+      self._fontmult = value*100
       self._mult.set(value)
    
    @property
    def fontmult(self):
       return self._fontmult
-
-   @fontmult.setter
-   def fontmult(self, value):
-      self._fontmult = value
 
    def addWidget(self, widget, master: str, name: str, **kwargs):
       if not as3.isXMLName(master):
@@ -1161,7 +1157,6 @@ class itkRootBase:
          self._width, self._height = self.winfo_width(), self.winfo_height()
          mult = cmath.calculate(self._width, self._height, self._startwidth, self._startheight)
          if mult != self.mult:
-            self.fontmult = mult*100
             self.mult = mult
          else:
             self._children['display'].update()
