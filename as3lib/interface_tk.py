@@ -126,7 +126,7 @@ class itkBaseWidget:
    @width.setter
    def width(self, w):
       self._width = w
-      self.update()
+      self.resize()
 
    @property
    def height(self):
@@ -135,7 +135,7 @@ class itkBaseWidget:
    @height.setter
    def height(self, h):
       self._height = h
-      self.update()
+      self.resize()
 
    @property
    def anchor(self):
@@ -1121,60 +1121,23 @@ class itkRootBase:
 
    def configureChildren(self, children: list | tuple, **kwargs):
       for attr, value in kwargs.items():
-         if attr == 'background':
-            for child in children:
-               self._children[child].background = value
-         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor'}:
-            for child in children:
-               setattr(self._children[child], attr, value)
-               self._children[child].resize()
-         elif attr == 'text':
-            for child in children:
-               self._children[child].text = value
-         elif attr == 'textadd':
+         if attr == 'textadd':
             for child in children:
                self._children[child].text = self._children[child].text + value
-         elif attr == 'foreground':
+         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'htmlfontbold', 'sbwidth'}:
             for child in children:
-               self._children[child].foreground = value
-         elif attr == 'image':
-            for child in children:
-               self._children[child].image_name = value
-         elif attr == 'htmlfontbold':
-            for child in children:
-               self._children[child].bold = value
-         elif attr == 'sbwidth':
-            for child in children:
-               self._children[child].sbwidth = int(value)
-         elif attr == 'addTab':
-            for child in children:
-               if self._children[child]._intNanem == 'Notebook':
-                  self._children[child].add(self._children[value[0]], text=value[1])
+               setattr(self._children[child], attr, value)
          else:
             for child in children:
                self._children[child][attr] = value
 
    def configureChild(self, child: str, **args):
       for attr, value in args.items():
-         if attr == 'background':
-            self._children[child].background = value
-         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor'}:
+         if attr == 'textadd':
+            value = self._children[child].text + value
+            attr = 'text'
+         if attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'htmlfontbold', 'sbwidth'}:
             setattr(self._children[child], attr, value)
-            self._children[child].resize()
-         elif attr == 'text':
-            self._children[child].text = value
-         elif attr == 'textadd':
-            self._children[child].text = self._children[child].text + value
-         elif attr == 'foreground':
-            self._children[child].foreground = value
-         elif attr == 'image':
-            self._children[child].image_name = value
-         elif attr == 'htmlfontbold':
-            self._children[child].bold = value
-         elif attr == 'sbwidth':
-            self._children[child].sbwidth = int(value)
-         elif attr == 'addTab' and self._children[child]._intName == 'Notebook':
-            self._children[child].add(self._children[value[0]], text=value[1])
          else:
             self._children[child][attr] = value
 
