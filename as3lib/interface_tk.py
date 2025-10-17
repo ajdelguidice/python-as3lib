@@ -97,7 +97,7 @@ class itkBaseWidget:
    def font(self, font):
       self._font = font[0]
       self._fontSize = font[1]
-      self._fontStyle = font[2] if len(font) == 3 else None
+      self._fontStyle = font[2] if len(font) == 3 else ''
       self.updateText()
 
    @property
@@ -1110,7 +1110,7 @@ class itkRootBase:
          if attr == 'textadd':
             for child in children:
                self._children[child].text = self._children[child].text + value
-         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'htmlfontbold', 'sbwidth'}:
+         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'bold', 'sbwidth'}:
             for child in children:
                setattr(self._children[child], attr, value)
          else:
@@ -1122,7 +1122,7 @@ class itkRootBase:
          if attr == 'textadd':
             value = self._children[child].text + value
             attr = 'text'
-         if attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'htmlfontbold', 'sbwidth'}:
+         if attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'bold', 'sbwidth'}:
             setattr(self._children[child], attr, value)
          else:
             self._children[child][attr] = value
