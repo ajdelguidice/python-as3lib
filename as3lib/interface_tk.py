@@ -941,6 +941,7 @@ class itkRootBase:
       self._menu = kwargs.pop('menu', True)
       self._defaultMenu = kwargs.pop('defaultMenu', True)  # Use default menu items
       self._fullscreen = False
+      self._resizable = False
       self._children = {}
       self.menubar = {}
       self.images = {'': itkBlankImage(self)}
@@ -981,12 +982,6 @@ class itkRootBase:
    def forceFocus(self, child: str):
       self._children[child].focus_force()
 
-   def enableResizing(self):
-      self.resizable(True, True)
-
-   def disableResizing(self):
-      self.resizable(False, False)
-
    def togglefullscreen(self, *e):
       self.fullscreen = not self._fullscreen
 
@@ -1018,6 +1013,15 @@ class itkRootBase:
    def fullscreen(self, value: bool):
       self._fullscreen = value
       self.attributes('-fullscreen', value)
+
+   @property
+   def resizable(self):
+      return self._resizable
+
+   @resizable.setter
+   def resizable(self, value):
+      super().resizable(value, value)
+      self._resizable = value
 
    @property
    def mult(self):
