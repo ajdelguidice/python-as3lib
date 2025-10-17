@@ -1116,7 +1116,7 @@ class itkRootBase:
          if attr == 'textadd':
             for child in children:
                self._children[child].text = self._children[child].text + value
-         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'bold', 'sbwidth'}:
+         elif attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image_name', 'bold', 'sbwidth'}:
             for child in children:
                setattr(self._children[child], attr, value)
          else:
@@ -1128,7 +1128,7 @@ class itkRootBase:
          if attr == 'textadd':
             value = self._children[child].text + value
             attr = 'text'
-         if attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image', 'bold', 'sbwidth'}:
+         if attr in {'x', 'y', 'width', 'height', 'font', 'anchor', 'background', 'text', 'foreground', 'image_name', 'bold', 'sbwidth'}:
             setattr(self._children[child], attr, value)
          else:
             self._children[child][attr] = value
