@@ -988,13 +988,6 @@ class itkRootBase:
    def disableResizing(self):
       self.resizable(False, False)
 
-   def endProcess(self):
-      with helpers.recursionDepth(100000):  # Workaround for python sefaulting while doing this
-         self.destroy()
-
-   def closeWindow(self):
-      self.destroy()
-
    def togglefullscreen(self, *e):
       self.fullscreen = not self._fullscreen
 
@@ -1196,6 +1189,9 @@ class itkRootTk(itkRootBase, tkinter.Tk):
    def mainloop(self):
       self.mult = 1
       super().mainloop()
+   
+   def endProcess(self, *e):
+      self.destroy()
 
 
 class itkRootToplevel(itkRootBase, tkinter.Toplevel):
@@ -1224,6 +1220,9 @@ class itkRootToplevel(itkRootBase, tkinter.Toplevel):
 
    def mainloop(self):
       raise Error('interface_tk.window.mainloop; Can not run mainloop on a child window.')
+   
+   def close(self, *e):
+      self.destroy()
 
 
 def window(**kwargs):
