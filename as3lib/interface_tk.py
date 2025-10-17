@@ -46,7 +46,6 @@ class itkBaseWidget:
       self._fg = kwargs.pop('foreground', kwargs.pop('fg', '#000000'))
       self._state = kwargs.pop('state', 'normal')
       self._window = kwargs.pop('itkWindow', None)
-      self._resizeCallback = None
       klass.__init__(self, master, **kwargs)
       self.updateBackground()
       self.updateForeground()
@@ -862,7 +861,6 @@ class itkImage:
    def __init__(self, window, data, size):
       self._window = window
       self._data = data
-      self._resizeCallback = None
       self.img = ''
       self.references = 0
       if size is None:
@@ -874,9 +872,6 @@ class itkImage:
       img = PIL.Image.open(BytesIO(self._data))
       img.thumbnail((self._size[0]*nm, self._size[1]*nm))
       self.img = PIL.ImageTk.PhotoImage(img)
-   
-   def destroy(self, *e):
-      self._window._mult.trace_remove('write', self._resizeCallback)
 
 
 class itkBlankImage(itkImage):
@@ -951,8 +946,7 @@ class itkRootBase:
       self.images = {'': itkBlankImage(self)}
       ico = kwargs.pop('icon', DefaultIcon)
       klass.__init__(self, **kwargs)
-      self._mult = tkinter.DoubleVar()
-      self._mult.set(1)
+      self._mult = 1
       self._fontmult = 100
       self.geometry(f'{self._startwidth}x{self._startheight}')
       self.title(self._title)
@@ -980,7 +974,6 @@ class itkRootBase:
             self.config(menu=self.menubar['root'])
       self._children['display'] = itkDisplay(self, itkWindow=self, background=self._color)
       self._children['display'].update()
-      self._children['display']._resizeCallback = self._mult.trace_add('write', self._children['display'].resize)
 
    def resetSize(self):
       self.geometry(f'{self._startwidth}x{self._startheight}')
@@ -1028,12 +1021,13 @@ class itkRootBase:
 
    @property
    def mult(self):
-      return self._mult.get()
+      return self._mult
    
    @mult.setter
    def mult(self, value):
       self._fontmult = value*100
-      self._mult.set(value)
+      self._mult = value
+      self.resizeChildren()
    
    @property
    def fontmult(self):
@@ -1047,7 +1041,6 @@ class itkRootBase:
       else:
          self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
          self._children[name].resize()
-         self._children[name]._resizeCallback = self._mult.trace_add('write', self._children[name].resize)
 
    def addButton(self, master: str, name: str, **kwargs):
       self.addWidget(itkButton, master, name, **kwargs)
@@ -1076,7 +1069,6 @@ class itkRootBase:
          raise Error('interface_tk.window.addImage; image_name can not be empty string')
       self.images[image_name] = itkImage(self, image_data, size)
       self.images[image_name].resize()
-      self.images[image_name]._resizeCallback = self._mult.trace_add('write', self.images[image_name].resize)
 
    def addImageLabel(self, master: str, name: str, **kwargs):
       self.addWidget(itkImageLabel, master, name, **kwargs)
@@ -1108,6 +1100,12 @@ class itkRootBase:
    def addLabelWithRadioButtons(self, master: str, name: str, **kwargs):
       self.addWidget(ComboLabelWithRadioButtons, master, name, **kwargs)
 
+   def resizeChildren(self):
+      for i in self.images.values():
+         i.resize()
+      for i in self._children.values():
+         i.resize()
+
    def bindChild(self, child: str, tkevent, function):
       self._children[child].bind(tkevent, function)
 
@@ -1138,8 +1136,6 @@ class itkRootBase:
          return
       if self._children[child]._intName == 'ImageLabel':
          self.images[self._children[child].image_name].references -= 1
-      if self._children[child]._resizeCallback:
-         self._mult.trace_remove('write', self._children[child]._resizeCallback)
       self._children[child].destroy()
       self._children.pop(child)
 
