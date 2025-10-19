@@ -47,23 +47,47 @@ class FileFilter:
 
 
 class FileReference(EventDispatcher):
+   @property
+   def creationDate(self):
+      return self._creationDate
+
+   @property
+   def creator(self):
+      return self._creator
+
+   @property
+   def data(self):
+      return self._data
+
+   @property
+   def extension(self):
+      return self._extension
+
+   @property
+   def modificationDate(self):
+      return self._modificationDate
+
+   @property
+   def name(self):
+      return self._name
+
    @staticmethod
    def _getPerStat():
       return True
    permissionStatus = property(fget=_getPerStat)
 
+   @property
+   def size(self):
+      return self._size
+
+   @property
+   def type(self):
+      return self._type
+
    def __init__(self):
       super().__init__()
-      #self.creationDate
-      #self.creator
-      #self.data
-      #self.extension
-      #self.modificationDate
-      #self.name
-      #self.size
-      #self.type
       self._location = None
-      #!Most of these events need extra information
+      # !Most of these events need extra information
       self.cancel = Event('cancel', False, False, self)
       self.complete = Event('complete', False, False, self)
       #self.httpResponseStatus = HTTPStatusEvent('httpResponseStatus',False,False,self)
@@ -77,11 +101,11 @@ class FileReference(EventDispatcher):
       #self.uploadCompleteData = DataEvent('uploadCompleteEvent',False,False,self)
 
    def _setFile(self, file):
-      #Sets the file and all of its details
+      # Sets the file and all of its details
       ...
 
    def browse(self, typeFilter: list | tuple = None):
-      #typeFilter is an Array/list/tuple of FileFilter objects
+      # typeFilter is an Array/list/tuple of FileFilter objects
       if typeFilter is not None:
          filename = filedialog.askopenfilename(title='Select a file to upload', filetypes=tuple(i.toTkTuple() for i in typeFilter))
       else:
