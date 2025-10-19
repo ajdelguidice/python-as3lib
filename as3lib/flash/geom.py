@@ -51,7 +51,8 @@ class Point(Object):
 	def copyFrom(self, sourcePoint: Point):...
 
 	@staticmethod
-	def distance(pt1: Point, pt2: Point):...
+	def distance(pt1: Point, pt2: Point):
+		return math.sqrt((pt2.x-pt1.x) ** 2 + (pt2.y-pt1.y) ** 2)
 
 	def equals(self, toCompare: Point):
 		return self.x == toCompare.x and self.y == toCompare.y
@@ -66,7 +67,8 @@ class Point(Object):
 		self.y = self.y + dy
 
 	@staticmethod
-	def polar(len, angle):...
+	def polar(len, angle):
+		return Point(len * math.sin(angle), len * math.cos(angle))
 
 	def setTo(self, xa, ya):
 		self.x = xa
