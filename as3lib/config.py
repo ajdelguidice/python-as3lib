@@ -118,8 +118,8 @@ def Load():
       with configpath.open('rb') as f:
          temp = tomllib.load(f)
       as3state._cfg = temp
-      tempmm = temp.get('mm.cfg')
-      tempway = temp.get('wayland')
+      tempmm = temp.get('mm.cfg', {})
+      tempway = temp.get('wayland', {})
       cfg = {
          'version': int(temp.get('version', __version__)),
          'migrateOldConfig': bool(temp.get('migrateOldConfig', False)),
