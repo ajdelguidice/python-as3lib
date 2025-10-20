@@ -164,7 +164,7 @@ from ._toplevel.QName import QName
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
 from ._toplevel.trace import trace
-from ._toplevel.Types import allArray, allBoolean, allNumber, allNone, allString
+from ._toplevel.Types import allArray, allBoolean, allInt, allNumber, allNone, allString
 from ._toplevel.uint import uint
 from ._toplevel.Vector import Vector
 
@@ -197,6 +197,7 @@ __all__ = (
 
    'allArray',
    'allBoolean',
+   'allInt',
    'allNumber',
    'allNone',
    'allString',
