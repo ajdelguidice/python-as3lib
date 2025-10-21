@@ -32,7 +32,7 @@ def _nullFunc(*args):
 class itkBaseWidget:
    _intName = None
 
-   def __init__(self, klass, master, **kwargs):
+   def __init__(self, cls, master, **kwargs):
       self._x = kwargs.pop('x', None)
       self._y = kwargs.pop('y', None)
       self._width = kwargs.pop('width', None)
@@ -46,7 +46,7 @@ class itkBaseWidget:
       self._fg = kwargs.pop('foreground', kwargs.pop('fg', '#000000'))
       self._state = kwargs.pop('state', 'normal')
       self._window = kwargs.pop('itkWindow', None)
-      klass.__init__(self, master, **kwargs)
+      cls.__init__(self, master, **kwargs)
       self.updateBackground()
       self.updateForeground()
 
@@ -253,6 +253,13 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
    def processText(self, text):
       '''
       An overridable method to control text preprocessing.
+      
+      This method should:
+         1) Set self._text. This is what is returned by the text property and
+            is used by the default implementation of this method to check
+            whether the text has been modified.
+         2) Set self._textCache to the processed text. This is the text that is
+            actually displayed.
       '''
       if self._text != text:
          self._text = text
@@ -929,7 +936,7 @@ DefaultIcon = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00d\x00\x00\x00d\x0
 
 
 class itkRootBase:
-   def __init__(self, klass, **kwargs):
+   def __init__(self, cls, **kwargs):
       width = kwargs.pop('width')
       height = kwargs.pop('height')
       self._startwidth = kwargs.pop('defaultWidth', width)
@@ -946,7 +953,7 @@ class itkRootBase:
       self.menubar = {}
       self.images = {'': itkBlankImage(self)}
       ico = kwargs.pop('icon', DefaultIcon)
-      klass.__init__(self, **kwargs)
+      cls.__init__(self, **kwargs)
       self._mult = 1
       self._fontmult = 100
       self.geometry(f'{self._startwidth}x{self._startheight}')
@@ -1040,11 +1047,10 @@ class itkRootBase:
    def addWidget(self, widget, master: str, name: str, **kwargs):
       if not as3.isXMLName(master):
          raise Error('interface_tk.window.addWidget; Invalid Master')
-      elif not as3.isXMLName(name):
+      if not as3.isXMLName(name):
          raise Error('interface_tk.window.addWidget; Invalid Name')
-      else:
-         self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
-         self._children[name].resize()
+      self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
+      self._children[name].resize()
 
    def addButton(self, master: str, name: str, **kwargs):
       self.addWidget(itkButton, master, name, **kwargs)
@@ -1064,15 +1070,15 @@ class itkRootBase:
    def addHTMLText(self, master: str, name: str, **kwargs):
       self.addWidget(HTMLText, master, name, **kwargs)
 
-   def addImage(self, image_name: str, image_data, size: tuple = None):
+   def addImage(self, name: str, data, size: tuple = None):
       '''
       size - the target (display) size of the image before resizing
       if size is not defined it is assumed to be the actual image size
       '''
-      if image_name == '':
+      if name == '':
          raise Error('interface_tk.window.addImage; image_name can not be empty string')
-      self.images[image_name] = itkImage(self, image_data, size)
-      self.images[image_name].resize()
+      self.images[name] = itkImage(self, data, size)
+      self.images[name].resize()
 
    def addImageLabel(self, master: str, name: str, **kwargs):
       self.addWidget(itkImageLabel, master, name, **kwargs)
@@ -1110,8 +1116,8 @@ class itkRootBase:
       for i in self._children.values():
          i.resize()
 
-   def bindChild(self, child: str, tkevent, function):
-      self._children[child].bind(tkevent, function)
+   def bindChild(self, child: str, event, function):
+      self._children[child].bind(event, function)
 
    def configureChildren(self, children: list | tuple, **kwargs):
       for attr, value in kwargs.items():
