@@ -507,7 +507,7 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
    _intName = 'ComboLabelWithRadioButtons'
 
    def __init__(self, master=None, **kwargs):
-      # !Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
+      # TODO: Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
       super().__init__(_ComboLabelWithRadioButtons, master, **kwargs)
 
    def updateText(self):
@@ -676,6 +676,7 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.cb = tkinter.Checkbutton(self.frame, variable=self._cbvar, command=self.checkCB)
       self.l1 = tkinter.Label(self.frame, text=kwargs.pop('text', ''), anchor='w')
       self.l2 = tkinter.Label(self.frame, anchor='w')
+      self._readonly = kwargs.pop('readonly', True)
       self._entrytextwidth, self.l2['text'] = kwargs.pop('entrytext', (0, ''))
       super().__init__(Combobox, self.frame, **kwargs)
       self.checkCB()
@@ -695,8 +696,13 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
       self.l2['font'] = temp
       self['font'] = temp
 
+   def _getState(self):
+      if self._state == 'normal':
+         return 'readonly' if self._readonly else 'normal'
+      return 'disabled'
+
    def updateState(self):
-      self['state'] = self._state
+      self['state'] = self._getState()
       self.l1['state'] = self._state
       self.l2['state'] = self._state
       self.cb['state'] = self._state
@@ -708,7 +714,7 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
          self._disable()
 
    def _enable(self):
-      self['state'] = 'normal'
+      self['state'] = 'readonly' if self._readonly else 'normal'
 
    def _disable(self):
       self['state'] = 'disabled'
@@ -734,7 +740,6 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
    def updateForeground(self):
       self.l1['foreground'] = self._fg
       self.l2['foreground'] = self._fg
-      self.filebutton['foreground'] = self._fg
 
 
 class FileEntryBox(itkBaseWidget, tkinter.Entry):
