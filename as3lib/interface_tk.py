@@ -407,11 +407,8 @@ class itkImageLabel(itkLabel):
    @image_name.setter
    def image_name(self, name):
       if name in self._window.images:
-         if self._imgname != '':
-            self._window.images[self._imgname].references -= 1
          self._imgname = name
          self['image'] = self._window.images[name].img
-         self._window.images[name].references += 1
 
 
 # ----------------------------------------------------
@@ -884,7 +881,6 @@ class itkImage:
       self._window = window
       self._data = data
       self.img = ''
-      self.references = 0
       if size is None:
          size = PIL.Image.open(BytesIO(data)).size
       self._size = [size[0], size[1]]
@@ -1173,8 +1169,6 @@ class itkRootBase(tkinter.Toplevel):
    def destroyChild(self, child: str):
       if child == 'display':
          return
-      if self._children[child]._intName == 'ImageLabel':
-         self.images[self._children[child].image_name].references -= 1
       self._children[child].destroy()
       self._children.pop(child)
 
