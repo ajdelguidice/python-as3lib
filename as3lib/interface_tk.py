@@ -1269,7 +1269,7 @@ class itkRootToplevel(itkRootBase):
 
 
 def window(**kwargs):
-   if kwargs.pop('main', True):
+   if kwargs.pop('main', False):
       return itkRootTk(**kwargs)
    return itkRootToplevel(**kwargs)
 
