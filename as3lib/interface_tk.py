@@ -21,14 +21,14 @@ Notes:
 as3state.interfaceType = 'Tkinter'
 
 
-def _winNameGen():
+def _idGen():
    i = 0
    while True:
       yield i
       i += 1
 
 
-_windowNameGenerator = _winNameGen()
+_windowID = _idGen()
 
 
 def help():
@@ -957,7 +957,7 @@ class itkWorkaroundWindow(tkinter.Tk):
 
 class itkRootBase(tkinter.Toplevel):
    def __init__(self, **kwargs):
-      self._windowName = next(_windowNameGenerator)
+      self._id = next(_windowID)
       self._startwidth = kwargs.pop('defaultWidth', kwargs.pop('width'))
       self._startheight = kwargs.pop('defaultHeight', kwargs.pop('height'))
       self._title = kwargs.pop('title', 'Python')
@@ -1001,7 +1001,7 @@ class itkRootBase(tkinter.Toplevel):
             self.config(menu=self.menubar['root'])
       self._children['display'] = itkDisplay(self, itkWindow=self, background=self._color)
       self._children['display'].update()
-      as3state.windows[self._windowName] = self
+      as3state.windows[self._id] = self
       self._destroyed = False  # Variable to prevent destroy being called more than once
 
    def resetSize(self):
@@ -1207,7 +1207,7 @@ class itkRootBase(tkinter.Toplevel):
       if not self._destroyed:
          self._destroyed = True
          super().destroy()
-         del as3state.windows[self._windowName]
+         del as3state.windows[self._id]
          if len(as3state.windows) == 1:
             as3state.windows['TkWorkaroundWindow'].destroy()
 
