@@ -871,7 +871,7 @@ class itkDisplay(itkFrame):
 
    def update(self):
       nm = self._window.mult
-      self.place(x=self._window._width//2, y=self._window._height//2, width=self._window._startwidth*nm, height=self._window._startheight*nm, anchor='center')
+      self.place(x=self._window.width//2, y=self._window.height//2, width=self._window._startwidth*nm, height=self._window._startheight*nm, anchor='center')
 
 
 class itkImage:
@@ -958,12 +958,8 @@ class itkWorkaroundWindow(tkinter.Tk):
 class itkRootBase(tkinter.Toplevel):
    def __init__(self, **kwargs):
       self._windowName = next(_windowNameGenerator)
-      width = kwargs.pop('width')
-      height = kwargs.pop('height')
-      self._startwidth = kwargs.pop('defaultWidth', width)
-      self._startheight = kwargs.pop('defaultHeight', height)
-      self._width = width
-      self._height = height
+      self._startwidth = kwargs.pop('defaultWidth', kwargs.pop('width'))
+      self._startheight = kwargs.pop('defaultHeight', kwargs.pop('height'))
       self._title = kwargs.pop('title', 'Python')
       self._color = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
       self._menu = kwargs.pop('menu', True)
@@ -1068,6 +1064,22 @@ class itkRootBase(tkinter.Toplevel):
    @property
    def fontmult(self):
       return self._fontmult
+
+   @property
+   def width(self):
+      return self.winfo_width()
+
+   @width.setter
+   def width(self, value):
+      self.geometry(f'{value}x{self.width}')
+
+   @property
+   def height(self):
+      return self.winfo_height()
+
+   @height.setter
+   def height(self, value):
+      self.geometry(f'{self.width}x{value}')
 
    def addWidget(self, widget, master: str, name: str, **kwargs):
       if not as3.isXMLName(master):
@@ -1182,12 +1194,11 @@ class itkRootBase(tkinter.Toplevel):
 
    def doResize(self, event):
       if event.widget == self:
-         self._width, self._height = self.winfo_width(), self.winfo_height()
-         mult = cmath.calculate(self._width, self._height, self._startwidth, self._startheight)
-         if mult != self.mult:
-            self.mult = mult
-         else:
+         mult = cmath.calculate(self.width, self.height, self._startwidth, self._startheight)
+         if mult == self.mult:
             self._children['display'].update()
+         else:
+            self.mult = mult
 
    def close(self, *e):
       self.destroy()
