@@ -22,7 +22,7 @@ as3state.interfaceType = 'Tkinter'
 
 
 def _idGen():
-   i = 0
+   i = 1
    while True:
       yield i
       i += 1
@@ -948,11 +948,18 @@ DefaultIcon = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00d\x00\x00\x00d\x0
 
 class itkWorkaroundWindow(tkinter.Tk):
    def __init__(self):
+      self._destroyed = False
       super().__init__()
       self.withdraw()
 
    wm_deiconify = _nullFunc
    deiconify = _nullFunc
+
+   def destroy(self, *e):
+      if not self._destroyed:
+         self._destroyed = True
+         super().destroy()
+         del as3state.windows[0]
 
 
 class itkRootBase(tkinter.Toplevel):
@@ -971,7 +978,7 @@ class itkRootBase(tkinter.Toplevel):
       self.images = {'': itkBlankImage()}
       ico = kwargs.pop('icon', DefaultIcon)
       if not as3state.windows:
-         as3state.windows['TkWorkaroundWindow'] = itkWorkaroundWindow()
+         as3state.windows[0] = itkWorkaroundWindow()
       tkinter.Toplevel.__init__(self, **kwargs)
       self._mult = 1
       self._fontmult = 100
@@ -1209,7 +1216,7 @@ class itkRootBase(tkinter.Toplevel):
          super().destroy()
          del as3state.windows[self._id]
          if len(as3state.windows) == 1:
-            as3state.windows['TkWorkaroundWindow'].destroy()
+            as3state.windows[0].destroy()
 
 
 class itkRootTk(itkRootBase):
@@ -1245,7 +1252,7 @@ class itkRootTk(itkRootBase):
 
    def mainloop(self):
       self.mult = 1
-      as3state.windows['TkWorkaroundWindow'].mainloop()
+      as3state.windows[0].mainloop()
 
 
 class itkRootToplevel(itkRootBase):
