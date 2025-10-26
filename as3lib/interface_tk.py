@@ -892,10 +892,10 @@ class itkImage:
       self.img = PIL.ImageTk.PhotoImage(img)
 
 
-class itkBlankImage(itkImage):
-   def __init__(self, window):
-      super().__init__(window, '', (0, 0))
-
+class itkBlankImage:
+   _intName = 'BlankImage'
+   img = ''
+   __init__ = _nullFunc
    resize = _nullFunc
 
 
@@ -968,7 +968,7 @@ class itkRootBase(tkinter.Toplevel):
       self._resizable = False
       self._children = {}
       self.menubar = {}
-      self.images = {'': itkBlankImage(self)}
+      self.images = {'': itkBlankImage()}
       ico = kwargs.pop('icon', DefaultIcon)
       if not as3state.windows:
          as3state.windows['TkWorkaroundWindow'] = itkWorkaroundWindow()
