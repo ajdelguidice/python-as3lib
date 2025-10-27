@@ -9,8 +9,7 @@ try:
    from as3lib import cmath
 except Exception:
    from as3lib.cfail import cmath
-from as3lib import helpers, as3state
-from as3lib._toplevel.Errors import Error
+from as3lib import helpers, as3state, Error
 '''
 Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
 Notes:
@@ -947,6 +946,8 @@ DefaultIcon = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00d\x00\x00\x00d\x0
 
 
 class itkWorkaroundWindow(tkinter.Tk):
+   _intName = 'itkWorkaroundWindow'
+
    def __init__(self):
       self._destroyed = False
       super().__init__()
@@ -962,7 +963,22 @@ class itkWorkaroundWindow(tkinter.Tk):
          del as3state.windows[0]
 
 
-class itkRootBase(tkinter.Toplevel):
+class itkRoot(tkinter.Toplevel):
+   '''
+   This is a subclass of tkinter.Toplevel that provides extra functionality.
+
+   Notes:
+      Calling mainloop() on this window will raise an Error. Use itkRootMain
+      for that.
+
+      Tkinter requires one window, and only one window, to be of class
+      tkinter.Tk. This window is automatically created when the first
+      interface_tk window is created and destroyed when the last interface_tk
+      is destroyed. It lives at as3state.windows[0] and should not be used as a
+      window. It's only purpose is to be the required tkinter.Tk window.
+   '''
+   _intName = 'Window'
+
    def __init__(self, **kwargs):
       self._id = next(_windowID)
       self._startwidth = kwargs.pop('defaultWidth', kwargs.pop('width'))
@@ -1192,9 +1208,11 @@ class itkRootBase(tkinter.Toplevel):
       self._children.pop(child)
 
    def getChildAttribute(self, child: str, attribute: str):
-      if child in self._children and self._children[child]._intName == 'Entry' and attribute == 'text':
-         return self._children[child].text
-      return self._children[child].cget(attribute)
+      if child in self._children:
+         try:
+            return getattr(self._children[child], attribute)
+         except:
+            return self._children[child].cget(attribute)
 
    def getChildAttributes(self, child: str, *args):
       return {i: self.getChildAttribute(child, i) for i in args}
@@ -1206,6 +1224,27 @@ class itkRootBase(tkinter.Toplevel):
             self._children['display'].update()
          else:
             self.mult = mult
+
+   def minimumSize(self, **kwargs):
+      '''
+      kwargs: width, height
+
+      If width or height is missing, it will be calculated based on the one
+      that is present and the aspect ratio of the starting dimensions.
+      '''
+      w = kwargs.pop('width', None)
+      h = kwargs.pop('height', None)
+      if w is not None and h is not None:
+         self.minsize(w, h)
+      elif w is not None:
+         self.minsize(w, int((w*self._startheight)/self._startwidth))
+      elif h is not None:
+         self.minsize(int((self._startwidth*h)/self._startheight), h)
+      else:
+         as3.trace('Invalid type')
+
+   def mainloop(self):
+      raise Error('interface_tk.window.mainloop; Can not run mainloop on a child window.')
 
    def close(self, *e):
       self.destroy()
@@ -1219,71 +1258,42 @@ class itkRootBase(tkinter.Toplevel):
             as3state.windows[0].destroy()
 
 
-class itkRootTk(itkRootBase):
-   _intName = 'Window'
+class itkRootMain(itkRoot):
+   '''
+   This is a subclass of itkRootBase providing the following aditional
+   capabilities:
+      mainloop() can be called on this object.
+      This object can have an about window attached to it
+   '''
+   _intName = 'WindowMain'
 
    def __init__(self, **kwargs):
       aw = kwargs.pop('aboutWindow', itkAboutWindow)
-      menu = 'menu' in kwargs and 'defaultMenu' in kwargs
       super().__init__(**kwargs)
       self.aboutwindow = aw(self)
-      if menu:
+      if self._menu and self._defaultMenu:
          self.menubar['helpmenu'] = tkinter.Menu(self.menubar['root'], tearoff=0)
          self.menubar['helpmenu'].add_command(label='About', font=('Terminal', 8), command=self.aboutwindow.open)
          self.menubar['root'].add_cascade(label='Help', font=('Terminal', 8), menu=self.menubar['helpmenu'])
-
-   def minimumSize(self, type_: str = 'b', **kwargs):
-      '''
-      type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
-      kwargs must include width, height, or both depending on what you chose for type_
-      if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
-      '''
-      if type_ == 'w':
-         self.minsize(kwargs['width'], int((kwargs['width']*self._startheight)/self._startwidth) + 28)
-      elif type_ == 'h':
-         self.minsize(int((self._startwidth*kwargs['height'])/self._startheght) - 52, kwargs['height'])
-      elif type_ == 'b':
-         self.minsize(kwargs['width'], kwargs['height'])
-      else:
-         as3.trace('Invalid type')
-
-   def minimumSizeReset(self):
-      self.minsize(262, int((262*self._startheight)/self._startwidth) + 28)
 
    def mainloop(self):
       self.mult = 1
       as3state.windows[0].mainloop()
 
 
-class itkRootToplevel(itkRootBase):
-   _intName = 'Window'
-
-   def minimumSize(self, type_: str = 'b', **kwargs):
-      '''
-      type_ must be either 'w','h',or 'b' (meaning width, height, or both). If nothing is passed, assumed to be 'b' (both)
-      kwargs must include width, height, or both depending on what you chose for type_
-      if 'w' or 'height' is chosen, the other will be assumed based on the ration of the original size
-      '''
-      if type_ == 'w':
-         self.minsize(kwargs['width'], int((kwargs['width']*self._startheight)/self._startwidth))
-      elif type_ == 'h':
-         self.minsize(int((self._startwidth*kwargs['height'])/self._startheight), kwargs['height'])
-      elif type_ == 'b':
-         self.minsize(kwargs['width'], kwargs['height'])
-      else:
-         as3.trace('Invalid type')
-
-   def minimumSizeReset(self):
-      self.minsize(262, int((262*self._startheight)/self._startwidth))
-
-   def mainloop(self):
-      raise Error('interface_tk.window.mainloop; Can not run mainloop on a child window.')
-
-
 def window(**kwargs):
+   '''
+   Returns a window class based on the arguements given. Provided for backwards
+   compatibility. All arguements not used by this function will be passed to
+   the window's constructor.
+
+   Arguements:
+      main = True -> itkRootMain
+      main = False -> itkRootSub
+   '''
    if kwargs.pop('main', False):
-      return itkRootTk(**kwargs)
-   return itkRootToplevel(**kwargs)
+      return itkRootMain(**kwargs)
+   return itkRoot(**kwargs)
 
 
 if __name__ == '__main__':
