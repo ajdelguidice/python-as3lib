@@ -83,9 +83,7 @@ def parseInt(str_: str, radix: int | uint = 0):
    while j < len(str_) and str_[j] in radixchars:
       j += 1
    if j == 0:
-      if zero:
-         return 0
-      return NaN()
+      return 0 if zero else NaN()
    return int(builtins.int(str_[:j], radix))
 
 
@@ -136,47 +134,34 @@ def objIsChildClass(obj, cls):
    '''
    return isinstance(obj, cls) or issubclass(obj, cls)
 
-
-def isValidDirectory(directory, separator=None):
-   '''
-   Checks if a given directory is valid on the current platform
-   '''
-   WIN_BlacklistedChars = {'<', '>', ':', '"', '\\', '/', '|', '?', '*', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''}
-   WIN_BlacklistedNames = {'CON', 'PRN', 'AUX', 'NUL', 'COM0', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM¹', 'COM²', 'COM³', 'LPT0', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9', 'LPT¹', 'LPT²', 'LPT³'}
-   UNIX_BlacklistedChars = {'/', '<', '>', '|', ':', '&', ''}
-   UNIX_BlacklistedNames = {'.', '..'}
-   if isinstance(directory, PurePath):
-      # While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
-      temp = directory.resolve()
-      if as3state.platform == 'Windows':
-         while temp != temp.parent:
+if as3state.platform == 'Windows':
+   BlacklistedChars = {'<', '>', ':', '"', '\\', '/', '|', '?', '*', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''}
+   BlacklistedNames = {'CON', 'PRN', 'AUX', 'NUL', 'COM0', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM¹', 'COM²', 'COM³', 'LPT0', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9', 'LPT¹', 'LPT²', 'LPT³'}
+   def isValidDirectory(directory, separator=None):
+      '''
+      Checks if a given directory is valid on the current platform
+      '''
+      if isinstance(directory, PurePath):
+         # While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
+         temp = directory.resolve()
+         while True:
             # get directory name and convert it to uppercase since windows is not case sensitive
             tempname = temp.name.upper()
             # invalid if blacklisted characters are used
             for i in tempname:
-               if i in WIN_BlacklistedChars:
+               if i in BlacklistedChars:
                   return False
             # invalid if last character is " " or "." or if name or name before a period is blacklisted
-            if tempname.endswith((' ', '.')) or tempname.split('.')[0] in WIN_BlacklistedNames:
+            if tempname.endswith((' ', '.')) or tempname.split('.')[0] in BlacklistedNames:
                return False
             temp = temp.parent
+            if temp == temp.parent:
+               break
          # Check drive letter
          if not (str(temp)[0].isalpha() and str(temp)[1:] in {':', ':\\', ':/'}):
             return False
-      else:
-         while temp != temp.parent:
-            tempname = temp.name
-            # invalid if blacklisted names are used
-            if tempname in UNIX_BlacklistedNames:
-               return False
-            # invalid if blacklisted characters are used
-            for i in tempname:
-               if i in UNIX_BlacklistedChars:
-                  return False
-            temp = temp.parent
-   elif separator is not None:
-      directory = str(directory)
-      if as3state.platform == 'Windows':
+      elif separator is not None:
+         directory = str(directory)
          # convert path to uppercase since windows is not cas sensitive
          directory = directory.upper()
          # remove trailing path separator
@@ -189,17 +174,39 @@ def isValidDirectory(directory, separator=None):
             directory = directory[2:]
          elif directory.startswith(f'.{separator}'):
             directory = directory[-(len(directory)-2):]
-         # split path into each component
-         dirlist = directory.split(separator)
-         for i in dirlist:
+         for i in directory.split(separator):
             # invalid if blacklisted characters are used
             for j in i:
-               if j in WIN_BlacklistedChars:
+               if j in BlacklistedChars:
                   return False
             # invalid if last character is " " or "." or if name or name before a period is blacklisted
-            if i.endswith((' ', '.')) or i.split('.')[0] in WIN_BlacklistedNames:
+            if i.endswith((' ', '.')) or i.split('.')[0] in BlacklistedNames:
                return False
-      elif as3state.platform in {'Linux', 'Darwin'}:
+      return True
+else:
+   BlacklistedChars = {'/', '<', '>', '|', ':', '&', ''}
+   BlacklistedNames = {'.', '..'}
+   def isValidDirectory(directory, separator=None):
+      '''
+      Checks if a given directory is valid on the current platform
+      '''
+      if isinstance(directory, PurePath):
+         # While this is ten times slower than using a string, it is much simpler and more robust so should give less incorrect answers
+         temp = directory.resolve()
+         while True:
+            tempname = temp.name
+            # invalid if blacklisted names are used
+            if tempname in BlacklistedNames:
+               return False
+            # invalid if blacklisted characters are used
+            for i in tempname:
+               if i in BlacklistedChars:
+                  return False
+            temp = temp.parent
+            if temp == temp.parent:
+               break
+      elif separator is not None:
+         directory = str(directory)
          # remove trailing path separator
          if directory[-1] == separator:
             directory = directory[:-1]
@@ -210,16 +217,15 @@ def isValidDirectory(directory, separator=None):
             directory = directory[-(len(directory)-1):]
          elif directory.startswith((f'.{separator}', f'~{separator}')):
             directory = directory[-(len(directory)-2):]
-         dirlist = directory.split(separator)
-         for i in dirlist:
+         for i in directory.split(separator):
             # invalid if blacklisted names are used
-            if i in UNIX_BlacklistedNames:
+            if i in BlacklistedNames:
                return False
             # invalid if blacklisted characters are used
             for j in i:
-               if j in UNIX_BlacklistedChars:
+               if j in BlacklistedChars:
                   return False
-   return True
+      return True
 
 
 def setDataDirectory(directory: str):
