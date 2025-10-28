@@ -25,7 +25,7 @@ class _AS3_BASEEVENT:
    def target(self):
       return self._target
 
-   @proeprty
+   @property
    def type(self):
       return self._type
 
