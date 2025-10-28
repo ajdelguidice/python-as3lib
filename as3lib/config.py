@@ -119,7 +119,7 @@ def Load():
          temp = tomllib.load(f)
       as3state._cfg = temp
       tempmm = temp.get('mm.cfg', {})
-      tempway = temp.get('wayland', {})
+      tempdis = temp.get('display', {})
       cfg = {
          'version': int(temp.get('version', __version__)),
          'migrateOldConfig': bool(temp.get('migrateOldConfig', False)),
@@ -134,11 +134,11 @@ def Load():
             'ClearLogsOnStartup': bool(tempmm.get('ClearLogsOnStartup', True)),
             'NoClearWarningNumber': int(tempmm.get('NoClearWarningNumber', 0))
          },
-         'wayland': {
-            'screenwidth': int(tempway.get('screenwidth', 1600)),
-            'screenheight': int(tempway.get('screenheight', 900)),
-            'refreshrate': float(tempway.get('refreshrate', 60.0)),
-            'colordepth': int(tempway.get('colordepth', 8))
+         'display': {
+            'screenwidth': int(tempdis.get('screenwidth', 1600)),
+            'screenheight': int(tempdis.get('screenheight', 900)),
+            'refreshrate': float(tempdis.get('refreshrate', 60.0)),
+            'colordepth': int(tempdis.get('colordepth', 8))
          }
       }
    else:
@@ -156,7 +156,7 @@ def Load():
             'ClearLogsOnStartup': True,
             'NoClearWarningNumber': 0
          },
-         'wayland': {
+         'display': {
             'screenwidth': 1600,
             'screenheight': 900,
             'refreshrate': 60.00,
@@ -187,7 +187,7 @@ def Load():
          wlcfg = ConfigParser()
          with open(wlcfgpath, 'r') as f:
             wlcfg.read_file(f)
-         cfg['wayland'] = {
+         cfg['display'] = {
             'screenwidth': wlcfg.getint('Screen', 'screenwidth', fallback=1600),
             'screenheight': wlcfg.getint('Screen', 'screenheight', fallback=900),
             'refreshrate': wlcfg.getfloat('Screen', 'refreshrate', fallback=60.00),
@@ -213,7 +213,7 @@ def Load():
                'ClearLogsOnStartup': True if oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1 else False,
                'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
             },
-            'wayland': {
+            'display': {
                'screenwidth': oldcfg.getint('wayland', 'screenwidth', fallback=1600),
                'screenheight': oldcfg.getint('wayland', 'screenheight', fallback=900),
                'refreshrate': oldcfg.getfloat('wayland', 'refreshrate', fallback=60.0),
@@ -241,10 +241,10 @@ def Load():
       tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
    if as3state.displayserver == 'wayland':
-      as3state.width = cfg['wayland']['screenwidth']
-      as3state.height = cfg['wayland']['screenheight']
-      as3state.refreshrate = cfg['wayland']['refreshrate']
-      as3state.colordepth = cfg['wayland']['colordepth']
+      as3state.width = cfg['display']['screenwidth']
+      as3state.height = cfg['display']['screenheight']
+      as3state.refreshrate = cfg['display']['refreshrate']
+      as3state.colordepth = cfg['display']['colordepth']
    Save(modified)
 
 
@@ -263,7 +263,7 @@ def Save(saveAnyways: bool = False):
          'ClearLogsOnStartup': as3state.ClearLogsOnStartup,
          'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
       },
-      'wayland': {
+      'display': {
          'screenwidth': as3state.width,
          'screenheight': as3state.height,
          'refreshrate': as3state.refreshrate,
