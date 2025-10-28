@@ -63,7 +63,8 @@ def sm_x11():
    return int(width), int(height), float(rr), int(depth)
 
 
-def sm_wayland():...
+def sm_wayland():
+   return sm_x11()  # Only works on XWayland
 
 
 def sm_windows():
@@ -77,7 +78,17 @@ def sm_windows():
    return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
 
 
-def sm_darwin():...
+def sm_darwin():
+   as3state.initerror.append((1, 'Darwin: Fetching screen properties is not implemented.'))
+   raise NotImplementedError('Fetching screen properties on Darwin')
+
+
+def setScreenProperties(func):
+   try:
+      temp = func()
+   except:
+      temp = (1600, 900, 60.0, 16)
+   as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = temp
 
 
 # Initialise as3lib
@@ -98,18 +109,15 @@ if not as3state.initdone:
    if as3state.platform == 'Linux':
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
       if as3state.displayserver == 'x11':
-         as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = sm_x11()
+         setScreenProperties(sm_x11)
       elif as3state.displayserver == 'wayland':
-         # as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_wayland()
-         ...  # Loaded from config
+         setScreenProperties(sm_wayland)
       else:
          as3state.initerror.append((2, f'Linux: Display server "{as3state.windowmanagertype}" not supported.'))
    elif as3state.platform == 'Windows':
-      as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = sm_windows()
+      setScreenProperties(sm_windows)
    elif as3state.platform == 'Darwin':
-      as3state.initerror.append((1, 'Darwin: Fetching screen properties is not implemented.'))
-      # as3state.width,as3state.height,as3state.refreshrate,as3state.colordepth = sm_darwin()
-      ...
+      setScreenProperties(sm_darwin)
    elif as3state.platform == '':
       as3state.initerror.append((4, 'Detected platform is blank. Something is very wrong.'))
    else:
@@ -123,7 +131,7 @@ if not as3state.initdone:
             f.write('')
 
    # Display errors to user
-   if len(as3state.initerror) != 0:
+   if as3state.initerror:
       print(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n{"".join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}')
 
    # Set the default appdatadirectory
