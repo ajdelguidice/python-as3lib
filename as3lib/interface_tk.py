@@ -1009,7 +1009,7 @@ class itkRoot(tkinter.Toplevel):
          if self._defaultMenu:
             self.menubar['root'] = tkinter.Menu(self, bd=1)
             self.menubar['filemenu'] = tkinter.Menu(self.menubar['root'], tearoff=0)
-            self.menubar['filemenu'].add_command(label='Quit', font=('Terminal', 8), command=self.endProcess)
+            self.menubar['filemenu'].add_command(label='Quit', font=('Terminal', 8), command=self.close)
             self.menubar['root'].add_cascade(label='File', font=('Terminal', 8), menu=self.menubar['filemenu'])
             self.menubar['viewmenu'] = tkinter.Menu(self.menubar['root'], tearoff=0)
             self.menubar['viewmenu'].add_command(label='Full Screen', font=('Terminal', 8), command=self.togglefullscreen)
@@ -1260,7 +1260,7 @@ class itkRoot(tkinter.Toplevel):
 
 class itkRootMain(itkRoot):
    '''
-   This is a subclass of itkRootBase providing the following aditional
+   This is a subclass of itkRoot providing the following aditional
    capabilities:
       mainloop() can be called on this object.
       This object can have an about window attached to it
@@ -1289,7 +1289,7 @@ def window(**kwargs):
 
    Arguements:
       main = True -> itkRootMain
-      main = False -> itkRootSub
+      main = False -> itkRoot
    '''
    if kwargs.pop('main', False):
       return itkRootMain(**kwargs)
@@ -1299,6 +1299,7 @@ def window(**kwargs):
 if __name__ == '__main__':
    # Test
    from platform import python_version
+
    testcolor = 0
    fontBold = False
 
@@ -1315,17 +1316,19 @@ if __name__ == '__main__':
          testcolor = 0
       return testcolorlist[testcolor]
 
-   root = window(width=1176, height=662, title='Adobe Flash Projector-like Window Demo')
+   testfont = ('Times New Roman', 12)
+
+   root = window(width=1176, height=662, title='Adobe Flash Projector-like Window Demo', main=True)
    root.aboutwindow.text = f'Adobe Flash Projector-like window demo.\n\nPython {python_version()}'
-   root.addButton('display', 'testbutton1', x=130, y=0, width=130, height=30, font=('Times New Roman', 12), command=lambda: root.configureChild('testtext', background=test_cyclecolor()), text='st_colourtest')
-   root.addLabel('display', 'testlabel1', x=0, y=30, width=100, height=20, font=('Times New Roman', 12), text='TestLabel')
-   root.addHTMLScrolledText('display', 'testtext', x=0, y=50, width=600, height=400, font=('Times New Roman', 12), text='TestTextpt1\n\nTestTextpt2', cursor='arrow', wrap='word')
-   root.addHTMLText('display', 'testtext2', x=601, y=50, width=400, height=400, font=('Times New Roman', 12), text='HTMLTextTest\n\ntext', cursor='arrow', wrap='word')
+   root.addButton('display', 'testbutton1', x=130, y=0, width=130, height=30, font=testfont, command=lambda: setattr(root._children['testtext'], 'background', test_cyclecolor()), text='st_colourtest')
+   root.addLabel('display', 'testlabel1', x=0, y=30, width=100, height=20, font=testfont, text='TestLabel')
+   root.addHTMLScrolledText('display', 'testtext', x=0, y=50, width=600, height=400, font=testfont, text='TestTextpt1\n\nTestTextpt2', cursor='arrow', wrap='word')
+   root.addHTMLText('display', 'testtext2', x=601, y=50, width=400, height=400, font=testfont, text='HTMLTextTest\n\ntext', cursor='arrow', wrap='word')
    secondwindow = window(width=400, height=400, title='Second Window', main=False, menu=False)
    secondwindow.group(root)
-   root.addButton('display', 'testbutton2', x=0, y=0, width=130, height=30, font=('Times New Roman', 12), command=lambda: secondwindow.lift(), text='liftsecondwindow')
-   root.addButton('display', 'testbutton3', x=260, y=0, width=130, height=30, font=('Times New Roman', 12), command=lambda: root.configureChild('testtext', htmlfontbold=test_changebold()), text='st_boldtest')
-   root.addScrolledListbox('display', 'testslb', x=0, y=450, width=150, height=150, font=('Times New Roman', 12))
+   root.addButton('display', 'testbutton2', x=0, y=0, width=130, height=30, font=testfont, command=lambda: secondwindow.lift(), text='liftsecondwindow')
+   root.addButton('display', 'testbutton3', x=260, y=0, width=130, height=30, font=testfont, command=lambda: setattr(root._children['testtext'], 'bold', test_changebold()), text='st_boldtest')
+   root.addScrolledListbox('display', 'testslb', x=0, y=450, width=150, height=150, font=testfont)
    for i in range(1, 21):
       root._children['testslb'].insert('end', i)
    root.mainloop()
