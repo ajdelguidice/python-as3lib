@@ -251,6 +251,7 @@ class EventDispatcher:
             e = event.clone()
             for i in self._events[event.type]:
                e._currentTarget = i
+               i(e)
             return True
       return False
 

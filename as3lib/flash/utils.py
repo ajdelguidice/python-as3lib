@@ -5,7 +5,7 @@ from miniamf import util
 import as3lib as as3
 from as3lib.flash.events import EventDispatcher, TimerEvent
 from as3lib.flash import errors
-from as3lib import as3state, metaclasses
+from as3lib import as3state, metaclasses, Error
 
 
 class ByteArray:...  # dummy class
@@ -197,6 +197,8 @@ class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 
 class Timer(EventDispatcher):
+   # TODO: Events should not be called if start is called after _repeatCount is reached
+   # TODO: If the repeat count is set to 0, the timer continues indefinitely, up to a maximum of 24.86 days, or until the stop() method is invoked or the program stops. If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again. 
    @property
    def currentCount(self):
       return self._currentCount
@@ -232,14 +234,17 @@ class Timer(EventDispatcher):
       if self.currentCount >= self.repeatCount:
          self.dispatchEvent(self.timerComplete)
       else:
+         del self._timer
          self._timer = timedExec(self.delay/1000, self._TimerTick)
          self._timer.start()
 
    def __init__(self, delay: as3.allNumber, repeatCount: as3.allInt = 0):
       super().__init__()
       self._currentCount = 0
+      if delay < 0:
+         raise Error()
       self._delay = delay
-      self.repeatCount = repeatCount
+      self._repeatCount = repeatCount
       self._running = False
       self.timer = TimerEvent('timer', False, False, self)
       self.timerComplete = TimerEvent('timerComplete', False, False, self)
@@ -257,4 +262,5 @@ class Timer(EventDispatcher):
    def stop(self):
       if self.running:
          self._timer.cancel()
+         del self._timer
          self._running = False
