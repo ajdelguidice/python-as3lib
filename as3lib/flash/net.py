@@ -106,19 +106,19 @@ class FileReference(EventDispatcher):
 
    def browse(self, typeFilter: list | tuple = None):
       # typeFilter is an Array/list/tuple of FileFilter objects
+      # TODO: Make a custom file browser window that calls all of events properly. This does not function properly
+      #       the way it is currently implemented. True is supposed to be returned when the dialog is opened, not after the events.
       if typeFilter is not None:
          filename = filedialog.askopenfilename(title='Select a file to upload', filetypes=tuple(i.toTkTuple() for i in typeFilter))
       else:
          filename = filedialog.askopenfilename(title='Select a file to upload')
-      try:
-         return True
-      finally:
-         if filename in {None, ()}:
-            self.dispatchEvent(self.cancel)
-         else:
-            self.dispatchEvent(self.select)
+      if filename in {None, ()}:
+         self.dispatchEvent(self.cancel)
+      else:
+         self.dispatchEvent(self.select)
+      return True
 
-   def cancel(self):...
+   def cancel(self):...  # Cancels the 'download' without calling the cancel event
 
    def dowload(self, request, defaultFileName=None):...
 
@@ -128,6 +128,7 @@ class FileReference(EventDispatcher):
 
    def save(self, data, defaultFileName=None):
       # !add check for blacklisted characters  / \ : * ? " < > | %
+      self.dispatchEvent(self.open)
       file = defaultFileName.split('.')
       savetype = 0  # 1=UTF-8 2=XML 3=ByteArray
       if data is None:
@@ -155,15 +156,12 @@ class FileReference(EventDispatcher):
          # !doesn't seen to work
          ext = f'.{file[-1]}'
          filename = filedialog.asksaveasfilename(title='Select location for download', defaultextension=ext)
-      try:
-         return True
-      finally:
-         if filename in (None,()):
-            self.dispatchEvent(self.cancel)
-         else:
-            self.dispatchEvent(self.select)
-            self._location = filename
-            self.dispatchEvent(self.complete)
+      if filename in {None,()}:
+         self.dispatchEvent(self.cancel)
+      else:
+         self.dispatchEvent(self.select)
+         self._location = filename
+         self.dispatchEvent(self.complete)
 
    def upload(self, request, uploadDataFieldName, testUpload=False):...
 
@@ -293,7 +291,7 @@ class SharedObject(dict):
       if as3state.appdatadirectory == None:
          raise as3.Error('Application specific data directory was not set. Can not safely determine location.')
       obj = SharedObject()
-      path = as3state.appdatadirectory / localPath.strip('/\\')  # Path separator at the start causes issues and deos matter at the end
+      path = as3state.appdatadirectory / localPath.strip('/\\')  # Path separator at the start causes issues but doesn't matter at the end
       obj._name = name
       obj._path = path / f'{name}.sol'
       if obj._path.is_file():
