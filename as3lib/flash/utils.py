@@ -246,8 +246,8 @@ class Timer(EventDispatcher):
       self._delay = delay
       self._repeatCount = repeatCount
       self._running = False
-      self.timer = TimerEvent('timer', False, False, self)
-      self.timerComplete = TimerEvent('timerComplete', False, False, self)
+      self.timer = TimerEvent('timer', False, False)
+      self.timerComplete = TimerEvent('timerComplete', False, False)
 
    def reset(self):
       self.stop()

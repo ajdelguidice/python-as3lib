@@ -88,17 +88,17 @@ class FileReference(EventDispatcher):
       super().__init__()
       self._location = None
       # !Most of these events need extra information
-      self.cancel = Event('cancel', False, False, self)
-      self.complete = Event('complete', False, False, self)
-      #self.httpResponseStatus = HTTPStatusEvent('httpResponseStatus',False,False,self)
-      #self.httpStatus = HTTPStatusEvent('httpStatus',False,False,self)
-      #self.ioError = IOErrorEvent('ioError',False,False,self)
-      self.open = Event('open', False, False, self)
-      #self.permissionStatus = PermissionEvent('permissionStatus',False,False,self)
-      #self.progress = ProgressEvent('progress',False,False,self)
-      #self.securityError = SecurityErrorEvent('securityError',False,False,self)
-      self.select = Event('select', False, False, self)
-      #self.uploadCompleteData = DataEvent('uploadCompleteEvent',False,False,self)
+      self.cancel = Event('cancel', False, False)
+      self.complete = Event('complete', False, False)
+      #self.httpResponseStatus = HTTPStatusEvent('httpResponseStatus', False, False)
+      #self.httpStatus = HTTPStatusEvent('httpStatus', False, False)
+      #self.ioError = IOErrorEvent('ioError', False, False)
+      self.open = Event('open', False, False)
+      #self.permissionStatus = PermissionEvent('permissionStatus', False, False)
+      #self.progress = ProgressEvent('progress', False, False)
+      #self.securityError = SecurityErrorEvent('securityError', False, False)
+      self.select = Event('select', False, False)
+      #self.uploadCompleteData = DataEvent('uploadCompleteEvent', False, False)
 
    def _setFile(self, file):
       # Sets the file and all of its details

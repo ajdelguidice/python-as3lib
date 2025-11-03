@@ -29,14 +29,14 @@ class _AS3_BASEEVENT:
    def type(self):
       return self._type
 
-   def __init__(self, type, bubbles=False, cancelable=False, _target=None):
+   def __init__(self, type, bubbles=False, cancelable=False):
       if type not in self._INTERNAL_allowedTypes:
          raise Exception("Provided event type is not valid for this object")
       self._type = type
       self._bubbles = bubbles
       self._cancelable = cancelable
       self._currentTarget = None
-      self._target = _target
+      self._target = None
       self._eventPhase = None
       self._preventDefault = False
 
@@ -119,8 +119,25 @@ class BrowserInvokeEvent:...
 class ContextMenuEvent:...
 
 
-class DataEvent:...
+class DataEvent(TextEvent):
+   DATA = 'data'
+   UPLOAD_COMPLETE_DATA = 'uploadCompleteData'
+   _INTERNAL_allowedTypes = {'data', 'uploadCompleteData'}
 
+   @property
+   def data(self):
+      return self._data
+
+   @data.setter
+   def data(self, value):
+      self._data = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, data=''):
+      self._data = data
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return f'[DataEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} data={self.data}]'
 
 class DatagramSocketDataEvent:...
 
@@ -158,7 +175,7 @@ class DRMReturnVoucherCompleteEvent:...
 class DRMStatusEvent:...
 
 
-class ErrorEvent:...
+class ErrorEvent(TextEvent):...
 
 
 class Event(_AS3_BASEEVENT):
@@ -305,7 +322,7 @@ class GesturePhase:...
 class HTMLUncaughtScriptExceptionEvent:...
 
 
-class HTTPStatusEvent:...
+class HTTPStatusEvent(_AS3_BASEEVENT):...
 
 
 class IMEEvent:...
@@ -314,7 +331,7 @@ class IMEEvent:...
 class InvokeEvent:...
 
 
-class IOErrorEvent:...
+class IOErrorEvent(ErrorEvent):...
 
 
 class KeyboardEvent:...
@@ -353,13 +370,13 @@ class NetStatusEvent:...
 class OutputProgressEvent:...
 
 
-class PermissionEvent:...
+class PermissionEvent(_AS3_BASEEVENT):...
 
 
 class PressAndTapGestureEvent:...
 
 
-class ProgressEvent:...
+class ProgressEvent(_AS3_BASEEVENT):...
 
 
 class RemoteNotificationEvent:...
@@ -371,7 +388,7 @@ class SampleDataEvent:...
 class ScreenMouseEvent:...
 
 
-class SecurityErrorEvent:...
+class SecurityErrorEvent(ErrorEvent):...
 
 
 class ServerSocketConnectEvent:...
@@ -411,14 +428,24 @@ class SyncEvent:...
 
 
 class TextEvent(_AS3_BASEEVENT):
-   LINK = "link" #bubbles=True, cancelable=False
-   TEXT_INPUT = "textInput" #bubbles=True, cancelable=True
-   _INTERNAL_allowedTypes = {"link","textInput"}
-   def __init__(self,type,bubbles=False,cancelable=False,text="",_target=None):
-      super().__init__(type,bubbles,cancelable,_target)
-      self.text=text
+   LINK = 'link' #bubbles=True, cancelable=False
+   TEXT_INPUT = 'textInput' #bubbles=True, cancelable=True
+   _INTERNAL_allowedTypes = {'link', 'textInput'}
+
+   @property
+   def text(self):
+      return self._text
+
+   @text.setter
+   def text(self, value):
+      self._text = text
+
+   def __init__(self, type, bubbles=False, cancelable=False, text=''):
+      self._text = text
+      super().__init__(type, bubbles, cancelable)
+
    def toString(self):
-      return f"[TextEvent type={self.type} bubbles={self.value} cancelable={self.cancelable} text={self.text}]"
+      return f'[TextEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text}]'
 
 
 class ThrottleEvent:...
@@ -432,11 +459,11 @@ class TimerEvent(_AS3_BASEEVENT):
    TIMER_COMPLETE = 'timerComplete'  # bubbles=False, cancelable=False
    _INTERNAL_allowedTypes = {'timer', 'timerComplete'}
 
-   def __init__(self, type, bubbles=False, cancelable=False, _target=None):
-      super().__init__(type, bubbles, cancelable, _target)
+   def __init__(self, type, bubbles=False, cancelable=False):
+      super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f"[TimerEvent type={self.type} bubbles={self.value} cancelable={self.cancelable}]"
+      return f'[TimerEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]'
 
    def updateAfterEvent(self):...
 
