@@ -39,7 +39,7 @@ class FileFilter:
       return as3.Array(*self.extension.split(';'))
 
    def macTypeToArray(self):
-      if self.macType != None:
+      if self.macType is not None:
          return as3.Array(*self.macType.split(';'))
 
    def toTkTuple(self):
@@ -127,7 +127,7 @@ class FileReference(EventDispatcher):
    def requestPermission(self):...
 
    def save(self, data, defaultFileName=None):
-      # !add check for blacklisted characters  / \ : * ? " < > | %
+      # TODO: add check for blacklisted characters  / \ : * ? " < > | %
       self.dispatchEvent(self.open)
       file = defaultFileName.split('.')
       savetype = 0  # 1=UTF-8 2=XML 3=ByteArray
@@ -146,7 +146,7 @@ class FileReference(EventDispatcher):
          # convert to string and save as text file. If it fails throw ArguementError
          try:
             data = str(data)
-         except:
+         except Exception:
             raise as3.ArguementError('Invalid Data')
       if len(file) == 1:
          # no extension
@@ -156,7 +156,7 @@ class FileReference(EventDispatcher):
          # !doesn't seen to work
          ext = f'.{file[-1]}'
          filename = filedialog.asksaveasfilename(title='Select location for download', defaultextension=ext)
-      if filename in {None,()}:
+      if filename in {None, ()}:
          self.dispatchEvent(self.cancel)
       else:
          self.dispatchEvent(self.select)
@@ -248,8 +248,8 @@ class SecureSocket:...
 
 
 class SharedObject(dict):
-   #! Make this a child of EventDispatcher
-   #! Implement remote shared objects
+   # TODO: Make this a child of EventDispatcher
+   # TODO: Implement remote shared objects
    defaultObjectEncoding = 3  # This can be set globally
 
    def _getEncoded(self):
@@ -288,7 +288,7 @@ class SharedObject(dict):
    def getLocal(name, localPath='', secure=False):
       # gets local shared object; if object exists, set path and load it. if not, just set path
       # localPath is relative to as3state.appdatadirectory
-      if as3state.appdatadirectory == None:
+      if as3state.appdatadirectory is None:
          raise as3.Error('Application specific data directory was not set. Can not safely determine location.')
       obj = SharedObject()
       path = as3state.appdatadirectory / localPath.strip('/\\')  # Path separator at the start causes issues but doesn't matter at the end

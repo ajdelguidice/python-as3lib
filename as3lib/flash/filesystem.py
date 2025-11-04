@@ -1,99 +1,126 @@
-import as3lib as as3
-from as3lib import metaclasses, as3state
 from subprocess import check_output
 from subprocess import CalledProcessError as CPE
+import as3lib as as3
+from as3lib import metaclasses, as3state
+
 
 class File:
-   applicationDirectory
-   applicationStorageDirectory
-   cacheDirectory
-   desktopDirectory
-   documentsDirectory
-   downloaded
-   exists
-   icon
-   isDirectory
-   isHidden
-   isPackage
-   isSymbolicLink
-   lineEnding
-   nativePath
-   parent
-   permissionStatus
-   separator
-   spaceAvailable
-   systemCharset
-   url
-   userDirectory
-   def _checkFileName():
-      #windows: 
-      # split off drive letter or url tag
-      # check for reserved characters (<>:"/|?*)
-      # file/directory names must readable characters or specific special unicode characters (ex: right to left language designator)
-      # check for case to determine if it already exists (windows isn't case sensitive)
-      # check if directories have a period (not allowed)
-      # check for a period or space at the end of the directories and/or file (not allowed)
-      # check for names CON, PRN, AUX, NUL, COM0, COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9, COM¹, COM², COM³, LPT0, LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, LPT9, LPT¹, LPT², and LPT³ (not allowed)
-      # check for above names before a file extension (not allowed)
-      #linux and macos:
-      # make sure file name doesn't contain a slash
-      ...
-   def __init__(self,path:str):
+   #applicationDirectory
+   #applicationStorageDirectory
+   #cacheDirectory
+   #desktopDirectory
+   #documentsDirectory
+   #downloaded
+   #exists
+   #icon
+   #isDirectory
+   #isHidden
+   #isPackage
+   #isSymbolicLink
+   #lineEnding
+   #nativePath
+   #parent
+   #permissionStatus
+   #separator
+   #spaceAvailable
+   #systemCharset
+   #url
+   #userDirectory
+   def __init__(self, path:str):
       #!detect url path
       #!convert path to native path and url
       #!Throw exception ArguementError if path is invalid
       self._filepath = path
-   #def __str__(self):
-      #return the string of the native path
+
+   def __str__(self):
+      return self.toString()
+
    def browseForDirectory():...
+
    def browseForOpen():...
+
    def browseForOpenMultiple():...
+
    def browseForSave():...
+
    def cancel():...
+
    def canonicalize():...
+
    def clone():...
+
    def copyTo():...
+
    def copyToAsync():...
+
    def createDirectory():...
+
    def createTempDirectory():...
+
    def createTempFile():...
+
    def deleteDirectory():...
+
    def deleteDirectoryAsync():...
+
    def deleteFile():...
+
    def deleteFileAsync():...
+
    def getDirectoryListing():...
+
    def getDirectoryListingAsync():...
+
    def getRelativePath():...
-   def getRootDirectories(self):
-      #!Change returned values inside of the arrays into File objects
-      if as3state.platform == "Windows":
-         drives = check_output(('fsutil','fsinfo','drives')).decode('utf-8').replace(" ","").replace("\r","").split("Drives:")[1].replace("\n'","").split("\\")
+
+   @staticmethod
+   def getRootDirectories():
+      # TODO: Make windows function better
+      if as3state.platform == 'Windows':
          tempDrives = as3.Array()
-         for i in drives:
+         for i in check_output(('fsutil', 'fsinfo', 'drives')).decode('utf-8').strip('\r\n').split(' ')[1:]:
+            i = i.strip('\\')
             if i == '':
                continue
             try:
-               tempStatus = check_output(('fsutil','fsinfo','volumeinfo',i))
+               check_output(('fsutil', 'fsinfo', 'volumeinfo', i))  # This requires admin permissions on the main drive
                tempDrives.push(File(i))
             except CPE as e:
-               if "not ready" in f"{e.output}":
+               if 'not ready' in e.output.decode('utf-8'):
                   continue
                tempDrives.push(File(i))
          return tempDrives
-      elif as3state.platform in {"Linux","Darwin"}:
-         return as3.Array(File("/"))
+      elif as3state.platform in {'Linux', 'Darwin'}:
+         return as3.Array(File('/'))
+
    def moveTo():...
+
    def moveToAsync():...
+
    def moveToTrash():...
+
    def moveToTrashAsync():...
+
    def openWithDefaultApplication():...
+
    def requestPermission():...
+
    def resolvePath():...
+
+   def toString():...
+
+
 class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    APPEND = "append"
    READ = "read"
    UPDATE = "update"
    WRITE = "write"
+
+
 class FileStream:...
+
+
 class StorageVolume:...
+
+
 class StorageVolumeInfo:...
