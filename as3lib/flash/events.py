@@ -31,7 +31,7 @@ class _AS3_BASEEVENT:
 
    def __init__(self, type, bubbles=False, cancelable=False):
       if type not in self._INTERNAL_allowedTypes:
-         raise Exception("Provided event type is not valid for this object")
+         raise Exception('Provided event type is not valid for this object')
       self._type = type
       self._bubbles = bubbles
       self._cancelable = cancelable
@@ -66,7 +66,7 @@ class _AS3_BASEEVENT:
    def stopPropagation(self):...
 
    def toString(self):
-      return f"[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]"
+      return f'[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]'
 
 
 # Dummy classes
@@ -116,7 +116,30 @@ class AVPauseAtPeriodEndEvent:...
 class BrowserInvokeEvent:...
 
 
-class ContextMenuEvent:...
+class ContextMenuEvent(_AS3_BASEEVENT):
+   MENU_ITEM_SELECT = 'menuItemSelect'
+   MENU_SELECT = 'menuSelect'
+   _INTERNAL_allowedTypes = {'menuItemSelect', 'menuSelect'}
+
+   @property
+   def contextMenuOwner(self):
+      return self._cmOwner
+
+   @property
+   def isMouseTargetInaccessible(self):
+      return self._mTarget is None
+
+   @property
+   def mouseTarget(self):
+      return self._mTarget
+
+   def __init__(self, type, bubbles=False, cancelable=False, mouseTarget=None, contextMenuOwner=None):
+      self._cmOwner = contextMenuOwner
+      self._mTarget = mouseTarget
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return f'[ContextMenuEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} mouseTarget={mouseTarget} isMouseTargetInaccessible={self.isMouseTargetInaccessible}contextMenuOwner={self.contextMenuOwner}]'
 
 
 class DataEvent(TextEvent):
@@ -138,6 +161,7 @@ class DataEvent(TextEvent):
 
    def toString(self):
       return f'[DataEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} data={self.data}]'
+
 
 class DatagramSocketDataEvent:...
 
@@ -175,7 +199,20 @@ class DRMReturnVoucherCompleteEvent:...
 class DRMStatusEvent:...
 
 
-class ErrorEvent(TextEvent):...
+class ErrorEvent(TextEvent):
+   ERROR = 'error'
+   _INTERNAL_allowedTypes = set('error')
+
+   @property
+   def errorID(self):
+      return self._errorID
+
+   def __init__(self, type, bubbles=False, cancelable=False, text='', id=0):
+      self._errorID = id
+      super().__init__(type, bubbles, cancelable, text)
+
+   def toString(self):
+      return f'[ErrorEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text} errorID={self.errorID}]'
 
 
 class Event(_AS3_BASEEVENT):
@@ -244,6 +281,8 @@ class EventDispatcher:
 
    def __init__(self, target: IEventDispatcher = None):
       #!Implement target
+      self.activate = Event('activate', False, False)
+      self.deactivate = Event('deactivate', False, False)
       self._events = {}
       self._eventsCapture = {}
 
