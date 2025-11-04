@@ -88,7 +88,14 @@ def setScreenProperties(func):
       temp = func()
    except:
       temp = (1600, 900, 60.0, 16)
-   as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = temp
+   if not as3state.width:
+      as3state.width = temp[0]
+   if not as3state.height:
+      as3state.height = temp[1]
+   if not as3state.refreshrate:
+      as3state.refreshrate = temp[2]
+   if not as3state.colordepth:
+      as3state.colordepth = temp[3]
 
 
 # Initialise as3lib
@@ -106,6 +113,15 @@ if not as3state.initdone:
    as3state.desktopdirectory = Path(os.environ.get('XDG_DESKTOP_DIR', as3state.userdirectory / 'Desktop'))
    as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR', as3state.userdirectory / 'Documents'))
    as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
+
+   # Load the config
+   config.Load()
+   if as3state.ClearLogsOnStartup:
+      if as3state.TraceOutputFileName.exists():
+         with open(as3state.TraceOutputFileName, 'w') as f:
+            f.write('')
+
+   save = not as3state.width or not as3state.height or not as3state.refreshrate or not as3state.colordepth
    if as3state.platform == 'Linux':
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
       if as3state.displayserver == 'x11':
@@ -123,12 +139,8 @@ if not as3state.initdone:
    else:
       as3state.initerror.append((0, f'Current platform {as3state.platform} not supported.'))
 
-   # Load the config
-   config.Load()
-   if as3state.ClearLogsOnStartup:
-      if as3state.TraceOutputFileName.exists():
-         with open(as3state.TraceOutputFileName, 'w') as f:
-            f.write('')
+   if save:
+      config.Save()
 
    # Display errors to user
    if as3state.initerror:
