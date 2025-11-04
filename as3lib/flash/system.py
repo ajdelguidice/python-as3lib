@@ -1,9 +1,8 @@
-import as3lib as as3
-from as3lib import as3state, metaclasses
 import platform
-from typing import Union
 import sys
 from functools import cache
+import as3lib as as3
+from as3lib import as3state, metaclasses
 
 
 class ApplicationDomain:...
@@ -20,22 +19,20 @@ class Capabilities:
 
    avHardwareDisable = property(fget=_propTrue)  # This is not needed so it is always True
 
+   @property
    @cache
-   def _getCPUBits():
+   def cpuAddressSize():  # returns 32 (32bit system) or 64 (64bit system)
       return as3.Number(platform.architecture()[0][:-3])
 
-   cpuAddressSize = property(fget=_getCPUBits)  # returns 32 (32bit system) or 64 (64bit system)
-
+   @property
    @cache
-   def _getCPUArch():
-      if platform.machine() in {'x86','x86_64','AMD64'}:
+   def cpuArchitecture():  # returns 'PowerPC','x86','SPARC',or 'ARM'
+      if platform.machine() in {'x86', 'x86_64', 'AMD64'}:
          return 'x86'
       if platform.machine() == 'PowerPC':
          return 'PowerPC'
-      if platform.machine() in {'ARM','ARM64'}:
+      if platform.machine() in {'ARM', 'ARM64'}:
          return 'ARM'
-
-   cpuArchitecture = property(fget=_getCPUArch)  # returns 'PowerPC','x86','SPARC',or 'ARM'
 
    #hasAccessibility
 
@@ -53,18 +50,19 @@ class Capabilities:
    #hasTLS
    #hasVideoEncoder
 
-   def _getDebug():
+   @property
+   def isDebugger():
       return as3state.as3DebugEnable
 
-   isDebugger = property(fget=_getDebug)
    isEmbeddedInAcrobat = property(fget=_propFalse)  # Always false because this is irelavant
 
    #language
    #languages
    #localFileReadDisable
 
+   @property
    @cache
-   def _getManuf():
+   def manufacturer():
       if as3state.platform == 'Windows':
          return 'Adobe Windows'
       if as3state.platform == 'Linux':
@@ -72,38 +70,42 @@ class Capabilities:
       if as3state.platform == 'Darwin':
          return 'Adobe Macintosh'
 
-   manufacturer = property(fget=_getManuf)
-
    #maxLevelIDC
 
+   @property
    @cache
-   def _getOS():
+   def os():
       # TODO: add others
       if as3state.platform == 'Windows':...
       if as3state.platform == 'Linux':
          return f'Linux {platform.release()}'
       if as3state.platform == 'Darwin':...
 
-   os = property(fget=_getOS)
-
    #pixelAspectRatio
 
-   def _getPlayerType():
+   @property
+   def playerType():
       return 'StandAlone'
-
-   playerType = property(fget=_getPlayerType)
 
    #screenColor
    #screenDPI
-   #screenResolutionX
-   #screenResolutionY
+
+   @property
+   def screenResolutionX():
+      return as3state.width
+
+   @property
+   def screenResolutionY():
+      return as3state.height
+
    #serverString
    #supports32BitProcesses
    #supports64BitProcesses
    #touchscreenType
 
+   @property
    @cache
-   def _getVer():
+   def version():
       tempfv = as3state.flashVersion
       if as3state.platform == 'Windows':
          return f'Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
@@ -114,9 +116,7 @@ class Capabilities:
       if as3state.platform == 'Android':
          return f'AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
 
-   version = property(fget=_getVer)
-
-   def hasMultiChannelAudio(type:str):...
+   def hasMultiChannelAudio(type: str):...
 
 
 def fscommand(command, args=''):
@@ -184,7 +184,7 @@ class System:
 
    def disposeXML():...
 
-   def exit(code:Union[int,as3.int,as3.uint]=0):
+   def exit(code: int | as3.Int | as3.uint = 0):
       sys.exit(int(code))
 
    def gc():...
