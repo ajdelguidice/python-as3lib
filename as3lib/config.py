@@ -240,10 +240,15 @@ def Load():
       print('as3lib: Using defualt TraceOutputFileName')
       tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
-   as3state.width = cfg['display']['screenwidth']
-   as3state.height = cfg['display']['screenheight']
-   as3state.refreshrate = cfg['display']['refreshrate']
-   as3state.colordepth = cfg['display']['colordepth']
+   tmpd = cfg['display']
+   if tmpd['screenwidth']:
+      as3state.width = tmpd['screenwidth']
+   if tmpd['screenheight']:
+      as3state.height = tmpd['screenheight']
+   if tmpd['refreshrate']:
+      as3state.refreshrate = tmpd['refreshrate']
+   if tmpd['colordepth']:
+      as3state.colordepth = tmpd['colordepth']
    Save(modified)
 
 
