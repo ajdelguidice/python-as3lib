@@ -197,8 +197,7 @@ class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 
 class Timer(EventDispatcher):
-   # TODO: Events should not be called if start is called after _repeatCount is reached
-   # TODO: If the repeat count is set to 0, the timer continues indefinitely, up to a maximum of 24.86 days, or until the stop() method is invoked or the program stops. If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again. 
+   # TODO: If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again. 
    @property
    def currentCount(self):
       return self._currentCount
@@ -231,7 +230,7 @@ class Timer(EventDispatcher):
    def _TimerTick(self):
       self._currentCount += 1
       self.dispatchEvent(self.timer)
-      if self.currentCount >= self.repeatCount:
+      if self.currentCount >= self.repeatCount and self.repeatCount != 0:
          self.dispatchEvent(self.timerComplete)
       else:
          del self._timer
@@ -254,7 +253,7 @@ class Timer(EventDispatcher):
       self._currentCount = 0
 
    def start(self):
-      if not self.running:
+      if not self.running and (self.currentCount < self.repeatCount or self.repeatCount == 0):
          self._timer = timedExec(self.delay/1000, self._TimerTick)
          self._running = True
          self._timer.start()
