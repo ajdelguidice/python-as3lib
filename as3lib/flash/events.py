@@ -70,19 +70,6 @@ class _AS3_BASEEVENT:
       return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
 
 
-# Dummy classes
-class Event(_AS3_BASEEVENT):...
-
-
-class EventDispatcher:...
-
-
-class TextEvent:...
-
-
-class ErrorEvent:...
-
-
 # Interfaces
 class IEventDispatcher:
    def __init__(self):
@@ -100,6 +87,159 @@ class IEventDispatcher:
 
 
 # Classes
+class Event(_AS3_BASEEVENT):
+   ACTIVATE = 'activate'  # bubbles=False, cancelable=False
+   ADDED = 'added'  # bubbles=True, cancelable=False
+   ADDED_TO_STAGE = 'addedToStage'  # bubbles=False, cancelable=False
+   BROWSER_ZOOM_CHANGE = 'browerZoomChange'  # bubbles=False, cancelable=False
+   CANCEL = 'cancel'  # bubbles=False, cancelable=False
+   CHANGE = 'change'  # bubbles=True, cancelable=False
+   CHANNEL_MESSAGE = 'channelMessage'  # bubbles=False, cancelable=False
+   CHANNEL_STATE = 'channelState'  # bubbles=False, cancelable=False
+   CLEAR = 'clear'  # bubbles=False, cancelable=False
+   CLOSE = 'close'  # bubbles=False, cancelable=False
+   CLOSING = 'closing'  # bubbles=False, cancelable=True
+   COMPLETE = 'complete'  # bubbles=False, cancelable=False
+   CONNECT = 'connect'  # bubbles=False, cancelable=False
+   CONTEXT3D_CREATE = 'context3DCreate'  # ?
+   COPY = 'copy'  # bubbles=False, cancelable=False
+   CUT = 'cut'  # bubbles=False, cancelable=False
+   DEACTIVATE = 'deactivate'  # bubbles=False, cancelable=False
+   DISPLAYING = 'displaying'  # bubbles=False, cancelable=False
+   ENTER_FRAME = 'enterFrame'  # bubbles=False, cancelable=False
+   EXIT_FRAME = 'exitFrame'  # bubbles=False, cancelable=False
+   EXITING = 'exiting'  # bubbles=False, cancelable=True
+   FRAME_CONSTRUCTED = 'frameConstructed'  # bubbles=False, cancelable=False
+   FRAME_LABEL = 'frameLabel'  # bubbles=False, cancelable=False
+   FULLSCREEN = 'fullscreen'  # bubbles=False, cancelable=False
+   HTML_BOUNDS_CHANGE = 'htmlBoundsChange'  # bubbles=False, cancelable=False
+   HTML_DOM_INITIALIZE = 'htmlDOMInitialize'  # bubbles=False, cancelable=False
+   HTML_RENDER = 'htmlRender'  # bubbles=False, cancelable=False
+   ID3 = 'id3'  # bubbles=False, cancelable=False
+   INIT = 'init'  # bubbles=False, cancelable=False
+   LOCATION_CHANGE = 'locationChange'  # bubbles=False, cancelable=False
+   MOUSE_LEAVE = 'mouseLeave'  # bubbles=False, cancelable=False
+   NETWORK_CHANGE = 'networkChange'  # bubbles=False, cancelable=False
+   OPEN = 'open'  # bubbles=False, cancelable=False
+   PASTE = 'paste'  # bubbles=(platformDependant), cancelable=False
+   PREPARING = 'preparing'  # bubbles=False, cancelable=False
+   REMOVED = 'removed'  # bubbles=True, cancelable=False
+   REMOVED_FROM_STAGE = 'removeFromStage'  # bubbles=False, cancelable=False
+   RENDER = 'render'  # bubbles=False, cancelable=False
+   RESIZE = 'resize'  # bubbles=False, cancelable=False
+   SCROLL = 'scroll'  # bubbles=False, cancelable=False
+   SELECT = 'select'  # bubbles=False, cancelable=False
+   SELECT_ALL = 'selectAll'  # bubbles=False, cancelable=False
+   SOUND_COMPLETE = 'soundComplete'  # bubbles=False, cancelable=False
+   STANDARD_ERROR_CLOSE = 'standardErrorClose'  # bubbles=False, cancelable=False
+   STANDARD_INPUT_CLOSE = 'standardInputClose'  # bubbles=False, cancelable=False
+   STANDARD_OUTPUT_CLOSE = 'standardOutputClose'  # bubbles=False, cancelable=False
+   SUSPEND = 'suspend'  # bubbles=False, cancelable=False
+   TAB_CHILDREN_CHANGE = 'tabChildrenChange'  # bubbles=True, cancelable=False
+   TAB_ENABLE_CHANGE = 'tabEnableChange'  # bubbles=True, cancelable=False
+   TAB_INDEX_CHANGE = 'tabIndexChange'  # bubbles=True, cancelable=False
+   TEXT_INTERACTION_MODE_CHANGE = 'textInteractionModeChange'  # bubbles=False, cancelable=False
+   TEXTURE_READY = 'textureReady'  # ?
+   UNLOAD = 'unload'  # bubbles=False, cancelable=False
+   USER_IDLE = 'userIdle'  # bubbles=False, cancelable=False
+   USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
+   VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
+   WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
+   _INTERNAL_allowedTypes = {'activate', 'added', 'addedToStage', 'browerZoomChange', 'cancel', 'change', 'channelMessage', 'channelState', 'clear', 'close', 'closing', 'complete', 'connect', 'context3DCreate', 'copy', 'cut', 'deactivate', 'displaying', 'enterFrame', 'exitFrame', 'exiting', 'frameConstructed', 'frameLabel', 'fullscreen', 'htmlBoundsChange', 'htmlDOMInitialize', 'htmlRender', 'id3', 'init', 'locationChange', 'mouseLeave', 'networkChange', 'open', 'paste', 'preparing', 'removed', 'removeFromStage', 'render', 'resize', 'scroll', 'select', 'selectAll', 'soundComplete', 'standardErrorClose', 'standardInputClose', 'standardOutputClose', 'suspend', 'tabChildrenChange', 'tabEnableChange', 'tabIndexChange', 'textInteractionModeChange', 'textureReady', 'unload', 'userIdle', 'userPresent', 'videoFrame', 'workerState'}
+
+
+class EventDispatcher:
+   # TODO: Implement priority, weakReference
+
+   def __init__(self, target: IEventDispatcher = None):
+      # TODO: Implement target
+      self.activate = Event('activate', False, False)
+      self.deactivate = Event('deactivate', False, False)
+      self._events = {}
+      self._eventsCapture = {}
+
+   def addEventListener(self, type: str, listener, useCapture: as3.allBoolean = False, priority: as3.allInt = 0, useWeakReference: as3.allBoolean = False):
+      # TODO: Add error
+      if useCapture is False:
+         if self._events.get(type) is None:
+            self._events[type] = [listener]
+         elif listener not in self._events[type]:
+            self._events[type].append(listener)
+      else:
+         if self._eventsCapture.get(type) is None:
+            self._eventsCapture[type] = [listener]
+         elif listener not in self._eventsCapture[type]:
+            self._eventsCapture[type].append(listener)
+
+   def dispatchEvent(self, event):
+      # TODO: Implement useCapture
+      # TODO: Implement bubbles
+      if not event.isDefaultPrevented():
+         if self._events.get(event.type) is not None:
+            e = event.clone()
+            for i in self._events[event.type]:
+               e._currentTarget = i
+               i(e)
+            return True
+      return False
+
+   def hasEventListener(self, type):
+      return self._events.get(type) is not None or self._eventsCapture.get(type) is not None
+
+   def removeEventListener(self, type: str, listener, useCapture: as3.allBoolean = False):
+      if useCapture is False:
+         if self._events.get(type) is not None:
+            try:
+               self._events[type].remove(listener)
+            except Exception:
+               pass
+      else:
+         if self._eventsCapture.get(type) is not None:
+            try:
+               self._eventsCapture[type].remove(listener)
+            except Exception:
+               pass
+
+   def willTrigger(self, type: str):...
+
+
+class TextEvent(_AS3_BASEEVENT):
+   LINK = 'link'  # bubbles=True, cancelable=False
+   TEXT_INPUT = 'textInput'  # bubbles=True, cancelable=True
+   _INTERNAL_allowedTypes = {'link', 'textInput'}
+
+   @property
+   def text(self):
+      return self._text
+
+   @text.setter
+   def text(self, value):
+      self._text = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, text=''):
+      self._text = text
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return self.formatToString('TextEvent', 'type', 'bubbles', 'cancelable', 'text')
+
+
+class ErrorEvent(TextEvent):
+   ERROR = 'error'
+   _INTERNAL_allowedTypes = {'error',}
+
+   @property
+   def errorID(self):
+      return self._errorID
+
+   def __init__(self, type, bubbles=False, cancelable=False, text='', id=0):
+      self._errorID = id
+      super().__init__(type, bubbles, cancelable, text)
+
+   def toString(self):
+      return self.formatToString('ErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
+
+
 class AccelerometerEvent(_AS3_BASEEVENT):
    UPDATE = 'update'
    _INTERNAL_allowedTypes = {'update',}
@@ -380,138 +520,6 @@ class DRMReturnVoucherCompleteEvent:...
 
 
 class DRMStatusEvent:...
-
-
-class ErrorEvent(TextEvent):
-   ERROR = 'error'
-   _INTERNAL_allowedTypes = {'error',}
-
-   @property
-   def errorID(self):
-      return self._errorID
-
-   def __init__(self, type, bubbles=False, cancelable=False, text='', id=0):
-      self._errorID = id
-      super().__init__(type, bubbles, cancelable, text)
-
-   def toString(self):
-      return self.formatToString('ErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
-
-
-class Event(_AS3_BASEEVENT):
-   ACTIVATE = 'activate'  # bubbles=False, cancelable=False
-   ADDED = 'added'  # bubbles=True, cancelable=False
-   ADDED_TO_STAGE = 'addedToStage'  # bubbles=False, cancelable=False
-   BROWSER_ZOOM_CHANGE = 'browerZoomChange'  # bubbles=False, cancelable=False
-   CANCEL = 'cancel'  # bubbles=False, cancelable=False
-   CHANGE = 'change'  # bubbles=True, cancelable=False
-   CHANNEL_MESSAGE = 'channelMessage'  # bubbles=False, cancelable=False
-   CHANNEL_STATE = 'channelState'  # bubbles=False, cancelable=False
-   CLEAR = 'clear'  # bubbles=False, cancelable=False
-   CLOSE = 'close'  # bubbles=False, cancelable=False
-   CLOSING = 'closing'  # bubbles=False, cancelable=True
-   COMPLETE = 'complete'  # bubbles=False, cancelable=False
-   CONNECT = 'connect'  # bubbles=False, cancelable=False
-   CONTEXT3D_CREATE = 'context3DCreate'  # ?
-   COPY = 'copy'  # bubbles=False, cancelable=False
-   CUT = 'cut'  # bubbles=False, cancelable=False
-   DEACTIVATE = 'deactivate'  # bubbles=False, cancelable=False
-   DISPLAYING = 'displaying'  # bubbles=False, cancelable=False
-   ENTER_FRAME = 'enterFrame'  # bubbles=False, cancelable=False
-   EXIT_FRAME = 'exitFrame'  # bubbles=False, cancelable=False
-   EXITING = 'exiting'  # bubbles=False, cancelable=True
-   FRAME_CONSTRUCTED = 'frameConstructed'  # bubbles=False, cancelable=False
-   FRAME_LABEL = 'frameLabel'  # bubbles=False, cancelable=False
-   FULLSCREEN = 'fullscreen'  # bubbles=False, cancelable=False
-   HTML_BOUNDS_CHANGE = 'htmlBoundsChange'  # bubbles=False, cancelable=False
-   HTML_DOM_INITIALIZE = 'htmlDOMInitialize'  # bubbles=False, cancelable=False
-   HTML_RENDER = 'htmlRender'  # bubbles=False, cancelable=False
-   ID3 = 'id3'  # bubbles=False, cancelable=False
-   INIT = 'init'  # bubbles=False, cancelable=False
-   LOCATION_CHANGE = 'locationChange'  # bubbles=False, cancelable=False
-   MOUSE_LEAVE = 'mouseLeave'  # bubbles=False, cancelable=False
-   NETWORK_CHANGE = 'networkChange'  # bubbles=False, cancelable=False
-   OPEN = 'open'  # bubbles=False, cancelable=False
-   PASTE = 'paste'  # bubbles=(platformDependant), cancelable=False
-   PREPARING = 'preparing'  # bubbles=False, cancelable=False
-   REMOVED = 'removed'  # bubbles=True, cancelable=False
-   REMOVED_FROM_STAGE = 'removeFromStage'  # bubbles=False, cancelable=False
-   RENDER = 'render'  # bubbles=False, cancelable=False
-   RESIZE = 'resize'  # bubbles=False, cancelable=False
-   SCROLL = 'scroll'  # bubbles=False, cancelable=False
-   SELECT = 'select'  # bubbles=False, cancelable=False
-   SELECT_ALL = 'selectAll'  # bubbles=False, cancelable=False
-   SOUND_COMPLETE = 'soundComplete'  # bubbles=False, cancelable=False
-   STANDARD_ERROR_CLOSE = 'standardErrorClose'  # bubbles=False, cancelable=False
-   STANDARD_INPUT_CLOSE = 'standardInputClose'  # bubbles=False, cancelable=False
-   STANDARD_OUTPUT_CLOSE = 'standardOutputClose'  # bubbles=False, cancelable=False
-   SUSPEND = 'suspend'  # bubbles=False, cancelable=False
-   TAB_CHILDREN_CHANGE = 'tabChildrenChange'  # bubbles=True, cancelable=False
-   TAB_ENABLE_CHANGE = 'tabEnableChange'  # bubbles=True, cancelable=False
-   TAB_INDEX_CHANGE = 'tabIndexChange'  # bubbles=True, cancelable=False
-   TEXT_INTERACTION_MODE_CHANGE = 'textInteractionModeChange'  # bubbles=False, cancelable=False
-   TEXTURE_READY = 'textureReady'  # ?
-   UNLOAD = 'unload'  # bubbles=False, cancelable=False
-   USER_IDLE = 'userIdle'  # bubbles=False, cancelable=False
-   USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
-   VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
-   WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
-   _INTERNAL_allowedTypes = {'activate', 'added', 'addedToStage', 'browerZoomChange', 'cancel', 'change', 'channelMessage', 'channelState', 'clear', 'close', 'closing', 'complete', 'connect', 'context3DCreate', 'copy', 'cut', 'deactivate', 'displaying', 'enterFrame', 'exitFrame', 'exiting', 'frameConstructed', 'frameLabel', 'fullscreen', 'htmlBoundsChange', 'htmlDOMInitialize', 'htmlRender', 'id3', 'init', 'locationChange', 'mouseLeave', 'networkChange', 'open', 'paste', 'preparing', 'removed', 'removeFromStage', 'render', 'resize', 'scroll', 'select', 'selectAll', 'soundComplete', 'standardErrorClose', 'standardInputClose', 'standardOutputClose', 'suspend', 'tabChildrenChange', 'tabEnableChange', 'tabIndexChange', 'textInteractionModeChange', 'textureReady', 'unload', 'userIdle', 'userPresent', 'videoFrame', 'workerState'}
-
-
-class EventDispatcher:
-   # TODO: Implement priority, weakReference
-
-   def __init__(self, target: IEventDispatcher = None):
-      # TODO: Implement target
-      self.activate = Event('activate', False, False)
-      self.deactivate = Event('deactivate', False, False)
-      self._events = {}
-      self._eventsCapture = {}
-
-   def addEventListener(self, type: str, listener, useCapture: as3.allBoolean = False, priority: as3.allInt = 0, useWeakReference: as3.allBoolean = False):
-      # TODO: Add error
-      if useCapture is False:
-         if self._events.get(type) is None:
-            self._events[type] = [listener]
-         elif listener not in self._events[type]:
-            self._events[type].append(listener)
-      else:
-         if self._eventsCapture.get(type) is None:
-            self._eventsCapture[type] = [listener]
-         elif listener not in self._eventsCapture[type]:
-            self._eventsCapture[type].append(listener)
-
-   def dispatchEvent(self, event):
-      # TODO: Implement useCapture
-      # TODO: Implement bubbles
-      if not event.isDefaultPrevented():
-         if self._events.get(event.type) is not None:
-            e = event.clone()
-            for i in self._events[event.type]:
-               e._currentTarget = i
-               i(e)
-            return True
-      return False
-
-   def hasEventListener(self, type):
-      return self._events.get(type) is not None or self._eventsCapture.get(type) is not None
-
-   def removeEventListener(self, type: str, listener, useCapture: as3.allBoolean = False):
-      if useCapture is False:
-         if self._events.get(type) is not None:
-            try:
-               self._events[type].remove(listener)
-            except Exception:
-               pass
-      else:
-         if self._eventsCapture.get(type) is not None:
-            try:
-               self._eventsCapture[type].remove(listener)
-            except Exception:
-               pass
-
-   def willTrigger(self, type: str):...
 
 
 class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -938,27 +946,6 @@ class StorageVolumeChangeEvent:...
 
 
 class SyncEvent:...
-
-
-class TextEvent(_AS3_BASEEVENT):
-   LINK = 'link'  # bubbles=True, cancelable=False
-   TEXT_INPUT = 'textInput'  # bubbles=True, cancelable=True
-   _INTERNAL_allowedTypes = {'link', 'textInput'}
-
-   @property
-   def text(self):
-      return self._text
-
-   @text.setter
-   def text(self, value):
-      self._text = value
-
-   def __init__(self, type, bubbles=False, cancelable=False, text=''):
-      self._text = text
-      super().__init__(type, bubbles, cancelable)
-
-   def toString(self):
-      return self.formatToString('TextEvent', 'type', 'bubbles', 'cancelable', 'text')
 
 
 class ThrottleEvent(_AS3_BASEEVENT):
