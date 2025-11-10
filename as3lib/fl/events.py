@@ -15,7 +15,7 @@ class ComponentEvent(_AS3_BASEEVENT):
    _INTERNAL_allowedTypes = {'buttonDown', 'enter', 'hide', 'labelChange', 'move', 'resize', 'show'}
 
    def toString(self):
-      return f'[ComponentEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]'
+      return self.formatToString('ComponentEvent', 'type', 'bubbles', 'cancelable')
 
 
 class DataChangeEvent:...
@@ -44,28 +44,28 @@ class RSLEvent:...
 
 class ScrollEvent(_AS3_BASEEVENT):
    SCROLL = 'scroll'
-   _INTERNAL_allowedTypes = {'scroll'}
+   _INTERNAL_allowedTypes = {'scroll',}
 
    @property
    def delta(self):
-      return self.__delta
+      return self._delta
 
    @property
    def direction(self):
-      return self.__direction
+      return self._direction
 
    @property
    def position(self):
-      return self.__position
+      return self._position
 
    def __init__(self, direction, delta, position):
       super().__init__('scroll', False, False)
-      self.__delta = delta
-      self.__direction = direction
-      self.__position = position
+      self._delta = delta
+      self._direction = direction
+      self._position = position
 
    def toString(self):
-      return f'[ScrollEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} direction={self.direction} delta={self.delta} position={self.position}]'
+      return self.formatToString('ScrollEvent', 'type', 'bubbles', 'cancelable', 'direction', 'delta', 'position')
 
 
 class SliderEvent:...
