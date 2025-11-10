@@ -52,7 +52,8 @@ class _AS3_BASEEVENT:
    def clone(self):
       return copy(self)
 
-   def formatToString(self, className, *arguements):...
+   def formatToString(self, className, *arguements):
+      return ''.join(['[', className] + [f' {i}={getattr(self, i)}' for i in arguements] + [']'])
 
    def isDefaultPrevented(self):
       return self._preventDefault
@@ -66,7 +67,7 @@ class _AS3_BASEEVENT:
    def stopPropagation(self):...
 
    def toString(self):
-      return f'[Event type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]'
+      return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
 
 
 # Dummy classes
@@ -99,7 +100,51 @@ class IEventDispatcher:
 
 
 # Classes
-class AccelerometerEvent:...
+class AccelerometerEvent(_AS3_BASEEVENT):
+   UPDATE = 'update'
+   _INTERNAL_allowedTypes = {'update',}
+
+   @property
+   def accelerationX(self):
+      return self._accelX
+
+   @accelerationX.setter
+   def accelerationX(self, value):
+      self._accelX = value
+
+   @property
+   def accelerationY(self):
+      return self._accelY
+
+   @accelerationY.setter
+   def accelerationY(self, value):
+      self._accelY = value
+
+   @property
+   def accelerationZ(self):
+      return self._accelZ
+
+   @accelerationZ.setter
+   def accelerationZ(self, value):
+      self._accelZ = value
+
+   @property
+   def timestamp(self):
+      return self._timestamp
+
+   @timestamp.setter
+   def timestamp(self, value):
+      self._timestamp = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, timestamp=0, accelerationX=0, accelerationY=0, accelerationZ=0):
+      self._accelX = accelerationX
+      self._accelY = accelerationY
+      self._accelZ = accelerationZ
+      self._timestamp = timestamp
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return self.formatToString('AccelerometerEvent', 'type', 'bubbles', 'cancelable', 'timestamp', 'accelerationX', 'accelerationY', 'accelerationZ')
 
 
 class ActivityEvent(_AS3_BASEEVENT):
@@ -119,25 +164,139 @@ class ActivityEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[ActivityEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} activating={self.activating}]'
+      return self.formatToString('ActivityEvent', 'type', 'bubbles', 'cancelable', 'activating')
 
 
-class AsyncErrorEvent:...
+class AsyncErrorEvent(ErrorEvent):
+   ASYNC_ERROR = 'asyncError'
+   _INTERNAL_allowedTypes = {'asyncError',}
+
+   @property
+   def error(self):
+      return self._error
+
+   @error.setter
+   def error(self, value):
+      self._error = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, text='', error=None):
+      self._error = error
+      id = 0 if error is None else error.errorID
+      super().__init__(type, bubbles, cancelable, text, id)
+
+   def toString(self):
+      return self.formatToString('AsyncErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'error', 'errorID')
 
 
-class AudioOutputChangeEvent:...
+class AudioOutputChangeEvent(_AS3_BASEEVENT):
+   AUDIO_OUTPUT_CHANGE = 'audioOutputChange'
+   _INTERNAL_allowedTypes = {'audioOutputChange',}
+
+   @property
+   def reason(self):
+      return self._reason
+
+   def __init__(self, type, bubbles=False, cancelable=False, reason=None):
+      self._reason = reason
 
 
-class AVDictionaryDataEvent:...
+class AVDictionaryDataEvent(_AS3_BASEEVENT):
+   # TODO: Make _dictionary init as a flash.utils.Dictionary object
+   AV_DICTIONARY_DATA = 'avDictionaryData'
+   _INTERNAL_allowedTypes = {'avDictionaryData',}
+
+   @property
+   def dictionary(self):
+      return self._dictionary
+
+   @property
+   def time(self):
+      return self._time
+
+   def __init__(self, type, bubbles=False, cancelable=False, init_dictionary=None, init_dataTime=0):
+      self._dictionary = {} if init_dictionary is None else init_dictionary
+      self._time = init_dataTime
+      super().__init__(type, bubbles, cancelable)
 
 
-class AVHTTPStatusEvent:...
+class AVHTTPStatusEvent(_AS3_BASEEVENT):
+   AV_HTTP_RESPONSE_STATUS = 'avHttpResponseStatus'
+   _INTERNAL_allowedTypes = {'avHttpResponseStatus',}
+
+   @property
+   def responseHeaders(self):
+      return self._responseHeaders
+
+   @responseHeaders.setter
+   def responseHeaders(self, value):
+      self._responseHeaders = value
+
+   @property
+   def responseUrl(self):
+      return self._responseUrl
+
+   @responseUrl.setter
+   def responseUrl(self, value):
+      self._responseUrl = value
+
+   @property
+   def status(self):
+      return self._status
+
+   def __init__(self, type, bubbles=False, cancelable=False, status=0, responseUrl=None, responseHeaders=None):
+      self._status = status
+      self._responseUrl = responseUrl
+      self._responseHeaders = responseHeaders
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return self.formatToString('AVHTTPStatusEvent', 'type', 'bubbles', 'cancelable', 'status')
 
 
-class AVPauseAtPeriodEndEvent:...
+class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
+   AV_PAUSE_AT_PERIOD_END = 'avPauseAtPeriodEnd'
+   _INTERNAL_allowedTypes = {'avPauseAtPeriodEnd',}
+
+   @property
+   def userData(self):
+      return self._userData
+
+   def __init__(self, type, bubbles=False, cancelable=False, userData=0):
+      self._userData = userData
+      super().__init__(type, bubbles, cancelable)
 
 
-class BrowserInvokeEvent:...
+class BrowserInvokeEvent(_AS3_BASEEVENT):
+   BROWSER_INVOKE = 'browserInvoke'
+   _INTERNAL_allowedTypes = {'browserInvoke',}
+
+   @property
+   def arguements(self):
+      return self._arguements
+
+   @property
+   def isHTTPS(self):
+      return self._isHTTPS
+
+   @property
+   def isUserEvent(self):
+      return self._isUserEvent
+
+   @property
+   def sandboxType(self):
+      return self._sandboxType
+
+   @property
+   def securityDomain(self):
+      return self._securityDomain
+
+   def __init__(self, type, bubbles, cancelable, arguements, sandboxType, securityDomain, isHTTPS):
+      self._arguements = arguements
+      self._isHTTPS = isHTTPS
+      self._isUserEvent = False
+      self._sandboxType = sandboxType
+      self._securityDomain = securityDomain
+      super().__init__(type, bubbles, cancelable)
 
 
 class ContextMenuEvent(_AS3_BASEEVENT):
@@ -163,7 +322,7 @@ class ContextMenuEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[ContextMenuEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} mouseTarget={self.mouseTarget} isMouseTargetInaccessible={self.isMouseTargetInaccessible}contextMenuOwner={self.contextMenuOwner}]'
+      return self.formatToString('ContextMenuEvent', 'type', 'bubbles', 'cancelable', 'mouseTarget', 'isMouseTargetInaccessible', 'contextMenuOwner')
 
 
 class DataEvent(TextEvent):
@@ -184,7 +343,7 @@ class DataEvent(TextEvent):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[DataEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} data={self.data}]'
+      return self.formatToString('DataEvent', 'type', 'bubbles', 'cancelable', 'data')
 
 
 class DatagramSocketDataEvent:...
@@ -236,7 +395,7 @@ class ErrorEvent(TextEvent):
       super().__init__(type, bubbles, cancelable, text)
 
    def toString(self):
-      return f'[ErrorEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text} errorID={self.errorID}]'
+      return self.formatToString('ErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
 class Event(_AS3_BASEEVENT):
@@ -361,10 +520,79 @@ class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    CAPTURING_PHASE = 1
 
 
-class FileListEvent:...
+class FileListEvent(_AS3_BASEEVENT):
+   DIRECTORY_LISTING = 'directoryListing'
+   SELECT_MULTIPLE = 'selectMultiple'
+   _INTERNAL_allowedTypes = {'directoryListing', 'selectMultiple'}
+
+   @property
+   def files(self):
+      return self._files
+
+   @files.setter
+   def files(self, value):
+      self._files = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, files=None):
+      self._files = as3.Array() if files is None else files
+      super().__init__(type, bubbles, cancelable)
 
 
-class FocusEvent:...
+class FocusEvent(_AS3_BASEEVENT):
+   # TODO: Implement isRelatedObjectInaccessible
+   FOCUS_IN = 'focusIn'
+   FOCUS_OUT = 'focusOut'
+   KEY_FOCUS_CHANGE = 'keyFocusChange'
+   MOUSE_FOCUS_CHANGE = 'mouseFocusChange'
+   _INTERNAL_allowedTypes = {'focusIn', 'focusOut', 'keyFocusChange', 'mouseFocusChange'}
+
+   @property
+   def direction(self):
+      return self._direction
+
+   @direction.setter
+   def direction(self, value):
+      self._direction = value
+
+   @property
+   def isRelatedObjectInaccessible(self):...
+
+   @isRelatedObjectInaccessible.setter
+   def isRelatedObjectInaccessible(self, value):...
+
+   @property
+   def keyCode(self):
+      return self._keyCode
+
+   @keyCode.setter
+   def keyCode(self, value):
+      self._keyCode = value
+
+   @property
+   def relatedObject(self):
+      return self._relatedObject
+
+   @relatedObject.setter
+   def relatedObject(self, value):
+      self._relatedObject = value
+
+   @property
+   def shiftKey(self):
+      return self._shiftKey
+
+   @shiftKey.setter
+   def shiftKey(self, value):
+      self._shiftKey = value
+
+   def __init__(self, type, bubbles=False, cancelable=False, relatedObject=None, shiftKey=False, keyCode=0, direction='none'):
+      self._direction = direction
+      self._keyCode = keyCode
+      self._relatedObject = relatedObject
+      self._shiftKey = shiftKey
+      super().__init__(type, bubbles, cancelable)
+
+   def toString(self):
+      return self.formatToString('FocusEvent', 'type', 'bubbles', 'cancelable', 'relatedObject', 'shiftKey', 'keyCode')
 
 
 class FullScreenEvent(ActivityEvent):
@@ -386,7 +614,7 @@ class FullScreenEvent(ActivityEvent):
       super().__init__(type, bubbles, cancelable, False)
 
    def toString(self):
-      return f'[FullScreenEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} activating={self.activating}]'
+      return self.formatToString('FullScreenEvent', 'type', 'bubbles', 'cancelable', 'activating')
 
 
 class GameInputEvent:...
@@ -449,7 +677,7 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[HTTPStatusEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} status={self.status}]'
+      return self.formatToString('HTTPStatusEvent', 'type', 'bubbles', 'cancelable', 'status')
 
 
 class IMEEvent:...
@@ -466,7 +694,7 @@ class IOErrorEvent(ErrorEvent):
    _INTERNAL_allowedTypes = {'ioError', 'standardErrorIoError', 'standardInputIoError', 'standardOutputIoError'}
 
    def toString(self):
-      return f'[IOErrorEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text} errorID={self.errorID}]'
+      return self.formatToString('IOErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
 class KeyboardEvent(_AS3_BASEEVENT):
@@ -548,7 +776,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[KeyboardEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} altKey={self.altKey} charCode={self.charCode} commandKey={self.commandKey} controlKey={self.controlKey} ctrlKey={self.ctrlKey} keyCode={self.keyCode} keyLocation={self.keyLocation} shiftKey={self.shiftKey}]'
+      return self.formatToString('KeyboardEvent', 'type', 'bubbles', 'cancelable', 'altKey', 'charCode', 'commandKey', 'controlKey', 'ctrlKey', 'keyCode', 'keyLocation', 'shiftKey')
 
    def updateAfterEvent(self):...
 
@@ -636,7 +864,7 @@ class ProgressEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[ProgressEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} bytesLoaded={self.bytesLoaded} bytesTotal={self.bytesTotal}]'
+      return self.formatToString('ProgressEvent', 'type', 'bubbles', 'cancelable', 'bytesLoaded', 'bytesTotal')
 
 
 class RemoteNotificationEvent:...
@@ -653,7 +881,7 @@ class SecurityErrorEvent(ErrorEvent):
    _INTERNAL_allowedTypes = {'securityError',}
 
    def toString(self):
-      return f'[SecurityErrorEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text} errorID={self.errorID}]'
+      return self.formatToString('SecurityErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
 class ServerSocketConnectEvent:...
@@ -665,7 +893,9 @@ class ShaderEvent:...
 class SoftKeyboardEvent:...
 
 
-class SoftKeyboardTrigger:...
+class SoftKeyboardTrigger(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+   CONTENT_TRIGGERED = 'contentTriggered'
+   USER_TRIGGERED = 'userTriggered'
 
 
 class SQLEvent:...
@@ -674,7 +904,25 @@ class SQLEvent:...
 class SQLUpdateEvent:...
 
 
-class StageOrientationEvent:...
+class StageOrientationEvent(_AS3_BASEEVENT):
+   ORIENTATION_CHANGE = 'orientationChange'
+   ORIENTATION_CHANGING = 'orientationChanging'
+   _INTERNAL_allowedTypes = {'orientationChange', 'orientationChanging'}
+
+   @property
+   def afterOrientation(self):
+      return self._afterOrientation
+
+   @property
+   def beforeOrientation(self):
+      return self._beforeOrientation
+
+   def __init__(self, type, bubbles=False, cancelable=False, beforeOrientation=None, afterOrientation=None):
+      self._afterOrientation = afterOrientation
+      self._beforeOrientation = beforeOrientation
+      super().__init__(type, bubbles, cancelable)
+      
+   def toString(self):...
 
 
 class StageVideoAvailabilityEvent:...
@@ -710,7 +958,7 @@ class TextEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[TextEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} text={self.text}]'
+      return self.formatToString('TextEvent', 'type', 'bubbles', 'cancelable', 'text')
 
 
 class ThrottleEvent(_AS3_BASEEVENT):
@@ -731,7 +979,7 @@ class ThrottleEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[ThrottleEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} state={self.state} targetFrameRate={self.targetFrameRate}]'
+      return self.formatToString('ThrottleEvent', 'type', 'bubbles', 'cancelable', 'state', 'targetFrameRate')
 
 
 class ThrottleType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -749,7 +997,7 @@ class TimerEvent(_AS3_BASEEVENT):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[TimerEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable}]'
+      return self.formatToString('TimerEvent', 'type', 'bubbles', 'cancelable')
 
    def updateAfterEvent(self):...
 
