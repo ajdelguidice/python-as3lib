@@ -145,16 +145,6 @@ if not as3state.initdone:
    as3state.initdone = True
 
 
-# as3 builtins
-def formatToString(obj, objname, *args):
-   '''
-   This function appears in the decompiled version of fl.ScrollEvent and many
-   others in the fl package but doesn't appear anywhere in the documentation, not
-   even in the toplevel section. I'm going to assume that this is a builtin function
-   '''
-   return ''.join(['[', objname] + [f' {i}={getattr(obj, i)}' for i in args] + [']'])
-
-
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
 from ._toplevel.Boolean import Boolean
