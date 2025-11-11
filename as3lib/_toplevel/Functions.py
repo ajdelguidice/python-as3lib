@@ -1,10 +1,6 @@
 from as3lib import as3state
 import builtins
 from pathlib import Path, PurePath
-try:
-   from warnings import deprecated
-except Exception:
-   from as3lib.py_backports import deprecated
 from as3lib._toplevel.Constants import _NaN_value, _NegInf_value, _PosInf_value, NInfinity, Infinity, NaN
 from as3lib._toplevel.int import int
 from as3lib._toplevel.uint import uint
@@ -104,14 +100,6 @@ def DisableDebug():
    as3state.as3DebugEnable = False
 
 
-@deprecated('formatTypeToName is deprecated and will be removed in version 13. Use type.__name__ instead.')
-def formatTypeToName(arg: type):
-   tempStr = f'{arg}'
-   if tempStr.find('.') != -1:
-      return tempStr.split('.')[-1].split("'")[0]
-   return tempStr.split("'")[1]
-
-
 def isEven(Num: builtins.int | float | int | Number | uint | NaN | Infinity | NInfinity):
    if isinstance(Num, (NaN, Infinity, NInfinity)):
       return False
@@ -134,9 +122,11 @@ def objIsChildClass(obj, cls):
    '''
    return isinstance(obj, cls) or issubclass(obj, cls)
 
+
 if as3state.platform == 'Windows':
    BlacklistedChars = {'<', '>', ':', '"', '\\', '/', '|', '?', '*', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''}
    BlacklistedNames = {'CON', 'PRN', 'AUX', 'NUL', 'COM0', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM¹', 'COM²', 'COM³', 'LPT0', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9', 'LPT¹', 'LPT²', 'LPT³'}
+
    def isValidDirectory(directory, separator=None):
       '''
       Checks if a given directory is valid on the current platform
@@ -186,6 +176,7 @@ if as3state.platform == 'Windows':
 else:
    BlacklistedChars = {'/', '<', '>', '|', ':', '&', ''}
    BlacklistedNames = {'.', '..'}
+
    def isValidDirectory(directory, separator=None):
       '''
       Checks if a given directory is valid on the current platform
