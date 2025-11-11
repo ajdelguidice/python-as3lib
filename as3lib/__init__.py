@@ -1,4 +1,4 @@
-from . import as3state, config, importer
+from . import as3state, config
 from pathlib import Path
 from subprocess import check_output
 import os
