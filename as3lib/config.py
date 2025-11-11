@@ -80,14 +80,13 @@ def _dependencyCheck(cfgval):
    from subprocess import check_output
    hasDeps = True
    if as3state.platform == 'Linux':
-      if as3state.displayserver == 'wayland':...
-      else:
-         if check_output(('which', 'xwininfo')).decode('utf-8').startswith('which: no'):
-            as3state.initerror.append((3, 'Linux (xorg): requirement "xwininfo" not found'))
-            hasDeps = False
-         if check_output(('which', 'xrandr')).decode('utf-8').startswith('which: no'):
-            as3state.initerror.append((3, 'Linux (xorg): requirement "xrandr" not found'))
-            hasDeps = False
+      # Running on Wayland is done through XWayland so these are needed there too
+      if check_output(('which', 'xwininfo')).decode('utf-8').startswith('which: no'):
+         as3state.initerror.append((3, 'Linux: requirement "xwininfo" not found'))
+         hasDeps = False
+      if check_output(('which', 'xrandr')).decode('utf-8').startswith('which: no'):
+         as3state.initerror.append((3, 'Linux: requirement "xrandr" not found'))
+         hasDeps = False
    elif as3state.platform == 'Windows':...
    elif as3state.platform == 'Darwin':...
    if find_spec('numpy') is None:  # https://pypi.org/project/numpy
