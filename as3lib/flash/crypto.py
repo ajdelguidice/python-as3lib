@@ -1,6 +1,6 @@
-from os import urandom
 import as3lib as as3
 from as3lib.flash.utils import ByteArray
+from os import urandom
 
 
 def generateRandomBytes(numberRandomBytes: int | as3.uint | as3.Int):

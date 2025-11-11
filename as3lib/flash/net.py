@@ -1,10 +1,10 @@
 import as3lib as as3
-from as3lib.flash.events import Event, EventDispatcher, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent, DataEvent
-from as3lib import metaclasses, as3state
-from tkinter import filedialog
+from as3lib import as3state, metaclasses
 from as3lib.flash import utils
-from miniamf import sol
+from as3lib.flash.events import DataEvent, Event, EventDispatcher, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent
 import miniamf
+from miniamf import sol
+from tkinter import filedialog
 
 
 def getClassByAlias(aliasName: str):

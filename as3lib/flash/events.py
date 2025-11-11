@@ -1,6 +1,6 @@
-from copy import copy
 import as3lib as as3
 from as3lib import metaclasses
+from copy import copy
 
 
 # BaseEvent

@@ -1,7 +1,6 @@
-from subprocess import check_output
-from subprocess import CalledProcessError as CPE
 import as3lib as as3
 from as3lib import metaclasses, as3state
+from subprocess import CalledProcessError, check_output
 
 
 class File:
@@ -85,7 +84,7 @@ class File:
             try:
                check_output(('fsutil', 'fsinfo', 'volumeinfo', i))  # This requires admin permissions on the main drive
                tempDrives.push(File(i))
-            except CPE as e:
+            except CalledProcessError as e:
                if 'not ready' in e.output.decode('utf-8'):
                   continue
                tempDrives.push(File(i))

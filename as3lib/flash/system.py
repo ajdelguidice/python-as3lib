@@ -1,8 +1,8 @@
-import platform
-import sys
-from functools import cache
 import as3lib as as3
 from as3lib import as3state, metaclasses
+from functools import cache
+import platform
+import sys
 
 
 class ApplicationDomain:...

@@ -1,11 +1,10 @@
-from threading import Timer as timedExec
-from miniamf.amf3 import ByteArray as _ByteArray
-from datetime import datetime
-from miniamf import util
 import as3lib as as3
+from as3lib import as3state, Error, metaclasses
 from as3lib.flash.events import EventDispatcher, TimerEvent
-from as3lib.flash import errors
-from as3lib import as3state, metaclasses, Error
+from datetime import datetime
+from threading import Timer as timedExec
+from miniamf import util
+from miniamf.amf3 import ByteArray as _ByteArray
 
 
 class ByteArray:...  # dummy class
@@ -197,7 +196,7 @@ class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 
 class Timer(EventDispatcher):
-   # TODO: If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again. 
+   # TODO: If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
    @property
    def currentCount(self):
       return self._currentCount

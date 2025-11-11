@@ -1,6 +1,6 @@
-import math
-from as3lib._toplevel.Object import Object
+from as3lib import Object
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
+import math
 
 
 class ColorTransform:...

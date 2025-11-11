@@ -1,6 +1,6 @@
-import tkinter
 import as3lib as as3
 from as3lib import keyConversions, metaclasses
+import tkinter
 
 
 class CMItemList:

@@ -1,9 +1,9 @@
-import tkinter
 import as3lib as as3
 from as3lib import as3state, metaclasses
-from as3lib.flash.events import EventDispatcher
 from as3lib.flash.errors import IllegalOperationError
+from as3lib.flash.events import EventDispatcher
 from as3lib.flash.geom import Point, Rectangle
+import tkinter
 
 
 # Dummy classes
