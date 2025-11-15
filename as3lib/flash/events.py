@@ -172,13 +172,12 @@ class EventDispatcher:
    def dispatchEvent(self, event):
       # TODO: Implement useCapture
       # TODO: Implement bubbles
-      if not event.isDefaultPrevented():
-         if self._events.get(event.type) is not None:
-            e = event.clone()
-            for i in self._events[event.type]:
-               e._currentTarget = i
-               i(e)
-            return True
+      if not event.isDefaultPrevented() and event.type in self._events:
+         e = event.clone()
+         e._target = self
+         for i in self._events[event.type]:
+            i(e)
+         return True
       return False
 
    def hasEventListener(self, type):
