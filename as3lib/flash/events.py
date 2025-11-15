@@ -44,10 +44,7 @@ class _AS3_BASEEVENT:
       return self.type == value
 
    def __str__(self):
-      return self.type
-
-   def getEventProperties(self):
-      return (self.type, self.bubbles, self.cancelable, self.currentTarget, self.eventPhase, self.target)
+      return self.toString()
 
    def clone(self):
       return copy(self)
@@ -160,6 +157,7 @@ class EventDispatcher:
 
    def addEventListener(self, type: str, listener, useCapture: as3.allBoolean = False, priority: as3.allInt = 0, useWeakReference: as3.allBoolean = False):
       # TODO: Add error
+      # TODO: Implement priority
       if useCapture is False:
          if self._events.get(type) is None:
             self._events[type] = [listener]
