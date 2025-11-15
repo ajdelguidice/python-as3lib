@@ -1,4 +1,5 @@
-from as3lib import Object
+from __future__ import annotations  # Allow forward references
+from as3lib import Math, Object
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -6,10 +7,132 @@ import math
 class ColorTransform:...
 
 
-class Matrix:...
+class Matrix(Object):
+   '''
+   | a c tx |
+   | b d ty |
+   | u v w  |
+   u and v are 0.0 and w is 1.0 here
+   '''
+   @property
+   def a(self):
+      return self._a
+
+   @a.setter
+   def a(self, value):
+      self._a = value
+
+   @property
+   def b(self):
+      return self._b
+
+   @b.setter
+   def b(self, value):
+      self._b = value
+
+   @property
+   def c(self):
+      return self._c
+
+   @c.setter
+   def c(self, value):
+      self._c = value
+
+   @property
+   def d(self):
+      return self._d
+
+   @d.setter
+   def d(self, value):
+      self._d = value
+
+   @property
+   def tx(self):
+      return self._tx
+
+   @tx.setter
+   def tx(self, value):
+      self._tx = value
+
+   @property
+   def ty(self):
+      return self._ty
+
+   @ty.setter
+   def ty(self, value):
+      self._ty = value
+
+   def __init__(self, a=1, b=0, c=0, d=1, tx=0, ty=0):
+      self._a = a
+      self._b = b
+      self._c = c
+      self._d = d
+      self._tx = tx
+      self._ty = ty
+
+   def clone(self):
+      return Matrix(self.a, self.b, self.c, self.d, self.tx, self.ty)
+
+   def concat(self, m: Matrix):
+      self.setTo(
+         self.a * m.a + self.c * m.b,  # + self.tx * 0.0
+         self.b * m.a + self.d * m.b,  # + self.ty * 0.0
+         self.a * m.c + self.c * m.d,  # + self.tx * 0.0
+         self.b * m.c + self.d * m.d,  # + self.ty * 0.0
+         self.a * m.tx + self.c * m.ty + self.tx,  # * 1.0
+         self.b * m.tx + self.d * m.ty + self.ty,  # * 1.0
+      )
+
+   def copyColumnFrom(self, column, vector3D: Vector3D):...
+   def copyColumnTo(self, column, vector3D: Vector3D):...
+   def copyFrom(self, sourceMatrix: Matrix):
+      self.a = sourceMatrix.a
+      self.b = sourceMatrix.b
+      self.c = sourceMatrix.c
+      self.d = sourceMatrix.d
+      self.tx = sourceMatrix.tx
+      self.ty = sourceMatrix.ty
+
+   def copyRowFrom(self, vector3D: Vector3D):...
+   def copyRowTo(self, vector3D: Vector3D):...
+   def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):...
+   def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):...
+   def deltaTransformPoint(self, point: Point):...
+   def identity(self):
+      self.a, self.b, self.c, self.d, self.tx, self.ty = 1, 0, 0, 1, 0, 0
+
+   def invert(self):...
+   def rotate(self, angle):
+      c = Math.cos(angle)
+      s = Math.sin(angle)
+      self.concat(Matrix(c, s, -s, c, 0, 0))
+
+   def scale(self, sx, sy):
+      self.concat(Matrix(sx, 0, 0, sy, 0, 0))
+
+   def setTo(self, aa, ba, ca, da, txa, tya):
+      self.a = aa
+      self.b = ba
+      self.c = ca
+      self.d = da
+      self.tx = txa
+      self.ty = tya
+
+   def toString(self):
+      return f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})'
+
+   def transformPoint(self, point: Point):...
+   def translate(self, dx, dy):...
 
 
-class Matrix3D:...
+class Matrix3D:
+   '''
+   | scaleX 0      0      tx |
+   | 0      scaleY 0      ty |
+   | 0      0      scaleZ tz |
+   | 0      0      0      tw |
+   '''
+   ...
 
 
 class Orientation3D(metaclass=_AS3_CONSTANTSOBJECT):
