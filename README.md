@@ -1,12 +1,13 @@
 # python-as3lib
 
-A partial implementation of ActionScript 3 and the adobe flash api in python. This project aims to have as accurate of an implementation as possible of the implemented features, however anything that isn't documented won't be implemented unless I am informed about it. Some stuff will be impossible to implement in python because <a href="https://docs.python.org/3/glossary.html#term-global-interpreter-lock">python is a fish</a>.
+A partial implementation of ActionScript 3 and the adobe flash api in python. This project is developed for the purpose of making game porting easier and is developed by one person.
 
 ## Notes
 
-- If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead. This library is developed for the purpose of making game porting easier and is developed by one person.
+- If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead.
+- Some stuff will be impossible to implement in python because <a href="https://docs.python.org/3/glossary.html#term-global-interpreter-lock">python is a fish</a>.
+- Undocumented things can not be implemented unless I am informed about them.
 - Versions of this library before 0.0.6 are broken on windows.
-- Tkinter can not fetch the information needed when used on wayland (linux). It must be manually entered into as3lib.toml. I plan on making this less painfull later.
 - Use of multiple displays has not been tested yet.
 - interface_tk is a testing module, it does not function like actionscript and is only there to work things out. Do not expect consistency between versions and do not expect it to be kept around.
 - Using "from as3lib import *" imports all ActionScript toplevel stuff with int renamed to Int so it doesn't conflict with python's int.
@@ -22,13 +23,16 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 
 Windows specific<br>
 > PyLaucher
-> <br><a href="https://pypi.org/project/pywin32/">pywin32</a>
+> <br> <a href="https://pypi.org/project/pywin32/">pywin32</a>
 
 Unix specific<br>
-> a posix compatible shell, grep, which
-> <br>(xorg): xwininfo, xrandr
+> a posix compatible shell
+> <br> grep
+> <br> which
+> <br> xwininfo
+> <br> xrandr
 
-This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (linux), pathlib, configparser, webbrowser, textwrap, typing, tomllib
+This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (unix), pathlib, configparser, webbrowser, textwrap, typing, tomllib
 
 ## Config Files
 
