@@ -83,8 +83,24 @@ class Matrix(Object):
          self.b * m.tx + self.d * m.ty + self.ty,  # * 1.0
       )
 
-   def copyColumnFrom(self, column, vector3D: Vector3D):...
-   def copyColumnTo(self, column, vector3D: Vector3D):...
+   # I am unsure if the copy functions using vectors are correct
+   def copyColumnFrom(self, column, vector3D: Vector3D):
+      temp = (vector3D.x, vector3D.y)
+      if column == 0:
+         self.a, self.b = temp
+      elif column == 1:
+         self.c, self.d = temp
+      elif column == 2:
+         self.tx, self.ty = temp
+
+   def copyColumnTo(self, column, vector3D: Vector3D):
+      if column == 0:
+         vector3D.setTo(self.a, self.b, 0.0)
+      elif column == 1:
+         vector3D.setTo(self.c, self.d, 0.0)
+      elif column == 2:
+         vector3D.setTo(self.tx, self.ty, 1.0)
+
    def copyFrom(self, sourceMatrix: Matrix):
       self.a = sourceMatrix.a
       self.b = sourceMatrix.b
@@ -93,11 +109,28 @@ class Matrix(Object):
       self.tx = sourceMatrix.tx
       self.ty = sourceMatrix.ty
 
-   def copyRowFrom(self, vector3D: Vector3D):...
-   def copyRowTo(self, vector3D: Vector3D):...
-   def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):...
+   def copyRowFrom(self, vector3D: Vector3D):
+      temp = (vector3D.x, vector3D.y, vector3D.z)
+      if column == 0:
+         self.a, self.c, self.tx = temp
+      elif column == 1:
+         self.b, self.d, self.ty = temp
+
+   def copyRowTo(self, vector3D: Vector3D):
+      if column == 0:
+         vector3D.setTo(self.a, self.c, self.tx)
+      elif column == 1:
+         vector3D.setTo(self.b, self.d, self.ty)
+      elif column == 2:
+         vector3D.setTo(0.0, 0.0, 1.0)
+
+   def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):
+      # Create the matrix that would be obtained from .identity(), .rotate(), .scale(), and .transform() in succession
+      # .createBox(2,2,Math.PI/4,100,100) does the same thing as .identity(), .rotate(Math.PI/4), .scale(2,2), .transform(10,20)
+      ...
+
    def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):...
-   def deltaTransformPoint(self, point: Point):...
+   def deltaTransformPoint(self, point: Point) -> Point:...
    def identity(self):
       self.a, self.b, self.c, self.d, self.tx, self.ty = 1, 0, 0, 1, 0, 0
 
@@ -175,7 +208,8 @@ class Point(Object):
    def clone(self):
       return Point(self.x, self.y)
 
-   def copyFrom(self, sourcePoint: Point):...
+   def copyFrom(self, sourcePoint: Point):
+      self.setTo(sourcePoint.x, sourcePoint.y)
 
    @staticmethod
    def distance(pt1: Point, pt2: Point):
@@ -358,4 +392,117 @@ class Transform:...
 class Utils3D:...
 
 
-class Vector3D:...
+class Vector3D(Object):
+   @property
+   def length(self):
+      return Math.sqrt(self.x**2 + self.y**2 + self.z**2)
+
+   @property
+   def lengthSquared(self):
+      return self.x**2 + self.y**2 + self.z**2
+
+   @property
+   def w(self):
+      return self._w
+
+   @w.setter
+   def w(self, value):
+      self._w = value
+
+   @property
+   def x(self):
+      return self._x
+
+   @x.setter
+   def x(self, value):
+      self._x = value
+
+   @property
+   def y(self):
+      return self._y
+
+   @y.setter
+   def y(self, value):
+      self._y = value
+
+   @property
+   def z(self):
+      return self._z
+
+   @z.setter
+   def z(self, value):
+      self._z = value
+
+   def __init__(self, x=0, y=0, z=0, w=0):
+      self._w = w
+      self._x = x
+      self._y = y
+      self._z = z
+
+   def add(self, a: Vector3D):
+      # The documentation does not mention w
+      return Vector3D(a.x + self.x, a.y + self.y, a.z + self.z)
+
+   @staticmethod
+   def angleBetween(a: Vector3D, b: Vector3D):
+      return Math.acos((a.x * b.x + a.y * b.y + a.z * b.z) / (a.length * b.length))
+
+   def clone(self):
+      return Vector3D(self.x, self.y, self.z, self.w)
+
+   def copyFrom(self, sourceVector: Vector3D):
+      self.w = sourceVector.w
+      self.x = sourceVector.x
+      self.y = sourceVector.y
+      self.z = sourceVector.z
+
+   def crossProduct(self, a: Vector3D):...
+   def decrementBy(self, a: Vector3D):...
+   @staticmethod
+   def distance(pt1: Vector3D, pt2: Vector3D):...
+   def dotProduct(self, a: Vector3D):...
+   def equals(self, toCompare: Vector3D, allFour=False):
+      value = self.x == toCompare.x and self.y == toCompare.y and self.z == toCompare.z
+      if allFour:
+         return value and self.w == toCompare.w
+      return value
+
+   def incrementBy(self, a: Vector3D):...
+   def nearEquals(self, toCompare: Vector3D, tolerance, allFour=False):...
+   def negate(self):
+      self.x = -self.x
+      self.y = -self.y
+      self.z = -self.z
+
+   def normalize(self):
+      len = self.length
+      self.x /= len
+      self.y /= len
+      self.z /= len
+
+   def project(self):
+      self.x /= self.w
+      self.y /= self.w
+      self.z /= self.w
+
+   def scaleBy(self, s):
+      self.x *= s
+      self.y *= s
+      self.z *= s
+
+   def setTo(self, xa, ya, za):
+      self.x = xa
+      self.y = ya
+      self.z = za
+
+   def subtract(self, a: Vector3D):
+      # The documentation does not mention w
+      return Vector3D(a.x - self.x, a.y - self.y, a.z - self.z)
+
+   def toString(self):
+      return f'x={self.x}, y={self.y}, z={self.z}'
+
+
+Vector3D.X_AXIS = Vector3D(x=1)
+Vector3D.Y_AXIS = Vector3D(y=1)
+Vector3D.Z_AXIS = Vector3D(z=1)
