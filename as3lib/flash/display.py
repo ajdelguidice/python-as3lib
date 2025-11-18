@@ -1,7 +1,7 @@
 from __future__ import annotations
 import as3lib as as3
 from as3lib import as3state, metaclasses
-from as3lib.flash.errors import IllegalOperationError
+from as3lib.flash.errors import ArguementError, IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
 from as3lib.flash.geom import Point, Rectangle
 import tkinter
@@ -213,10 +213,190 @@ class MorphShape:...
 class MovieClip:...
 
 
-class NativeMenu:...
+class NativeMenu(EventDispatcher):
+   @property
+   def isSupported(self):...
+
+   @property
+   def items(self):
+      return self._items
+
+   @items.setter
+   def items(self, value):
+      self._items = value
+
+   @property
+   def numItems(self):
+      return self._items.length
+
+   @property
+   def parent(self):
+      return self._parent
+
+   def __init__(self):
+      super().__init__()
+      self.displaying = Event('displaying')
+      self.preparing = Event('preparing')
+      self.select = Event('select')
+      self._items = as3.Array()
+      self._parent
+
+   def addItem(self, item: NativeMenuItem):
+      if item is None or item.menu is not None:
+         raise ArguementError()
+      self._items.append(item)
+
+   def addItemAt(self, item: NativeMenuItem, index):
+      # TODO: Add RangeError when index is out of bounds
+      if item is None or item.menu is not None:
+         raise ArguementError()
+      self._items.insertAt(index, item)
+
+   def addSubmenu(self, submenu: NativeMenu, label):
+      item = NativeMenuItem(label)
+      item.submenu = submenu
+      self.addItem(item)
+      return item
+
+   def addSubmenuAt(self, submenu: NativeMenu, index, label):
+      item = NativeMenuItem(label)
+      item.submenu = submenu
+      self.addItemAt(item, index)
+      return item
+
+   def clone(self):...
+
+   def containsItem(self, item: NativeMenuItem):
+      for i in self._items:
+         if i is item:
+            return True
+      return False
+
+   def display(self, stage: Stage, stageX, stageY):...
+
+   def getItemAt(self, index):
+      # TODO: Add RangeError when index is out of bounds
+      return self._items[index]
+
+   def getItemByName(self, name):
+      for i in self._items:
+         if i.name == name:
+            return i
+
+   def getItemIndex(self, item: NativeMenuItem):
+      for index, i in enumerate(self._items):
+         if i is item:
+            return index
+      return -1
+
+   def removeAllItems(self):
+      for i in range(self.numItems):
+         self.removeItemAt(0)
+
+   def removeItem(self, item: NativeMenuItem):
+      self._items.remove(item)
+
+   def removeItemAt(self, index):
+      return self._items.removeAt(index)
+
+   def setItemIndex(self, item: NativeMenuItem, index):
+      # TODO: Add RangeError when index is out of bounds
+      i = self.getItemIndex(item)
+      if i == -1:
+         self.addItemAt(item, index)
+      else:
+         self.removeItemAt(i)
+         self.addItemAt(item, index)
 
 
-class NativeMenuItem:...
+class NativeMenuItem(EventDispatcher):
+   @property
+   def checked(self):...
+
+   @checked.setter
+   def checked(self, value):...
+
+   @property
+   def data(self):
+      return self._data
+
+   @data.setter
+   def data(self, value):
+      self._data = value
+
+   @property
+   def enabled(self):
+      return self._enabled
+
+   @enabled.setter
+   def enabled(self, value):
+      self._enabled = value
+
+   @property
+   def isSeparator(self):
+      return self._isSep
+
+   @property
+   def keyEquivalent(self):...
+
+   @keyEquivalent.setter
+   def keyEquivalent(self, value):...
+
+   @property
+   def keyEquivalentModifiers(self):...
+
+   @keyEquivalentModifiers.setter
+   def keyEquivalentModifiers(self, value):...
+
+   @property
+   def label(self):
+      return self._label
+
+   @label.setter
+   def label(self, value):
+      self._label = value
+
+   @property
+   def menu(self):
+      return self._menu
+
+   @property
+   def mnemonicIndex(self):...
+
+   @mnemonicIndex.setter
+   def mnemonicIndex(self, value):...
+
+   @property
+   def name(self):
+      return self._name
+
+   @name.setter
+   def name(self, value):
+      self._name = value
+
+   @property
+   def submenu(self):
+      return self._subMenu
+
+   @submenu.setter
+   def submenu(self, value: NativeMenu):
+      self._subMenu = value
+
+   def __init__(self, label, isSeparator=False):
+      super().__init__()
+      self.displaying = Event('displaying')
+      self.preparing = Event('preparing')
+      self.select = Event('select')
+      self._isSep = isSeparator
+      self._label = label
+      self._data = None
+      self._enabled = True
+      self._menu = None
+      self._name = None
+      self._subMenu = None
+
+   def clone(self):...
+   def toString(self):...
 
 
 class NativeWindow:
