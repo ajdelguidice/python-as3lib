@@ -1,9 +1,10 @@
 from __future__ import annotations
 import as3lib as as3
 from as3lib import as3state, metaclasses
+from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import ArguementError, IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
-from as3lib.flash.geom import Point, Rectangle
+from as3lib.flash.geom import Point, Rectangle, Vector3D
 import tkinter
 
 
@@ -38,27 +39,319 @@ class as3totk:
 
 
 class DisplayObject(EventDispatcher):
+   @property
+   def accessibilityProperties(self):
+      return self._accessProps
+
+   @accessibilityProperties.setter
+   def accessibilityProperties(self, value: AccessibilityProperties):
+      self._accessProps = value
+
+   @property
+   def alpha(self):...
+
+   @alpha.setter
+   def alpha(self, value):...
+
+   @property
+   def blendMode(self):...
+
+   @blendMode.setter
+   def blendMode(self, value):...
+
+   @property
+   def blendShader(self):...  # Write only
+
+   @blendShader.setter
+   def blendShader(self, value):...
+
+   @property
+   def cacheAsBitmap(self):...
+
+   @cacheAsBitmap.setter
+   def cacheAsBitmap(self, value):...
+
+   @property
+   def cacheAsBitmapMatrix(self):...
+
+   @cacheAsBitmapMatrix.setter
+   def cacheAsBitmapMatrix(self, value):...
+
+   @property
+   def filters(self):...
+
+   @filters.setter
+   def filters(self, value):...
+
+   @property
+   def height(self):...
+
+   @height.setter
+   def height(self, value):...
+
+   @property
+   def loaderInfo(self):...
+
+   @property
+   def mask(self):...
+
+   @mask.setter
+   def mask(self, value):...
+
+   @property
+   def metaData(self):...
+
+   @metaData.setter
+   def metaData(self, value):...
+
+   @property
+   def mouseX(self):...
+
+   @property
+   def mouseY(self):...
+
+   @property
+   def name(self):...
+
+   @name.setter
+   def name(self, value):...
+
+   @property
+   def opaqueBackground(self):...
+
+   @opaqueBackground.setter
+   def opaqueBackground(self, value):...
+
+   @property
+   def parent(self):...
+
+   @property
+   def root(self):...
+
+   @property
+   def rotation(self):...
+
+   @rotation.setter
+   def rotation(self, value):...
+
+   @property
+   def rotationX(self):...
+
+   @rotationX.setter
+   def rotationX(self, value):...
+
+   @property
+   def rotationY(self):...
+
+   @rotationY.setter
+   def rotationY(self, value):...
+
+   @property
+   def rotationZ(self):...
+
+   @rotationZ.setter
+   def rotationZ(self, value):...
+
+   @property
+   def scale9Grid(self):...
+
+   @scale9Grid.setter
+   def scale9Grid(self, value):...
+
+   @property
+   def scaleX(self):...
+
+   @scaleX.setter
+   def scaleX(self, value):...
+
+   @property
+   def scaleY(self):...
+
+   @scaleY.setter
+   def scaleY(self, value):...
+
+   @property
+   def scaleZ(self):...
+
+   @scaleZ.setter
+   def scaleZ(self, value):...
+
+   @property
+   def scrollRect(self):...
+
+   @scrollRect.setter
+   def scrollRect(self, value):...
+
+   @property
+   def stage(self):...
+
+   @stage.setter
+   def stage(self, value):...
+
+   @property
+   def transform(self):...
+
+   @transform.setter
+   def transform(self, value):...
+
+   @property
+   def visible(self):
+      return self._visible
+
+   @visible.setter
+   def visible(self, value):
+      self._visible = value
+
+   @property
+   def width(self):
+      return self._width
+
+   @width.setter
+   def width(self, value):
+      self._width = value
+
+   @property
+   def x(self):
+      return self._x
+
+   @x.setter
+   def x(self, value):
+      self._x = value
+
+   @property
+   def y(self):
+      return self._y
+
+   @y.setter
+   def y(self, value):
+      self._y = value
+
+   @property
+   def z(self):
+      return self._z
+
+   @z.setter
+   def z(self, value):
+      self._z = value
+
    def __init__(self, target = None):
       super().__init__(target)
-      self.added = Event('render', True)
-      self.addedToStage = Event('addedToStage')
-      self.enterFrame = Event('enterFrame')
-      self.exitFrame = Event('exitFrame')
-      self.frameConstructed = Event('frameConstructed')
-      self.removed = Event('removed', True)
-      self.removedFromStage = Event('removedFromStage')
-      self.render = Event('render')
-   def getBounds(self, targetCoordinateSpace):...
-   def getRect(self, targetCoordinateSpace):...
-   def globalToLocal(self, point: Point):...
-   def globalToLocal3D(self, point: Point):...
-   def hitTestObject(self, obj):...
-   def hitTestPoint(self, x, y, shapeFlag):...
-   def local3DToGlobal(self, point3d):...
-   def localToGlobal(self, point: Point):...
+      self._accessProps = AccessibilityProperties()
+
+      self._height = 0
+
+      self._visible = True
+      self._width = 0
+      self._x = 0
+      self._y = 0
+      self._z = 0
+
+   def getBounds(self, targetCoordinateSpace: DisplayObject) -> Rectangle:...
+   def getRect(self, targetCoordinateSpace: DisplayObject) -> Rectangle:...
+   def globalToLocal(self, point: Point) -> Point:...
+   def globalToLocal3D(self, point: Point) -> Vector3D:...
+   def hitTestObject(self, obj: DisplayObject):...
+   def hitTestPoint(self, x, y, shapeFlag=False):...
+   def local3DToGlobal(self, point3d: Vector3D) -> Point:...
+   def localToGlobal(self, point: Point) -> Point:...
 
 
-class InteractiveObject(DisplayObject):...
+class InteractiveObject(DisplayObject):
+   @property
+   def accessibilityImplementation(self):
+      return self._accessImpl
+
+   @accessibilityImplementation.setter
+   def accessibilityImplementation(self, value: AccessibilityImplementation):
+      self._accessImpl = value
+
+   @property
+   def contextMenu(self):
+      return self._contextMenu
+
+   @contextMenu.setter
+   def contextMenu(self, value: NativeMenu):
+      self._contextMenu = value
+
+   @property
+   def doubleClickEnabled(self):
+      return self._doubleClickEnabled
+
+   @doubleClickEnabled.setter
+   def doubleClickEnabled(self, value):
+      self._doubleClickEnabled = value
+
+   @property
+   def focusRect(self):
+      return self._focusRect
+
+   @focusRect.setter
+   def focusRect(self, value):
+      self._focusRect = value
+
+   @property
+   def mouseEnabled(self):
+      return self._mouseEnabled
+
+   @mouseEnabled.setter
+   def mouseEnabled(self, value):
+      self._mouseEnabled = value
+
+   @property
+   def needsSoftKeyboard(self):
+      return self._needsSoftKeyboard
+
+   @needsSoftKeyboard.setter
+   def needsSoftKeyboard(self, value):
+      self._needsSoftKeyboard = value
+
+   @property
+   def softKeyboard(self):
+      return self._softKeyboard
+
+   @softKeyboard.setter
+   def softKeyboard(self, value):
+      self._softKeyboard = value
+
+   @property
+   def softKeyboardInputAreaOfInterest(self):
+      return self._softKeyboardAOI
+
+   @softKeyboardInputAreaOfInterest.setter
+   def softKeyboardInputAreaOfInterest(self, value):
+      self._softKeyboardAOI = value
+
+   @property
+   def tabEnabled(self):
+      return self._tabEnabled
+
+   @tabEnabled.setter
+   def tabEnabled(self, value):
+      self._tabEnabled = value
+
+   @property
+   def tabIndex(self):
+      return self._tabIndex
+
+   @tabIndex.setter
+   def tabIndex(self, value):
+      self._tabIndex = value
+
+   def __init__(self):
+      super().__init__()
+      self._accessImpl = AccessibilityImplementation()
+      self._contextMenu = None
+      self._doubleClickEnabled = False
+      self._focusRect = None
+      self._mouseEnabled = None
+      self._needsSoftKeyboard = None
+      self._softKeyboard = None
+      self._softKeyboardAOI = None
+      self._tabEnabled = None
+      self._tabIndex = None
+
+   def requestSoftKeyboard(self):
+      return False  # Placeholder. This tells applications that access was denied
 
 
 class DisplayObjectContainer(InteractiveObject):...
