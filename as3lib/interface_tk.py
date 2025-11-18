@@ -986,7 +986,7 @@ class itkRoot(tkinter.Toplevel):
       self._startheight = kwargs.pop('defaultHeight', kwargs.pop('height'))
       self._title = kwargs.pop('title', 'Python')
       self._color = kwargs.pop('background', kwargs.pop('bg', '#FFFFFF'))
-      self._menu = kwargs.pop('menu', True)
+      self._menu = kwargs.pop('menu', False)
       self._defaultMenu = kwargs.pop('defaultMenu', True)  # Use default menu items
       self._fullscreen = False
       self._resizable = False
