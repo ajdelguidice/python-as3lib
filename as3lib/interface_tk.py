@@ -1,15 +1,16 @@
-import tkinter
-from tkinter import filedialog
-from tkinter.ttk import Combobox, Notebook
-import tkhtmlview
-import PIL
-from io import BytesIO
 import as3lib as as3
 try:
    from as3lib import cmath
 except Exception:
    from as3lib.cfail import cmath
 from as3lib import helpers, as3state, Error
+from io import BytesIO
+import PIL
+import tkinter
+from tkinter import filedialog
+from tkinter.ttk import Combobox, Notebook
+import tkhtmlview
+
 '''
 Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
 Notes:
