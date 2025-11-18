@@ -1,13 +1,10 @@
+from __future__ import annotations
 import as3lib as as3
 from as3lib import as3state, metaclasses
 from as3lib.flash.errors import IllegalOperationError
-from as3lib.flash.events import EventDispatcher
+from as3lib.flash.events import Event, EventDispatcher
 from as3lib.flash.geom import Point, Rectangle
 import tkinter
-
-
-# Dummy classes
-class InteractiveObject:...
 
 
 def _winNameGen():
@@ -38,6 +35,33 @@ class as3totk:
          return 'nw'
       if flashalign == 'TR':
          return 'ne'
+
+
+class DisplayObject(EventDispatcher):
+   def __init__(self, target = None):
+      super().__init__(target)
+      self.added = Event('render', True)
+      self.addedToStage = Event('addedToStage')
+      self.enterFrame = Event('enterFrame')
+      self.exitFrame = Event('exitFrame')
+      self.frameConstructed = Event('frameConstructed')
+      self.removed = Event('removed', True)
+      self.removedFromStage = Event('removedFromStage')
+      self.render = Event('render')
+   def getBounds(self, targetCoordinateSpace):...
+   def getRect(self, targetCoordinateSpace):...
+   def globalToLocal(self, point: Point):...
+   def globalToLocal3D(self, point: Point):...
+   def hitTestObject(self, obj):...
+   def hitTestPoint(self, x, y, shapeFlag):...
+   def local3DToGlobal(self, point3d):...
+   def localToGlobal(self, point: Point):...
+
+
+class InteractiveObject(DisplayObject):...
+
+
+class DisplayObjectContainer(InteractiveObject):...
 
 
 class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -103,12 +127,6 @@ class ColorCorrectionSupport(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    UNSUPPORTED = 'unsupported'
 
 
-class DisplayObject(EventDispatcher):...
-
-
-class DisplayObjectContainer(InteractiveObject):...
-
-
 class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    BOTTOM = 'bottom'
    NONE = 'none'
@@ -157,9 +175,6 @@ class GraphicsTrianglePath:...
 
 
 class GraphicsObject:...
-
-
-class InteractiveObject(DisplayObject):...
 
 
 class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -521,7 +536,7 @@ class SpreadMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    REPEAT = 'repeat'
 
 
-class Sprite:...
+class Sprite(DisplayObjectContainer):...
 
 
 class Stage:...
