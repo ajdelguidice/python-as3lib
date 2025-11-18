@@ -1,303 +1,267 @@
+from __future__ import annotations
 import as3lib as as3
 from as3lib import keyConversions, metaclasses
+from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
+from as3lib.flash.events import ContextMenuEvent
 import tkinter
 
 
-class CMItemList:
+class ContextMenu(NativeMenu):
+   @property
+   def builtInItems(self):...
+
+   @builtInItems.setter
+   def builtInItems(self, value: ContextMenuBuiltInItems):...
+
+   @property
+   def clipboardItems(self):...
+
+   @clipboardItems.setter
+   def clipboardItems(self, value: ContextMenuClipboardItems):...
+
+   @property
+   def clipboardMenu(self):...
+
+   @clipboardMenu.setter
+   def clipboardMenu(self, value):...
+
+   @property
+   def customItems(self):...
+
+   @customItems.setter
+   def customItems(self, value):...
+
+   @property
+   def isSupported(self):...
+
+   @property
+   def items(self):...
+
+   @items.setter
+   def items(self, value):...
+
+   @property
+   def link(self):...
+
+   @link.setter
+   def link(self, value):...
+
+   @property
+   def numItems(self):...
+
    def __init__(self):
-      self.itemorder = as3.Array()
-      self.itemproperties = {}
+      # TODO: Restrict number of custom items to 15
+      super().__init__()
+      self.menuSelect = ContextMenuEvent('menuSelect')
+      ...
 
-   def __str__(self):
-      return f'{self.itemorder},{self.itemproperties}'
-
-   def __len__(self):
-      return len(self.itemorder)
-
-   def __getitem__(self, item):
-      if isinstance(item, int):
-         return self.itemorder[item]
-      if isinstance(item, str):
-         return self.itemproperties[item]
-
-   def __setitem__(self, item, value):
-      if isinstance(item, int):
-         self.itemorder[item] = value
-      elif isinstance(item, str):
-         self.itemproperties[item] = value
-
-   def length(self):
-      return len(self)
-
-   def indexOfItem(self, item: str):
-      return self.itemorder.indexOf(item)
-
-   def addContextMenuItem(self, obj: object, index: int = -1):
-      if not isinstance(obj, ContextMenuItem):
-         raise as3.TypeError('Item not of type ContextMenuItem')
-      tempproperties = {'master': obj.master, 'type': obj.type_, 'command': obj.command, 'caption': obj.caption, 'separatorBefore': obj.separatorBefore, 'enabled': obj.enabled, 'visible': obj.visible}
-      if index == -1:
-         self.append(obj.name, tempproperties)
-      else:
-         self.addItemAt(index, obj.name, tempproperties)
-
-   def append(self, name: str, properties: dict):
-      self.itemorder.push(name)
-      self.itemproperties[name] = properties
-
-   def addItemAt(self, index: int, name: str, properties: dict):
-      self.itemorder.insertAt(index, name)
-      self.itemproperties[name] = properties
-
-   def removeItem(self, name: str):
-      self.itemorder.removeAt(self.itemorder.indexOf(name))
-      self.itemproperties.pop(name)
-
-   def removeItemAt(self, index: int):
-      self.itemproperties.pop(self.itemorder[index])
-      self.itemorder.removeAt(index)
-
-   def removeAllItems(self):
-      self.itemorder = as3.Array()
-      self.itemproperties = {}
-
-   def propertiesAt(self, index: int):
-      return self.itemproperties[self.itemorder[index]]
+   def addItemAt(self, item: NativeMenuItem, index):...
+   def clone(self):...
+   def containsItem(self, item: NativeMenuItem):...
+   def display(self, stage: Stage, stageX, stageY):...
+   def getItemAt(self, index):...
+   def getItemIndex(self, item: NativeMenuItem):...
+   def hideBuiltInItems(self):...
+   def removeAllItems(self):...
+   def removeItemsAt(self, index):...
 
 
-class ContextMenu:
-   def __init__(self, master: object, font=('TkTextFont', 8)):
-      self.builtInItems = ContextMenuBuiltInItems()
-      self._builtIns: bool = True
-      self.clipboardItems = ContextMenuClipboardItems()
-      self.clipboardMenu: bool = True
-      self.customItems = CMItemList()
-      self._itemobjects = {}
-      self.isSupported = True
-      self.items = None  # TODO: Implement this
-      self.font = font
-      self.link = None
-      self.numItems: int
-      self._master = master
+class ContextMenuBuiltInItems(as3.Object):
+   @property
+   def forwardAndBack(self):
+      return self._forwardAndBack
 
-   def _createAndBindMenu(self):
-      self._itemobjects = {}
-      try:
-         self._master.unbind()
-      except Exception:...
-      self.Menu = tkinter.Menu(self._master, tearoff=0)
-      if self._builtIns:
-         if self.builtInItems.forwardAndBack:
-            self.Menu.add_command(label='Forward', font=self.font)
-            self.Menu.add_command(label='Backward', font=self.font)
-         if self.builtInItems.loop:
-            self.Menu.add_command(label='Loop', font=self.font)
-         if self.builtInItems.play:
-            self.Menu.add_command(label='Play', font=self.font)
-         if self.builtInItems.print:
-            self.Menu.add_command(label='Print', font=self.font)
-         if self.builtInItems.quality:
-            self.Menu.add_command(label='Quality', font=self.font)
-         if self.builtInItems.rewind:
-            self.Menu.add_command(label='Rewind', font=self.font)
-         if self.builtInItems.save:
-            self.Menu.add_command(label='Save', font=self.font)
-         if self.builtInItems.zoom:
-            self.Menu.add_command(label='Zoom', font=self.font)
-      if self.clipboardMenu:
-         self._itemobjects['clipboardMenu'] = tkinter.Menu(self.Menu, tearoff=0)
-         self.Menu.add_cascade(label='Clipboard', font=self.font, menu=self._itemobjects['clipboardMenu'])
-         if self.clipboardItems.clear:
-            self._itemobjects['clipboardMenu'].add_command(label='Clear', font=self.font)
-         if self.clipboardItems.copy:
-            self._itemobjects['clipboardMenu'].add_command(label='Copy', font=self.font)
-         if self.clipboardItems.cut:
-            self._itemobjects['clipboardMenu'].add_command(label='Cut', font=self.font)
-         if self.clipboardItems.paste:
-            self._itemobjects['clipboardMenu'].add_command(label='Paste', font=self.font)
-         if self.clipboardItems.selectAll:
-            self._itemobjects['clipboardMenu'].add_command(label='Select All', font=self.font)
-      for i in range(self.customItems.length()):
-         tempprop = self.customItems.propertiesAt(i)
-         if tempprop['visible']:
-            if tempprop['type'] == 'Menu':
-               if tempprop['master'] == 'root':
-                  if tempprop['separatorBefore']:
-                     self.Menu.add_separator()
-                  self._itemobjects[tempprop['name']] = tkinter.Menu(self.Menu, tearoff=0)
-                  self.Menu.add_cascade(label=tempprop['caption'], font=self.font, menu=self._itemobjects[tempprop['name']])
-               else:
-                  if tempprop['separatorBefore']:
-                     self._itemobjects[tempprop['master']].add_separator()
-                  self._itemobjects[tempprop['name']] = tkinter.Menu(self._itemobjects[tempprop['master']], tearoff=0)
-                  self._itemobjects[tempprop['master']].add_cascade(label=tempprop['caption'], font=self.font, menu=self._itemobjects[tempprop['name']])
-            else:
-               if tempprop['master'] == 'root':
-                  if tempprop['separatorBefore']:
-                     self.Menu.add_separator()
-                  self.Menu.add_command(label=tempprop['caption'], font=self.font, command=tempprop['command'])
-                  if not tempprop['enabled']:
-                     self.Menu.entryconfigure(tempprop['caption'], state='disabled')
-               else:
-                  if tempprop['separatorBefore']:
-                     self._itemobjects[tempprop['master']].add_separator()
-                  self._itemobjects[tempprop['master']].add_command(label=tempprop['caption'], font=self.font, command=tempprop['command'])
-                  if not tempprop['enabled']:
-                     self._itemobjects[tempprop['master']].entryconfigure(tempprop['caption'], state='disabled')
-      self._master.bind(keyConversions.mouseButtonNameToTkname('Right'), self._popupMenu)
+   @forwardAndBack.setter
+   def forwardAndBack(self, value):
+      self._forwardAndBack = value
 
-   def _popupMenu(self, e):
-      try:
-         self.Menu.tk_popup(e.x_root, e.y_root)
-      finally:
-         self.Menu.grab_release()
+   @property
+   def loop(self):
+      return self._loop
 
-   def addItemAt(self, item: object, index: int = -1):
-      if not isinstance(item, ContextMenuItem):
-         raise as3.TypeError('Item not of type ContextMenuItem')
-      self.customItems.addContextMenuItem(item, index)
-      self._createAndBindMenu()
+   @loop.setter
+   def loop(self, value):
+      self._loop = value
 
-   def clone(self):
-      return self
+   @property
+   def play(self):
+      return self._play
 
-   def containsItem(self, item: object):
-      if not isinstance(item, ContextMenuItem):
-         raise as3.TypeError('Item not of type ContextMenuItem')
-      temp = self.customItems.idexOfItem(item.name)
-      return temp != -1
+   @play.setter
+   def play(self, value):
+      self._play = value
 
-   def display(self, stage: object, stageX, stageY):...
+   @property
+   def print(self):
+      return self._print
 
-   def getItemAt(self, item: object):
-      if not isinstance(item, ContextMenuItem):
-         raise as3.TypeError('Item not of type ContextMenuItem')
-      return self.customItems.indexOfItem(item.name)
+   @print.setter
+   def print(self, value):
+      self._print = value
 
-   def getItemAt_Name(self, item: str):
-      return self.customItems.indexOfItem(item)
+   @property
+   def quality(self):
+      return self._quality
 
-   def hideBuiltInItems(self):
-      self._builtIns = False
-      self._createAndBindMenu()
+   @quality.setter
+   def quality(self, value):
+      self._quality = value
 
-   def removeAllItems(self):
-      self.customItems.removeAllItems()
-      self._builtIns = False
-      self.clipboardMenu = False
-      self._createAndBindMenu()
+   @property
+   def rewind(self):
+      return self._rewind
 
-   def removeItemAt(self, index: int):
+   @rewind.setter
+   def rewind(self, value):
+      self._rewind = value
+
+   @property
+   def save(self):
+      return self._save
+
+   @save.setter
+   def save(self, value):
+      self._save = value
+
+   @property
+   def zoom(self):
+      return self._zoom
+
+   @zoom.setter
+   def zoom(self, value):
+      self._zoom = value
+
+   def __init__(self):
+      self._forwardAndBack = True
+      self._loop = True
+      self._play = True
+      self._print = True
+      self._quality = True
+      self._rewind = True
+      self._save = True
+      self._zoom = True
+
+
+class ContextMenuClipboardItems(as3.Object):
+   @property
+   def clear(self):
+      return self._clear
+
+   @clear.setter
+   def clear(self, value):
+      self._clear = value
+
+   @property
+   def copy(self):
+      return self._copy
+
+   @copy.setter
+   def copy(self, value):
+      self._copy = value
+
+   @property
+   def cut(self):
+      return self._cut
+
+   @cut.setter
+   def cut(self, value):
+      self._cutm = value
+
+   @property
+   def paste(self):
+      return self._paste
+
+   @paste.setter
+   def paste(self, value):
+      self._paste = value
+
+   @property
+   def selectAll(self):
+      return self._selectAll
+
+   @selectAll.setter
+   def selectAll(self, value):
+      self._selectAll = value
+
+   def __init__(self):
+      self._clear = True
+      self._copy = True
+      self._cut = True
+      self._paste = True
+      self._selectAll = True
+
+
+class ContextMenuItem(NativeMenuItem):
+   @property
+   def caption(self):
+      return self._caption
+
+   @caption.setter
+   def caption(self, value):
       '''
-      Removes and returns the menu item at the specified index.
-      Parameters
-         index:int — The (zero-based) position of the item to remove.
-      Returns
-         ContextMenuItem — The item that was removed.
+      TODO:
+      Each caption must contain at least one visible character.
+      Control characters, newlines, and other white space characters are ignored.
+      Captions that are identical to any built-in menu item, or to another custom item, are ignored, whether the matching item is visible or not. Menu captions are compared to built-in captions or existing custom captions without regard to case, punctuation, or white space.
       '''
-      temp = self.customItems[index]
-      tempprop = self.customItems[temp]
-      self.customItems.removeItemAt(index)
-      self._createAndBindMenu()
-      return ContextMenuItem(master=tempprop['master'], caption=tempprop['caption'], name=temp, separatorBefore=tempprop['separatorBefore'], enabled=tempprop['enabled'], visible=tempprop['visible'], type_=tempprop['type'], command=tempprop['command'])
+      # Captions can not be more than 100 characters long.
+      if len(value) > 100:
+         raise Error('Captions can not be more than 100 characters long.')
+      # Restricted captions
+      if value in {'Save', 'Zoom In', 'Zoom Out', '100%', 'Show All', 'Quality', 'Play', 'Loop', 'Rewind', 'Forward', 'Back', 'Movie not loaded', 'About', 'Print', 'Show Redraw Regions', 'Debugger', 'Undo', 'Cut', 'Copy', 'Paste', 'Delete', 'Select All', 'Open', 'Open in new window', 'Copy link'}:
+         raise Error(f'Caption "{value}" is not allowed.')
+      # Restricted phrases
+      if value.find('Adobe') != -1 or value.find('Macromedia') != -1 or value.find('Flash Player') != -1 or value.find('Settings') != -1:
+         raise Error(f'Caption {value} contains a restricted phrase.')
+      self._caption = value
 
+   @property
+   def separatorBefore(self):
+      return self._separatorBefore
 
-class ContextMenuBuiltInItems:
-   def __init__(self):
-      self.forwardAndBack: bool
-      self.loop: bool = True
-      self.play: bool = True
-      self.print: bool = True
-      self.quality: bool = True
-      self.rewind: bool = True
-      self.save: bool = True
-      self.zoom: bool = True
+   @separatorBefore.setter
+   def separatorBefore(self, value):
+      self._separatorBefore = value
 
-   def get(self, item: str):
-      if item == 'forwardAndBack':
-         return self.forwardAndBack
-      if item == 'loop':
-         return self.loop
-      if item == 'play':
-         return self.play
-      if item == 'print':
-         return self.print
-      if item == 'quality':
-         return self.quality
-      if item == 'rewind':
-         return self.rewind
-      if item == 'save':
-         return self.save
-      if item == 'zoom':
-         return self.zoom
+   @property
+   def visible(self):
+      return self._visible
 
-   def set(self, item: str, value: bool):
-      if item == 'forwardAndBack':
-         self.forwardAndBack = value
-      elif item == 'loop':
-         self.loop = value
-      elif item == 'play':
-         self.play = value
-      elif item == 'print':
-         self.print = value
-      elif item == 'quality':
-         self.quality = value
-      elif item == 'rewind':
-         self.rewind = value
-      elif item == 'save':
-         self.save = value
-      elif item == 'zoom':
-         self.zoom = value
+   @visible.setter
+   def visible(self, value):
+      self._visible = value
 
-
-class ContextMenuClipboardItems:
-   def __init__(self):
-      self.clear: bool = True
-      self.copy: bool = True
-      self.cut: bool = True
-      self.paste: bool = True
-      self.selectAll: bool = True
-
-   def get(self, item: str):
-      if item == 'clear':
-         return self.clear
-      if item == 'copy':
-         return self.copy
-      if item == 'cut':
-         return self.cut
-      if item == 'paste':
-         return self.paste
-      if item == 'selectAll':
-         return self.selectAll
-
-   def set(self, item: str, value: bool):
-      if item == 'clear':
-         self.clear = value
-      elif item == 'copy':
-         self.copy = value
-      elif item == 'cut':
-         self.cut = value
-      elif item == 'paste':
-         self.paste = value
-      elif item == 'selectAll':
-         self.selectAll = value
-
-
-class ContextMenuItem:
-   def __init__(self, master: str, caption: str, name: str, separatorBefore: bool = False, enabled: bool = True, visible: bool = True, type_: str = 'Item', command: object = ''):
+   def __init__(self, caption, separatorBefore=False, enabled=True, visible=True):
+      super().__init__('')
+      self.menuItemSelect = ContextMenuEvent('menuItemSelect')
+      self._caption = None
       self.caption = caption
-      self.separatorBefore = separatorBefore
-      self.enabled = enabled
-      self.visible = visible
-      self.master = master
-      self.name = name
-      if type_ == 'Item':
-         self.command = command
-      if type_ not in {'Item', 'Menu'}:
-         self.type_ = 'Item'
-         self.command = ''
-         raise as3.TypeError('Invalid menu type. Must be "Item" or "Menu". Making type the default ("Item").')
-      self.type_ = type_
+      self._separatorBefore = separatorBefore
+      self._enabled = enabled
+      self._visible = visible
+
+   def clone(self):...
+
+   @staticmethod
+   def systemClearMenuItem():...
+
+   @staticmethod
+   def systemCopyLinkMenuItem():...
+
+   @staticmethod
+   def systemCopyMenuItem():...
+
+   @staticmethod
+   def systemCutMenuItem():...
+
+   @staticmethod
+   def systemOpenLinkMenuItem():...
+
+   @staticmethod
+   def systemPasteMenuItem():...
+
+   @staticmethod
+   def systemSelectAllMenuItem():...
 
 
 class GameInput:...
