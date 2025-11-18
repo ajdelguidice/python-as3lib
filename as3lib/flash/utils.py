@@ -228,9 +228,9 @@ class Timer(EventDispatcher):
 
    def _TimerTick(self):
       self._currentCount += 1
-      self.dispatchEvent(self.timer)
+      self.dispatchEvent(TimerEvent('timer'))
       if self.currentCount >= self.repeatCount and self.repeatCount != 0:
-         self.dispatchEvent(self.timerComplete)
+         self.dispatchEvent(TimerEvent('timerComplete'))
       else:
          del self._timer
          self._timer = timedExec(self.delay/1000, self._TimerTick)
@@ -244,8 +244,6 @@ class Timer(EventDispatcher):
       self._delay = delay
       self._repeatCount = repeatCount
       self._running = False
-      self.timer = TimerEvent('timer', False, False)
-      self.timerComplete = TimerEvent('timerComplete', False, False)
 
    def reset(self):
       self.stop()

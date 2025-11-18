@@ -528,9 +528,6 @@ class NativeMenu(EventDispatcher):
 
    def __init__(self):
       super().__init__()
-      self.displaying = Event('displaying')
-      self.preparing = Event('preparing')
-      self.select = Event('select')
       self._items = as3.Array()
       self._parent
 
@@ -677,9 +674,6 @@ class NativeMenuItem(EventDispatcher):
 
    def __init__(self, label, isSeparator=False):
       super().__init__()
-      self.displaying = Event('displaying')
-      self.preparing = Event('preparing')
-      self.select = Event('select')
       self._isSep = isSeparator
       self._label = label
       self._data = None

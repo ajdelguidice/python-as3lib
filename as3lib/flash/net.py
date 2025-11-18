@@ -1,7 +1,7 @@
 import as3lib as as3
 from as3lib import as3state, metaclasses
 from as3lib.flash import utils
-from as3lib.flash.events import DataEvent, Event, EventDispatcher, HTTPStatusEvent, IOErrorEvent, PermissionEvent, ProgressEvent, SecurityErrorEvent
+from as3lib.flash.events import Event, EventDispatcher
 import miniamf
 from miniamf import sol
 from tkinter import filedialog
@@ -87,17 +87,6 @@ class FileReference(EventDispatcher):
    def __init__(self):
       super().__init__()
       self._location = None
-      self.cancel = Event('cancel', False, False)
-      self.complete = Event('complete', False, False)
-      self.httpResponseStatus = HTTPStatusEvent('httpResponseStatus', False, False)
-      self.httpStatus = HTTPStatusEvent('httpStatus', False, False)
-      self.ioError = IOErrorEvent('ioError', False, False)
-      self.open = Event('open', False, False)
-      self.permissionStatus = PermissionEvent('permissionStatus', False, False)
-      self.progress = ProgressEvent('progress', False, False)
-      self.securityError = SecurityErrorEvent('securityError', False, False)
-      self.select = Event('select', False, False)
-      self.uploadCompleteData = DataEvent('uploadCompleteEvent', False, False)
 
    def _setFile(self, file):
       # Sets the file and all of its details
@@ -112,9 +101,9 @@ class FileReference(EventDispatcher):
       else:
          filename = filedialog.askopenfilename(title='Select a file to upload')
       if filename in {None, ()}:
-         self.dispatchEvent(self.cancel)
+         self.dispatchEvent(Event('cancel'))
       else:
-         self.dispatchEvent(self.select)
+         self.dispatchEvent(Event('select'))
       return True
 
    def cancel(self):...  # Cancels the 'download' without calling the cancel event
@@ -127,7 +116,7 @@ class FileReference(EventDispatcher):
 
    def save(self, data, defaultFileName=None):
       # TODO: add check for blacklisted characters  / \ : * ? " < > | %
-      self.dispatchEvent(self.open)
+      self.dispatchEvent(Event('open'))
       file = defaultFileName.split('.')
       savetype = 0  # 1=UTF-8 2=XML 3=ByteArray
       if data is None:
@@ -156,11 +145,11 @@ class FileReference(EventDispatcher):
          ext = f'.{file[-1]}'
          filename = filedialog.asksaveasfilename(title='Select location for download', defaultextension=ext)
       if filename in {None, ()}:
-         self.dispatchEvent(self.cancel)
+         self.dispatchEvent(cancel = Event('cancel'))
       else:
-         self.dispatchEvent(self.select)
+         self.dispatchEvent(Event('select'))
          self._location = filename
-         self.dispatchEvent(self.complete)
+         self.dispatchEvent(Event('complete'))
 
    def upload(self, request, uploadDataFieldName, testUpload=False):...
 

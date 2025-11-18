@@ -150,8 +150,6 @@ class EventDispatcher:
 
    def __init__(self, target: IEventDispatcher = None):
       # TODO: Implement target
-      self.activate = Event('activate', False, False)
-      self.deactivate = Event('deactivate', False, False)
       self._events = {}
       self._eventsCapture = {}
 
