@@ -172,9 +172,9 @@ def Load():
          with open(mmcfgpath, 'r') as f:
             mmcfg.read_file(f)
          cfg['mm.cfg'] = {
-            'ErrorReportingEnable': True if mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1 else False,
+            'ErrorReportingEnable': mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1,
             'MaxWarnings': mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
-            'TraceOutputFileEnable': True if mmcfg.getboolean(UNNAMED_SECTION, 'TraceOutputFileEnable', fallback=0) == 1 else False,
+            'TraceOutputFileEnable': mmcfg.getboolean(UNNAMED_SECTION, 'TraceOutputFileEnable', fallback=0) == 1,
             'TraceOutputFileName': mmcfg.get(UNNAMED_SECTION, 'TraceOutputFileName', fallback=''),
             'ClearLogsOnStartup': True,
             'NoClearWarningNumber': 0
@@ -207,7 +207,7 @@ def Load():
                'MaxWarnings': 100,  # Reset value because I messed up the type
                'TraceOutputFileEnable': oldcfg.getboolean('mm.cfg', 'TraceOutputFileEnable', fallback=False),
                'TraceOutputFileName': oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback=''),
-               'ClearLogsOnStartup': True if oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1 else False,
+               'ClearLogsOnStartup': oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1,
                'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
             },
             'display': {
@@ -231,8 +231,7 @@ def Load():
    as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
    if not as3state.ClearLogsOnStartup:
       as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
-      if as3state.MaxWarnings != 0 and as3state.CurrentWarnings >= as3state.MaxWarnings:
-         as3state.MaxWarningsReached = True
+      as3state.MaxWarningsReached = as3state.MaxWarnings != 0 and as3state.CurrentWarnings >= as3state.MaxWarnings
    if tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir():
       print('as3lib: Using defualt TraceOutputFileName')
       tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
