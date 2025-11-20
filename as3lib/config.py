@@ -73,9 +73,7 @@ class TOML:
       return tomllib.loads(string)
 
 
-def _dependencyCheck(cfgval):
-   if cfgval:
-      return True
+def _dependencyCheck():
    from importlib.util import find_spec
    from subprocess import check_output
    hasDeps = True
@@ -224,7 +222,7 @@ def Load():
       cfg['migrateOldConfig'] = False
    # Load some values into global state
    as3state.addedFeatures = cfg['addedFeatures']
-   as3state.hasDependencies = _dependencyCheck(cfg['dependenciesPassed'] and cfg['version'] == __version__)
+   as3state.hasDependencies = True if cfg['dependenciesPassed'] and cfg['version'] == __version__ else _dependencyCheck()
    as3state.flashVersion = cfg['flashVersion']
    as3state.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
    as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
