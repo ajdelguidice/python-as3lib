@@ -125,10 +125,9 @@ if not as3state.initdone:
 
    # Load the config
    config.Load()
-   if as3state.ClearLogsOnStartup:
-      if as3state.TraceOutputFileName.exists():
-         with open(as3state.TraceOutputFileName, 'w') as f:
-            f.write('')
+   if as3state.ClearLogsOnStartup and as3state.TraceOutputFileName.exists():
+      with open(as3state.TraceOutputFileName, 'w') as f:
+         f.write('')
 
    # Display errors to user
    if as3state.initerror:
