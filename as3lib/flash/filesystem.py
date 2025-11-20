@@ -4,31 +4,31 @@ from subprocess import CalledProcessError, check_output
 
 
 class File:
-   #applicationDirectory
-   #applicationStorageDirectory
-   #cacheDirectory
-   #desktopDirectory
-   #documentsDirectory
-   #downloaded
-   #exists
-   #icon
-   #isDirectory
-   #isHidden
-   #isPackage
-   #isSymbolicLink
-   #lineEnding
-   #nativePath
-   #parent
-   #permissionStatus
-   #separator
-   #spaceAvailable
-   #systemCharset
-   #url
-   #userDirectory
-   def __init__(self, path:str):
-      #!detect url path
-      #!convert path to native path and url
-      #!Throw exception ArguementError if path is invalid
+   # applicationDirectory
+   # applicationStorageDirectory
+   # cacheDirectory
+   # desktopDirectory
+   # documentsDirectory
+   # downloaded
+   # exists
+   # icon
+   # isDirectory
+   # isHidden
+   # isPackage
+   # isSymbolicLink
+   # lineEnding
+   # nativePath
+   # parent
+   # permissionStatus
+   # separator
+   # spaceAvailable
+   # systemCharset
+   # url
+   # userDirectory
+   def __init__(self, path: str):
+      # TODO: detect url path
+      # TODO: convert path to native path and url
+      # TODO: Throw exception ArguementError if path is invalid
       self._filepath = path
 
    def __str__(self):
