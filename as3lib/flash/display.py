@@ -1,8 +1,8 @@
 from __future__ import annotations
 import as3lib as as3
-from as3lib import as3state, metaclasses
+from as3lib import ArgumentError, as3state, metaclasses
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
-from as3lib.flash.errors import ArguementError, IllegalOperationError
+from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
 from as3lib.flash.geom import Point, Rectangle, Vector3D
 import tkinter
@@ -84,10 +84,12 @@ class DisplayObject(EventDispatcher):
    def filters(self, value):...
 
    @property
-   def height(self):...
+   def height(self):
+      return self._height
 
    @height.setter
-   def height(self, value):...
+   def height(self, value):
+      self._height = value
 
    @property
    def loaderInfo(self):...
@@ -347,14 +349,108 @@ class InteractiveObject(DisplayObject):
       self._needsSoftKeyboard = None
       self._softKeyboard = None
       self._softKeyboardAOI = None
-      self._tabEnabled = None
+      self._tabEnabled = True
       self._tabIndex = None
 
    def requestSoftKeyboard(self):
       return False  # Placeholder. This tells applications that access was denied
 
 
-class DisplayObjectContainer(InteractiveObject):...
+class DisplayObjectContainer(InteractiveObject):
+   @property
+   def mouseChildren(self):...
+
+   @mouseChildren.setter
+   def mouseChildren(self, value):...
+
+   @property
+   def numChildren(self):
+      return self._children.length
+
+   @property
+   def tabChildren(self):
+      return self._tabChilren
+
+   @tabChildren.setter
+   def tabChildren(self, value):
+      if value != self._tabChilren:
+         for i in self._children:...  # TODO: Set tabbing behavior
+      self._tabChilren = value
+
+   @property
+   def textSnapshot(self):...
+
+   def __init__(self):
+      super().__init__()
+      self._children = as3.Array()
+      self._tabChilren = True
+
+   def addChild(self, child: DisplayObject):...
+   def addChildAt(self, child: DisplayObject, index):...
+   def areInaccessibleObjectsUnderPoint(self, point: Point):...
+   def contains(self, child: DisplayObject):...
+   def getChildAt(self, index):...
+   def getChildByName(self, name):...
+   def getChildIndex(self, child: DisplayObject):...
+   def getObjectsUnderPoint(self, point: Point):...
+   def removeChild(self, child: DisplayObject):...
+   def removeChildAt(self, index):...
+   def removeChildren(self, beginIndex, endIndex):...
+   def setChildIndex(self, child: DisplayObject, index):...
+   def stopAllMovieClips(self):...
+   def swapChildren(self, child1: DisplayObject, child2: DisplayObject):...
+   def swapChildrenAt(self, index1, index2):...
+
+
+class Sprite(DisplayObjectContainer):
+   @property
+   def buttonMode(self):
+      return self._buttonMode
+
+   @buttonMode.setter
+   def buttonMode(self, value):
+      self._buttonMode = value
+
+   @property
+   def dropTarget(self):...
+
+   @property
+   def graphics(self):
+      return self._graphics
+
+   @property
+   def hitArea(self):
+      return self._hitArea
+
+   @hitArea.setter
+   def hitArea(self, value: Graphics):
+      self._hitArea = value
+
+   @property
+   def soundTransform(self):...
+
+   @soundTransform.setter
+   def soundTransform(self, value):...
+
+   @property
+   def useHandCursor(self):
+      return self._useHandCursor
+
+   @useHandCursor.setter
+   def useHandCursor(self, value):
+      self._useHandCursor = value
+
+   def __init__(self):
+      super().__init__()
+      self._buttonMode = False
+      self._graphics = Graphics()  # Don't know if this is correct
+      self._hitArea = None  # self is used as hit area if this is not set
+      self._useHandCursor = True
+
+   def startDrag(self, lockCenter=False, bounds: Rectangle=None):...
+   def startTouchDrag(self, touchPointID, lockCenter=False, bounds: Rectangle=None):...
+   def stopDrag(self):...
+   def stopTouchDrag(self, touchPointID):...
 
 
 class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -426,7 +522,20 @@ class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    TOP = 'top'
 
 
-class FrameLabel:...
+class FrameLabel(EventDispatcher):
+   @property
+   def frame(self):
+      return self._frame
+
+   @property
+   def name(self):
+      return self._name
+
+   def __init__(self, name, frame):
+      # TODO: Dispatch Event('frameLabel')
+      super().__init__()
+      self._name = name
+      self._frame = frame
 
 
 class GradientType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -503,7 +612,82 @@ class LoderInfo:...
 class MorphShape:...
 
 
-class MovieClip:...
+class MovieClip(Sprite):
+   @property
+   def currentFrame(self):
+      return self._currentFrame
+
+   @property
+   def currentFrameLabel(self):
+      return self._currentFrameLabel
+
+   @property
+   def currentLabel(self):
+      return self._currentLabel
+
+   @property
+   def currentLabels(self):
+      return self._currentLabels
+
+   @property
+   def currentScene(self):
+      return self._currentScene
+
+   @property
+   def enabled(self):
+      return self._enabled
+
+   @enabled.setter
+   def enabled(self, value):
+      self._enabled = value
+
+   @property
+   def framesLoaded(self):
+      return self._framesLoaded
+
+   @property
+   def isPlaying(self):
+      return self._isPlaying
+
+   @property
+   def scenes(self):
+      return self._scenes
+
+   @property
+   def totalFrames(self):
+      return self._totalFrames
+
+   @property
+   def trackAsMenu(self):
+      return self._trackAsMenu
+
+   @trackAsMenu.setter
+   def trackAsMenu(self, value):
+      self._trackAsMenu = value
+
+   def __init__(self):
+      super().__init__()
+      # Most of these are placeholder values
+      self._currentFrame = 0
+      self._currentFrameLabel = None
+      self._currentLabel = None
+      self._currentLabels = as3.Array()
+      self._currentScene = 0
+      self._enabled = True
+      self._framesLoaded = None
+      self._isPlaying = False
+      self._scenes = as3.Array()
+      self._totalFrames = None
+      self._trackAsMenu = False
+
+   def gotoAndPlay(self, frame, scene=None):...
+   def gotoAndStop(self, frame, scene):...
+   def nextFrame(self):...
+   def nextScene(self):...
+   def play(self):...
+   def prevFrame(self):...
+   def prevScene(self):...
+   def stop(self):...
 
 
 class NativeMenu(EventDispatcher):
@@ -533,13 +717,13 @@ class NativeMenu(EventDispatcher):
 
    def addItem(self, item: NativeMenuItem):
       if item is None or item.menu is not None:
-         raise ArguementError()
+         raise ArgumentError()
       self._items.append(item)
 
    def addItemAt(self, item: NativeMenuItem, index):
       # TODO: Add RangeError when index is out of bounds
       if item is None or item.menu is not None:
-         raise ArguementError()
+         raise ArgumentError()
       self._items.insertAt(index, item)
 
    def addSubmenu(self, submenu: NativeMenu, label):
@@ -1001,9 +1185,6 @@ class SpreadMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    PAD = 'pad'
    REFLECT = 'reflect'
    REPEAT = 'repeat'
-
-
-class Sprite(DisplayObjectContainer):...
 
 
 class Stage:...
