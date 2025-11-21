@@ -168,46 +168,32 @@ class Array(list, Object):
       '''
       self.insert(index, element)
 
-   def join(self, sep: str = ',', interpretation: int | builtins.int = 0, _Array=None):
+   @staticmethod
+   def _join(o, sep=None):
+      s = ',' if sep == None else sep
+      with textObject() as out:
+         n = o.length
+         for i in range(n):
+            x = o[i]
+            if x != None:
+               out += str(x)
+            if i + 1 < n:
+               out += s
+         return out.get()
+
+   def join(self, sep: str = ','):
       '''
       Warining: Due to how this works, this will fail if you nest more Arrays than python's maximum recursion depth. If this becomes a problem, you should consider using a different programming language for your project.
 
       Converts the elements in an array to strings, inserts the specified separator between the elements, concatenates them, and returns the resulting string. A nested array is always separated by a comma (,), not by the separator passed to the join() method.
       Parameters:
          sep (default = ",") — A character or string that separates array elements in the returned string. If you omit this parameter, a comma is used as the default separator.
-         interpretation (default = 0) — Which interpretation of the documentation you choose to use. This is an addition parameter added in as3lib because the original documentation isn't clear
-               0 — [1,2,3,[4,5,6],7,8,9], sep(+) -> "1+2+3+4,5,6+7+8+9"
-               1 — [1,2,3,[4,5,6],7,8,9], sep(+) -> "1+2+3,4,5,6,7+8+9"
       Returns:
          String — A string consisting of the elements of an array converted to strings and separated by the specified parameter.
+
+      Note: Mixing python objects with as3lib objects may not give the desired result.
       '''
-      lsep = len(sep)
-      result = ''
-      if _Array is None:
-         _Array = self
-      if interpretation == 0:
-         for i in _Array:
-            if isinstance(i, (list, tuple)):
-               result += f'{self.join(_Array=i)}{sep}'
-            elif isinstance(i, (undefined, NoneType)):
-               result += sep
-            else:
-               result += f'{i}{sep}'
-      elif interpretation == 1:
-         for i in _Array:
-            if isinstance(i, (list, tuple)):
-               if result[-lsep:] == sep:
-                  result = result[:-lsep] + ','
-               result += f'{self.join(_Array=i)},'
-            elif isinstance(i, (undefined, NoneType)):
-               result += sep
-            else:
-               result += f'{i}{sep}'
-      if result[-lsep:] == sep:
-         return result[:-lsep]
-      if result[-1:] == ',':
-         return result[:-1]
-      return result
+      return Array._join(self, sep)
 
    def lastIndexOf(self, searchElement, fromIndex: builtins.int | int = None):
       '''
@@ -403,29 +389,15 @@ class Array(list, Object):
       '''
       return self.toString()
 
-   def __listtostr(self, l):
-      with textObject() as res:
-         for i in l:
-            if isinstance(i, (list, tuple)):
-               res.write(self.__listtostr(i) + ',')
-               continue
-            if isinstance(i, (undefined, NoneType)):
-               res.write(',')
-               continue
-            res.write(f'{i},')
-         return res.get()[:-1]
-
-   def toString(self, formatLikePython: bool | Boolean = False, interpretation=1):
+   def toString(self):
       '''
       Returns a string that represents the elements in the specified array. Every element in the array, starting with index 0 and ending with the highest index, is converted to a concatenated string and separated by commas. To specify a custom separator, use the Array.join() method.
       Returns:
          String — A string of array elements.
+
+      Note: Mixing python objects with as3lib objects may not give the desired result.
       '''
-      if formatLikePython is True:
-         return super().__str__(self)
-      if interpretation == 1:
-         return self.__listtostr(self)
-      return super().__str__(self)[1:-1].replace(', ', ',')
+      return Array._join(self)
 
    def unshift(self, *args):
       '''
