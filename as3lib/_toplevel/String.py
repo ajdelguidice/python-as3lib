@@ -14,6 +14,9 @@ class String(str, Object):
    def __init2(self, value):
       super().__init__()
 
+   def __str__(self):
+      return super().__str__()
+
    @property
    def length(self):
       return len(self)

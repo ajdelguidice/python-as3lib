@@ -81,9 +81,6 @@ class Array(list, Object):
          self.append(item)
       return self
 
-   def __str__(self):
-      return self.toString()
-
    def __repr__(self):
       return f'as3lib.Array({self.toString()})'
 

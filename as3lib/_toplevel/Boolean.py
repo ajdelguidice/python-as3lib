@@ -12,9 +12,6 @@ class Boolean(Object):
    def __init__(self, expression=False):
       self._value = self._Boolean(expression)
 
-   def __str__(self):
-      return str(self._value).lower()
-
    def __repr__(self):
       return f'as3lib.Boolean({self._value})'
 

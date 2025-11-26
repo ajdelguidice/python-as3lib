@@ -2,6 +2,9 @@ class Object:
    # ActionScript3 Base object
    def __init__(self):...
 
+   def __str__(self):
+      return self.toString()
+
    def hasOwnProperty(self, name: str):...
 
    def isPrototypeOf(self, theClass):

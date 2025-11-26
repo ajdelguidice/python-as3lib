@@ -18,9 +18,6 @@ class int(Object):
    def __init__(self, value=0):
       self._value = self._int(value)
 
-   def __str__(self):
-      return f'{self._value}'
-
    def __repr__(self):
       return f'as3lib.int({self._value})'
 
