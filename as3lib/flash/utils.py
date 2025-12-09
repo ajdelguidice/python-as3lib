@@ -196,7 +196,6 @@ class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 
 class Timer(EventDispatcher):
-   # TODO: If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
    @property
    def currentCount(self):
       return self._currentCount
@@ -220,6 +219,9 @@ class Timer(EventDispatcher):
 
    @repeatCount.setter
    def repeatCount(self, number: as3.allInt):
+      # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
+      if number <= self._currentCount:
+         self.stop()
       self._repeatCount = number
 
    @property
@@ -228,13 +230,14 @@ class Timer(EventDispatcher):
 
    def _TimerTick(self):
       self._currentCount += 1
-      self.dispatchEvent(TimerEvent('timer'))
       if self.currentCount >= self.repeatCount and self.repeatCount != 0:
+         self.dispatchEvent(TimerEvent('timer'))
          self.dispatchEvent(TimerEvent('timerComplete'))
       else:
          del self._timer
          self._timer = timedExec(self.delay/1000, self._TimerTick)
          self._timer.start()
+         self.dispatchEvent(TimerEvent('timer'))
 
    def __init__(self, delay: as3.allNumber, repeatCount: as3.allInt = 0):
       super().__init__()
