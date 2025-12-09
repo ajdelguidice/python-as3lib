@@ -1,3 +1,4 @@
+from __future__ import annotations
 import as3lib as as3
 from as3lib import as3state, Error, metaclasses
 from as3lib.flash.events import EventDispatcher, TimerEvent
@@ -5,9 +6,6 @@ from datetime import datetime
 from threading import Timer as timedExec
 from miniamf import util
 from miniamf.amf3 import ByteArray as _ByteArray
-
-
-class ByteArray:...  # dummy class
 
 
 def clearInterval():...
