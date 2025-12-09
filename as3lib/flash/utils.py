@@ -8,10 +8,22 @@ from miniamf import util
 from miniamf.amf3 import ByteArray as _ByteArray
 
 
-def clearInterval():...
+def _INTERVAL_ID_GEN():
+   i = 0
+   while True:
+      yield i
+      i += 1
 
 
-def clearTimeout():...
+_NEW_INTERVAL_ID = _INTERVAL_ID_GEN()
+
+
+def clearInterval(id):
+   as3state.intervals[id].stop()
+
+
+def clearTimeout(id):
+   as3state.intervals[id].stop()
 
 
 def describeType():...
@@ -33,10 +45,46 @@ def getTimer():
    return int(util.get_timestamp(datetime.now()) * 1000) - as3state.startTime
 
 
-def setInterval():...
+class _INTERVAL_TIMER:
+   def __init__(self, delay, function, args, id):
+      self.delay = delay/1000
+      self.func = function
+      self.func_args = args
+      self.id = id
+      as3state.intervals[id] = self
+      self.start()
+
+   def _tick(self):
+      del self._timer
+      self.start()
+      self.func(*self.func_args)
+
+   def start(self):
+      self._timer = timedExec(self.delay, self._tick)
+      self._timer.start()
+
+   def stop(self):
+      self._timer.cancel()
+      del as3state.intervals[self.id]
+      
+
+def setInterval(closure: callable, delay, *arguements):
+   # Can't use the python id here because it can be over the limit of a uint
+   id = next(_NEW_INTERVAL_ID)
+   _INTERVAL_TIMER(delay, closure, arguements, id)
+   return id
 
 
-def setTimeout():...
+class _TIMEOUT_TIMER(_INTERVAL_TIMER):
+   def _tick(self):
+      self.func(*self.func_args)
+      del as3state.intervals[self.id]
+
+
+def setTimeout(closure: callable, delay, *arguements):
+   id = next(_NEW_INTERVAL_ID)
+   _TIMEOUT_TIMER(delay, closure, arguements, id)
+   return id
 
 
 def unescapeMultiByte():...
