@@ -35,12 +35,16 @@ appdatadirectory = None  # The path to the application specific data directory (
 
 # flash.display
 windows = {}  # Dictionary containing all of the defined windows (not implemented yet)
+frameRate = 30
 
 # flash.filesystem
 separator = None
 userdirectory = None
 desktopdirectory = None
 documentsdirectory = None
+
+# flash.utils
+intervals = {}  # Storage for timers set by setInterval and setTimeout
 
 # initcheck
 initdone = False  # Variable to make sure this module has initialized
