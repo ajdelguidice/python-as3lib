@@ -180,9 +180,6 @@ except Exception as e:
 
 
 __all__ = (
-   'formatToString',
-   'as3import',
-
    'true',
    'false',
    'NInfinity',
