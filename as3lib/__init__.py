@@ -154,15 +154,14 @@ from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encod
 from ._toplevel.int import int as Int
 from ._toplevel.JSON import JSON
 from ._toplevel.Math import Math
-from ._toplevel.Namespace import Namespace
 from ._toplevel.Number import Number
 from ._toplevel.Object import Object
-from ._toplevel.QName import QName
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
 from ._toplevel.trace import trace
 from ._toplevel.Types import allArray, allBoolean, allInt, allNumber, allNone, allString
 from ._toplevel.uint import uint
+from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
 
@@ -234,6 +233,8 @@ __all__ = (
    'uint',
    'unescape',
    'URIError',
+   'XML',
+   'XMLList',
    'Vector',
    'VerifyError',
    'EnableDebug',
