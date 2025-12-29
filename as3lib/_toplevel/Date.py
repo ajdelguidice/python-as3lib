@@ -1,6 +1,7 @@
+from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
-import datetime
+import datetime, time
 
 
 # Notes:
@@ -11,13 +12,22 @@ import datetime
 # Python uses 1 as January but flash uses 0, so math needs to be done here too
 #
 # Python starts the week on Monday but flash starts it on Sunday
+#
+# Python timestamps are in seconds but we need milliseconds
 
 # TODO:
-# UTC stuff
-# Timezone stuff
-# Most toString variants
+# toString variants
 # Date.parse
-# Date constructor with one argument.
+# Date constructor with string argument.
+# Date constructor with Number arguement sometimes has the wrong date. (possibly related to DST)
+# Rewrite Date to not have to store the date twice. The original implementation
+# likely only store the utc timestamp
+
+
+def _getTimezone():
+   if time.daylight:
+      return datetime.timezone(datetime.timedelta(seconds=-time.altzone),time.tzname[1])
+   return datetime.timezone(datetime.timedelta(seconds=-time.timezone),time.tzname[0])
 
 
 class Date(Object):
@@ -28,14 +38,16 @@ class Date(Object):
    @date.setter
    def date(self, value):
       self._value = self._value.replace(day=value)
+      self._sync()
 
    @property
    def dateUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.day)
 
    @dateUTC.setter
    def dateUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(day=value)
+      self._syncUTC()
 
    @property
    def day(self):
@@ -43,7 +55,7 @@ class Date(Object):
 
    @property
    def dayUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.toordinal() % 7)
 
    @property
    def fullYear(self):
@@ -52,14 +64,16 @@ class Date(Object):
    @fullYear.setter
    def fullYear(self, value):
       self._value = self._value.replace(year=value)
+      self._sync()
 
    @property
    def fullYearUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.year)
 
    @fullYearUTC.setter
    def fullYearUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(year=value)
+      self._syncUTC()
 
    @property
    def hours(self):
@@ -68,14 +82,16 @@ class Date(Object):
    @hours.setter
    def hours(self, value):
       self._value = self._value.replace(hour=value)
+      self._sync()
 
    @property
    def hoursUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.hour)
 
    @hoursUTC.setter
    def hoursUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(hour=value)
+      self._syncUTC()
 
    @property
    def milliseconds(self):
@@ -84,14 +100,16 @@ class Date(Object):
    @milliseconds.setter
    def milliseconds(self, value):
       self._value = self._value.replace(microsecond=value*1000)
+      self._sync()
 
    @property
    def millisecondsUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.microsecond / 1000)
 
    @millisecondsUTC.setter
    def millisecondsUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(microsecond=value*1000)
+      self._syncUTC()
 
    @property
    def minutes(self):
@@ -100,14 +118,16 @@ class Date(Object):
    @minutes.setter
    def minutes(self, value):
       self._value = self._value.replace(minute=value)
+      self._sync()
 
    @property
    def minutesUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.minute)
 
    @minutesUTC.setter
    def minutesUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(minute=value)
+      self._syncUTC()
 
    @property
    def month(self):
@@ -116,14 +136,16 @@ class Date(Object):
    @month.setter
    def month(self, value):
       self._value = self._value.replace(month=value+1)
+      self._sync()
 
    @property
    def monthUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.month - 1)
 
    @monthUTC.setter
    def monthUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(month=value+1)
+      self._syncUTC()
 
    @property
    def seconds(self):
@@ -132,19 +154,20 @@ class Date(Object):
    @seconds.setter
    def seconds(self, value):
       self._value = self._value.replace(second=value)
+      self._sync()
 
    @property
    def secondsUTC(self):
-      raise NotImplementedError
+      return Number(self._valueUTC.second)
 
    @secondsUTC.setter
    def secondsUTC(self, value):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(second=value)
+      self._syncUTC()
 
    @property
    def time(self):
-      # TODO: Return timestamp in utc not local time
-      return Number(self._value.timestamp() * 1000)
+      return Number(self._valueUTC.timestamp() * 1000)
 
    @time.setter
    def time(self, value):
@@ -152,21 +175,41 @@ class Date(Object):
 
    @property
    def timezoneOffset(self):
-      raise NotImplementedError
+      # TODO: Make sure this is dst aware
+      tz = self._localtz
+      seconds = tz.seconds
+      if tz.days:
+         # Special handling for when python fucks up the tz
+         # For my timezone, it does days=-1 and then adds seconds
+         seconds += tz.days * 86400
+
+      return Math.floor(seconds / 60)  # minutes
+
+   def _sync(self):
+      self._valueUTC = self._value.astimezone(datetime.timezone.utc)
+
+   def _syncUTC(self):
+      self._value = self._valueUTC.astimezone(tz=self._localtz)
 
    def __init__(self, yearOrTimevalue=None, month=None, date=1, hour=0, minute=0, second=0, millisecond=0):
+      self._localtz = _getTimezone()
       if yearOrTimevalue is None and month is None:
          # Passed no arguements. Use current date and time
-         self._value = datetime.datetime.now()
+         self._value = datetime.datetime.now(tz=self._localtz)
+         self._sync()
       elif isinstance(yearOrTimevalue, (int, float, Number)) and month is None:
          # One arguement of type Number is passed. Interpret as utc timestamp
-         raise NotImplementedError('One aruement of type Number')  # TODO
+         # TODO: _localtz is wrong here
+         self._valueUTC = datetime.datetime.fromtimestamp(yearOrTimevalue / 1000, datetime.timezone.utc)
+         self._syncUTC()
       elif isinstance(yearOrTimevalue, str) and month is None:
          # One arguement of type String is passed. Parse date string
          raise NotImplementedError('One aruement of type String')  # TODO
       else:
          # Two or more arguements are passed. Use arguements literally
+         # TODO: Figure out what timezone this should be
          self._value = datetime.datetime(yearOrTimevalue, month + 1, date, hour, minute, second, millisecond * 1000)
+         self._sync()
 
    def getDate(self):
       return self.date
@@ -228,6 +271,7 @@ class Date(Object):
 
    def setDate(self, day):
       self.date = day
+      self._sync()
       return self.milliseconds
 
    def setFullYear(self, year, month, day):
@@ -252,7 +296,9 @@ class Date(Object):
       raise NotImplementedError
 
    def setUTCDate(self, day):
-      raise NotImplementedError
+      self.dateUTC = day
+      self._syncUTC()
+      return self.milliseconds
 
    def setUTCFullYear(self, year, month, day):
       raise NotImplementedError
@@ -279,14 +325,25 @@ class Date(Object):
    def _dayName(self, date):
       return ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')[int(date)]
 
+   def _timezone(self):
+      sec = self.timezoneOffset
+      sign = '-' if sec < 0 else '+'
+      hours = Math.abs(Math.floor(sec / 60))
+      minutes = sec % 60
+      if hours == 0 and minutes == 0:
+         return 'GMT'
+      return f'GMT{sign}{hours:0<2}{minutes:0<2}'
+
    def toDateString(self):
-      raise NotImplementedError
+      # TODO: Make sure this is correct
+      return '%s %s %s %s' % (self._dayName(self.day), self._monthName(self.month), self.date, self.fullYear)
 
    def toJSON(self, k):
       return self.toString()
 
    def toLocaleDateString(self):
-      raise NotImplementedError
+      # Documentation says this returns the same as toDateString
+      return self.toDateString()
 
    def toLocaleString(self):
       raise NotImplementedError
@@ -295,16 +352,13 @@ class Date(Object):
       raise NotImplementedError
 
    def toString(self):
-      # TODO: Timezone
       return '%s %s %s %s:%s:%s %s %s' % (
-         self._dayName(self.day), self._monthName(self.month), self.date, self.hours, self.minutes, self.seconds, None, self.fullYear)
+         self._dayName(self.day), self._monthName(self.month), self.date, self.hours, self.minutes, self.seconds, self._timezone(), self.fullYear)
 
    def toTimeString(self):
-      #TODO: Timezone
-      return '%s:%s:%s %s' % (self.hours, self.minutes, self.seconds, None)
+      return '%s:%s:%s %s' % (self.hours, self.minutes, self.seconds, self._timezone())
 
    def toUTCString(self):
-      # TODO: UTCday, UTCmon
       return '%s %s %s %s:%s:%s %s UTC' % (self._dayName(self.dayUTC), self._monthName(self.monthUTC), self.dateUTC, self.hoursUTC, self.secondsUTC, self.fullYearUTC)
 
    @staticmethod
@@ -312,5 +366,4 @@ class Date(Object):
       return Number(datetime.datetime(year, month, date, hour, minute, second, millisecond * 1000, tzinfo=datetime.timezone.utc).timestamp() * 1000)
 
    def valueOf(self):
-      # TODO: This should be a utc timestamp
-      return Number(self._value.timestamp() * 1000)
+      return self.time
