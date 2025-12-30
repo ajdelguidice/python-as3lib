@@ -147,7 +147,7 @@ if not as3state.initdone:
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
 from ._toplevel.Boolean import Boolean
-from ._toplevel.Constants import true, false, undefined, null
+from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
 from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
@@ -167,6 +167,9 @@ from ._toplevel.Vector import Vector
 NaN = Number.NaN
 Infinity = Number.POSITIVE_INFINITY
 NInfinity = Number.NEGATIVE_INFINITY
+
+false = Boolean(False)
+true = Boolean(True)
 
 try:
    def adapter(func, obj, encoder):
