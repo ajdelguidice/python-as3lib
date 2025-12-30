@@ -18,7 +18,7 @@ class Vector(list, Object):
          super().__init__(sourceArray)  # !Temporary, must convert first in real implementation
       else:
          self.__superclass = superclass
-         super().__init__((null() for i in range(length)))
+         super().__init__((null for i in range(length)))
       self.fixed = fixed
 
    @property
@@ -48,7 +48,7 @@ class Vector(list, Object):
             self.pop()
       elif len(self) < value:
          while len(self) < value:
-            self.append(null())
+            self.append(null)
 
    def __repr__(self):
       return f'as3lib.Vector({self.__type}, {self})'
@@ -60,10 +60,10 @@ class Vector(list, Object):
 
    def __setitem__(self, item, value):
       if self.__superclass:
-         if isinstance(value, (self._type, null)):
+         if value is null or isinstance(value, self._type):
             super().__setitem__(item, value)
       else:
-         if isinstance(value, null) or type(value) is self._type:
+         if value is null or type(value) is self._type:
             super().__setitem__(item, value)
 
    def concat(self, *args):
@@ -109,7 +109,7 @@ class Vector(list, Object):
       if self.fixed:
          raise RangeError('insertAt can not be called on a Vector with fixed set to true.')
       elif self.__superclass:
-         if isinstance(element, (self._type, null)):...
+         if element is null or isinstance(element, self._type):...
       else:...
 
    def join(self, sep: str = ','):...
@@ -176,12 +176,12 @@ class Vector(list, Object):
       argsOK = True
       if self.__superclass:
          for i in args:
-            if not isinstance(i, (self._type, null)):
+            if i is not null or not isinstance(i, self._type):
                argsOK = False
                break
       else:
          for i in args:
-            if not (isinstance(i, null) or type(i) is self._type):
+            if i is not null or not type(i) is self._type:
                argsOK = False
                break
       if not argsOK:

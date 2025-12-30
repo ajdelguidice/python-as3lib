@@ -29,12 +29,12 @@ class Namespace(Object):
 
    @dispatch(object, object, namespace=_mdspns)
    def __init__(self, prefixValue, uriValue):
-      if prefixValue is None or isinstance(prefixValue, undefined):
-         self._prefix = undefined()
+      if prefixValue is None or prefixValue is undefined:
+         self._prefix = undefined
       elif isXMLName(prefixValue):
          self._prefix = str(prefixValue)
       else:
-         self._prefix = undefined()
+         self._prefix = undefined
       if isinstance(uriValue, QName):
          self._uri = uriValue.uri
       else:
@@ -76,18 +76,18 @@ class QName(Object):
       if isinstance(qname, QName):
          self._localName = qname.localName
          self._uri = qname.uri
-      elif isinstance(qname, undefined):
+      elif qname is undefined:
          self._localName = ''
-         self._uri = None
+         self._uri = null
       else:
          self._localName = str(qname)
-         self._uri = None
+         self._uri = null
 
    @dispatch(object, object, namespace=_mdspns)
    def __init__(self, uri, localName):
       if isinstance(uri, Namespace):
          self._uri = uri.uri
-      elif isinstance(uri, null):
+      elif uri is null:
          self._uri = null
       else:
          self._uri = str(uri)
@@ -99,12 +99,12 @@ class QName(Object):
    @dispatch(namespace=_mdspns)
    def __init__(self):
       self._localName = ''
-      self._uri = None
+      self._uri = null
 
    def toString(self):
       if self.uri == '':
          return self.localName
-      elif isinstance(self.uri, null):
+      elif self.uri is null:
          return f'*::{self.localName}'
       else:
          return f'{self.uri}::{self.localName}'

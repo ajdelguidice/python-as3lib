@@ -70,7 +70,7 @@ def parseFloat(str_: str = None):
 
 
 def parseInt(str_: str = None, radix: int | uint = 0):
-   if str_ is None or isinstance(str_, undefined):
+   if str_ is None or str_ is undefined:
       return Number.NaN
    str_ = str_.lstrip()
    zero = False

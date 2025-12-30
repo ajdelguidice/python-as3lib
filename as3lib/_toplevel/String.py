@@ -1,5 +1,4 @@
 import builtins
-from types import NoneType
 from as3lib._toplevel.Array import Array
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import undefined
@@ -16,7 +15,7 @@ class String(str, Object):
       super().__init__()
 
    def __str__(self):
-      return super().__str__()
+      return self
 
    @property
    def length(self):
@@ -71,7 +70,7 @@ class String(str, Object):
       return self[startIndex:endIndex]
 
    def split(self, delimiter=None, limit=0x7fffffff):
-      if isinstance(delimiter, (undefined, NoneType)):
+      if delimiter is undefined or delimiter is None:
          arr = Array(self)
       elif delimiter == '' or False:  # An empty string, an empty regular expression, or a regular expression that can match an empty string
          arr = Array(sourceArray=[i for i in self])
@@ -112,6 +111,9 @@ class String(str, Object):
 
    def toUpperCase(self):
       return self.upper()
+
+   def toString(self):
+      return self
 
    def valueOf(self):
       return f"{self}"

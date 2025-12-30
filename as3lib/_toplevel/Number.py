@@ -1,5 +1,4 @@
 import builtins
-from types import NoneType
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
@@ -78,9 +77,9 @@ class Number(Object):
    def _Number(self, expression):
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, (float, Number)):
          return expression
-      if expression is _NaN_value or isinstance(expression, (NoneType, undefined)):
+      if expression is _NaN_value or expression is undefined or expression is None:
          return Number.NaN
-      if isinstance(expression, null):
+      if expression is null:
          return 0.0
       if hasattr(expression, '__float__'):
          return float(expression)
