@@ -75,12 +75,12 @@ class Matrix(Object):
 
    def concat(self, m: Matrix):
       self.setTo(
-         self.a * m.a + self.c * m.b,  # + self.tx * 0.0
-         self.b * m.a + self.d * m.b,  # + self.ty * 0.0
-         self.a * m.c + self.c * m.d,  # + self.tx * 0.0
-         self.b * m.c + self.d * m.d,  # + self.ty * 0.0
-         self.a * m.tx + self.c * m.ty + self.tx,  # * 1.0
-         self.b * m.tx + self.d * m.ty + self.ty,  # * 1.0
+         m.a * self.a + m.c * self.b,
+         m.b * self.a + m.d * self.b,
+         m.a * self.c + m.c * self.d,
+         m.b * self.c + m.d * self.d,
+         m.a * self.tx + m.c * self.ty + m.tx,
+         m.b * self.tx + m.d * self.ty + m.ty,
       )
 
    # I am unsure if the copy functions using vectors are correct
@@ -109,39 +109,57 @@ class Matrix(Object):
       self.tx = sourceMatrix.tx
       self.ty = sourceMatrix.ty
 
-   def copyRowFrom(self, vector3D: Vector3D):
+   def copyRowFrom(self, row, vector3D: Vector3D):
       temp = (vector3D.x, vector3D.y, vector3D.z)
-      if column == 0:
+      if row == 0:
          self.a, self.c, self.tx = temp
-      elif column == 1:
+      elif row == 1:
          self.b, self.d, self.ty = temp
 
-   def copyRowTo(self, vector3D: Vector3D):
-      if column == 0:
+   def copyRowTo(self, row, vector3D: Vector3D):
+      if row == 0:
          vector3D.setTo(self.a, self.c, self.tx)
-      elif column == 1:
+      elif row == 1:
          vector3D.setTo(self.b, self.d, self.ty)
-      elif column == 2:
+      elif row == 2:
          vector3D.setTo(0.0, 0.0, 1.0)
 
    def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):
       # Create the matrix that would be obtained from .identity(), .rotate(), .scale(), and .transform() in succession
       # .createBox(2,2,Math.PI/4,100,100) does the same thing as .identity(), .rotate(Math.PI/4), .scale(2,2), .transform(10,20)
-      ...
+      raise NotImplementedError
 
-   def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):...
-   def deltaTransformPoint(self, point: Point) -> Point:...
+   def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):
+      raise NotImplementedError
+
+   def deltaTransformPoint(self, point: Point):
+      raise NotImplementedError
+
    def identity(self):
       self.a, self.b, self.c, self.d, self.tx, self.ty = 1, 0, 0, 1, 0, 0
 
-   def invert(self):...
+   def invert(self):
+      raise NotImplementedError
+
    def rotate(self, angle):
       c = Math.cos(angle)
       s = Math.sin(angle)
-      self.concat(Matrix(c, s, -s, c, 0, 0))
+      self.setTo(
+         c * self.a + (-s) * self.b,
+         s * self.a + c * self.b,
+         c * self.c + (-s) * self.d,
+         s * self.c + c * self.d,
+         c * self.tx + (-s) * self.ty,
+         s * self.tx + c * self.ty
+      )
 
    def scale(self, sx, sy):
-      self.concat(Matrix(sx, 0, 0, sy, 0, 0))
+      self.a *= sx
+      self.b *= sy
+      self.c *= sx
+      self.d *= sy
+      self.tx *= sx
+      self.ty *= sy
 
    def setTo(self, aa, ba, ca, da, txa, tya):
       self.a = aa
@@ -154,8 +172,12 @@ class Matrix(Object):
    def toString(self):
       return f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})'
 
-   def transformPoint(self, point: Point):...
-   def translate(self, dx, dy):...
+   def transformPoint(self, point: Point):
+      raise NotImplementedError
+
+   def translate(self, dx, dy):
+      self.tx += dx
+      self.ty += dy
 
 
 class Matrix3D:
@@ -500,7 +522,7 @@ class Vector3D(Object):
       return Vector3D(a.x - self.x, a.y - self.y, a.z - self.z)
 
    def toString(self):
-      return f'x={self.x}, y={self.y}, z={self.z}'
+      return f'Vector3D({self.x}, {self.y}, {self.z})'
 
 
 Vector3D.X_AXIS = Vector3D(x=1)
