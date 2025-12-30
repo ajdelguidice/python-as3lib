@@ -94,7 +94,7 @@ def setScreenProperties(func):
 if as3state.startTime is None:
    from datetime import datetime
    from miniamf import util
-   as3state.startTime = int(util.get_timestamp(datetime.now()) * 1000)
+   as3state.startTime = int(util.utcnow().timestamp() * 1000)
 if not as3state.initdone:
    import platform
    as3state.platform = platform.system()
@@ -113,7 +113,7 @@ if not as3state.initdone:
       elif as3state.displayserver == 'wayland':
          setScreenProperties(sm_wayland)
       else:
-         as3state.initerror.append((2, f'Linux: Display server "{as3state.windowmanagertype}" not supported.'))
+         as3state.initerror.append((2, f'Linux: Display server "{as3state.displayserver}" not supported.'))
    elif as3state.platform == 'Windows':
       setScreenProperties(sm_windows)
    elif as3state.platform == 'Darwin':
@@ -147,7 +147,7 @@ if not as3state.initdone:
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
 from ._toplevel.Boolean import Boolean
-from ._toplevel.Constants import true, false, NInfinity, Infinity, NaN, undefined, null
+from ._toplevel.Constants import true, false, undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
 from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
@@ -164,6 +164,9 @@ from ._toplevel.uint import uint
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
+NaN = Number.NaN
+Infinity = Number.POSITIVE_INFINITY
+NInfinity = Number.NEGATIVE_INFINITY
 
 try:
    def adapter(func, obj, encoder):
