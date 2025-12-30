@@ -1,7 +1,7 @@
 from as3lib import as3state
 import builtins
 from pathlib import Path, PurePath
-from as3lib._toplevel.Constants import _NaN_value, _NegInf_value, _PosInf_value, NInfinity, Infinity, NaN
+from as3lib._toplevel.Constants import _NaN_value, undefined
 from as3lib._toplevel.int import int
 from as3lib._toplevel.uint import uint
 from as3lib._toplevel.Number import Number
@@ -30,11 +30,11 @@ def escape():
 
 
 def isFinite(num):
-   return not (num in (_PosInf_value, _NegInf_value, _NaN_value) or isinstance(num, (NInfinity, Infinity, NaN)))
+   return not (num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY)
 
 
 def isNaN(num):
-   return num == _NaN_value or isinstance(num, NaN)
+   return num is _NaN_value or num is Number.NaN
 
 
 def isXMLName(str_: str):
@@ -48,21 +48,26 @@ def isXMLName(str_: str):
    return True
 
 
-def parseFloat(str_: str):
-   # !Make stop a second period
+def parseFloat(str_: str = None):
+   # TODO: Make stop at second period
+   # TODO: Parse exponents
+   if str_ is None:
+      return Number.NaN
    str_ = str_.lstrip()
    size = len(str_)
    if size == 0:
-      return NaN()
-   if str_[0].isdigit():
+      return Number.NaN
+   if str_[0].isdigit() or str_[0] in '-+':
       j = 0
       while j != size and (str_[j].isdigit() or str_[j] == "."):
          j += 1
       return Number(str_[:j])
-   return NaN()
+   return Number.NaN
 
 
-def parseInt(str_: str, radix: int | uint = 0):
+def parseInt(str_: str = None, radix: int | uint = 0):
+   if str_ is None or isinstance(str_, undefined):
+      return Number.NaN
    str_ = str_.lstrip()
    zero = False
    if len(str_) >= 2 and str_.startswith('0x'):
@@ -79,7 +84,7 @@ def parseInt(str_: str, radix: int | uint = 0):
    while j < len(str_) and str_[j] in radixchars:
       j += 1
    if j == 0:
-      return 0 if zero else NaN()
+      return 0 if zero else Number.NaN
    return int(builtins.int(str_[:j], radix))
 
 
@@ -100,16 +105,16 @@ def DisableDebug():
    as3state.as3DebugEnable = False
 
 
-def isEven(Num: builtins.int | float | int | Number | uint | NaN | Infinity | NInfinity):
-   if isinstance(Num, (NaN, Infinity, NInfinity)):
+def isEven(Num: builtins.int | float | int | Number | uint):
+   if Num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY:
       return False
    if isinstance(Num, (builtins.int, int, uint)):
       return Num % 2 == 0
    if isinstance(Num, (float, Number)):...
 
 
-def isOdd(Num: builtins.int | float | int | Number | uint | NaN | Infinity | NInfinity):
-   if isinstance(Num, (NaN, Infinity, NInfinity)):
+def isOdd(Num: builtins.int | float | int | Number | uint):
+   if Num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY:
       return False
    if isinstance(Num, (builtins.int, int, uint)):
       return Num % 2 != 0

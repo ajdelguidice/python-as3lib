@@ -1,6 +1,6 @@
 from types import NoneType
 from as3lib._toplevel.int import int
-from as3lib._toplevel.Constants import undefined, null, NaN
+from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.uint import uint
@@ -35,7 +35,7 @@ class Boolean(Object):
          return expression
       if isinstance(expression, (uint, Number)):
          return expression != 0
-      if isinstance(expression, (NaN, null, undefined, NoneType)):
+      if expression is Number.NaN or isinstance(expression, (null, undefined, NoneType)):
          return False
       if hasattr(expression, '__bool__'):
          return bool(expression)

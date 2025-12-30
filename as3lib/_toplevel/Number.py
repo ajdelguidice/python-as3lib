@@ -1,27 +1,24 @@
 import builtins
 from types import NoneType
 from as3lib._toplevel.Object import Object
-from as3lib._toplevel.Constants import NaN, null, undefined, Infinity, NInfinity
+from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
 
+
+_NaN_value = 1e300000 / -1e300000
+_NegInf_value = -1e300000
+_PosInf_value = 1e300000
 
 class Number(Object):
    __slots__ = ('_value')
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
-   NaN = NaN()
-   NEGATIVE_INFINITY = NInfinity()
-   POSITIVE_INFINITY = Infinity()
 
    def __init__(self, num=None):
       self._value = self._Number(num)
 
    def __str__(self):
-      if isinstance(self._value, (NaN, Infinity, NInfinity)):
-         return str(self._value)
-      if self._value.is_integer():
-         return f'{builtins.int(self._value)}'
-      return f'{self._value}'
+      return self.toString()
 
    def __repr__(self):
       return f'as3lib.Number({self._value})'
@@ -53,11 +50,11 @@ class Number(Object):
    def __truediv__(self, value):
       if value == 0:
          if self._value == 0:
-            return Number(NaN())
+            return Number.NaN
          if self._value > 0:
-            return Number(Infinity())
+            return Number.POSITIVE_INFINITY
          if self._value < 0:
-            return Number(NInfinity())
+            return Number.NEGATIVE_INFINITY
       try:
          return Number(self._value / float(value))
       except Exception:
@@ -72,11 +69,17 @@ class Number(Object):
    def __bool__(self):
       bool(self._value)
 
+   def __eq__(self, value):
+      return self._value == value
+
+   def __invert__(self):
+      return Number(-self._value)
+
    def _Number(self, expression):
-      if isinstance(expression, (NInfinity, Infinity, float, Number)):
+      if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, (float, Number)):
          return expression
-      if isinstance(expression, (NoneType, NaN, undefined)):
-         return NaN()
+      if expression is _NaN_value or isinstance(expression, (NoneType, undefined)):
+         return Number.NaN
       if isinstance(expression, null):
          return 0.0
       if hasattr(expression, '__float__'):
@@ -87,14 +90,27 @@ class Number(Object):
          try:
             return float(expression)
          except Exception:
-            return NaN()
+            return Number.NaN
 
    def toExponential(self):...
    def toFixed(self):...
    def toPrecision():...
 
-   def toString(self, radix=10):  # !Fix this
-      return str(self._value)
+   def toString(self, radix=10):
+      # TODO: Radix
+      if self._value is Number.NaN:
+         return 'NaN'
+      if self._value is Number.NEGATIVE_INFINITY:
+         return "-Infinity"
+      if self._value is Number.POSITIVE_INFINITY:
+         return "Infinity"
+      if self._value.is_integer():
+         return f'{int(self._value)}'
+      return f'{self._value}'
 
    def valueOf(self):
       return self._value
+
+Number.NaN = Number(_NaN_value)
+Number.NEGATIVE_INFINITY = Number(_NegInf_value)
+Number.POSITIVE_INFINITY = Number(_PosInf_value)

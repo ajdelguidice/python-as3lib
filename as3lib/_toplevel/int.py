@@ -2,7 +2,6 @@ from numpy import base_repr
 import builtins
 import math
 from as3lib._toplevel.Object import Object
-from as3lib._toplevel.Constants import NaN, Infinity, NInfinity
 from as3lib._toplevel.Errors import RangeError, TypeError
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.uint import uint
@@ -39,11 +38,11 @@ class int(Object):
    def __truediv__(self, value):
       if value == 0:
          if self._value == 0:
-            return NaN()
+            return Number.NaN
          if self._value > 0:
-            return Infinity()
+            return Number.POSITIVE_INFINITY
          if self._value < 0:
-            return NInfinity()
+            return Number.NEGATIVE_INFINITY
       try:
          return int(self._value / self._int(value))
       except Exception:
@@ -60,7 +59,7 @@ class int(Object):
 
    def _int(self, value):
       # !It is unclear if most of this is included here, most is from the Number class
-      if isinstance(value, (NaN, Infinity, NInfinity)):
+      if value is Number.NaN or value == Number.NEGATIVE_INFINITY or value == Number.POSITIVE_INFINITY:
          return value
       if isinstance(value, (builtins.int, int)):
          return value

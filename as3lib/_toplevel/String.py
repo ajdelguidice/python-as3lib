@@ -2,9 +2,10 @@ import builtins
 from types import NoneType
 from as3lib._toplevel.Array import Array
 from as3lib._toplevel.Object import Object
-from as3lib._toplevel.Constants import NaN, undefined
-from as3lib._toplevel.int import int
+from as3lib._toplevel.Constants import undefined
 from as3lib._toplevel.Functions import parseInt
+from as3lib._toplevel.int import int
+from as3lib._toplevel.Number import Number
 
 
 class String(str, Object):
@@ -26,8 +27,6 @@ class String(str, Object):
          return expression
       if isinstance(expression, bool):
          return 'true' if expression else 'false'
-      if isinstance(expression, NaN):
-         return 'NaN'
       if hasattr(expression, 'toString'):
          return expression.toString()
       return f'{expression}'
@@ -48,7 +47,7 @@ class String(str, Object):
 
    def charCodeAt(self, index: builtins.int | int = 0):
       if index < 0 or index > len(self) - 1:
-         return NaN()
+         return Number.NaN
       return parseInt(r'{:04X}'.format(ord(self[index])), 16)
 
    def concat(self, *args):
