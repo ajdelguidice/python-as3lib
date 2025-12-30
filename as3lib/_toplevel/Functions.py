@@ -1,23 +1,27 @@
 from as3lib import as3state
 import builtins
 from pathlib import Path, PurePath
-from as3lib._toplevel.Constants import _NaN_value, undefined
+from as3lib._toplevel.Constants import undefined
 from as3lib._toplevel.int import int
 from as3lib._toplevel.uint import uint
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Errors import Error
 
 
-def decodeURI():...
+def decodeURI():
+   raise NotImplementedError
 
 
-def decodeURIComponent():...
+def decodeURIComponent():
+   raise NotImplementedError
 
 
-def encodeURI():...
+def encodeURI():
+   raise NotImplementedError
 
 
-def encodeURIComponent():...
+def encodeURIComponent():
+   raise NotImplementedError
 
 
 def escape():
@@ -26,7 +30,7 @@ def escape():
    The following characters are not converted to escape sequences by the escape() function.
    0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@-_.*+/
    '''
-   ...
+   raise NotImplementedError
 
 
 def isFinite(num):
@@ -34,7 +38,7 @@ def isFinite(num):
 
 
 def isNaN(num):
-   return num is _NaN_value or num is Number.NaN
+   return num is Number.NaN._value or num is Number.NaN
 
 
 def isXMLName(str_: str):
@@ -88,7 +92,8 @@ def parseInt(str_: str = None, radix: int | uint = 0):
    return int(builtins.int(str_[:j], radix))
 
 
-def unescape():...
+def unescape():
+   raise NotImplementedError
 
 
 def EnableDebug():
