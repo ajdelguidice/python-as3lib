@@ -1,8 +1,3 @@
-_NaN_value = 1e300000 / -1e300000
-true = True
-false = False
-
-
 class undefined:
    __slots__ = ("value")
 
