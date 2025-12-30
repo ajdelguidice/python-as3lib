@@ -25,7 +25,7 @@ class Array(list, Object):
 
    def __init__(self, *args):
       if len(args) == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
-         super().__init__([undefined() for i in range(args[0])])
+         super().__init__([undefined for i in range(args[0])])
       else:
          super().__init__(args)
 
@@ -35,7 +35,7 @@ class Array(list, Object):
       else:
          try:
             value = super().__getitem__(item)
-            return value if value is not None else undefined()
+            return value if value is not None else undefined
          except Exception:
             return ''
 
@@ -62,7 +62,7 @@ class Array(list, Object):
             self.pop()
       elif len(self) < value:
          while len(self) < value:
-            self.append(undefined())
+            self.append(undefined)
 
    def __add__(self, item):
       if isinstance(item, (list, tuple)):
@@ -163,7 +163,7 @@ class Array(list, Object):
 
    @staticmethod
    def _join(o, sep=None):
-      if sep is None or isinstance(sep, undefined):
+      if sep is None or sep is undefined:
          s = ','
       elif hasattr(sep, 'toString'):
          s = sep.toString()

@@ -1,4 +1,4 @@
-class undefined:
+class _undefined:
    __slots__ = ("value")
 
    def __init__(self):
@@ -11,7 +11,7 @@ class undefined:
       return "as3lib.undefined"
 
 
-class null:
+class _null:
    __slots__ = ("value")
 
    def __init__(self):
@@ -22,3 +22,6 @@ class null:
 
    def __repr__(self):
       return "as3lib.null"
+
+undefined = _undefined()
+null = _null()
