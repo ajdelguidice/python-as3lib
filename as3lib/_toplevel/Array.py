@@ -14,7 +14,8 @@ from as3lib._toplevel.trace import trace
 
 
 class Array(list, Object):
-   # !Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
+   # TODO: Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
+   # NOTE: Actionscript arrays seem to function like a python dictionary which can only uses ints as keys
    __slots__ = ('filler')
    CASEINSENSITIVE = 1
    DESCENDING = 2
@@ -22,17 +23,11 @@ class Array(list, Object):
    RETURNINDEXEDARRAY = 8
    NUMERIC = 16
 
-   def __init__(self, *args, numElements: builtins.int | int = None, sourceArray: list | tuple = None):
-      self.filler = undefined()
-      if sourceArray is not None:
-         super().__init__(sourceArray)
-      elif numElements is None:
-         super().__init__(args)
+   def __init__(self, *args):
+      if len(args) == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
+         super().__init__([undefined() for i in range(args[0])])
       else:
-         if numElements < 0:
-            raise RangeError(f'Array; numElements can not be less than 0. numElements is {numElements}')
-         else:
-            super().__init__([self.filler for i in range(numElements)])
+         super().__init__(args)
 
    def __getitem__(self, item):
       if isinstance(item, slice):
@@ -67,7 +62,7 @@ class Array(list, Object):
             self.pop()
       elif len(self) < value:
          while len(self) < value:
-            self.append(self.filler)
+            self.append(undefined())
 
    def __add__(self, item):
       if isinstance(item, (list, tuple)):
@@ -83,9 +78,6 @@ class Array(list, Object):
 
    def __repr__(self):
       return f'as3lib.Array({self.toString()})'
-
-   def setFiller(self, newFiller):
-      self.filler = newFiller
 
    def concat(self, *args):
       '''
