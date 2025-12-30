@@ -97,9 +97,13 @@ class Array(list, Object):
       '''
       if len(args) == 0:
          return Array(*self)
-      if len(args) == 1 and isinstance(args[0], (list, tuple)):  # !check whether this should be "if any element is array" or if it is only one
-         return self+list(args[0])
-      return self+list(args)
+      l = []
+      for i in args:
+         if isinstance(i, (list, tuple)):
+            l.extend(i)
+         else:
+            l.append(i)
+      return self+l
 
    def every(self, callback: callable):
       '''
@@ -167,7 +171,12 @@ class Array(list, Object):
 
    @staticmethod
    def _join(o, sep=None):
-      s = ',' if sep == None else sep
+      if sep is None or isinstance(sep, undefined):
+         s = ','
+      elif hasattr(sep, 'toString'):
+         s = sep.toString()
+      else:
+         s = str(sep)
       with textObject() as out:
          n = o.length
          for i in range(n):
