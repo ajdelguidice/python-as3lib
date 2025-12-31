@@ -63,6 +63,8 @@ def parseFloat(str_: str = None):
       return Number.NaN
    if str_[0].isdigit() or str_[0] in '-+':
       j = 0
+      while str_[j] in '-+':
+         j += 1
       while j != size and (str_[j].isdigit() or str_[j] == "."):
          j += 1
       return Number(str_[:j])
