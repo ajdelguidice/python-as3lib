@@ -71,6 +71,12 @@ class Number(Object):
    def __eq__(self, value):
       return self._value == value
 
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
    def __invert__(self):
       return Number(-self._value)
 
@@ -97,11 +103,11 @@ class Number(Object):
 
    def toString(self, radix=10):
       # TODO: Radix
-      if self._value is Number.NaN:
+      if self._value is _NaN_value:
          return 'NaN'
-      if self._value is Number.NEGATIVE_INFINITY:
+      if self._value == _NegInf_value:
          return "-Infinity"
-      if self._value is Number.POSITIVE_INFINITY:
+      if self._value == _PosInf_value:
          return "Infinity"
       if self._value.is_integer():
          return f'{int(self._value)}'
