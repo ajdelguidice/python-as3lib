@@ -176,7 +176,7 @@ class Date(Object):
    @property
    def timezoneOffset(self):
       # TODO: Make sure this is dst aware
-      tz = self._localtz
+      tz = self._value.utcoffset()
       seconds = tz.seconds
       if tz.days:
          # Special handling for when python fucks up the tz
@@ -192,6 +192,8 @@ class Date(Object):
       self._value = self._valueUTC.astimezone(tz=self._localtz)
 
    def __init__(self, yearOrTimevalue=None, month=None, date=1, hour=0, minute=0, second=0, millisecond=0):
+      # TODO: When NaN is passed as the first arguement, all values should be set to NaN
+      #       When a value is set after this, all other values become the default
       self._localtz = _getTimezone()
       if yearOrTimevalue is None and month is None:
          # Passed no arguements. Use current date and time
@@ -208,7 +210,7 @@ class Date(Object):
       else:
          # Two or more arguements are passed. Use arguements literally
          # TODO: Figure out what timezone this should be
-         self._value = datetime.datetime(yearOrTimevalue, month + 1, date, hour, minute, second, millisecond * 1000)
+         self._value = datetime.datetime(yearOrTimevalue, month + 1, date, hour, minute, second, millisecond * 1000, tzinfo=self._localtz)
          self._sync()
 
    def getDate(self):
@@ -332,7 +334,10 @@ class Date(Object):
       minutes = sec % 60
       if hours == 0 and minutes == 0:
          return 'GMT'
-      return f'GMT{sign}{hours:0<2}{minutes:0<2}'
+      return f'GMT{sign}{hours:0>2}{minutes:0>2}'
+
+   def _time(self, HH, MM, SS):
+      return f'{int(HH):0>2}:{int(MM):0>2}:{int(SS):0>2}'
 
    def toDateString(self):
       # TODO: Make sure this is correct
@@ -352,14 +357,14 @@ class Date(Object):
       raise NotImplementedError
 
    def toString(self):
-      return '%s %s %s %s:%s:%s %s %s' % (
-         self._dayName(self.day), self._monthName(self.month), self.date, self.hours, self.minutes, self.seconds, self._timezone(), self.fullYear)
+      return '%s %s %s %s %s %s' % (
+         self._dayName(self.day), self._monthName(self.month), self.date, self._time(self.hours, self.minutes, self.seconds), self._timezone(), self.fullYear)
 
    def toTimeString(self):
-      return '%s:%s:%s %s' % (self.hours, self.minutes, self.seconds, self._timezone())
+      return '%s %s' % (self._time(self.hours, self.minutes, self.seconds), self._timezone())
 
    def toUTCString(self):
-      return '%s %s %s %s:%s:%s %s UTC' % (self._dayName(self.dayUTC), self._monthName(self.monthUTC), self.dateUTC, self.hoursUTC, self.secondsUTC, self.fullYearUTC)
+      return '%s %s %s %s %s UTC' % (self._dayName(self.dayUTC), self._monthName(self.monthUTC), self.dateUTC, self._time(self.hoursUTC, self.minutesUTC, self.secondsUTC), self.fullYearUTC)
 
    @staticmethod
    def UTC(year, month, date=1, hour=0, minute=0, second=0, millisecond=0):
