@@ -4,7 +4,7 @@ from inspect import isfunction
 from types import NoneType
 from as3lib.helpers import textObject, recursionDepth
 from as3lib._toplevel.int import int
-from as3lib._toplevel.Constants import undefined
+from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import RangeError, Error
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Boolean import Boolean
@@ -173,7 +173,7 @@ class Array(list, Object):
          n = o.length
          for i in range(n):
             x = o[i]
-            if x != None:
+            if x is not None and x is not undefined and x is not null:
                out += str(x)
             if i + 1 < n:
                out += s
