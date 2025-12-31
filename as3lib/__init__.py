@@ -152,6 +152,7 @@ from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
 from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
 from ._toplevel.int import int as Int
+from ._toplevel.int import uint
 from ._toplevel.JSON import JSON
 from ._toplevel.Math import Math
 from ._toplevel.Number import Number
@@ -160,7 +161,6 @@ from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
 from ._toplevel.trace import trace
 from ._toplevel.Types import allArray, allBoolean, allInt, allNumber, allNone, allString
-from ._toplevel.uint import uint
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 

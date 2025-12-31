@@ -1,15 +1,17 @@
+from __future__ import annotations
 from numpy import base_repr
 import builtins
 import math
-from as3lib._toplevel.Object import Object
+from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import RangeError, TypeError
 from as3lib._toplevel.Number import Number
-from as3lib._toplevel.uint import uint
+from as3lib._toplevel.Object import Object
 
 
 class int(Object):
-   # !Make this return a Number if the result is a float
-   # !Implement checks for max and min value
+   # TODO: Make this return a Number if the result is a float
+   # TODO: Implement checks for max and min value
+   # TODO: Fix int conversion
    __slots__ = ('_value')
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
@@ -36,6 +38,7 @@ class int(Object):
       return int(self._value * self._int(value))
 
    def __truediv__(self, value):
+      value = self._int(value)
       if value == 0:
          if self._value == 0:
             return Number.NaN
@@ -44,7 +47,7 @@ class int(Object):
          if self._value < 0:
             return Number.NEGATIVE_INFINITY
       try:
-         return int(self._value / self._int(value))
+         return int(self._value / value)
       except Exception:
          raise TypeError(f'Can not divide int by {type(value)}')
 
@@ -57,19 +60,43 @@ class int(Object):
    def __bool__(self):
       return bool(self._value)
 
+   def __eq__(self, value):
+      return self._value == value
+
+   @staticmethod
+   def _upperBounds(value):
+      v = int.MIN_VALUE + value
+      if value > int.MAX_VALUE:
+         v = int._upperBounds(v)
+      return v
+
+   @staticmethod
+   def _lowerBounds(value):
+      v = int.MAX_VALUE + value
+      if value < int.MIN_VALUE:
+         v = int._lowerBounds(v)
+      return v
+
+   @staticmethod
+   def _boundsCheck(value):
+      if value < int.MIN_VALUE:
+         return int._lowerBounds(value)
+      if value > int.MAX_VALUE:
+         return int._upperBounds(value)
+      return value
+
    def _int(self, value):
       # !It is unclear if most of this is included here, most is from the Number class
-      if value is Number.NaN or value == Number.NEGATIVE_INFINITY or value == Number.POSITIVE_INFINITY:
-         return value
+      if value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         return 0
       if isinstance(value, (builtins.int, int)):
-         return value
+         return self._boundsCheck(value)
       if isinstance(value, (float, Number)):
-         return math.floor(value)
+         return self._boundsCheck(math.floor(value))
       if isinstance(value, str):
-         try:
-            return builtins.int(value)
-         except Exception:
-            raise TypeError(f'Can not convert string {value} to integer')
+         return 0
+      if hasattr(value, '__int__'):
+         return value.__int__()
       raise TypeError(f'Can not convert type {type(value)} to integer')
 
    def toExponential(self, fractionDigits: builtins.int | int):
@@ -113,6 +140,69 @@ class int(Object):
    def toString(self, radix: builtins.int | int | uint = 10):
       if radix <= 36 and radix >= 2:
          return base_repr(self._value, base=radix)
+
+   def valueOf(self):
+      return self._value
+
+
+class uint(Object):
+   MAX_VALUE = 4294967295
+   MIN_VALUE = 0
+
+   @staticmethod
+   def _upperBounds(value):
+      v = uint.MIN_VALUE + value
+      if value > uint.MAX_VALUE:
+         v = uint._upperBounds(v)
+      return v
+
+   @staticmethod
+   def _lowerBounds(value):
+      v = uint.MAX_VALUE + value
+      if value < uint.MIN_VALUE:
+         v = uint._lowerBounds(v)
+      return v
+
+   @staticmethod
+   def _boundsCheck(value):
+      if value < uint.MIN_VALUE:
+         return uint._lowerBounds(value)
+      if value > uint.MAX_VALUE:
+         return uint._upperBounds(value)
+      return value
+
+   def __init__(self, value=undefined):
+      if value is undefined or value is null or value is Number.NaN:
+         self._value = 0
+      elif isinstance(value, str):
+         raise
+      elif isinstance(value, (Number, float)):
+         self._value = uint._boundsCheck(Math.floor(value))
+      elif isinstance(value, (builtins.int, uint, int)):
+         self._value = uint._boundsCheck(value)
+      else:
+         raise
+
+   def __str__(self):
+      return self.toString()
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def toExponential(self, fracionDigits):
+      raise NotImplementedError
+
+   def toFixed(self, fracionDigits):
+      raise NotImplementedError
+
+   def toPrecision(self, precision):
+      raise NotImplementedError
+
+   def toString(self, radix=10):
+      if radix != 10:
+         raise NotImplementedError
+
+      return str(self._value)
 
    def valueOf(self):
       return self._value
