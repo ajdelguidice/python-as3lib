@@ -1,5 +1,6 @@
 import math
 import random
+from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 
 
@@ -55,11 +56,11 @@ class Math(Object):
 
    @staticmethod
    def max(*values):
-      return values[0] if len(values) == 1 else max(values)
+      return max(values + (Number.NEGATIVE_INFINITY,))
 
    @staticmethod
    def min(*values):
-      return values[0] if len(values) == 1 else min(values)
+      return min(values + (Number.POSITIVE_INFINITY,))
 
    @staticmethod
    def pow(base, power):
