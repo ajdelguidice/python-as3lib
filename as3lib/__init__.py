@@ -80,7 +80,7 @@ def sm_windows():
 
 def sm_darwin():
    as3state.initerror.append((1, 'Darwin: Fetching screen properties is not implemented.'))
-   raise NotImplementedError('Fetching screen properties on Darwin')
+   return 1600, 900, 60.0, 16  # Placeholder
 
 
 def setScreenProperties(func):
@@ -89,6 +89,7 @@ def setScreenProperties(func):
    except:
       temp = (1600, 900, 60.0, 16)
    as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = temp
+
 
 # Initialise as3lib
 if as3state.startTime is None:
@@ -122,6 +123,11 @@ if not as3state.initdone:
       as3state.initerror.append((4, 'Detected platform is blank. Something is very wrong.'))
    else:
       as3state.initerror.append((0, f'Current platform {as3state.platform} not supported.'))
+
+   # Ensure that at least something is loaded if values fail to load
+   # This is a fix for the case where platform is not valid AND the display config values are missing
+   if None in {as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth}:
+      setScreenProperties(None)
 
    # Load the config
    config.Load()
