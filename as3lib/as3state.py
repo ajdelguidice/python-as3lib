@@ -32,6 +32,7 @@ CurrentWarnings = 0  # Current number of warnings
 MaxWarningsReached = False  # If the maximum number of warnings has been reached
 defaultTraceFilePath_Flash = None  # Default file path for trace output in flash
 appdatadirectory = None  # The path to the application specific data directory (must be set by the application, should not be set by other libraries)
+prototypes = {}  # Each class needs a global default instance of itself. Store it here
 
 # flash.display
 windows = {}  # Dictionary containing all of the defined windows (not implemented yet)
