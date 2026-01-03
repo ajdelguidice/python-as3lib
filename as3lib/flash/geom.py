@@ -4,7 +4,99 @@ from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
 
-class ColorTransform:...
+class ColorTransform(Object):
+   @property
+   def alphaMultiplier(self):
+      return self._alphaM
+
+   @alphaMultiplier.setter
+   def alphaMultiplier(self, value):
+      self._alphaM = value
+
+   @property
+   def alphaOffset(self):
+      return self._alphaO
+
+   @alphaOffset.setter
+   def alphaOffset(self, value):
+      self._alphaO = value
+
+   @property
+   def blueMultiplier(self):
+      return self._blueM
+
+   @blueMultiplier.setter
+   def blueMultiplier(self, value):
+      self._blueM = value
+
+   @property
+   def blueOffset(self):
+      return self._blueO
+
+   @blueOffset.setter
+   def blueOffset(self, value):
+      self._blueO = value
+
+   @property
+   def color(self):
+      return self.redOffset << 16 | self.greenOffset << 8 | self.blueOffset
+
+   @color.setter
+   def color(self, value):
+      self.redMultiplier = 0
+      self.greenMultiplier = 0
+      self.blueMultiplier = 0
+      self.redOffset = (value >> 16) & 0xFF
+      self.greenOffset = (value >> 8) & 0xFF
+      self.blueOffset = value & 0xFF
+
+   @property
+   def greenMultiplier(self):
+      return self._greenM
+
+   @greenMultiplier.setter
+   def greenMultiplier(self, value):
+      self._greenM = value
+
+   @property
+   def greenOffset(self):
+      return self._greenO
+
+   @greenOffset.setter
+   def greenOffset(self, value):
+      self._greenO = value
+
+   @property
+   def redMultiplier(self):
+      return self._redM
+
+   @redMultiplier.setter
+   def redMultiplier(self, value):
+      self._redM = value
+
+   @property
+   def redOffset(self):
+      return self._redO
+
+   @redOffset.setter
+   def redOffset(self, value):
+      self._redO = value
+
+   def __init__(self, redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0, redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):
+      self._redM = redMultiplier
+      self._redO = redOffset
+      self._greenM = greenMultiplier
+      self._greenO = greenOffset
+      self._blueM = blueMultiplier
+      self._blueO = blueOffset
+      self._alphaM = alphaMultiplier
+      self._alphaO = alphaOffset
+
+   def concat(self, second: ColorTransform):
+      raise NotImplementedError
+
+   def toString(self):
+      return 'redMultiplier=%s, redOffset=%s, greenMultiplier=%s, greenOffset=%s, blueMultiplier=%s, blueOffset=%s, alphaMultiplier=%s, alphaOffset=%s)' % (self._redM, self._redO, self._greenM, self._greenO, self._blueM, self._blueO, self._alphaM, self._alphaO)
 
 
 class Matrix(Object):
