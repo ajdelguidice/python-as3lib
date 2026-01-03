@@ -48,4 +48,4 @@ env_list = ["py3"]
 [tool.tox.env_run_base]
 runner = "uv-venv-runner"
 deps = ["flake8"]
-commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles"]]
+commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles,as3lib/flash","--indent-size","3","--ignore","E501,E226"], ["python","-m","unittest","discover","as3lib/tests"]]
