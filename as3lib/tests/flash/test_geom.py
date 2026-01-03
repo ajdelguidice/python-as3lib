@@ -1,6 +1,7 @@
+import as3lib
 from as3lib import Math
 from as3lib.flash.geom import Matrix, Point, Vector3D
-from as3lib.tests import as3libTestCase, TestNotImplemented
+from as3lib.tests import as3libTestCase
 
 
 class GeomTestsBase(as3libTestCase):
@@ -22,6 +23,19 @@ class GeomTestsBase(as3libTestCase):
       self.assertEqual(vector.z, z)
       if w is not None:
          self.assertEqual(vector.w, w)
+
+   def assertVector3DNaN(self, vector, w=None):
+      self.assertNaNExact(vector.x)
+      self.assertNaNExact(vector.y)
+      self.assertNaNExact(vector.z)
+      if w is not None:
+         if w is as3lib.NaN:
+            self.assertNaNExact(vector.w)
+         else:
+            self.assertEqual(vector.w, w)
+
+
+class ColorTransformTests(GeomTestsBase):...
 
 
 class MatrixTests(GeomTestsBase):
@@ -197,7 +211,6 @@ class MatrixTests(GeomTestsBase):
 
       matrix.copyRowFrom(3, vector)
       self.assertMatrix(matrix, 17, 17, 19, 19, 23, 23)
-
 
    def test_copycolumnfrom(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
@@ -610,3 +623,535 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.matrix)
       result.concat(self.translate)
       self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 30, 38)
+
+
+class Matrix3DTests(GeomTestsBase):...
+class PerspectiveProjectionTests(GeomTestsBase):...
+
+
+class PointTests(GeomTestsBase):
+   def test_constructor(self):
+      p = Point()
+      self.assertPoint(p, 0, 0)
+
+      p = Point(1)
+      self.assertPoint(p, 1, 0)
+
+      p = Point(1, 2)
+      self.assertPoint(p, 1, 2)
+
+      p = Point(as3lib.Object(), 2)
+      self.assertPoint(p, as3lib.NaN, 2)
+
+   def test_add(self):
+      p = Point()
+      self.assertPoint(p.add(Point(1, 2)), 1, 2)
+      self.assertPoint(p, 0, 0)
+
+   def test_subtract(self):
+      p = Point()
+      self.assertPoint(p.subtract(Point(1, 2)), -1, -2)
+      self.assertPoint(p, 0, 0)
+
+   def test_distance(self):
+      d = Point.distance(Point(), Point())
+      self.assertEqual(d, 0)
+
+      d = Point.distance(Point(-100, 200), Point(100, 200))
+      self.assertEqual(d, 200)
+
+   def test_equals(self):
+      p = Point()
+      self.assertFalse(p.equals(Point(1, 2)))
+      self.assertTrue(p.equals(p))
+      self.assertPoint(p, 0, 0)
+
+   def test_clone(self):
+      p = Point(1, 2)
+      clone = p.clone()
+      self.assertPoint(p, 1, 2)
+      self.assertPoint(clone, 1, 2)
+
+      self.assertIsNot(p, clone)
+      self.assertTrue(p.equals(clone))
+
+   def test_interpolate(self):
+      p1 = Point(-100, -200)
+      p2 = Point(100, 200)
+
+      self.assertPoint(Point.interpolate(p1, p2, -1), 300, 600)
+      self.assertPoint(Point.interpolate(p1, p2, 0), 100, 200)
+      self.assertPoint(Point.interpolate(p1, p2, 0.5), 0, 0)
+      self.assertPoint(Point.interpolate(p1, p2, 1), -100, -200)
+      self.assertPoint(Point.interpolate(p1, p2, 2), -300, -600)
+
+   def test_length(self):
+      self.assertEqual(Point().length, 0)
+      self.assertEqual(Point(100, 0).length, 100)
+      self.assertEqual(Point(0, -200).length, 200)
+
+   def test_normalize(self):
+      p = Point()
+      p.normalize(10)
+      self.assertPoint(p, 0, 0)
+
+      p = Point()
+      p.normalize(-5)
+      self.assertPoint(p, 0, 0)
+
+      p = Point(100, 200)
+      p.normalize(10)
+      self.assertPoint(p, 4.47213595499958, 8.94427190999916)
+
+      p = Point(100, 200)
+      p.normalize(-5)
+      self.assertPoint(p, -2.23606797749979, -4.47213595499958)
+
+      p = Point(-200, 100)
+      p.normalize(10)
+      self.assertPoint(p, -8.94427190999916, 4.47213595499958)
+
+      p = Point(-200, 100)
+      p.normalize(-5)
+      self.assertPoint(p, 4.47213595499958, -2.23606797749979)
+
+      p = Point(as3lib.undefined, 100)
+      p.normalize(1)
+      self.assertPoint(p, as3lib.NaN, 100)
+
+      p = Point(100, as3lib.null)
+      p.normalize(1)
+      self.assertPoint(p, 1, 0)
+
+   def test_offset(self):
+      p = Point()
+      self.assertPoint(p, 0, 0)
+
+      p.offset(100, 200)
+      self.assertPoint(p, 100, 200)
+
+      p.offset(-1000, -2000)
+      self.assertPoint(p, -900, -1800)
+
+   def test_polar(self):
+      self.assertPoint(Point.polar(5, Math.atan(3/4)), 4, 3)
+      self.assertPoint(Point.polar(0, Math.atan(3/4)), 0, 0)
+
+   def test_toString(self):
+      p = Point()
+      self.assertEqual(p.toString(), '(x=0, y=0)')
+
+
+class RectangleTests(GeomTestsBase):...
+class TransformTests(GeomTestsBase):...
+class Utils3DTests(GeomTestsBase):...
+
+
+class Vector3DTests(GeomTestsBase):
+   mp = Math.pow(10, 12)
+
+   def roundNumber(self, x):  # Originally called r
+      return Math.round(x * self.mp) / self.mp
+
+   def roundVector(self, v):  # Originally called rv
+      return Vector3D(self.roundNumber(v.x), self.roundNumber(v.y), self.roundNumber(v.z), self.roundNumber(v.w))
+
+   def test_constructor(self):
+      v = Vector3D()
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+      v = Vector3D(1)
+      self.assertVector3D(v, 1, 0, 0, 0)
+
+      v = Vector3D(1, 2)
+      self.assertVector3D(v, 1, 2, 0, 0)
+
+      v = Vector3D(1, 2, 3)
+      self.assertVector3D(v, 1, 2, 3, 0)
+
+      v = Vector3D(1, 2, 3, 4)
+      self.assertVector3D(v, 1, 2, 3, 4)
+
+      v = Vector3D(as3lib.Object(), 2)
+      self.assertNaNExact(v.x)
+      self.assertEqual(v.y, 2)
+      self.assertEqual(v.z, 0)
+      self.assertEqual(v.w, 0)
+
+   def test_toString(self):
+      v = Vector3D()
+      self.assertEqual(v.toString(), '(x=0, y=0, z=0)')
+
+      v = Vector3D(1)
+      self.assertEqual(v.toString(), '(x=1, y=0, z=0)')
+
+      v = Vector3D(1, 2)
+      self.assertEqual(v.toString(), '(x=1, y=2, z=0)')
+
+      v = Vector3D(1, 2, 3)
+      self.assertEqual(v.toString(), '(x=1, y=2, z=3)')
+
+      v = Vector3D(1, 2, 3, 4)
+      self.assertEqual(v.toString(), '(x=1, y=2, z=3)')
+
+   def test_constants(self):
+      self.assertVector3D(Vector3D.X_AXIS, 1, 0, 0, 0)
+      self.assertVector3D(Vector3D.Y_AXIS, 0, 1, 0, 0)
+      self.assertVector3D(Vector3D.Z_AXIS, 0, 0, 1, 0)
+
+   def test_copyFrom(self):
+      v = Vector3D(1, 2, 3, 4)
+      v.copyFrom(Vector3D())
+      self.assertVector3D(v, 0, 0, 0, 4)
+
+      v = Vector3D()
+      v.copyFrom(Vector3D(4, 5, 6, 7))
+      self.assertVector3D(v, 4, 5, 6, 0)
+
+      v = Vector3D(1, 2, 3, 4)
+      v.copyFrom(Vector3D(4, 5, 6, 7))
+      self.assertVector3D(v, 4, 5, 6, 4)
+
+   def test_setTo(self):
+      v = Vector3D()
+      v.setTo(6, 7, 8)
+      self.assertVector3D(v, 6, 7, 8, 0)
+
+      v = Vector3D(1, 2, 3, 4)
+      v.setTo(6, 7, 8)
+      self.assertVector3D(v, 6, 7, 8, 4)
+
+   def test_add(self):
+      v1 = Vector3D()
+      v2 = v1.add(Vector3D(1, 2, 3, 4))
+      self.assertVector3D(v2, 1, 2, 3, 0)
+      self.assertVector3D(v1, 0, 0, 0, 0)
+
+      v1 = Vector3D(5, 6, 8, 9)
+      v2 = v1.add(Vector3D())
+      self.assertVector3D(v2, 5, 6, 8, 0)
+
+      v1 = Vector3D(6, -7, 8, -9)
+      v2 = v1.add(Vector3D(-10, 20, -30, 40))
+      self.assertVector3D(v2, -4, 13, -22, 0)
+
+   def test_subtract(self):
+      v1 = Vector3D()
+      v2 = v1.subtract(Vector3D(1, 2, 3, 4))
+      self.assertVector3D(v2, -1, -2, -3, 0)
+      self.assertVector3D(v1, 0, 0, 0, 0)
+
+      v1 = Vector3D(5, 6, 8, 9)
+      v2 = v1.subtract(Vector3D())
+      self.assertVector3D(v2, 5, 6, 8, 0)
+
+      v1 = Vector3D(6, -7, 8, -9)
+      v2 = v1.subtract(Vector3D(-10, 20, -30, 40))
+      self.assertVector3D(v2, 16, -27, 38, 0)
+
+   def test_incrementBy(self):
+      v = Vector3D()
+      v.incrementBy(Vector3D())
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+      v = Vector3D()
+      v.incrementBy(Vector3D(1, 2, -3, 4))
+      self.assertVector3D(v, 1, 2, -3, 0)
+
+      v = Vector3D(3, -4, 5, 6)
+      v.incrementBy(Vector3D(1, 2, -3, 4))
+      self.assertVector3D(v, 4, -2, 2, 6)
+
+   def test_decrementBy(self):
+      v = Vector3D()
+      v.decrementBy(Vector3D())
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+      v = Vector3D()
+      v.decrementBy(Vector3D(1, 2, -3, 4))
+      self.assertVector3D(v, -1, -2, 3, 0)
+
+      v = Vector3D(3, -4, 5, 6)
+      v.decrementBy(Vector3D(1, 2, -3, 4))
+      self.assertVector3D(v, 2, -6, 8, 6)
+
+   def test_scaleBy(self):
+      v = Vector3D(2, -4, 0, 5)
+      v.scaleBy(10)
+      self.assertVector3D(v, 20, -40, 0, 5)
+
+      v = Vector3D(2, -4, 0, 5)
+      v.scaleBy(-0.5)
+      self.assertVector3D(v, -1, 2, 0, 5)
+
+      v = Vector3D(2, -4, 0, 5)
+      v.scaleBy(0)
+      self.assertVector3D(v, 0, 0, 0, 5)
+
+      v = Vector3D(2, -4, 0, 5)
+      v.scaleBy(1)
+      self.assertVector3D(v, 2, -4, 0, 5)
+
+      # TODO: Check this. It looks wrong
+      v = Vector3D(2, -4, 0, 5)
+      v.scaleBy(100)
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+   def test_negate(self):
+      v = Vector3D(2, -4, 0)
+      v.negate()
+      self.assertVector3D(v, -2, 4, 0, 0)
+
+      v = Vector3D(2, -4, 0, 5)
+      v.negate()
+      self.assertVector3D(v, -2, 4, 0, 5)
+
+      v = Vector3D()
+      v.negate()
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+   def test_distance(self):
+      d = Vector3D.distance(Vector3D(), Vector3D())
+      self.assertEqual(d, 0)
+
+      d = Vector3D.distance(Vector3D(-100, 200, 300, -400), Vector3D(100, 200, 300, -400))
+      self.assertEqual(d, 200)
+
+      d = Vector3D.distance(Vector3D(-100, 200, 300, -400), Vector3D(-102, 210, 311, -420))
+      self.assertEqual(d, 15)
+
+   def test_equals(self):
+      v = Vector3D()
+      self.assertFalse(v.equals(Vector3D(1, 2, 3, 4)))
+
+      self.assertTrue(v.equals(v))
+
+      self.assertTrue(Vector3D(1, 2, 3).equals(Vector3D(1, 2, 3, 4)))
+
+   def test_nearEquals(self):
+      # allFour=False
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 0, False)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 1, False)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 10, False)
+      self.assertTrue(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 0, False)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 1, False)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 10, False)
+      self.assertTrue(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 350, 400), 10, False)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 350, 400), 100, False)
+      self.assertTrue(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 450), 10, False)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 450), 100, False)
+      self.assertTrue(n)
+
+      # allFour=True
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 0, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 1, True)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300).nearEquals(Vector3D(100, 200, 300), 10, True)
+      self.assertTrue(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 0, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 1, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 400), 10, True)
+      self.assertFalse(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 350, 400), 10, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 350, 400), 100, True)
+      self.assertFalse(n)
+
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 450), 10, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 400).nearEquals(Vector3D(100, 200, 300, 450), 100, True)
+      self.assertFalse(n)
+
+      # Buggy with allFour=True
+      n = Vector3D(100, 200, 300, 10).nearEquals(Vector3D(100, 200, 300, 20), 100, True)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300, 210).nearEquals(Vector3D(100, 200, 300, 220), 100, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 0).nearEquals(Vector3D(100, 200, 300, 200), 100, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, 200).nearEquals(Vector3D(100, 200, 300, 0), 100, True)
+      self.assertTrue(n)
+      n = Vector3D(100, 200, 300, 0).nearEquals(Vector3D(100, 200, 300, -200), 100, True)
+      self.assertFalse(n)
+      n = Vector3D(100, 200, 300, -200).nearEquals(Vector3D(100, 200, 300, 0), 100, True)
+      self.assertTrue(n)
+
+   def test_clone(self):
+      v = Vector3D(1, 2, 3, 4)
+      clone = v.clone()
+
+      self.assertVector3D(v, 1, 2, 3, 4)
+      self.assertVector3D(clone, 1, 2, 3, 4)
+      self.assertIsNot(v, clone)
+      self.assertTrue(v.equals(clone))
+
+   def test_length(self):
+      self.assertEqual(Vector3D().length, 0)
+      self.assertEqual(Vector3D(100, 0).length, 100)
+      self.assertEqual(Vector3D(2, -10, 11, -20).length, 15)
+
+   def test_lengthSquared(self):
+      self.assertEqual(Vector3D().lengthSquared, 0)
+      self.assertEqual(Vector3D(100, 0).lengthSquared, 10000)
+      self.assertEqual(Vector3D(100, -200, 300, -400).lengthSquared, 140000)
+
+   def test_normalize(self):
+      v = Vector3D()
+      n = v.normalize()
+      self.assertEqual(n, 0)
+      self.assertVector3D(v, 0, 0, 0, 0)
+
+      v = Vector3D(30, 40)
+      n = v.normalize()
+      self.assertEqual(n, 50)
+      self.assertVector3D(v, 0.6, 0.8, 0, 0)
+
+      v = Vector3D(-9, 12, 20)
+      n = v.normalize()
+      self.assertEqual(n, 25)
+      self.assertVector3D(v, -0.36, 0.48, 0.8, 0)
+
+      v = Vector3D(-9, 12, 20, -100)
+      n = v.normalize()
+      self.assertEqual(n, 25)
+      self.assertVector3D(v, -0.36, 0.48, 0.8, -100)
+
+      v = Vector3D(as3lib.undefined, 100, 100, 100)
+      n = v.normalize()
+      self.assertNaNExact(n)
+      self.assertVector3DNaN(v, 100)
+
+      v = Vector3D(7, as3lib.null, 24, 365)
+      n = v.normalize()
+      self.assertEqual(n, 25)
+      self.assertVector3D(v, 0.28, 0, 0.96, 365)
+
+   def test_project(self):
+      v = Vector3D()
+      v.project()
+      self.assertVector3DNaN(v, 0)
+
+      v = Vector3D(1, 2, 3)
+      v.project()
+      self.assertVector3D(v, as3lib.Infinity, as3lib.Infinity, as3lib.Infinity, 0)
+
+      v = Vector3D(1, 2, 3, 1)
+      v.project()
+      self.assertVector3D(v, 1, 2, 3, 1)
+
+      v = Vector3D(0, 0, 0, 1)
+      v.project()
+      self.assertVector3D(v, 0, 0, 0, 1)
+
+      v = Vector3D(20, 30, 40, 10)
+      v.project()
+      self.assertVector3D(v, 2, 3, 4, 10)
+
+      v = Vector3D(5, -6, 7, 0.1)
+      v.project()
+      self.assertVector3D(v, 50, -60, 70, 0.1)
+
+      v = Vector3D(5, -6, 7, -0.2)
+      v.project()
+      self.assertVector3D(v, -25, 30, -35, -0.2)
+
+   def test_angleBetween(self):
+      a = Vector3D.angleBetween(Vector3D(), Vector3D())
+      self.assertNaNExact(self.roundNumber(a))
+
+      a = Vector3D.angleBetween(Vector3D(), Vector3D(1, 0, 0))
+      self.assertNaNExact(self.roundNumber(a))
+
+      a = Vector3D.angleBetween(Vector3D(1, 0, 0), Vector3D())
+      self.assertNaNExact(self.roundNumber(a))
+
+      a = Vector3D.angleBetween(Vector3D(1, 0, 0), Vector3D(0, 1, 0))
+      self.assertEqual(self.roundNumber(a), 1.570796326795)
+
+      a = Vector3D.angleBetween(Vector3D(0, -1, 0), Vector3D(0, 0, 1))
+      self.assertEqual(self.roundNumber(a), 1.570796326795)
+
+      a = Vector3D.angleBetween(Vector3D(0, -20, 0), Vector3D(0, 0, 0.1))
+      self.assertEqual(self.roundNumber(a), 1.570796326795)
+
+      a = Vector3D.angleBetween(Vector3D(2, 4, 6), Vector3D(0.6, 0.5, 0.1))
+      self.assertEqual(self.roundNumber(a), 0.869901249923)
+
+      a = Vector3D.angleBetween(Vector3D(0.6, 0.5, 0.1), Vector3D(2, 4, 6))
+      self.assertEqual(self.roundNumber(a), 0.869901249923)
+
+      a = Vector3D.angleBetween(Vector3D(2, 4, 6, 8), Vector3D(0.6, 0.5, 0.1, -0.2))
+      self.assertEqual(self.roundNumber(a), 0.869901249923)
+
+   def test_dotProduct(self):
+      dp = Vector3D().dotProduct(Vector3D())
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D().dotProduct(Vector3D(1, 0, 0))
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D(1, 0, 0).dotProduct(Vector3D())
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D(1, 0, 0).dotProduct(Vector3D(0, 1, 0))
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D(0, -1, 0).dotProduct(Vector3D(0, 0, 1))
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D(0, -20, 0).dotProduct(Vector3D(0, 0, 0.1))
+      self.assertEqual(self.roundNumber(dp), 0)
+
+      dp = Vector3D(2, 4, 6).dotProduct(Vector3D(0.6, 0.5, 0.1))
+      self.assertEqual(self.roundNumber(dp), 3.8)
+
+      dp = Vector3D(0.6, 0.5, 0.1).dotProduct(Vector3D(2, 4, 6))
+      self.assertEqual(self.roundNumber(dp), 3.8)
+
+      dp = Vector3D(2, 4, 6, 8).dotProduct(Vector3D(0.6, 0.5, 0.1, -0.2))
+      self.assertEqual(self.roundNumber(dp), 3.8)
+
+   def test_crossProduct(self):
+      cp = Vector3D().crossProduct(Vector3D())
+      self.assertVector3D(cp, 0, 0, 0, 1)
+
+      cp = Vector3D().crossProduct(Vector3D(1, 0, 0))
+      self.assertVector3D(cp, 0, 0, 0, 1)
+
+      cp = Vector3D(1, 0, 0).crossProduct(Vector3D())
+      self.assertVector3D(cp, 0, 0, 0, 1)
+
+      cp = Vector3D(1, 0, 0).crossProduct(Vector3D(0, 1, 0))
+      self.assertVector3D(cp, 0, 0, 1, 1)
+
+      cp = Vector3D(0, -1, 0).crossProduct(Vector3D(0, 0, 1))
+      self.assertVector3D(cp, -1, 0, 0, 1)
+
+      cp = Vector3D(0, -20, 0).crossProduct(Vector3D(0, 0, 0.1))
+      self.assertVector3D(cp, -2, 0, 0, 1)
+
+      cp = Vector3D(2, 4, 6).crossProduct(Vector3D(0.6, 0.5, 0.1))
+      self.assertVector3D(cp, -2.6, 3.4, -1.4, 1)
+
+      cp = Vector3D(0.6, 0.5, 0.1).crossProduct(Vector3D(2, 4, 6))
+      self.assertVector3D(cp, 2.6, -3.4, 1.4, 1)
+
+      cp = Vector3D(2, 4, 6, 8).crossProduct(Vector3D(0.6, 0.5, 0.1, -0.2))
+      self.assertVector3D(cp, -2.6, 3.4, -1.4, 1)
