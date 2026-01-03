@@ -83,15 +83,11 @@ class Matrix(Object):
          m.b * self.tx + m.d * self.ty + m.ty,
       )
 
-   # I am unsure if the copy functions using vectors are correct
    def copyColumnFrom(self, column, vector3D: Vector3D):
-      temp = (vector3D.x, vector3D.y)
-      if column == 0:
-         self.a, self.b = temp
-      elif column == 1:
-         self.c, self.d = temp
-      elif column == 2:
-         self.tx, self.ty = temp
+      # NOTE: According to the tests, copyColumnFrom is supposed to do the
+      # same thing as copyRowFrom. This doesn't make sense but the test passes
+      # on flash player so it must be right.
+      self.copyRowFrom(column, vector3D)
 
    def copyColumnTo(self, column, vector3D: Vector3D):
       if column == 0:
@@ -125,21 +121,30 @@ class Matrix(Object):
          vector3D.setTo(0.0, 0.0, 1.0)
 
    def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):
-      # Create the matrix that would be obtained from .identity(), .rotate(), .scale(), and .transform() in succession
-      # .createBox(2,2,Math.PI/4,100,100) does the same thing as .identity(), .rotate(Math.PI/4), .scale(2,2), .transform(10,20)
-      raise NotImplementedError
+      self.identity()
+      self.rotate(rotation)
+      self.scale(scaleX, scaleY)
+      self.translate(tx, ty)
 
    def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):
-      raise NotImplementedError
+      self.createBox(width / 1638.4, height / 1638.4, rotation, tx + width / 2, ty + height / 2)
 
    def deltaTransformPoint(self, point: Point):
-      raise NotImplementedError
+      return Point(self.a * point.x + self.c * point.y, self.b * point.x + self.d * point.y)
 
    def identity(self):
       self.a, self.b, self.c, self.d, self.tx, self.ty = 1, 0, 0, 1, 0, 0
 
    def invert(self):
-      raise NotImplementedError
+      det = self.a * self.d - self.c * self.b
+      a = self.d / det
+      b = self.b / -det
+      c = self.c / -det
+      d = self.a / det
+      tx = (self.d * self.tx - self.c * self.ty) / -det
+      ty = (self.b * self.tx - self.a * self.ty) / det
+
+      self.setTo(a, b, c, d, tx, ty)
 
    def rotate(self, angle):
       c = Math.cos(angle)
@@ -173,7 +178,7 @@ class Matrix(Object):
       return f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})'
 
    def transformPoint(self, point: Point):
-      raise NotImplementedError
+      return Point(self.a * point.x + self.c * point.y + self.tx, self.b * point.x + self.d * point.y + self.ty)
 
    def translate(self, dx, dy):
       self.tx += dx
