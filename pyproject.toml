@@ -8,8 +8,8 @@ name = "as3lib"
 authors = [{name = "ajdelguidice", email = "ajdelguidice@gmail.com"}]
 description = "Partial implementation of ActionScript3 in Python"
 readme = {file = "README.md", content-type = "text/markdown"}
-license = "MIT"
-license-files = ["LICENSE"]
+license = "MIT AND (Apache-2.0 OR MIT)"
+license-files = ["LICENSE", "otherlicenses/LICENSE-ruffle.md"]
 keywords = ["actionscript", "air", "flash", "flashplayer"]
 classifiers = [
     "Development Status :: 4 - Beta",
