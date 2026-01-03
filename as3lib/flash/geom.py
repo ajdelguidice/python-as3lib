@@ -338,9 +338,11 @@ class Point(Object):
       return self.x == toCompare.x and self.y == toCompare.y
 
    @staticmethod
-   def interpolate(pt1: Point, pt2: Point, f):...
+   def interpolate(pt1: Point, pt2: Point, f):
+      raise NotImplementedError
 
-   def normalize(self, thickness):...
+   def normalize(self, thickness):
+      raise NotImplementedError
 
    def offset(self, dx, dy):
       self.x = self.x + dx
@@ -570,24 +572,39 @@ class Vector3D(Object):
       return Vector3D(self.x, self.y, self.z, self.w)
 
    def copyFrom(self, sourceVector: Vector3D):
-      self.w = sourceVector.w
       self.x = sourceVector.x
       self.y = sourceVector.y
       self.z = sourceVector.z
 
-   def crossProduct(self, a: Vector3D):...
-   def decrementBy(self, a: Vector3D):...
+   def crossProduct(self, a: Vector3D):
+      raise NotImplementedError
+
+   def decrementBy(self, a: Vector3D):
+      self.x -= a.x
+      self.y -= a.y
+      self.z -= a.z
+
    @staticmethod
-   def distance(pt1: Vector3D, pt2: Vector3D):...
-   def dotProduct(self, a: Vector3D):...
+   def distance(pt1: Vector3D, pt2: Vector3D):
+      raise NotImplementedError
+
+   def dotProduct(self, a: Vector3D):
+      raise NotImplementedError
+
    def equals(self, toCompare: Vector3D, allFour=False):
       value = self.x == toCompare.x and self.y == toCompare.y and self.z == toCompare.z
       if allFour:
          return value and self.w == toCompare.w
       return value
 
-   def incrementBy(self, a: Vector3D):...
-   def nearEquals(self, toCompare: Vector3D, tolerance, allFour=False):...
+   def incrementBy(self, a: Vector3D):
+      self.x += a.x
+      self.y += a.y
+      self.z += a.z
+
+   def nearEquals(self, toCompare: Vector3D, tolerance, allFour=False):
+      raise NotImplementedError
+
    def negate(self):
       self.x = -self.x
       self.y = -self.y
@@ -615,11 +632,10 @@ class Vector3D(Object):
       self.z = za
 
    def subtract(self, a: Vector3D):
-      # The documentation does not mention w
-      return Vector3D(a.x - self.x, a.y - self.y, a.z - self.z)
+      return Vector3D(self.x - a.x, self.y - a.y, self.z - a.z)
 
    def toString(self):
-      return f'Vector3D({self.x}, {self.y}, {self.z})'
+      return '(x=%s, y=%s, z=%s)' % (self.x, self.y, self.z)
 
 
 Vector3D.X_AXIS = Vector3D(x=1)
