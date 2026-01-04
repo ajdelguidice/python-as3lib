@@ -1,7 +1,8 @@
 import as3lib
-from as3lib import Math
-from as3lib.flash.geom import Matrix, Point, Vector3D
-from as3lib.tests import as3libTestCase
+from as3lib import ArgumentError, Math, RangeError, TypeError, Vector
+from as3lib.flash.display import Sprite
+from as3lib.flash.geom import Matrix, Matrix3D, PerspectiveProjection, Point, Vector3D
+from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
 class GeomTestsBase(as3libTestCase):
@@ -33,6 +34,10 @@ class GeomTestsBase(as3libTestCase):
             self.assertNaNExact(vector.w)
          else:
             self.assertEqual(vector.w, w)
+
+   def assertMatrix3D(self, matrix, values):
+      self.assertArray(matrix.rawData, values)
+
 
 
 class ColorTransformTests(GeomTestsBase):...
@@ -625,7 +630,136 @@ class MatrixConcatTests(GeomTestsBase):
       self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 30, 38)
 
 
-class Matrix3DTests(GeomTestsBase):...
+class Matrix3DTests(GeomTestsBase):
+   def test_constructor(self):
+      m = Matrix3D()
+      self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+   def test_appendScale(self):
+      m = Matrix3D()
+      m.appendScale(1, 2, 3)
+      self.assertMatrix3D(m, (1,0,0,0,0,2,0,0,0,0,3,0,0,0,0,1))
+
+   def test_identity(self):
+      m = Matrix3D(Vector.Number([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]))
+      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      m.identity()
+      self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+   def test_2(self):
+      m = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]))
+      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+
+      self.assertVector3D(m.position, 13, 14, 15)
+      m.position = Vector3D(12, 13, 14)
+      self.assertVector3D(m.position, 12, 13, 14)
+
+      m.prependTranslation(-1, 0, 2)
+      self.assertVector3D(m.position, 29, 31, 33)
+      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,29,31,33,36))
+
+      m.prepend(m)
+      self.assertMatrix3D(m, (154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056))
+
+      other = Matrix3D()
+      other.copyFrom(m)
+      self.assertMatrix3D(other, (154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056))
+
+      out = Vector.Number()
+      out.length = 20
+      m.copyRawDataTo(out, 1, True)
+      self.assertArray(out, (0,154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056,0,0,0))
+      m.copyRawDataTo(out, 2, True)
+      self.assertArray(out, (0,154,154,330,506,1525,168,364,560,1690,182,398,614,1855,200,440,680,2056,0,0))
+
+      v = Vector3D(1, 2, 3, 4)
+      vOut = m.transformVector(v)
+      self.assertVector3D(vOut, 3857, 4266, 4675, 5176)
+
+      vecs = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+      vecsOut = Vector.Number()
+      m.transformVectors(vecs, vecsOut)
+      self.assertArray(vecsOut, (3857,4266,4675,6827,7542,8257,9797,10818,11839))
+
+      vecsOutFixed = Vector.Number(vecs.length, True)
+      m.transformVectors(vecs, vecsOutFixed)
+      self.assertArray(vecsOutFixed, (3857,4266,4675,6827,7542,8257,9797,10818,11839,0))
+
+      vecsOutFixedTooSmall = Vector.Number(4, True)
+      self.assertRaises(RangeError, m.transformVector, vecs, vecsOutFixedTooSmall)
+
+      self.assertRaises(TypeError, m.transformVectors, as3lib.null, vecsOut)
+      self.assertRaises(TypeError, m.transformVectors, vecs, as3lib.null)
+
+      vOut = m.deltaTransformVector(v)
+      self.assertVector3D(vOut, 2332, 2576, 2820, 3120)
+
+      tooShort = Matrix3D(Vector.Number([1, 2]))
+      self.assertMatrix3D(tooShort, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+      tooLong = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]))
+      self.assertMatrix3D(tooLong, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+      modified = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+      newMat = Matrix3D(modified)
+      self.assertMatrix3D(newMat, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      modified[0] = 9999
+      self.assertMatrix3D(newMat, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+
+      newMat = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]))
+      col = Vector3D()
+      check = ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16))
+      for i in range(4):
+         newMat.copyColumnTo(i, row)
+         self.assertVector3D(col, *check[i])
+
+      self.assertRaises(ArgumentError, newMat.copyColumnTo, 4, col)
+
+      row = Vector3D()
+      check = ((1, 5, 9, 13), (2, 6, 10, 14), (3, 7, 11, 15), (3, 8, 12, 16))
+      for i in range(4):
+         newMat.copyRowTo(i, row)
+         self.assertVector3D(col, *check[i])
+
+      self.assertRaises(ArgumentError, newMat.copyRowTo, 4, row)
+
+      row0 = Vector3D(100, 200, 300, 400)
+      row1 = Vector3D(500, 600, 700, 800)
+      row2 = Vector3D(900, 1000, 1100, 1200)
+      row3 = Vector3D(1300, 1400, 1500, 1600)
+
+      newMat.copyRowFrom(0, row0)
+      newMat.copyRowFrom(1, row1)
+      newMat.copyRowFrom(2, row2)
+      newMat.copyRowFrom(3, row3)
+
+      self.assertRaises(ArgumentError, newMat.copyRowFrom, 4, row3)
+
+      self.assertMatrix3D(newMat, (100,500,900,1300,200,600,1000,1400,300,700,1100,1500,400,800,1200,1600))
+
+      newMat.prependRotation(90, Vector3D.X_AXIS)
+      self.assertMatrix3D(newMat, (100,500,900,1300,300,700,1100,1500,-199.99999999999997,-600,-999.9999999999999,-1400,400,800,1200,1600))
+
+      newMat.prependScale(1, 2, 3)
+      self.assertMatrix(newMat, (100,500,900,1300,600,1400,2200,3000,-599.9999999999999,-1800,-2999.9999999999995,-4200,400,800,1200,1600))
+
+   def test_copyColumnFrom(self):
+      mat = Matrix3D(Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+      col = Vector3D(3, 4, 5, 6)
+      check = ((3,4,5,6,0,0,0,0,0,0,0,0,0,0,0,0),(3,4,5,6,3,4,5,6,0,0,0,0,0,0,0,0),(3,4,5,6,3,4,5,6,3,4,5,6,0,0,0,0),(3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6))
+      for i in range(4):
+         mat.copyColumnFrom(i, col)
+         self.assertMatrix3D(mat, check[i])
+
+      self.assertRaises(ArgumentError, mat.copyColumnFrom, 4, col)
+
+   def test_compose(self):
+      raise TestNotImplemented
+
+   def test_invert(self):
+      raise TestNotImplemented
+
+
 class PerspectiveProjectionTests(GeomTestsBase):...
 
 
