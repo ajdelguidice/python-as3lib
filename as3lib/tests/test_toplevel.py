@@ -8,10 +8,6 @@ from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemente
 
 class ArrayTests(as3libTestCase):
    # NOTE: prototype is required for some tests
-   def assertArray(self, array, check):
-      for i, item in enumerate(check):
-         self.assertEqual(array[i], item)
-
    def assertIndices(self, array, check, length=None):
       arr = [i for i in array]
       if length is not None:
@@ -1500,9 +1496,287 @@ class uintTests(as3libTestCase):
 
 
 class VectorTests(as3libTestCase):
+   def test_constructor(self):
+      a_bool = as3lib.Vector.Boolean(2)
+      self.assertEqual(a_bool.length, 2)
+      self.assertFalse(a_bool.fixed)
+
+      b_bool = as3lib.Vector.Boolean(3, True)
+      self.assertEqual(b_bool.length, 3)
+      self.assertTrue(b_bool.fixed)
+
+      c_bool = as3lib.Vector.Boolean()
+      self.assertEqual(c_bool.length, 0)
+      self.assertFalse(c_bool.fixed)
+
+      class Superclass:...
+
+      class Subclass(Superclass):...
+
+      a0_class = Superclass()
+      a1_class = Subclass()
+
+      a_class = as3lib.Vector(2, type=Superclass)
+      self.assertEqual(a_class.length, 2)
+      self.assertFalse(a_class.fixed)
+
+      b_class = as3lib.Vector(3, True, type=Superclass)
+      self.assertEqual(b_class.length, 3)
+      self.assertTrue(b_class.fixed)
+
+      c_class = as3lib.Vector(type=Superclass)
+      self.assertEqual(c_class.length, 0)
+      self.assertFalse(c_class.fixed)
+
+      a_int = as3lib.Vector.int(2)
+      self.assertEqual(a_int.length, 2)
+      self.assertFalse(a_int.fixed)
+
+      b_int = as3lib.Vector.int(3, True)
+      self.assertEqual(b_int.length, 3)
+      self.assertTrue(b_int.fixed)
+
+      c_int = as3lib.Vector.int()
+      self.assertEqual(c_int.length, 0)
+      self.assertFalse(c_int.fixed)
+
+      a_number = as3lib.Vector.Number(2)
+      self.assertEqual(a_number.length, 2)
+      self.assertFalse(a_number.fixed)
+
+      b_number = as3lib.Vector.Number(3, True)
+      self.assertEqual(b_number.length, 3)
+      self.assertTrue(b_number.fixed)
+
+      c_number = as3lib.Vector.Number()
+      self.assertEqual(c_number.length, 0)
+      self.assertFalse(c_number.fixed)
+
+      a_string = as3lib.Vector.String(2)
+      self.assertEqual(a_string.length, 2)
+      self.assertFalse(a_string.fixed)
+
+      b_string = as3lib.Vector.String(3, True)
+      self.assertEqual(b_string.length, 3)
+      self.assertTrue(b_string.fixed)
+
+      c_string = as3lib.Vector.String()
+      self.assertEqual(c_string.length, 0)
+      self.assertFalse(c_string.fixed)
+
+      a_uint = as3lib.Vector.uint(2)
+      self.assertEqual(a_uint.length, 2)
+      self.assertFalse(a_uint.fixed)
+
+      b_uint = as3lib.Vector.uint(3, True)
+      self.assertEqual(b_uint.length, 3)
+      self.assertTrue(b_uint.fixed)
+
+      c_uint = as3lib.Vector.uint()
+      self.assertEqual(c_uint.length, 0)
+      self.assertFalse(c_uint.fixed)
+
+      raise MethodNotImplemented('Vector.<Vector>')
+      a_vector = as3lib.Vector(2, type=Vector.int)
+      self.assertEqual(a_vector.length, 2)
+      self.assertFalse(a_vector.fixed)
+
+      b_vector = as3lib.Vector.uint(3, True, type=Vector.int)
+      self.assertEqual(b_vector.length, 3)
+      self.assertTrue(b_vector.fixed)
+
+      c_vector = as3lib.Vector.uint(type=Vector.int)
+      self.assertEqual(c_vector.length, 0)
+      self.assertFalse(c_vector.fixed)
+
+   def test_concat(self):
+      a_bool = Vector.Boolean([True, False])
+      b_bool = Vector.Boolean([False, True, False])
+      self.assertVector(a_bool.concat(b_bool), True, False, False, True, False)
+
+      class Superclass:...
+
+      class Subclass(Superclass):...
+
+      a_class = Vector([], type=Superclass)
+      a_class.length = 2
+      a_class[0] = Superclass()
+      a_class[1] = Subclass()
+
+      b_class = Vector([], type-Subclass)
+      b_class.length = 1
+      b_class[0] = Subclass()
+
+      c_class = a_class.concat(b_class)
+
+      self.assertEqual(c_class.length, 3)
+      self.assertType(c_class[0], Superclass)
+      self.assertType(c_class[1], Subclass)
+      self.assertType(c_class[2], Subclass)
+
+      c_class_flipped = b_class.concat(Vector([Subclass()],type=Subclass))
+
+      self.assertEqual(c_class.length, 2)
+      self.assertType(c_class_flipped[0], Subclass)
+      self.assertType(c_class_flipped[1], Subclass)
+
+      class Interface:...
+      '''
+      class Implementer implements Interface {
+
+      }
+
+      trace("/// var a_iface: Vector.<Interface> = new <Interface>[];");
+      var a_iface:Vector.<Interface> = new <Interface>[];
+
+      trace("/// a_iface.length = 1;");
+      a_iface.length = 1;
+
+      trace("/// a_iface[0] = new Implementer();");
+      a_iface[0] = new Implementer();
+
+      trace("/// var b_iface: Vector.<Implementer> = new <Implementer>[];");
+      var b_iface:Vector.<Implementer> = new <Implementer>[];
+
+      trace("/// b_iface.length = 1;");
+      b_iface.length = 1;
+
+      trace("/// b_iface[0] = new Implementer();");
+      b_iface[0] = new Implementer();
+
+      trace("/// var c_iface = a_iface.concat(b_iface);");
+      var c_iface = a_iface.concat(b_iface);
+
+      trace("/// (contents of c_iface...)");
+      trace_vector(c_iface);
+
+      trace("/// var a_int: Vector.<int> = new <int>[1,2];");
+      var a_int:Vector.<int> = new <int>[1,2];
+
+      trace("/// var b_int: Vector.<int> = new <int>[5,16];");
+      var b_int:Vector.<int> = new <int>[5,16];
+
+      trace("/// var c_int = a_int.concat(b_int);");
+      var c_int = a_int.concat(b_int);
+
+      trace("/// (contents of c_int...)");
+      trace_vector(c_int);
+
+      trace("/// var a_number: Vector.<Number> = new <Number>[1,2,3,4];");
+      var a_number:Vector.<Number> = new <Number>[1,2,3,4];
+
+      trace("/// var b_number: Vector.<Number> = new <Number>[5, NaN, -5, 0];");
+      var b_number:Vector.<Number> = new <Number>[5, NaN, -5, 0];
+
+      trace("/// var c_number = a_number.concat(b_number);");
+      var c_number = a_number.concat(b_number);
+
+      trace("/// (contents of c_number...)");
+      trace_vector(c_number);
+
+      trace("/// var a_string: Vector.<String> = new <String>[\"a\",\"c\",\"d\",\"f\"];");
+      var a_string:Vector.<String> = new <String>["a", "c", "d", "f"];
+
+      trace("/// var b_string: Vector.<String> = new <String>[\"986\",\"B4\",\"Q\",\"rrr\"];");
+      var b_string:Vector.<String> = new <String>["986", "B4", "Q", "rrr"];
+
+      trace("/// var c_string = a_string.concat(b_string);");
+      var c_string = a_string.concat(b_string);
+
+      trace("/// (contents of c_string...)");
+      trace_vector(c_string);
+
+      trace("/// var a_uint: Vector.<uint> = new <uint>[1,2];");
+      var a_uint:Vector.<uint> = new <uint>[1,2];
+
+      trace("/// var b_uint: Vector.<uint> = new <uint>[5,16];");
+      var b_uint:Vector.<uint> = new <uint>[5,16];
+
+      trace("/// var c_uint = a_uint.concat(b_uint);");
+      var c_uint = a_uint.concat(b_uint);
+
+      trace("/// (contents of c_uint...)");
+      trace_vector(c_uint);
+
+      trace("/// var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];");
+      var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];
+
+      trace("/// var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];");
+      var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];
+
+      trace("/// var c_vector = a_vector.concat(b_vector)");
+      var c_vector = a_vector.concat(b_vector);
+
+      trace("/// (contents of c_vector...)");
+      trace_vector(c_vector);
+      2026-01-04T02:34:08.279886Z  INFO avm_trace: /// var a_iface: Vector.<Interface> = new <Interface>[];
+      2026-01-04T02:34:08.279901Z  INFO avm_trace: /// a_iface.length = 1;
+      2026-01-04T02:34:08.279913Z  INFO avm_trace: /// a_iface[0] = new Implementer();
+      2026-01-04T02:34:08.279926Z  INFO avm_trace: /// var b_iface: Vector.<Implementer> = new <Implementer>[];
+      2026-01-04T02:34:08.279942Z  INFO avm_trace: /// b_iface.length = 1;
+      2026-01-04T02:34:08.279949Z  INFO avm_trace: /// b_iface[0] = new Implementer();
+      2026-01-04T02:34:08.279956Z  INFO avm_trace: /// var c_iface = a_iface.concat(b_iface);
+      2026-01-04T02:34:08.279966Z  INFO avm_trace: /// (contents of c_iface...)
+      2026-01-04T02:34:08.279974Z  INFO avm_trace: ///length:  2
+      2026-01-04T02:34:08.279984Z  INFO avm_trace: [object Implementer]
+      2026-01-04T02:34:08.279995Z  INFO avm_trace: [object Implementer]
+      2026-01-04T02:34:08.280006Z  INFO avm_trace: /// var a_int: Vector.<int> = new <int>[1,2];
+      2026-01-04T02:34:08.280019Z  INFO avm_trace: /// var b_int: Vector.<int> = new <int>[5,16];
+      2026-01-04T02:34:08.280031Z  INFO avm_trace: /// var c_int = a_int.concat(b_int);
+      2026-01-04T02:34:08.280042Z  INFO avm_trace: /// (contents of c_int...)
+      2026-01-04T02:34:08.280056Z  INFO avm_trace: ///length:  4
+      2026-01-04T02:34:08.280065Z  INFO avm_trace: 1
+      2026-01-04T02:34:08.280072Z  INFO avm_trace: 2
+      2026-01-04T02:34:08.280078Z  INFO avm_trace: 5
+      2026-01-04T02:34:08.280085Z  INFO avm_trace: 16
+      2026-01-04T02:34:08.280091Z  INFO avm_trace: /// var a_number: Vector.<Number> = new <Number>[1,2,3,4];
+      2026-01-04T02:34:08.280104Z  INFO avm_trace: /// var b_number: Vector.<Number> = new <Number>[5, NaN, -5, 0];
+      2026-01-04T02:34:08.280118Z  INFO avm_trace: /// var c_number = a_number.concat(b_number);
+      2026-01-04T02:34:08.280129Z  INFO avm_trace: /// (contents of c_number...)
+      2026-01-04T02:34:08.280142Z  INFO avm_trace: ///length:  8
+      2026-01-04T02:34:08.280149Z  INFO avm_trace: 1
+      2026-01-04T02:34:08.280156Z  INFO avm_trace: 2
+      2026-01-04T02:34:08.280162Z  INFO avm_trace: 3
+      2026-01-04T02:34:08.280169Z  INFO avm_trace: 4
+      2026-01-04T02:34:08.280176Z  INFO avm_trace: 5
+      2026-01-04T02:34:08.280183Z  INFO avm_trace: NaN
+      2026-01-04T02:34:08.280428Z  INFO avm_trace: -5
+      2026-01-04T02:34:08.280453Z  INFO avm_trace: 0
+      2026-01-04T02:34:08.280460Z  INFO avm_trace: /// var a_string: Vector.<String> = new <String>["a","c","d","f"];
+      2026-01-04T02:34:08.280483Z  INFO avm_trace: /// var b_string: Vector.<String> = new <String>["986","B4","Q","rrr"];
+      2026-01-04T02:34:08.280490Z  INFO avm_trace: /// var c_string = a_string.concat(b_string);
+      2026-01-04T02:34:08.280496Z  INFO avm_trace: /// (contents of c_string...)
+      2026-01-04T02:34:08.280502Z  INFO avm_trace: ///length:  8
+      2026-01-04T02:34:08.280506Z  INFO avm_trace: a
+      2026-01-04T02:34:08.280510Z  INFO avm_trace: c
+      2026-01-04T02:34:08.280514Z  INFO avm_trace: d
+      2026-01-04T02:34:08.280518Z  INFO avm_trace: f
+      2026-01-04T02:34:08.280521Z  INFO avm_trace: 986
+      2026-01-04T02:34:08.280525Z  INFO avm_trace: B4
+      2026-01-04T02:34:08.280529Z  INFO avm_trace: Q
+      2026-01-04T02:34:08.280533Z  INFO avm_trace: rrr
+      2026-01-04T02:34:08.280537Z  INFO avm_trace: /// var a_uint: Vector.<uint> = new <uint>[1,2];
+      2026-01-04T02:34:08.280545Z  INFO avm_trace: /// var b_uint: Vector.<uint> = new <uint>[5,16];
+      2026-01-04T02:34:08.280550Z  INFO avm_trace: /// var c_uint = a_uint.concat(b_uint);
+      2026-01-04T02:34:08.280556Z  INFO avm_trace: /// (contents of c_uint...)
+      2026-01-04T02:34:08.280562Z  INFO avm_trace: ///length:  4
+      2026-01-04T02:34:08.280566Z  INFO avm_trace: 1
+      2026-01-04T02:34:08.280580Z  INFO avm_trace: 2
+      2026-01-04T02:34:08.280583Z  INFO avm_trace: 5
+      2026-01-04T02:34:08.280587Z  INFO avm_trace: 16
+      2026-01-04T02:34:08.280591Z  INFO avm_trace: /// var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];
+      2026-01-04T02:34:08.280601Z  INFO avm_trace: /// var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];
+      2026-01-04T02:34:08.280609Z  INFO avm_trace: /// var c_vector = a_vector.concat(b_vector)
+      2026-01-04T02:34:08.280614Z  INFO avm_trace: /// (contents of c_vector...)
+      2026-01-04T02:34:08.280619Z  INFO avm_trace: ///length:  2
+      2026-01-04T02:34:08.280640Z  INFO avm_trace: 1,2
+      2026-01-04T02:34:08.280647Z  INFO avm_trace: 5,16
+      '''
+
+
    def test_nullcallback(self):
       # TODO: Make sure this is correct
-      v = as3lib.Vector(int)
+      v = as3lib.Vector.int()
       v.push(1)
       self.assertTrue(v.every(as3lib.null))
       self.assertIs(v.filter(as3lib.null), None)
