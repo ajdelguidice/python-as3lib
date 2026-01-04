@@ -1,5 +1,5 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import Math, Object
+from as3lib import Math, Number, Object, Vector, null, TypeError
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -284,7 +284,124 @@ class Matrix3D:
    | 0      0      scaleZ tz |
    | 0      0      0      tw |
    '''
-   ...
+   @property
+   def determinant(self):...
+
+   @property
+   def position(self):
+      return Vector3D(self._data[12], self._data[13], self._data[14])
+
+   @position.setter
+   def position(self, value):
+      self._data[12] = value.x
+      self._data[13] = value.y
+      self._data[14] = value.z
+
+   @property
+   def rawData(self):
+      return self._data
+
+   @rawData.setter
+   def rawData(self, value):...
+
+   def _identity(self):
+      # TODO: Should be Vector.<Number>
+      return Vector.Number([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1])
+
+   def __init__(self, v = null):
+      if isinstance(v, Vector) or v is null:
+         if v is not null and v.length == 16:
+            self._data = v
+         else:
+            self._data = self._identity()
+      else:
+         raise TypeError
+
+   def append(self, lhs:Matrix3D):
+      raise NotImplementedError
+
+   def appendRotation(self, degrees, axis, pivotPoint=null):
+      raise NotImplementedError
+
+   def appendScale(self, xScale, yScale, zScale):
+      raise NotImplementedError
+
+   def appendTranslation(self, x, y, z):
+      raise NotImplementedError
+
+   def clone(self):
+      # TODO: Make this not cause rawData to be linked between the two
+      return Matrix3D(self.rawData)
+
+   def copyColumnFrom(self, column, vector3D:Vector3D):
+      raise NotImplementedError
+
+   def copyColumnTo(self, column, vector3D:Vector3D):
+      raise NotImplementedError
+
+   def copyFrom(self, sourceMatrix3D):
+      raise NotImplementedError
+
+   def copyRawDataFrom(self, vector, index=0, transpose=False):
+      raise NotImplementedError
+
+   def copyRawDataTo(self, vector, index=0, transpose=False):
+      raise NotImplementedError
+
+   def copyRowFrom(self, row, vector3D:Vector3D):
+      raise NotImplementedError
+
+   def copyRowTo(self, row, vector3D:Vector3D):
+      raise NotImplementedError
+
+   def copyToMatrix(self, dest):
+      raise NotImplementedError
+
+   def decompose(self, orientationStyle = 'eulerAngles'):
+      raise NotImplementedError
+
+   def deltaTransformVector(self, v:Vector3D):
+      raise NotImplementedError
+
+   def identity(self):
+      self._data = self._identity()
+
+   @staticmethod
+   def interpolate(thisMat:Matrix3D, toMat:Matrix3D, percent):
+      raise NotImplementedError
+
+   def interpolateTo(self, toMat:Matrix3D, percent):
+      raise NotImplementedError
+
+   def invert(self):
+      raise NotImplementedError
+
+   def pointAt(self, pos:Vector3D, at: Vector3D = null, up: Vecto3D = null):
+      raise NotImplementedError
+
+   def prepend(self, rhs:Matrix3D):
+      raise NotImplementedError
+
+   def prependRotation(self, degrees, axis, pivotPoint=null):
+      raise NotImplementedError
+
+   def prependScale(self, xScale, yScale, zScale):
+      raise NotImplementedError
+
+   def prependTranslation(self, x, y, z):
+      raise NotImplementedError
+
+   def recompose(self, components, orientationStyle = 'eulerAngles'):
+      raise NotImplementedError
+
+   def transformVector(self, v:Vector3D):
+      raise NotImplementedError
+
+   def transformVectors(self, vin, vout):
+      raise NotImplementedError
+
+   def transpose(self):
+      raise NotImplementedError
 
 
 class Orientation3D(metaclass=_AS3_CONSTANTSOBJECT):
