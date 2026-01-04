@@ -101,6 +101,9 @@ class Number(Object):
    def toFixed(self):...
    def toPrecision():...
 
+   def toLocaleString(self):
+      return self.toString()
+
    def toString(self, radix=10):
       # TODO: Radix
       if self._value is _NaN_value:
