@@ -1282,8 +1282,10 @@ class itkRootMain(itkRoot):
       as3state.windows[0].mainloop()
 
    def destroy(self):
-      super().destroy()
-      as3state.windows[0].destroy()
+      if not self._destroyed:
+         self._destroyed = True
+         super().destroy()
+         as3state.windows[0].destroy()
 
 
 def window(**kwargs):
