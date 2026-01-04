@@ -1,37 +1,63 @@
-from as3lib._toplevel.Object import Object
-from as3lib._toplevel.Constants import null
+from as3lib._toplevel.Boolean import Boolean
+from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import RangeError, TypeError
+from as3lib._toplevel.int import int, uint
+from as3lib._toplevel.Number import Number
+from as3lib._toplevel.Object import Object
+from as3lib._toplevel.String import String
+import builtins
+from functools import partial
+from multipledispatch import dispatch
+from io import StringIO
 
 
 class Vector(list, Object):
    '''
    AS3 Vector datatype.
 
-   Since python does not allow for multiple things to have the same name, the function and the class constructor have been merged. Here's how it works now:
-     - If sourceArray is defined, the behavior for the function is used and the arguements are ignored.
-     - The arguement "superclass" is provided for convinience. It makes the Vector object check the type as a superclass instead of as a strict type. Passing sourceArray sets this to true
-   '''
-   def __init__(self, type, length=0, fixed=False, superclass=False, sourceArray: list | tuple = None):
-      self.__type = type
-      if sourceArray is not None:
-         self.__superclass = True
-         super().__init__(sourceArray)  # !Temporary, must convert first in real implementation
-      else:
-         self.__superclass = superclass
-         super().__init__((null for i in range(length)))
-      self.fixed = fixed
+   This class is not really a vector as I haven't found a way to do that in
+   python. It is instead just a type locked list.
 
-   @property
-   def _type(self):
-      return self.__type
+   I have not found a way to create a syntax similar to Vector.<T> so you
+   currently have to declare it like Vector(..., type=T). The way this is
+   currently handled also does not allow you to use Vector.<T> as a type.
+   '''
+   _mdspns = {}
+   @dispatch(list, namespace=_mdspns)
+   def __init__(self, sourceArray, **kwargs):
+      self._type = kwargs['type']
+      self._fixed = False
+      self._superclass = True
+      if isinstance(sourceArray, Vector):
+         self = sourceArray
+      else:
+         super().__init__(sourceArray)
+
+   def _number_init(self, length, fixed, **kwargs):
+      self._type = kwargs['type']
+      self._superclass = False
+      super().__init__((null for i in range(length)))
+      self._fixed = fixed
+
+   @dispatch(object, object, namespace=_mdspns)
+   def __init__(self, length=0, fixed=False, **kwargs):
+      self._number_init(length, fixed, **kwargs)
+
+   @dispatch(object, namespace=_mdspns)
+   def __init__(self, length=0, **kwargs):
+      self._number_init(length, False, **kwargs)
+
+   @dispatch(namespace=_mdspns)
+   def __init__(self, **kwargs):
+      self._number_init(0, False, **kwargs)
 
    @property
    def fixed(self):
-      return self.__fixed
+      return self._fixed
 
    @fixed.setter
    def fixed(self, value):
-      self.__fixed = value
+      self._fixed = value
 
    @property
    def length(self):
@@ -42,7 +68,7 @@ class Vector(list, Object):
       if self.fixed:
          raise RangeError('Can not set vector length while fixed is set to true.')
       if value > 4294967296:
-         raise RangeError('New vector length outside of accepted range (0-4294967296).')
+         raise RangeError('New length outside of accepted range (0-4294967296).')
       if len(self) > value:
          while len(self) > value:
             self.pop()
@@ -50,8 +76,26 @@ class Vector(list, Object):
          while len(self) < value:
             self.append(null)
 
+   @staticmethod
+   def _join(o, sep=None):
+      if sep is None or sep is undefined:
+         s = ','
+      elif hasattr(sep, 'toString'):
+         s = sep.toString()
+      else:
+         s = str(sep)
+      with StringIO() as out:
+         n = o.length
+         for i in range(n):
+            x = o[i]
+            if x != None:
+               out.add(str(x))
+            if i + 1 < n:
+               out.add(s)
+         return out.getvalue()
+
    def __repr__(self):
-      return f'as3lib.Vector({self.__type}, {self})'
+      return 'as3lib.Vector.<%s>(%s)' % (self._type.__name__, self)
 
    def __getitem__(self, item):
       if isinstance(item, slice):...
@@ -59,7 +103,7 @@ class Vector(list, Object):
          return super().__getitem__(item)
 
    def __setitem__(self, item, value):
-      if self.__superclass:
+      if self._superclass:
          if value is null or isinstance(value, self._type):
             super().__setitem__(item, value)
       else:
@@ -80,22 +124,28 @@ class Vector(list, Object):
       temp.fixed = self.fixed
       return temp
 
-   def every(self, callback, thisObject):
-      for i in range(len(self)):
-         if callback(self[i], i, self) is False:
+   def every(self, callback, thisObject=null):
+      if callback is null:
+         return True
+      for i, item in enumerate(self):
+         if callback(item, i, self) is False:
             return False
       return True
 
-   def filter(self, callback, thisObject):
-      tempVector = Vector(type_=self._type, superclass=self.__superclass)
-      for i in range(len(self)):
-         if callback(self[i], i, self) is True:
-            tempVector.push(self[i])
+   def filter(self, callback, thisObject=null):
+      # TODO: Handle null callback
+      tempVector = Vector(type=self._type)
+      tempVector._superclass = self._superclass
+      for i, item in enumerate(self):
+         if callback(item, i, self) is True:
+            tempVector.push(item)
       return tempVector
 
-   def forEach(self, callback, thisObject):
-      for i in range(len(self)):
-         callback(self[i], i, self)
+   def forEach(self, callback, thisObject=null):
+      if callback is null:
+         return undefined
+      for i, item in enumerate(self):
+         callback(item, i, self)
 
    def indexOf(self, searchElement, fromIndex=0):
       if fromIndex < 0:
@@ -108,11 +158,12 @@ class Vector(list, Object):
    def insertAt(self, index, element):
       if self.fixed:
          raise RangeError('insertAt can not be called on a Vector with fixed set to true.')
-      elif self.__superclass:
+      elif self._superclass:
          if element is null or isinstance(element, self._type):...
       else:...
 
-   def join(self, sep: str = ','):...
+   def join(self, sep: str = ','):
+      return Vector._join(self, sep)
 
    def lastIndexOf(self, searchElement, fromIndex=None):
       if fromIndex is None:
@@ -123,10 +174,12 @@ class Vector(list, Object):
       # index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
       # return index if index == -1 else len(self)-1-index
 
-   def map(self, callback, thisObject):
-      tempVect = Vector(type_=self._type, length=len(self), superclass=self.__superclass)
-      for i in range(len(self)):
-         tempVect[i] = callback(self[i], i, self)
+   def map(self, callback, thisObject=null):
+      # TODO: Handle null callback
+      tempVect = Vector(self.length, type=self._type)
+      tempVect._superclass = self._superclass
+      for i, item in enumerate(self):
+         tempVect[i] = callback(item, i, self)
       return tempVect
 
    def pop(self):
@@ -157,24 +210,34 @@ class Vector(list, Object):
          raise RangeError('shift can not be called on a Vector with fixed set to true.')
       return super().pop(0)
 
-   def slice():...
+   def slice(self):
+      raise NotImplementedError
 
-   def some(self, callback, thisObject):
-      for i in range(len(self)):
-         if callback(self[i], i, self) is True:
+   def some(self, callback, thisObject=null):
+      if callback is null:
+         return False
+      for i, item in enumerate(self):
+         if callback(item, i, self) is True:
             return True
       return False
 
-   def sort():...
-   def splice():...
-   def toLocaleString():...
-   def toString():...
+   def sort(self):
+      raise NotImplementedError
+
+   def splice(self):
+      raise NotImplementedError
+
+   def toLocaleString(self):
+      raise NotImplementedError
+
+   def toString(self):
+      return Vector._join(self)
 
    def unshift(self, *args):
       if self.fixed:
          raise RangeError('unshift can not be called on a Vector with fixed set to true.')
       argsOK = True
-      if self.__superclass:
+      if self._superclass:
          for i in args:
             if i is not null or not isinstance(i, self._type):
                argsOK = False
@@ -190,3 +253,9 @@ class Vector(list, Object):
       self.clear()
       self.extend(tempVect)
       return len(self)
+
+Vector.Boolean = partial(Vector, type=Boolean)
+Vector.int = partial(Vector, type=int)
+Vector.Number = partial(Vector, type=Number)
+Vector.uint = partial(Vector, type=uint)
+Vector.String = partial(Vector, type=String)
