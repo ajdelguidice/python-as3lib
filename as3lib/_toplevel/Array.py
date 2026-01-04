@@ -37,7 +37,7 @@ class Array(list, Object):
             value = super().__getitem__(item)
             return value if value is not None else undefined
          except Exception:
-            return ''
+            return undefined
 
    def __setitem__(self, item, value):
       if isinstance(item, (builtins.int, int, uint, Number)) and item+1 > self.length:
@@ -78,6 +78,12 @@ class Array(list, Object):
 
    def __repr__(self):
       return f'as3lib.Array({self.toString()})'
+
+   def __pos__(self):
+      return Number(0)
+
+   def __neg__(self):
+      return -Number(0)
 
    def concat(self, *args):
       '''
@@ -385,7 +391,18 @@ class Array(list, Object):
       Returns:
          String — A string of array elements.
       '''
-      return self.toString()
+      with textObject() as out:
+         n = self.length
+         for i in range(n):
+            x = self[i]
+            if x is not None and x is not undefined and x is not null:
+               if hasattr(x, 'toLocaleString'):
+                  out += x.toLocaleString()
+               else:
+                  out += str(x)
+            if i + 1 < n:
+               out += ','
+         return out.get()
 
    def toString(self):
       '''
