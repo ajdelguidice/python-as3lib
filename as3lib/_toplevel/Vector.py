@@ -23,14 +23,54 @@ class Vector(list, Object):
    currently handled also does not allow you to use Vector.<T> as a type.
    '''
    _mdspns = {}
+
+   @staticmethod
+   def coercePythonToAs3Object(obj, type_):
+      # bool must go above int because bool isinstance of int
+      if isinstance(obj, bool):
+         return Boolean(obj)
+      if isinstance(obj, builtins.int):
+         if type_ is int:
+            return int(obj)
+         if type_ is uint:
+            return uint(obj)
+         return Number(obj)
+      if isinstance(obj, float):
+         return Number(obj)
+      if isinstance(obj, str):
+         return String(obj)
+
+      # Could not coerce object or object already as3
+      return obj
+
+   @staticmethod
+   def _checkTypeAll(arr, type_, superclass):
+      # TODO: Implements/Implementer
+      for i in arr:
+         Vector._checkType(i, type_, superclass)
+
+   @staticmethod
+   def _checkType(value, type_, superclass):
+      # TODO: Implements/Implementer
+      if value is not null:
+         if superclass:
+            if not isinstance(value, type_):
+               raise TypeError('%s is not %s or subclass of %s' % (type(value), type_, type_))
+         else:
+            if type(value) is not type_:
+               raise TypeError('%s is not %s' % (type(value), type_))
+
    @dispatch(list, namespace=_mdspns)
    def __init__(self, sourceArray, **kwargs):
+      # TODO: Make sure this works properly
       self._type = kwargs['type']
       self._fixed = False
       self._superclass = True
       if isinstance(sourceArray, Vector):
          self = sourceArray
       else:
+         sourceArray = [Vector.coercePythonToAs3Object(i, self._type) for i in sourceArray]
+         Vector._checkTypeAll(sourceArray, self._type, self._superclass)
          super().__init__(sourceArray)
 
    def _number_init(self, length, fixed, **kwargs):
@@ -103,15 +143,11 @@ class Vector(list, Object):
          return super().__getitem__(item)
 
    def __setitem__(self, item, value):
-      if self._superclass:
-         if value is null or isinstance(value, self._type):
-            super().__setitem__(item, value)
-      else:
-         if value is null or type(value) is self._type:
-            super().__setitem__(item, value)
+      Vector._checkType(value, self._type, self._superclass)
+      super().__setitem__(item, value)
 
    def concat(self, *args):
-      temp = Vector(self._type, superclass=True)
+      temp = Vector([], type=self._type)
       temp.extend(self)
       if len(args) > 0:
          for i in args:
@@ -244,7 +280,7 @@ class Vector(list, Object):
                break
       else:
          for i in args:
-            if i is not null or not type(i) is self._type:
+            if i is not null or type(i) is not self._type:
                argsOK = False
                break
       if not argsOK:
