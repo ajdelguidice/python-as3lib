@@ -25,6 +25,38 @@ class as3libTestCase(unittest.TestCase):
    def assertType(self, obj, type_):
       self.assertEqual(type(obj), type_)
 
+   def assertMatrix(self, matrix, a, b, c, d, tx, ty):
+      self.assertEqual(matrix.a, a)
+      self.assertEqual(matrix.b, b)
+      self.assertEqual(matrix.c, c)
+      self.assertEqual(matrix.d, d)
+      self.assertEqual(matrix.tx, tx)
+      self.assertEqual(matrix.ty, ty)
+
+   def assertPoint(self, point, x, y):
+      self.assertEqual(point.x, x)
+      self.assertEqual(point.y, y)
+
+   def assertVector3D(self, vector, x, y, z, w=None):
+      self.assertEqual(vector.x, x)
+      self.assertEqual(vector.y, y)
+      self.assertEqual(vector.z, z)
+      if w is not None:
+         self.assertEqual(vector.w, w)
+
+   def assertVector3DNaN(self, vector, w=None):
+      self.assertNaN(vector.x)
+      self.assertNaN(vector.y)
+      self.assertNaN(vector.z)
+      if w is not None:
+         if w is as3lib.NaN:
+            self.assertNaN(vector.w)
+         else:
+            self.assertEqual(vector.w, w)
+
+   def assertMatrix3D(self, matrix, values):
+      self.assertArray(matrix.rawData, values)
+
 
 class TestNotImplemented(NotImplementedError):
    ...

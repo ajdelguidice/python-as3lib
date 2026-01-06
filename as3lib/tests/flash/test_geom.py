@@ -5,45 +5,10 @@ from as3lib.flash.geom import Matrix, Matrix3D, PerspectiveProjection, Point, Ve
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
-class GeomTestsBase(as3libTestCase):
-   def assertMatrix(self, matrix, a, b, c, d, tx, ty):
-      self.assertEqual(matrix.a, a)
-      self.assertEqual(matrix.b, b)
-      self.assertEqual(matrix.c, c)
-      self.assertEqual(matrix.d, d)
-      self.assertEqual(matrix.tx, tx)
-      self.assertEqual(matrix.ty, ty)
-
-   def assertPoint(self, point, x, y):
-      self.assertEqual(point.x, x)
-      self.assertEqual(point.y, y)
-
-   def assertVector3D(self, vector, x, y, z, w=None):
-      self.assertEqual(vector.x, x)
-      self.assertEqual(vector.y, y)
-      self.assertEqual(vector.z, z)
-      if w is not None:
-         self.assertEqual(vector.w, w)
-
-   def assertVector3DNaN(self, vector, w=None):
-      self.assertNaN(vector.x)
-      self.assertNaN(vector.y)
-      self.assertNaN(vector.z)
-      if w is not None:
-         if w is as3lib.NaN:
-            self.assertNaN(vector.w)
-         else:
-            self.assertEqual(vector.w, w)
-
-   def assertMatrix3D(self, matrix, values):
-      self.assertArray(matrix.rawData, values)
+class ColorTransformTests(as3libTestCase):...
 
 
-
-class ColorTransformTests(GeomTestsBase):...
-
-
-class MatrixTests(GeomTestsBase):
+class MatrixTests(as3libTestCase):
    def test_constructor(self):
       self.assertMatrix(Matrix(), 1, 0, 0, 1, 0, 0)
       self.assertMatrix(Matrix(1), 1, 0, 0, 1, 0, 0)
@@ -234,7 +199,7 @@ class MatrixTests(GeomTestsBase):
       self.assertMatrix(matrix, 17, 17, 19, 19, 23, 23)
 
 
-class MatrixConcatTests(GeomTestsBase):
+class MatrixConcatTests(as3libTestCase):
    @classmethod
    def setUpClass(cls):
       cls.matrix = Matrix(11, 13, 17, 19, 23, 29)
@@ -630,7 +595,7 @@ class MatrixConcatTests(GeomTestsBase):
       self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 30, 38)
 
 
-class Matrix3DTests(GeomTestsBase):
+class Matrix3DTests(as3libTestCase):
    def test_constructor(self):
       m = Matrix3D()
       self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
@@ -760,10 +725,10 @@ class Matrix3DTests(GeomTestsBase):
       raise TestNotImplemented
 
 
-class PerspectiveProjectionTests(GeomTestsBase):...
+class PerspectiveProjectionTests(as3libTestCase):...
 
 
-class PointTests(GeomTestsBase):
+class PointTests(as3libTestCase):
    def test_constructor(self):
       p = Point()
       self.assertPoint(p, 0, 0)
@@ -877,12 +842,12 @@ class PointTests(GeomTestsBase):
       self.assertEqual(p.toString(), '(x=0, y=0)')
 
 
-class RectangleTests(GeomTestsBase):...
-class TransformTests(GeomTestsBase):...
-class Utils3DTests(GeomTestsBase):...
+class RectangleTests(as3libTestCase):...
+class TransformTests(as3libTestCase):...
+class Utils3DTests(as3libTestCase):...
 
 
-class Vector3DTests(GeomTestsBase):
+class Vector3DTests(as3libTestCase):
    mp = Math.pow(10, 12)
 
    def roundNumber(self, x):  # Originally called r
