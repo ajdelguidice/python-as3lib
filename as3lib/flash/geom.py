@@ -467,7 +467,7 @@ class Point(Object):
 
    @staticmethod
    def polar(len, angle):
-      return Point(len * math.sin(angle), len * math.cos(angle))
+      return Point(len * math.cos(angle), len * math.sin(angle))
 
    def setTo(self, xa, ya):
       self.x = xa
