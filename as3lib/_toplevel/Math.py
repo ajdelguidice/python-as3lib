@@ -5,7 +5,7 @@ from as3lib._toplevel.Object import Object
 
 
 class Math(Object):
-   E = 2.71828182845905
+   E = 2.718281828459045
    LN10 = 2.302585092994046
    LN2 = 0.6931471805599453
    LOG10E = 0.4342944819032518
