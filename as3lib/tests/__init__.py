@@ -16,12 +16,14 @@ class as3libTestCase(unittest.TestCase):
       if obj is not as3lib.NaN:
          self.fail('%r is not NaN' % obj)
 
-   def assertArray(self, array, check):
+   def assertArray(self, array, check, length=None):
+      if length is not None:
+         self.assertEqual(len(array), length)
       for i, item in enumerate(check):
          self.assertEqual(array[i], item)
 
    def assertType(self, obj, type_):
-      self.assertEqual(type(obj), type)
+      self.assertEqual(type(obj), type_)
 
 
 class TestNotImplemented(NotImplementedError):
