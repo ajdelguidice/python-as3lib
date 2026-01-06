@@ -1,8 +1,9 @@
-from as3lib._toplevel.int import int
 from as3lib._toplevel.Constants import undefined, null
-from as3lib._toplevel.Object import Object
+from as3lib._toplevel.int import int
 from as3lib._toplevel.Number import Number
+from as3lib._toplevel.Object import Object
 from as3lib._toplevel.uint import uint
+import builtins
 
 
 class Boolean(Object):
@@ -27,7 +28,10 @@ class Boolean(Object):
       return float(self._value)
 
    def __int__(self):
-      return int(self._value)
+      return builtins.int(self._value)
+
+   def __eq__(self, value):
+      return self._value == value
 
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
@@ -36,8 +40,11 @@ class Boolean(Object):
          return expression != 0
       if expression is Number.NaN or expression is null or expression is undefined or expression is None:
          return False
-      if hasattr(expression, '__bool__'):
+      # NOTE: For some reason, python str does not have __bool__ but can be
+      #       converted to one anyways
+      if hasattr(expression, '__bool__') or isinstance(expression, str):
          return bool(expression)
+      return False
 
    def toString(self):
       return str(self._value).lower()
