@@ -129,9 +129,9 @@ class Vector(list, Object):
          for i in range(n):
             x = o[i]
             if x != None:
-               out.add(str(x))
+               out.write(str(x))
             if i + 1 < n:
-               out.add(s)
+               out.write(s)
          return out.getvalue()
 
    def __repr__(self):
@@ -143,6 +143,7 @@ class Vector(list, Object):
          return super().__getitem__(item)
 
    def __setitem__(self, item, value):
+      value = Vector.coercePythonToAs3Object(value, self._type)
       Vector._checkType(value, self._type, self._superclass)
       super().__setitem__(item, value)
 
@@ -290,6 +291,8 @@ class Vector(list, Object):
       self.extend(tempVect)
       return len(self)
 
+# Temporary aliases. Remove when a syntax similar to Vector.<Type> is
+# implemented.
 Vector.Boolean = partial(Vector, type=Boolean)
 Vector.int = partial(Vector, type=int)
 Vector.Number = partial(Vector, type=Number)
