@@ -80,11 +80,16 @@ class Number(Object):
    def __invert__(self):
       return Number(-self._value)
 
+   def __bool__(self):
+      if self._value is _NaN_value:
+         return False
+      return self._value != 0
+
    def _Number(self, expression):
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, (float, Number)):
          return expression
       if expression is _NaN_value or expression is undefined or expression is None:
-         return Number.NaN
+         return _NaN_value
       if expression is null:
          return 0.0
       if hasattr(expression, '__float__'):
@@ -95,7 +100,7 @@ class Number(Object):
          try:
             return float(expression)
          except Exception:
-            return Number.NaN
+            return _NaN_value
 
    def toExponential(self):...
    def toFixed(self):...

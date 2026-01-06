@@ -36,9 +36,7 @@ class Boolean(Object):
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
          return expression
-      if isinstance(expression, (uint, Number)):
-         return expression != 0
-      if expression is Number.NaN or expression is null or expression is undefined or expression is None:
+      if expression is null or expression is undefined or expression is None:
          return False
       # NOTE: For some reason, python str does not have __bool__ but can be
       #       converted to one anyways
