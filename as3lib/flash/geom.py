@@ -284,8 +284,19 @@ class Matrix3D:
    | 0      0      scaleZ tz |
    | 0      0      0      tw |
    '''
+
+   @staticmethod
+   def _3x3Det(a, b, c, d, e, f, g, h, i):
+      '''
+      | a b c |
+      | d e f |
+      | g h i |
+      '''
+      return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
+
    @property
-   def determinant(self):...
+   def determinant(self):
+      return self._data[0] * (self._3x3Det(self._data[5], self._data[9], self._data[13], self._data[6], self._data[10], self._data[14], self._data[7], self._data[11], self._data[15])) - self._data[4] * (self._3x3Det(self._data[1], self._data[9], self._data[13], self._data[2], self._data[10], self._data[14], self._data[3], self._data[11], self._data[15])) + self._data[8] * (self._3x3Det(self._data[1], self._data[5], self._data[13], self._data[2], self._data[6], self._data[14], self._data[3], self._data[7], self._data[15])) - self._data[12] * (self._3x3Det(self._data[1], self._data[5], self._data[9], self._data[2], self._data[6], self._data[10], self._data[3], self._data[7], self._data[11]))
 
    @property
    def position(self):
@@ -302,20 +313,24 @@ class Matrix3D:
       return self._data
 
    @rawData.setter
-   def rawData(self, value):...
+   def rawData(self, value):
+      if not isinstance(value, Vector):
+         raise TypeError
+      if value.length != 16:
+         raise
+      self._data = value
 
    def _identity(self):
       # TODO: Should be Vector.<Number>
       return Vector.Number([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1])
 
    def __init__(self, v = null):
-      if isinstance(v, Vector) or v is null:
-         if v is not null and v.length == 16:
-            self._data = v
-         else:
-            self._data = self._identity()
-      else:
+      if not (isinstance(v, Vector) or v is null):
          raise TypeError
+      if v is not null and v.length == 16:
+         self._data = v
+      else:
+         self._data = self._identity()
 
    def append(self, lhs:Matrix3D):
       raise NotImplementedError
@@ -410,7 +425,43 @@ class Orientation3D(metaclass=_AS3_CONSTANTSOBJECT):
    QUATERNION = 'quanternion'
 
 
-class PerspectiveProjection:...
+class PerspectiveProjection(Object):
+   @property
+   def fieldOfView(self):
+      return self._fov
+
+   @fieldOfView.setter
+   def fieldOfView(self, value):
+      if value < 0 or value > 180:
+         raise
+      self._fov = value
+
+   @property
+   def focalLength(self):
+      return self._fLen
+
+   @focalLength.setter
+   def focalLength(self, value):
+      self._fLen = value
+
+   @property
+   def projectionCenter(self):
+      return self._pC
+
+   @projectionCenter.setter
+   def projectionCenter(self, value):
+      if not isinstance(value, Point):
+         raise TypeError
+      self._pC = value
+
+   def __init__(self):
+      self._fov = 55
+      self._fLen = 480.24554443359375
+      self._pC = Point(250, 250)  # TODO: Calculate centre of object this is in
+
+   def toMatrix3D(self):
+      raise NotImplementedError
+
 
 
 class Point(Object):
@@ -490,7 +541,8 @@ class Rectangle(Object):
       self.height = value - self.y
 
    @property
-   def bottomRight(self):...
+   def bottomRight(self):
+      raise NotImplementedError
 
    @property
    def height(self):
@@ -501,7 +553,8 @@ class Rectangle(Object):
       self._height = value
 
    @property
-   def left(self):...
+   def left(self):
+      raise NotImplementedError
 
    @property
    def right(self):
@@ -521,7 +574,8 @@ class Rectangle(Object):
       self.height = value.y
 
    @property
-   def top(self):...
+   def top(self):
+      raise NotImplementedError
 
    @property
    def topLeft(self):
@@ -573,7 +627,8 @@ class Rectangle(Object):
    def containsPoint(self, point: Point):
       return self.contains(point.x, point.y)
 
-   def containsRect(self, rect: Rectangle):...
+   def containsRect(self, rect: Rectangle):
+      raise NotImplementedError
 
    def copyFrom(self, sourceRect: Rectangle):
       self.x = sourceRect.x
@@ -584,13 +639,17 @@ class Rectangle(Object):
    def equals(self, toCompare: Rectangle):
       return self.x == toCompare.x and self.y == toCompare.y and self.width == toCompare.width and self.height == toCompare.height
 
-   def inflate(self, dx, dy):...
+   def inflate(self, dx, dy):
+      raise NotImplementedError
 
-   def inflatePoint(self, point: Point):...
+   def inflatePoint(self, point: Point):
+      raise NotImplementedError
 
-   def intersection(self, toIntersect: Rectangle):...
+   def intersection(self, toIntersect: Rectangle):
+      raise NotImplementedError
 
-   def intersects(self, toIntersect: Rectangle):...
+   def intersects(self, toIntersect: Rectangle):
+      raise NotImplementedError
 
    def isEmpty(self):
       return self.width <= 0 or self.height <= 0
@@ -619,15 +678,80 @@ class Rectangle(Object):
       return f'(x={self.x}, y={self.y}, w={self.width}, h={self.height})'
 
    def union(self, toUnion: Rectangle):
-      if self.isEmpty() or toUnion.isEmpty():
-         ...  # The documentation says empty rectangles are ignored. I'm not sure what this is supposed to return here
-      ...
+      raise NotImplementedError
 
 
-class Transform:...
+class Transform(Object):
+   @property
+   def colorTransform(self):
+      return self._ct
+
+   @colorTransform.setter
+   def colorTransform(self, value):
+      if not isinstance(value, ColorTransform):
+         raise TypeError
+      self._ct = value
+
+   @property
+   def concatenatedColorTransform(self):
+      raise NotImplementedError
+
+   @property
+   def concatenatedMatrix(self):
+      raise NotImplementedError
+
+   @property
+   def matrix(self):
+      return self._matrix
+
+   @matrix.setter
+   def matrix(self, value):
+      if not isinstance(value, Matrix):
+         raise TypeError
+      self._matrix = value
+
+   @property
+   def matrix3D(self):
+      return self._matrix3D
+
+   @matrix3D.setter
+   def matrix3D(self, value):
+      if not isinstance(value, Matrix3D):
+         raise TypeError
+      self._matrix3D = value
+
+   @property
+   def perspectiveProjection(self):
+      return self._pp
+
+   @perspectiveProjection.setter
+   def perspectiveProjection(self, value):
+      if not isinstance(value, PerspectiveProjection):
+         raise TypeError
+      self._pp = value
+
+   @property
+   def pixelBounds(self):
+      raise NotImplementedError
+
+   def __init__(self):...
+
+   def getRelativeMatrix3D(relativeTo):
+      raise NotImplementedError
 
 
-class Utils3D:...
+class Utils3D(Object):
+   @staticmethod
+   def pointTowards(percent:Number, mat:Matrix3D, pos:Vector3D, at:Vector3D=null, up:Vector3D=null) -> Matrix3D:
+      raise NotImplementedError
+
+   @staticmethod
+   def projectVector(m:Matrix3D, v:Vector3D) -> Vector3D:
+      raise NotImplementedError
+
+   @staticmethod
+   def projectVectors(m:Matrix3D, verts:Vector, projectedVerts:Vector, uvts:Vector) -> None:
+      raise NotImplementedError
 
 
 class Vector3D(Object):
