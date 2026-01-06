@@ -48,6 +48,8 @@ class Math(Object):
 
    @staticmethod
    def floor(val):
+      if val == Number.NEGATIVE_INFINITY or val == Number.POSITIVE_INFINITY or val is Number.NaN:
+         return val
       return math.floor(val)
 
    @staticmethod
