@@ -113,7 +113,7 @@ class MatrixTests(GeomTestsBase):
       matrix.invert()
       self.assertMatrix(matrix, -7, 3, 5, -2, 8, -5)
 
-   def test_createbox(self):
+   def test_createBox(self):
       matrix = Matrix()
       matrix.createBox(2, 3)
       self.assertMatrix(matrix, 2, 0, 0, 3, 0, 0)
@@ -130,7 +130,7 @@ class MatrixTests(GeomTestsBase):
       matrix.createBox(2, 3, 5, 7, 9)
       self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153, 1.917848549326277, 0.8509865563896788, 7, 9)
 
-   def test_creategradientbox(self):
+   def test_createGradientBox(self):
       matrix = Matrix()
       matrix.createGradientBox(200, 300)
       self.assertMatrix(matrix, 0.1220703125, 0, 0, 0.18310546875, 100, 150)
@@ -147,17 +147,17 @@ class MatrixTests(GeomTestsBase):
       matrix.createGradientBox(200, 300, 500, 700, 900)
       self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574, 0.05710105045440383, -0.1618376355160177, 800, 1050)
 
-   def test_transformpoint(self):
+   def test_transformPoint(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       point = matrix.transformPoint(Point(1, 1))
       self.assertPoint(point, 18, 23)
 
-   def test_deltatransformpoint(self):
+   def test_deltaTransformPoint(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       point = matrix.deltaTransformPoint(Point(1, 1))
       self.assertPoint(point, 7, 10)
 
-   def test_copyfrom(self):
+   def test_copyFrom(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       matrix2 = Matrix()
       self.assertMatrix(matrix2, 1, 0, 0, 1, 0, 0)
@@ -169,7 +169,7 @@ class MatrixTests(GeomTestsBase):
       matrix.setTo(2, 3, 5, 7, 11, 13)
       self.assertMatrix(matrix, 2, 3, 5, 7, 11, 13)
 
-   def test_copyrowto(self):
+   def test_copyRowTo(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       vector = Vector3D(1, 2, 3, 4)
 
@@ -185,7 +185,7 @@ class MatrixTests(GeomTestsBase):
       matrix.copyRowTo(3, vector)
       self.assertVector3D(vector, 0, 0, 1)
 
-   def test_copycolumnto(self):
+   def test_copyColumnTo(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       vector = Vector3D(1, 2, 3, 4)
 
@@ -201,7 +201,7 @@ class MatrixTests(GeomTestsBase):
       matrix.copyColumnTo(3, vector)
       self.assertVector3D(vector, 11, 13, 1)
 
-   def test_copyrowfrom(self):
+   def test_copyRowFrom(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       vector = Vector3D(17, 19, 23, 29)
 
@@ -217,7 +217,7 @@ class MatrixTests(GeomTestsBase):
       matrix.copyRowFrom(3, vector)
       self.assertMatrix(matrix, 17, 17, 19, 19, 23, 23)
 
-   def test_copycolumnfrom(self):
+   def test_copyColumnFrom(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
       vector = Vector3D(17, 19, 23, 29)
 
@@ -314,7 +314,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.translate)
       self.assertMatrix(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 7, 9)
 
-   def test_rightsingle(self):
+   def test_right_single(self):
       # Matrix + Scale
       result = self.matrix.clone()
       result.concat(self.scale)
@@ -330,7 +330,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.rotate)
       self.assertMatrix(result, -13, 11, -19, 17, -29, 23)
 
-   def test_rightdouble(self):
+   def test_right_double(self):
       # Matrix + Scale + Translate
       result = self.matrix.clone()
       result.concat(self.scale)
@@ -367,7 +367,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.translate)
       self.assertMatrix(result, -13, 11, -19, 17, -22, 32)
 
-   def test_righttriple(self):
+   def test_right_triple(self):
       # Matrix + Scale + Translate + Rotate
       result = self.matrix.clone()
       result.concat(self.scale)
@@ -410,7 +410,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.translate)
       self.assertMatrix(result, -39, 55, -57, 85, -80, 124)
 
-   def test_leftsingle(self):
+   def test_left_single(self):
       # Scale + Matrix
       result = self.scale.clone()
       result.concat(self.matrix)
@@ -426,7 +426,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.matrix)
       self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 23, 29)
 
-   def test_leftdouble(self):
+   def test_left_double(self):
       # Scale + Translate + Matrix
       result = self.scale.clone()
       result.concat(self.translate)
@@ -463,7 +463,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.matrix)
       self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 253, 291)
 
-   def test_lefttriple(self):
+   def test_left_triple(self):
       # scale + translate + rotate + matrix
       result = self.scale.clone()
       result.concat(self.translate)
@@ -506,7 +506,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.matrix)
       self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 253, 291)
 
-   def test_middledouble(self):
+   def test_middle_double(self):
       # scale + matrix + translate
       result = self.scale.clone()
       result.concat(self.matrix)
@@ -543,7 +543,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.translate)
       self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 30, 38)
 
-   def test_middletriple1(self):
+   def test_middle_triple1(self):
       # scale + matrix + translate + rotate
       result = self.scale.clone()
       result.concat(self.matrix)
@@ -586,7 +586,7 @@ class MatrixConcatTests(GeomTestsBase):
       result.concat(self.translate)
       self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 76, 154)
 
-   def test_middletriple2(self):
+   def test_middle_triple2(self):
       # scale + translate + matrix + rotate
       result = self.scale.clone()
       result.concat(self.translate)
