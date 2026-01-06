@@ -115,7 +115,7 @@ class ArrayTests(as3libTestCase):
 
       self.assertEach(array, ['elem0', 'elem4'], 4)
 
-   def test_enumerationelements(self):
+   def test_enumeration_elements(self):
       a = as3lib.Array(1, 2, 3, 4, 5)
       a.elem = 'test'
 
@@ -140,7 +140,7 @@ class ArrayTests(as3libTestCase):
       b = a.filter(lambda val, i, j: val <= 5)
       self.assertEqual(b, [5, 3, 1])
 
-   def test_foreach(self):
+   def test_forEach(self):
       a = as3lib.Array(5, 'abc')
 
       def test(val, index, array):
@@ -150,7 +150,7 @@ class ArrayTests(as3libTestCase):
 
       a.forEach(test)
 
-   def test_hasownproperty(self):
+   def test_hasOwnProperty(self):
       a = as3lib.Array(5)
 
       as3lib.Array.prototype[3] = 'works'
@@ -171,7 +171,7 @@ class ArrayTests(as3libTestCase):
       a[3] = 'nohole'
       self.assertEqual(a[3], 'nohole')
 
-   def test_indexmax(self):
+   def test_max_index(self):
       self.assertIndex(0, 1, True)
       self.assertIndex('0', 1, True)
       self.assertIndex(4294967293, 4294967294, True)
@@ -190,7 +190,7 @@ class ArrayTests(as3libTestCase):
       self.assertIndex(2147483648, 2147483649, True)
       self.assertIndex(2147483649, 2147483650, True)
 
-   def test_indexof(self):
+   def test_indexOf(self):
       a = as3lib.Array(5, '5', 3, False, 4, 5, as3lib.undefined, 9)
       self.assertEqual(a.indexOf(5), 0)
       self.assertEqual(a.indexOf(5, 1), 5)
@@ -218,7 +218,7 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(c.join(b), 'a,b,c1,2,31,2,3')
       self.assertEqual(d.join('!'), 'str!123!!!true!false')
 
-   def test_lastindexof(self):
+   def test_lastIndexOf(self):
       a = as3lib.Array(5, '5', 3, False, 4, 5, as3lib.undefined, 9)
       self.assertEqual(a.lastIndexOf(5), 5)
       self.assertEqual(a.lastIndexOf(5, 1), 0)
@@ -388,10 +388,10 @@ class ArrayTests(as3libTestCase):
    def test_sort_random(self):
       raise TestNotImplemented
 
-   def test_sorton(self):
+   def test_sortOn(self):
       raise TestNotImplemented
 
-   def test_sparseops(self):
+   def test_sparse_ops(self):
       arr = as3lib.Array(1, 2)
       arr[50] = 6
       arr[100] = 10
@@ -466,7 +466,7 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.length, 4)
       self.assertEqual(a, ['d', 'e', 'f', 'g'])
 
-   def test_tolocalestring(self):
+   def test_toLocaleString(self):
       # TODO: The answer that ruffle gives looks wrong, check on actual flash player
       a = as3lib.Array(as3lib.String('a'), as3lib.String('b'), as3lib.String('c'))
       b = as3lib.Array(as3lib.Number(1), as3lib.Number(2), as3lib.Number(3))
@@ -476,7 +476,7 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(b.toLocaleString(), '1,2,3')
       self.assertEqual(c.toLocaleString(), '[object String],[object String],[object String],1,2,3')
 
-   def test_tostring(self):
+   def test_toString(self):
       a = as3lib.Array('a', 'b', 'c')
       b = as3lib.Array(1, 2, 3)
       c = as3lib.Array(a, b)
@@ -500,7 +500,7 @@ class ArrayTests(as3libTestCase):
       a.unshift()
       self.asserArray(a, ['hi', 'bye', as3lib.undefined, 'works', 'test', as3lib.undefined, as3lib.undefined])
 
-   def test_valueof(self):
+   def test_valueOf(self):
       # TODO: Make sure that valueOf is supposed to return the array
       a = as3lib.Array('a', 'b', 'c')
       self.assertEqual(a.valueOf(), a)
@@ -511,7 +511,7 @@ class ArrayTests(as3libTestCase):
       c = as3lib.Array(a, b)
       self.assertEqual(c.valueOf(), c)
 
-   def test_nullcallback(self):
+   def test_null_callback(self):
       # TODO: Make sure this is correct
       a = as3lib.Array()
       a.push(1)
@@ -569,7 +569,7 @@ class BooleanTests(as3libTestCase):
       self.assertFalse(not as3lib.Number(-1.0))
       self.assertFalse(not as3lib.Object())
 
-   def test_tostring(self):
+   def test_toString(self):
       # TODO: Make sure assertIs is correct here
       self.assertEqual(as3lib.true.toString(), 'true')
       self.assertIs(as3lib.true.valueOf(), True)
@@ -811,7 +811,7 @@ class FunctionTests(as3libTestCase):
       self.assertFalse(as3lib.isNaN('123e-1'))
       self.assertTrue(as3lib.isNaN())
 
-   def test_parsefloat(self):
+   def test_parseFloat(self):
       self.assertNaNExact(as3lib.parseFloat())
 
       # integer
@@ -887,7 +887,7 @@ class FunctionTests(as3libTestCase):
 
       self.assertEqual(as3lib.parseFloat(C()), as3lib.Number(6))
 
-   def test_parseint(self):
+   def test_parseInt(self):
       self.assertNaNExact(as3lib.parseInt())
       self.assertNaNExact(as3lib.parseInt(as3lib.undefined))
       self.assertEqual(as3lib.parseInt(as3lib.undefined, 32), as3lib.Int(785077))
@@ -1099,19 +1099,19 @@ class intTests(as3libTestCase):
       self.assertEqual(as3lib.Int(as3lib.String('-0x100000001')), -1)
       self.assertEqual(as3lib.Int(-0x100000001), -1)
 
-   def test_edgecases(self):
+   def test_edge_cases(self):
       raise TestNotImplemented
 
    def test_instanceOf(self):
       raise TestNotImplemented
 
-   def test_toexponential(self):
+   def test_toExponential(self):
       raise TestNotImplemented
 
-   def test_tofixed(self):
+   def test_toFixed(self):
       raise TestNotImplemented
 
-   def test_toprecision(self):
+   def test_toPrecision(self):
       raise TestNotImplemented
 
    def test_toString(self):
@@ -1251,7 +1251,7 @@ class MathTests(as3libTestCase):
                        as3lib.NaN, 1.5574077246549023, 0, as3lib.NaN, 0,
                        -1.7379466792405172, 0.8007893029375109)
 
-   def test_minmaxSpecialCases(self):
+   def test_minmax_special_cases(self):
       self.assertEqual(Math.min(), as3lib.Infinity)
       self.assertEqual(Math.min(0), 0)
       self.assertEqual(Math.min(1, 2, 3), 1)
@@ -1307,15 +1307,15 @@ class ObjectTests(as3libTestCase):
 
       as3lib.Object.prototype.toString = temp
 
-   def test_tolocalestring(self):
+   def test_toLocaleString(self):
       o = as3lib.Object()
       self.assertEqual(o.toLocaleString(), '[object Object]')
 
-   def test_tostring(self):
+   def test_toString(self):
       o = as3lib.Object()
       self.assertEqual(o.toString(), '[object Object]')
 
-   def test_valueof(self):
+   def test_valueOf(self):
       obj = as3lib.Object()
       self.assertIs(obj.valueOf(), obj)
 
@@ -2184,8 +2184,7 @@ class VectorTests(as3libTestCase):
       2026-01-04T02:34:08.280647Z  INFO avm_trace: 5,16
       '''
 
-
-   def test_nullcallback(self):
+   def test_null_callback(self):
       # TODO: Make sure this is correct
       v = as3lib.Vector.int()
       v.push(1)
@@ -2203,7 +2202,7 @@ class WTFJSTests(as3libTestCase):
    def test_banana(self):
       self.assertEqual(as3lib.String('b') + as3lib.String('a') + + as3lib.String('a') + as3lib.String('a'), 'baNaNa')
 
-   def test_notarray(self):
+   def test_not_array(self):
       self.assertEqual(+as3lib.Array(), 0)
       self.assertEqual(not as3lib.Array(), as3lib.false)
       self.assertTrue(as3lib.Array() == (not as3lib.Array()))
@@ -2214,7 +2213,7 @@ class WTFJSTests(as3libTestCase):
       self.asserttrue(as3lib.false == as3lib.Array())
       self.assertTrue(as3lib.false == (not as3lib.Array()))
 
-   def test_stringbools(self):
+   def test_string_bools(self):
       self.assertEqual(not not as3lib.String('false'), not not as3lib.String('true'))
       self.assertIs(not not as3lib.String('false'), not not as3lib.String('true'))
 
@@ -2222,18 +2221,18 @@ class WTFJSTests(as3libTestCase):
       # Original (![] + [])[+[]] + (![] + [])[+!+[]] + ([![]] + [][[]])[+!+[] + [+[]]] + (![] + [])[!+[] + !+[]];
       self.assertEqual((not as3lib.Array() + as3lib.Array())[+as3lib.Array()] + (not as3lib.Array() + as3lib.Array())[+(not+as3lib.Array())] + (as3lib.Array(not as3lib.Array()) + as3lib.Array()[as3lib.Array()])[+(not+as3lib.Array()) + as3lib.Array(+as3lib.Array)] + (not as3lib.Array() + as3lib.Array())[not+as3lib.Array() + (not+as3lib.Array())], 'fail')
 
-   def test_truthyarry(self):
+   def test_truthy_arry(self):
       self.assertTrue(not not as3lib.Array())
       self.assertFalse(as3lib.Array())
 
-   def test_falsynull(self):
+   def test_falsy_null(self):
       self.assertFalse(not not as3lib.null)
       self.assertFalse(as3lib.null == as3lib.false)
 
-   def test_addarray(self):
+   def test_add_array(self):
       self.assertEqual(as3lib.Array(1, 2, 3) + as3lib.Array(4, 5, 6), '1,2,34,5,6')
 
-   def test_arrayequality(self):
+   def test_array_equality(self):
       '''
       [] == ''   // -> true
       [] == 0    // -> true
@@ -2280,7 +2279,7 @@ class WTFJSTests(as3libTestCase):
       self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.undefined)))))), as3lib.String())
       self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.undefined)))))), as3lib.Number(0))
 
-   def test_parseintquirks(self):
+   def test_parseInt_quirks(self):
       self.assertNaNExact(as3lib.parseInt('f*ck'))
       self.assertEqual(as3lib.parseInt('f*ck', 16), 15)
       self.assertNaNExact(as3lib.parseInt('Infinity', 10))
@@ -2300,7 +2299,7 @@ class WTFJSTests(as3libTestCase):
       self.assertEqual(as3lib.parseInt(0.0000001), 1)
       self.assertEqual(as3lib.parseInt(1 / 1999999), 5)
 
-   def test_funnymath(self):
+   def test_funny_math(self):
       '''
        3  - 1  // -> 2
        3  + 1  // -> 4
@@ -2336,7 +2335,7 @@ class WTFJSTests(as3libTestCase):
       self.assertEqual(as3lib.Array() * as3lib.Array(), as3lib.Number(0))
       self.assertEqual(as3lib.Array([4, 4]) * as3lib.Array([4, 4]), as3lib.NaN)
 
-   def test_yieldself(self):
+   def test_yield_self(self):
       # The syntax here is a little bit different but it still works
       def f():
          yield f
@@ -2348,7 +2347,7 @@ class WTFJSTests(as3libTestCase):
       self.assertIs(Math.max(), as3lib.NInfinity)
       self.assertLess(Math.max(), Math.min())
 
-   def test_infinitetimeout(self):
+   def test_infinite_timeout(self):
       raise TestNotImplemented
       # setTimeout(() => console.log("called"), Infinity)
       # This will execute immediately because Infinity does not fit into a
