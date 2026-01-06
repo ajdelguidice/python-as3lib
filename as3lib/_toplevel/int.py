@@ -63,6 +63,12 @@ class int(Object):
    def __eq__(self, value):
       return self._value == value
 
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
    @staticmethod
    def _upperBounds(value):
       v = int.MIN_VALUE + value
@@ -180,6 +186,8 @@ class uint(Object):
          self._value = uint._boundsCheck(Math.floor(value))
       elif isinstance(value, (builtins.int, uint, int)):
          self._value = uint._boundsCheck(value)
+      elif hasattr(value, '__int__'):
+         self._value = uint._boundsCheck(builtins.int(value))
       else:
          raise
 
@@ -188,6 +196,12 @@ class uint(Object):
 
    def __eq__(self, value):
       return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
 
    def toExponential(self, fracionDigits):
       raise NotImplementedError
@@ -199,10 +213,8 @@ class uint(Object):
       raise NotImplementedError
 
    def toString(self, radix=10):
-      if radix != 10:
-         raise NotImplementedError
-
-      return str(self._value)
+      if radix <= 36 and radix >= 2:
+         return base_repr(self._value, base=radix)
 
    def valueOf(self):
       return self._value
