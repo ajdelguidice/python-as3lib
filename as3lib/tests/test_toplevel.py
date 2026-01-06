@@ -406,6 +406,7 @@ class ArrayTests(as3libTestCase):
 
       # Delete
       del arr[50]
+      self.assertEqual(arr.length, 501)
       self.assertEqual(arr[50], as3lib.undefined)
       self.assertEqual(arr[100], 10)
 
@@ -536,7 +537,7 @@ class BooleanTests(as3libTestCase):
       self.assertFalse(as3lib.Boolean(''))
       self.assertTrue(as3lib.Boolean(as3lib.String('str')))
       self.assertTrue(as3lib.Boolean('str'))
-      self.asserttrue(as3lib.Boolean(as3lib.String('true')))
+      self.assertTrue(as3lib.Boolean(as3lib.String('true')))
       self.assertTrue(as3lib.Boolean('true'))
       self.assertTrue(as3lib.Boolean(as3lib.String('false')))
       self.assertTrue(as3lib.Boolean('false'))
@@ -982,8 +983,8 @@ class GlobalsTests(as3libTestCase):
       self.assertFalse(as3lib.undefined == as3lib.Number(1))
       # trace("\'undefined\' < undefined => " + ("undefined" < undefined));
       # trace("undefined < \'undefined\' => " + (undefined < "undefined"));
-      #'undefined' < undefined => undefined
-      #undefined < 'undefined' => undefined
+      # 'undefined' < undefined => undefined
+      # undefined < 'undefined' => undefined
       self.assertEqual(as3lib.Number(0) < as3lib.undefined, as3lib.undefined)
       self.assertEqual(as3lib.undefined < as3lib.Number(0), as3lib.undefined)
       self.assertEqual(as3lib.Number(1) < as3lib.undefined, as3lib.undefined)
@@ -1017,7 +1018,36 @@ class GlobalsTests(as3libTestCase):
       raise TestNotImplemented
 
 
-class intTests(as3libTestCase):
+class NumberTestsBase(as3libTestCase):
+   def asserttoString(self, num, *values):
+      # 0 is valueOf, 1 is no radix, the rest are expected
+      if len(values) == 1 and isinstance(values[0], (list, tuple)):
+         values = values[0]
+      if len(values) == 1:
+         self.assertEqual(num.valueOf(), int(values[0]))
+         self.assertEqual(num.toString(), values[0])
+         for i in range(2, 37):
+            self.assertEqual(num.toString(i), values[0])
+      else:
+         self.assertEqual(num.valueOf(), values[0])
+         self.assertEqual(num.toString(), values[1])
+         for i in range(2, 37):
+            self.assertEqual(num.toString(i), values[i])
+
+   def asserttoPrecision(self, num, *values):
+      if len(values) == 1 and isinstance(values[0], (list, tuple)):
+         values = values[0]
+      testnums = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21)
+      if len(values) == 1:
+         for i in testnums:
+            self.assertEqual(num.toPrecision(i), values[0])
+      else:
+         val = iter(values)
+         for i in testnums:
+            self.assertEqual(num.toPrecision(i), next(val))
+
+
+class intTests(NumberTestsBase):
    def test_constructor(self):
       self.assertEqual(as3lib.Int(), 0)
       self.assertEqual(as3lib.Int(as3lib.true), 1)
@@ -1101,9 +1131,42 @@ class intTests(as3libTestCase):
 
    def test_edge_cases(self):
       raise TestNotImplemented
+      # uint doesn't exist
+      # trace(getQualifiedClassName(1 as uint));
+      # 2026-01-06T18:24:19.825440Z  INFO avm_trace: int
+      # trace((1 as uint) is uint);
+      # 2026-01-06T18:24:19.825443Z  INFO avm_trace: true
+      # trace(getQualifiedClassName(new uint()));
+      # 2026-01-06T18:24:19.825446Z  INFO avm_trace: int
 
-   def test_instanceOf(self):
-      raise TestNotImplemented
+      # Int overflow => Number
+      self.assertType(as3lib.Int(268435454), as3lib.Int)
+      self.assertType(as3lib.Int(268435454 + 1), as3lib.Int)
+      self.assertType(as3lib.Int(268435454 + 2), as3lib.Number)
+
+      # Int underflow => Number
+      self.assertType(as3lib.Int(-268435454), as3lib.Int)
+      self.assertType(as3lib.Int(-268435454 - 1), as3lib.Int)
+      self.assertType(as3lib.Int(-268435454 - 2), as3lib.Int)
+      self.assertType(as3lib.Int(-268435454 - 3), as3lib.Number)
+
+      # properties declared 'uint' don't underflow at 0
+      self.assertEqual(as3lib.Array().length - 1, -1)
+
+      # `as uint` also doesn't underflow, returns null"
+      # var a = -1;
+      # trace(a as uint);
+      # 2026-01-06T18:24:19.825702Z  INFO avm_trace: null
+
+      #  uint type conversions _do_ underflow at 0
+      # var b: uint;
+      # b = a;
+      # trace(b);
+      # 2026-01-06T18:24:19.825709Z  INFO avm_trace: 4294967295
+
+   # test_instanceOf can not be reproduced in python
+   # This test asserts that numbers declared by themselves without type
+   # declarations should be of type Number, not int
 
    def test_toExponential(self):
       raise TestNotImplemented
@@ -1264,7 +1327,7 @@ class MathTests(as3libTestCase):
       self.assertNaN(Math.max(9, as3lib.NaN, as3lib.false, as3lib.true, as3lib.Infinity, as3lib.undefined))
 
 
-class NumberTests(as3libTestCase):
+class NumberTests(NumberTestsBase):
    def test_constructor(self):
       raise TestNotImplemented
 
@@ -1452,34 +1515,7 @@ class OperationTests(as3libTestCase):
       raise TestNotImplemented
 
 
-class uintTests(as3libTestCase):
-   def asserttoString(self, num, *values):
-      # 0 is valueOf, 1 is no radix, the rest are expected
-      if len(values) == 1 and isinstance(values[0], (list, tuple)):
-         values = values[0]
-      if len(values) == 1:
-         self.assertEqual(num.valueOf(), int(values[0]))
-         self.assertEqual(num.toString(), values[0])
-         for i in range(2, 37):
-            self.assertEqual(num.toString(i), values[0])
-      else:
-         self.assertEqual(num.valueOf(), values[0])
-         self.assertEqual(num.toString(), values[1])
-         for i in range(2, 37):
-            self.assertEqual(num.toString(i), values[i])
-
-   def asserttoPrecision(self, num, *values):
-      if len(values) == 1 and isinstance(values[0], (list, tuple)):
-         values = values[0]
-      testnums = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21)
-      if len(values) == 1:
-         for i in testnums:
-            self.assertEqual(num.toPrecision(i), values[0])
-      else:
-         val = iter(values)
-         for i in testnums:
-            self.assertEqual(num.toPrecision(i), next(val))
-
+class uintTests(NumberTestsBase):
    def test_constructor(self):
       self.assertEqual(as3lib.uint(), 0)
       self.assertEqual(as3lib.uint(as3lib.true), 1)
@@ -1520,8 +1556,6 @@ class uintTests(as3libTestCase):
       self.assertEqual(as3lib.uint(-0x180000001), 2147483647)
       self.assertEqual(as3lib.uint(-0x100000001), 4294967295)
 
-      self.assertEqual(as3lib.uint(as3lib.Object()), 0)
-
       self.assertEqual(as3lib.uint(as3lib.String('0.0')), 0)
       self.assertEqual(as3lib.uint(as3lib.String('NaN')), 0)
       self.assertEqual(as3lib.uint(as3lib.String('-0.0')), 0)
@@ -1540,6 +1574,8 @@ class uintTests(as3libTestCase):
       self.assertEqual(as3lib.uint(as3lib.String('-0x80000001')), 2147483647)
       self.assertEqual(as3lib.uint(as3lib.String('-0x180000001')), 2147483647)
       self.assertEqual(as3lib.uint(as3lib.String('-0x100000001')), 4294967295)
+
+      self.assertEqual(as3lib.uint(as3lib.Object()), 0)
 
    def test_toExponential(self):
       raise TestNotImplemented
@@ -1578,7 +1614,7 @@ class uintTests(as3libTestCase):
       self.asserttoPrecision(as3lib.uint(as3lib.String('-0.0')), values)
       self.asserttoPrecision(as3lib.uint('-0.0'), values)
 
-      self.asserttoPrecision(as3lib.uint(as3lib.Number.Infinity), values)
+      self.asserttoPrecision(as3lib.uint(as3lib.Infinity), values)
       self.asserttoPrecision(as3lib.uint(as3lib.String('Infinity')), values)
       self.asserttoPrecision(as3lib.uint('Ininity'), values)
 
@@ -1727,7 +1763,7 @@ class uintTests(as3libTestCase):
       self.asserttoString(as3lib.uint(as3lib.String('-0.0')), '0')
       self.asserttoString(as3lib.uint('-0.0'), '0')
 
-      self.asserttoString(as3lib.uint(as3lib.Number.Infinity), '0')
+      self.asserttoString(as3lib.uint(as3lib.Infinity), '0')
       self.asserttoString(as3lib.uint(as3lib.String('Infinity')), '0')
       self.asserttoString(as3lib.uint('Ininity'), '0')
 
@@ -1988,15 +2024,15 @@ class VectorTests(as3libTestCase):
       self.assertFalse(c_uint.fixed)
 
       raise MethodNotImplemented('Vector.<Vector>')
-      a_vector = as3lib.Vector(2, type=Vector.int)
+      a_vector = as3lib.Vector(2, type=as3lib.Vector.int)
       self.assertEqual(a_vector.length, 2)
       self.assertFalse(a_vector.fixed)
 
-      b_vector = as3lib.Vector.uint(3, True, type=Vector.int)
+      b_vector = as3lib.Vector.uint(3, True, type=as3lib.Vector.int)
       self.assertEqual(b_vector.length, 3)
       self.assertTrue(b_vector.fixed)
 
-      c_vector = as3lib.Vector.uint(type=Vector.int)
+      c_vector = as3lib.Vector.uint(type=as3lib.Vector.int)
       self.assertEqual(c_vector.length, 0)
       self.assertFalse(c_vector.fixed)
 
@@ -2025,7 +2061,7 @@ class VectorTests(as3libTestCase):
       self.assertType(c_class[1], Subclass)
       self.assertType(c_class[2], Subclass)
 
-      c_class_flipped = b_class.concat(as3lib.Vector([Subclass()],type=Subclass))
+      c_class_flipped = b_class.concat(as3lib.Vector([Subclass()], type=Subclass))
 
       self.assertEqual(c_class_flipped.length, 2)
       self.assertType(c_class_flipped[0], Subclass)
