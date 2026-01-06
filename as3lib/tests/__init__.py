@@ -7,12 +7,12 @@ class as3libTestCase(unittest.TestCase):
       if obj1 is not obj2:
          self.fail('%r is not %r' % (obj1, obj2))
 
-   def assertNaN(self, obj):
+   def assertisNaN(self, obj):
       # NOTE: Relies on NaN being properly set up
       if not as3lib.isNaN(obj):
          self.fail('%r is not NaN' % obj)
 
-   def assertNaNExact(self, obj):
+   def assertNaN(self, obj):
       if obj is not as3lib.NaN:
          self.fail('%r is not NaN' % obj)
 

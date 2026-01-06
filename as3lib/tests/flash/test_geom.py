@@ -26,12 +26,12 @@ class GeomTestsBase(as3libTestCase):
          self.assertEqual(vector.w, w)
 
    def assertVector3DNaN(self, vector, w=None):
-      self.assertNaNExact(vector.x)
-      self.assertNaNExact(vector.y)
-      self.assertNaNExact(vector.z)
+      self.assertNaN(vector.x)
+      self.assertNaN(vector.y)
+      self.assertNaN(vector.z)
       if w is not None:
          if w is as3lib.NaN:
-            self.assertNaNExact(vector.w)
+            self.assertNaN(vector.w)
          else:
             self.assertEqual(vector.w, w)
 
@@ -775,7 +775,7 @@ class PointTests(GeomTestsBase):
       self.assertPoint(p, 1, 2)
 
       p = Point(as3lib.Object(), 2)
-      self.assertNaNExact(p.x)
+      self.assertNaN(p.x)
       self.assertEqual(p.y, 2)
 
    def test_add(self):
@@ -908,7 +908,7 @@ class Vector3DTests(GeomTestsBase):
       self.assertVector3D(v, 1, 2, 3, 4)
 
       v = Vector3D(as3lib.Object(), 2)
-      self.assertNaNExact(v.x)
+      self.assertNaN(v.x)
       self.assertEqual(v.y, 2)
       self.assertEqual(v.z, 0)
       self.assertEqual(v.w, 0)
@@ -1170,7 +1170,7 @@ class Vector3DTests(GeomTestsBase):
 
       v = Vector3D(as3lib.undefined, 100, 100, 100)
       n = v.normalize()
-      self.assertNaNExact(n)
+      self.assertNaN(n)
       self.assertVector3DNaN(v, 100)
 
       v = Vector3D(7, as3lib.null, 24, 365)
@@ -1209,13 +1209,13 @@ class Vector3DTests(GeomTestsBase):
 
    def test_angleBetween(self):
       a = Vector3D.angleBetween(Vector3D(), Vector3D())
-      self.assertNaNExact(self.roundNumber(a))
+      self.assertNaN(self.roundNumber(a))
 
       a = Vector3D.angleBetween(Vector3D(), Vector3D(1, 0, 0))
-      self.assertNaNExact(self.roundNumber(a))
+      self.assertNaN(self.roundNumber(a))
 
       a = Vector3D.angleBetween(Vector3D(1, 0, 0), Vector3D())
-      self.assertNaNExact(self.roundNumber(a))
+      self.assertNaN(self.roundNumber(a))
 
       a = Vector3D.angleBetween(Vector3D(1, 0, 0), Vector3D(0, 1, 0))
       self.assertEqual(self.roundNumber(a), 1.570796326795)
