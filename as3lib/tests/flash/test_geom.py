@@ -775,7 +775,8 @@ class PointTests(GeomTestsBase):
       self.assertPoint(p, 1, 2)
 
       p = Point(as3lib.Object(), 2)
-      self.assertPoint(p, as3lib.NaN, 2)
+      self.assertNaNExact(p.x)
+      self.assertEqual(p.y, 2)
 
    def test_add(self):
       p = Point()
