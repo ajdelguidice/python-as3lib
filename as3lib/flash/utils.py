@@ -71,7 +71,7 @@ class _INTERVAL_TIMER:
 def setInterval(closure: callable, delay, *arguements):
    # Can't use the python id here because it can be over the limit of a uint
    id = next(_NEW_INTERVAL_ID)
-   _INTERVAL_TIMER(delay, closure, arguements, id)
+   _INTERVAL_TIMER(as3.uint(delay), closure, arguements, id)
    return id
 
 
@@ -83,7 +83,7 @@ class _TIMEOUT_TIMER(_INTERVAL_TIMER):
 
 def setTimeout(closure: callable, delay, *arguements):
    id = next(_NEW_INTERVAL_ID)
-   _TIMEOUT_TIMER(delay, closure, arguements, id)
+   _TIMEOUT_TIMER(as3.uint(delay), closure, arguements, id)
    return id
 
 
