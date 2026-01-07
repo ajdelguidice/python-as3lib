@@ -84,8 +84,6 @@ class Array(list, Object):
          Array — An array that contains the elements from this array followed by elements from the parameters.
       '''
       newArr = Array(*self)
-      if len(args) == 0:
-         return newArr
       for i in args:
          if isinstance(i, (list, tuple)):
             newArr.extend(i)
@@ -102,6 +100,8 @@ class Array(list, Object):
       Returns:
          Boolean — A Boolean value of True if all items in the array return True for the specified function; otherwise, False.
       '''
+      if callback is null:
+         return True
       for i in range(len(self)):
          if callback(self[i], i, self) is False:
             return False
@@ -116,6 +116,8 @@ class Array(list, Object):
       Returns:
          Array — A new array that contains all items from the original array that returned True.
       '''
+      if callback is null:
+         return
       tempArray = Array()
       for i in range(len(self)):
          if callback(self[i], i, self) is True:
@@ -129,6 +131,8 @@ class Array(list, Object):
          callback:Function — The function to run on each item in the array. This function can contain a simple command (for example, a trace() statement) or a more complex operation, and is invoked with three arguments; the value of an item, the index of an item, and the Array object:
          - function callback(item:*, index:int, array:Array)
       '''
+      if callback is null:
+         return undefined
       for i in range(len(self)):
          callback(self[i], i, self)
 
@@ -214,6 +218,8 @@ class Array(list, Object):
       Returns:
          Array — A new array that contains the results of the function on each item in the original array.
       '''
+      if callback is null:
+         return
       return Array(*[callback(self[i], i, self) for i in range(len(self))])
 
    def pop(self):
@@ -284,6 +290,8 @@ class Array(list, Object):
       Returns:
          Boolean — A Boolean value of True if any items in the array return True for the specified function; otherwise False.
       '''
+      if callback is null:
+         return False
       for i in range(len(self)):
          if callback(self[i], i, self) is True:
             return True
