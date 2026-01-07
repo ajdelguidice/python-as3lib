@@ -42,7 +42,7 @@ def getQualifiedSuperclassName():...
 
 
 def getTimer():
-   return int(util.utcnow().timestamp()) * 1000) - as3state.startTime
+   return int(util.utcnow().timestamp()) * 1000 - as3state.startTime
 
 
 class _INTERVAL_TIMER:
