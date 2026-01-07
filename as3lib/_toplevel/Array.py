@@ -3,13 +3,12 @@ from functools import cmp_to_key
 from inspect import isfunction
 from types import NoneType
 from as3lib.helpers import textObject, recursionDepth
-from as3lib._toplevel.int import int
+from as3lib._toplevel.int import int, uint
 from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import RangeError, Error
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Boolean import Boolean
 from as3lib._toplevel.Number import Number
-from as3lib._toplevel.uint import uint
 from as3lib._toplevel.trace import trace
 
 

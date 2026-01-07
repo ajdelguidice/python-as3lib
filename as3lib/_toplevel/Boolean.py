@@ -1,8 +1,7 @@
 from as3lib._toplevel.Constants import undefined, null
-from as3lib._toplevel.int import int
+from as3lib._toplevel.int import int, uint
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
-from as3lib._toplevel.uint import uint
 import builtins
 
 
