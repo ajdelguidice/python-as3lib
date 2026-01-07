@@ -2,8 +2,7 @@ from as3lib import as3state
 import builtins
 from pathlib import Path, PurePath
 from as3lib._toplevel.Constants import undefined
-from as3lib._toplevel.int import int
-from as3lib._toplevel.uint import uint
+from as3lib._toplevel.int import int, uint, _parseInt
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Errors import Error
 
@@ -72,26 +71,7 @@ def parseFloat(str_: str = None):
 
 
 def parseInt(str_: str = None, radix: int | uint = 0):
-   if str_ is None or str_ is undefined:
-      return Number.NaN
-   str_ = str_.lstrip()
-   zero = False
-   if len(str_) >= 2 and str_.startswith('0x'):
-      radix = 16
-      str_ = str_[2:]
-   elif radix < 2 or radix > 36:
-      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
-   if str_.startswith('0'):
-      zero = True
-      str_.lstrip("0")
-   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
-   str_ = str_.upper()
-   j = 0
-   while j < len(str_) and str_[j] in radixchars:
-      j += 1
-   if j == 0:
-      return 0 if zero else Number.NaN
-   return int(builtins.int(str_[:j], radix))
+   return Number(_parseInt(str_, radix))
 
 
 def unescape():

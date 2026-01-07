@@ -1,11 +1,42 @@
 from __future__ import annotations
-from numpy import base_repr
-import builtins
-import math
 from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import RangeError, TypeError
+from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
+import builtins
+from numpy import base_repr
+
+
+def _parseInt(str_: str = None, radix: int | uint = 0):
+   # TODO: Find a better way of doing the sign detection
+   if str_ is None or str_ is undefined:
+      return Number.NaN
+   str_ = str_.lstrip()
+   zero = False
+   minus = 0
+   j1 = 0
+   while j1 < len(str_) and str_[j1] in '-+':
+      if str_[j1] == '-':
+         minus += 1
+      j1 += 1
+   str_ = str_[j1:]
+   if len(str_) >= 2 and str_.startswith('0x'):
+      radix = 16
+      str_ = str_[2:]
+   elif radix < 2 or radix > 36:
+      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
+   if str_.startswith('0'):
+      zero = True
+      str_.lstrip("0")
+   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
+   str_ = str_.upper()
+   j = 0
+   while j < len(str_) and str_[j] in radixchars:
+      j += 1
+   if j == 0:
+      return 0 if zero else Number.NaN
+   return builtins.int(str_[:j], radix) * (-1 if minus % 2 else 1)
 
 
 class int(Object):
@@ -93,14 +124,14 @@ class int(Object):
 
    def _int(self, value):
       # !It is unclear if most of this is included here, most is from the Number class
+      if isinstance(value, str):
+         value = _parseInt(value, 10)
       if value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          return 0
       if isinstance(value, (builtins.int, int)):
          return self._boundsCheck(value)
       if isinstance(value, (float, Number)):
-         return self._boundsCheck(math.floor(value))
-      if isinstance(value, str):
-         return 0
+         return self._boundsCheck(Math.floor(value))
       if hasattr(value, '__int__'):
          return value.__int__()
       raise TypeError(f'Can not convert type {type(value)} to integer')
@@ -157,15 +188,12 @@ class uint(Object):
 
    @staticmethod
    def _upperBounds(value):
-      v = uint.MIN_VALUE + value
-      if value > uint.MAX_VALUE:
-         v = uint._upperBounds(v)
-      return v
+      return value % uint.MAX_VALUE - 1
 
    @staticmethod
    def _lowerBounds(value):
-      v = uint.MAX_VALUE + value
-      if value < uint.MIN_VALUE:
+      v = uint.MAX_VALUE + value + 1
+      if v < uint.MIN_VALUE:
          v = uint._lowerBounds(v)
       return v
 
@@ -178,10 +206,10 @@ class uint(Object):
       return value
 
    def __init__(self, value=undefined):
-      if value is undefined or value is null or value is Number.NaN:
+      if isinstance(value, str):
+         value = _parseInt(value, 10)
+      if value is undefined or value is null or value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          self._value = 0
-      elif isinstance(value, str):
-         raise
       elif isinstance(value, (Number, float)):
          self._value = uint._boundsCheck(Math.floor(value))
       elif isinstance(value, (builtins.int, uint, int)):
@@ -203,6 +231,18 @@ class uint(Object):
    def __gt__(self, value):
       return self._value > value
 
+   def __truediv__(self, value):
+      if value == 0:
+         if self._value == 0:
+            return Number.NaN
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         raise  # Should not happen
+      try:
+         return uint(self._value / builtins.int(value))
+      except Exception:
+         raise TypeError(f'Can not divide uint by {type(value)}')
+
    def toExponential(self, fracionDigits):
       raise NotImplementedError
 
@@ -214,7 +254,7 @@ class uint(Object):
 
    def toString(self, radix=10):
       if radix <= 36 and radix >= 2:
-         return base_repr(self._value, base=radix)
+         return base_repr(self._value, base=radix).lower()
 
    def valueOf(self):
       return self._value
