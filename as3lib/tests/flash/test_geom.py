@@ -1,11 +1,8 @@
 import as3lib
 from as3lib import ArgumentError, Math, RangeError, TypeError, Vector
-from as3lib.flash.display import Sprite
-from as3lib.flash.geom import Matrix, Matrix3D, PerspectiveProjection, Point, Vector3D
+from as3lib.flash.display import Sprite, MovieClip
+from as3lib.flash.geom import Matrix, Matrix3D, PerspectiveProjection, Point, Utils3D, Vector3D
 from as3lib.tests import as3libTestCase, TestNotImplemented
-
-
-class ColorTransformTests(as3libTestCase):...
 
 
 class MatrixTests(as3libTestCase):
@@ -611,6 +608,21 @@ class Matrix3DTests(as3libTestCase):
       m.identity()
       self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
 
+   def test_determinant(self):
+      # Zero
+      m = Matrix3D(Vector.Number([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]))
+      self.assertEqual(m.determinant, 0)
+
+      m = Matrix3D(Vector.Number([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]))
+      self.assertEqual(m.determinant, 0)
+
+      # Non-zero, randomly generated input
+      m = Matrix3D(Vector.Number([37,48,70,38,17,33,70,52,94,89,11,4,2,43,90,50]))
+      self.assertEqual(m.determinant, 1953360)
+
+      m = Matrix3D(Vector.Number([30,76,67,56,69,61,99,11,95,92,84,24,14,35,96,71]))
+      self.assertEqual(m.determinant, 8822702)
+
    def test_2(self):
       m = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]))
       self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
@@ -739,6 +751,7 @@ class PointTests(as3libTestCase):
       p = Point(1, 2)
       self.assertPoint(p, 1, 2)
 
+      # TODO: Find a way to handle this
       p = Point(as3lib.Object(), 2)
       self.assertNaN(p.x)
       self.assertEqual(p.y, 2)
@@ -843,8 +856,257 @@ class PointTests(as3libTestCase):
 
 
 class RectangleTests(as3libTestCase):...
-class TransformTests(as3libTestCase):...
-class Utils3DTests(as3libTestCase):...
+
+
+class TransformTests(as3libTestCase):
+   class TestClass(MovieClip):
+      def __init__(self, cls):
+         self.c = cls
+         self.testEQ()
+         self.test2D()
+         self.test3D()
+         self.testCopy2D()
+         self.testCopy3D()
+         # self.testImageComparison()
+
+      def testEQ(self):
+         # These tests originally used ===
+         # TODO: Test these on flash player
+         s = Sprite()
+         t = s.transform
+
+         t.matrix = Matrix()
+         self.c.assertIsNot(t.matrix, t.matrix)
+
+         t.matrix3D = Matrix3D()
+         self.c.assertIs(t.matrix3D, t.matrix3D)
+
+         t.perspectiveProjection = PerspectiveProjection()
+         self.c.assertIsNot(t.perspectiveProjection, t.perspectiveProjection)
+
+         t.colorTransform = ColorTransform()
+         self.c.assertIsNot(t.colorTransform, t.colorTransform)
+
+      def test2D(self):
+         sprite2D = Sprite()
+
+         # sprite2D: new Sprite has null matrix3D and valid matrix
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+
+         # sprite2D: set identity matrix
+         mat2D = Matrix()
+         mat2D.identity()
+         sprite2D.transform.matrix = mat2D
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(mat2D, 1, 0, 0, 1, 0, 0)
+
+         #  sprite2D: update mat2D"
+         mat2D.setTo(2,3,4,5,6,7)
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
+
+         # sprite2D: .matrix = mat2D
+         sprite2D.transform.matrix = mat2D;
+         self.c.assertMatrix(sprite2D.transform.matrix, 2, 3, 4, 5, 6, 7)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
+
+         # sprite2D: .matrix = null
+         sprite2D.transform.matrix = as3lib.null
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
+
+         # sprite2D: .matrix3D = null
+         sprite2D.transform.matrix3D = as3lib.null
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
+
+         # sprite2D: set x = 30, y = 50
+         sprite2D.x = 30
+         sprite2D.y = 50
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 30, 50)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
+
+      def test3D(self):
+         sprite3D = Sprite()
+
+         # sprite3D: set identity matrix3D
+         mat3D = Matrix3D()
+         mat3D.identity()
+         sprite3D.transform.matrix3D = mat3D
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+         self.c.assertMatrix3D(mat3D, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+         # sprite3D: update mat3D
+         # RUFFLE: FIXME: values shouldn't be zero (0) for test coverage. Unsupported now.
+         mat3D.copyFrom(Matrix3D(Vector.Number([2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1])))
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         # RUFFLE: FIXME: mat3D update should be applied to transform.matrix3D immediately
+         # trace("sprite3D.transform.matrix3D.rawData", sprite3D.transform.matrix3D.rawData);
+         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+
+         # sprite3D: .matrix3D = mat3D
+         sprite3D.transform.matrix3D = mat3D
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+
+         # sprite3D: .matrix = null
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+
+         # sprite3D: set x = 30, y = 50
+         sprite3D.x = 30
+         sprite3D.y = 50
+         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,30,50,0,1))
+         # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
+         # trace("mat3D.rawData", mat3D.rawData);
+
+         # sprite3D: .matrix3D = null
+         sprite3D.transform.matrix3D = null
+         self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
+         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
+         # trace("mat3D.rawData", mat3D.rawData)
+
+      def testCopy2D(self):
+         sprite1 = Sprite()
+         sprite2 = Sprite()
+
+         mat2D = Matrix(1, 2, 3, 4, 5, 6)
+         sprite1.transform.matrix = mat2D
+         sprite2.transform = sprite1.transform
+         self.c.assertMatrix(sprite1.transform.matrix, 1, 2, 3, 4, 5, 6)
+         self.c.assertEqual(sprite1.transform.matrix3D, as3lib.null)
+         self.c.assertMatrix(sprite2.transform.matrix, 1, 2, 3, 4, 5, 6)
+         self.c.assertEqual(sprite2.transform.matrix3D, as3lib.null)
+
+      def testCopy3D(self):
+         sprite1 = Sprite()
+         sprite2 = Sprite()
+
+         mat3D = Matrix3D()
+         mat3D.appendRotation(1, Vector3D.Z_AXIS)
+         # RUFFLE: FIXME: zScale shouldn't be one (1) for test coverage. Unsupported now.
+         mat3D.appendScale(2, 3, 1)
+         # RUFFLE: FIXME: z shouldn't be zero (0) for test coverage. Unsupported now.
+         mat3D.appendTranslation(5, 6, 0)
+         sprite1.transform.matrix3D = mat3D
+         sprite2.transform = sprite1.transform
+         self.c.assertEqual(sprite1.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite1.transform.matrix3D, (1.9996954202651978,0.05235721915960312,0,0,-0.03490481153130531,2.9995431900024414,0,0,0,0,1,0,5,6,0,1))
+         self.c.assertEqual(sprite2.transform.matrix, as3lib.null)
+         self.c.assertMatrix3D(sprite2.transform.matrix3D, (1.9996954202651978,0.05235721915960312,0,0,-0.03490481153130531,2.9995431900024414,0,0,0,0,1,0,5,6,0,1))
+
+      '''
+      def testImageComparison(self):
+         m = Matrix3D()
+
+         # id
+         s1 = Sprite()
+         s1.x = 10
+         s1.y = 10
+         bd1 = BitmapData(50, 50, as3lib.false, 0xFF0000)
+         b1 = Bitmap(bd1)
+         m.identity()
+         b1.transform.matrix3D = m.clone()
+         s1.addChild(b1)
+         self.addChild(s1)  # This comes from DisplayObjectContainer
+
+         # scale
+         s2 = Sprite()
+         s2.x = 160
+         s2.y = 10
+         bd2 = BitmapData(50, 50, false, 0x00FF00)
+         b2 = Bitmap(bd2)
+         m.identity()
+         m.appendScale(1.5, 3, 1)
+         b2.transform.matrix3D = m.clone()
+         s2.addChild(b2)
+         self.addChild(s2)
+
+         # rotation
+         s3 = Sprite()
+         s3.x = 310
+         s3.y = 10
+         bd3 = BitmapData(50, 50, false, 0x00FFFF)
+         b3 = Bitmap(bd3)
+         m.identity()
+         m.appendRotation(30, Vector3D.Z_AXIS)
+         b3.transform.matrix3D = m.clone()
+         s3.addChild(b3)
+         self.addChild(s3)
+
+         # translation
+         s4 = Sprite()
+         s4.x = 10
+         s4.y = 160
+         bd4 = BitmapData(50, 50, false, 0x0000FF)
+         b4 = Bitmap(bd4)
+         m.identity()
+         m.appendTranslation(50, 50, 0)
+         b4.transform.matrix3D = m.clone()
+         s4.addChild(b4)
+         self.addChild(s4)
+
+         # scale + rotation + translation
+         s5 = Sprite()
+         s5.x = 160
+         s5.y = 160
+         bd5 = BitmapData(50, 50, false, 0xFF00FF)
+         b5 = Bitmap(bd5)
+         m.identity()
+         m.appendScale(2, 3, 1)
+         m.appendRotation(30, Vector3D.Z_AXIS)
+         m.appendTranslation(50, 50, 0)
+         b5.transform.matrix3D = m.clone()
+         s5.addChild(b5)
+         self.addChild(s5)
+      '''
+
+   def test_1(self):
+      TransformTests.TestClass(self)
+
+
+class Utils3DTests(as3libTestCase):
+   def test_1(self):
+      vec = Vector3D(1.0, 2.0, 3.0, 4.0)
+      mat = Matrix3D(Vector.Number([
+         100, 200, 300, 400,
+         500, 600, 700, 800,
+         900, 1000, 1100, 1200,
+         1300, 1400, 1500, 1600
+      ]))
+
+      projected = Utils3D.projectVector(mat, vec)
+      self.assertVector3D(projected, 0.7083333333333334, 0.8055555555555556,
+                          0.9027777777777778, 7200)
+
+      verts = Vector.Number([100, 200, 300, 400, 500, 600])
+      projectedVerts = Vector.Number([])
+      uvts = Vector.Number([])
+
+      # Bad project
+      Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
+      self.assertArray(projectedVerts, (0.6789529914529915, 0.7859686609686609, 0.6486423220973783, 0.7657615480649188), 4)
+      self.assertArray(uvts, (0, 0, 0.0000017806267806267806, 0, 0, 7.802746566791511e-7), 6)
+
+      # Good project
+      # Deliberately missing a final z coord
+      uvts = uvts = Vector.Number([1000, 2000, 3000, 4000, 5000, 6000, 5, 6])
+
+      Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
+      self.assertArray(projectedVerts, (0.6789529914529915, 0.7859686609686609, 0.6486423220973783, 0.7657615480649188), 4)
+      self.assertArray(uvts, (1000, 2000, 0.0000017806267806267806, 4000, 5000, 7.802746566791511e-7, 5, 6), 8)
 
 
 class Vector3DTests(as3libTestCase):
@@ -992,8 +1254,7 @@ class Vector3DTests(as3libTestCase):
       v.scaleBy(1)
       self.assertVector3D(v, 2, -4, 0, 5)
 
-      # TODO: Check this. It looks wrong
-      v = Vector3D(2, -4, 0, 5)
+      v = Vector3D()
       v.scaleBy(100)
       self.assertVector3D(v, 0, 0, 0, 0)
 
