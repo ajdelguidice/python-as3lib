@@ -102,17 +102,11 @@ class int(Object):
 
    @staticmethod
    def _upperBounds(value):
-      v = int.MIN_VALUE + value
-      if value > int.MAX_VALUE:
-         v = int._upperBounds(v)
-      return v
+      return int.MIN_VALUE + value % (int.MAX_VALUE + 1)
 
    @staticmethod
    def _lowerBounds(value):
-      v = int.MAX_VALUE + value
-      if value < int.MIN_VALUE:
-         v = int._lowerBounds(v)
-      return v
+      return value % int.MAX_VALUE + 1
 
    @staticmethod
    def _boundsCheck(value):
@@ -192,10 +186,7 @@ class uint(Object):
 
    @staticmethod
    def _lowerBounds(value):
-      v = uint.MAX_VALUE + value + 1
-      if v < uint.MIN_VALUE:
-         v = uint._lowerBounds(v)
-      return v
+      return value % uint.MAX_VALUE + 1
 
    @staticmethod
    def _boundsCheck(value):
