@@ -153,6 +153,7 @@ if not as3state.initdone:
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
 from ._toplevel.Boolean import Boolean
+from ._toplevel.Class import Class
 from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
@@ -211,6 +212,7 @@ __all__ = (
    'ArgumentError',
    'Array',
    'Boolean',
+   'Class',
    'Date',
    'DefinitionError',
    'decodeURI',
