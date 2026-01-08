@@ -186,7 +186,7 @@ class uint(Object):
 
    @staticmethod
    def _lowerBounds(value):
-      return value % uint.MAX_VALUE + 1
+      return value % (uint.MAX_VALUE + 1)
 
    @staticmethod
    def _boundsCheck(value):
@@ -203,7 +203,9 @@ class uint(Object):
          self._value = 0
       elif isinstance(value, (Number, float)):
          self._value = uint._boundsCheck(Math.floor(value))
-      elif isinstance(value, (builtins.int, uint, int)):
+      elif isinstance(value, (uint, int)):
+         self._value = uint._boundsCheck(value._value)
+      elif isinstance(value, builtins.int):
          self._value = uint._boundsCheck(value)
       elif hasattr(value, '__int__'):
          self._value = uint._boundsCheck(builtins.int(value))
@@ -212,6 +214,9 @@ class uint(Object):
 
    def __str__(self):
       return self.toString()
+
+   def __repr__(self):
+      return f'as3lib.uint({self._value})'
 
    def __eq__(self, value):
       return self._value == value
