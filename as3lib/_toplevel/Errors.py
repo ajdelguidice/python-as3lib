@@ -19,7 +19,7 @@ class Error(Exception, Object):
    message = 'Error'
    errorID = 0
 
-   def __init__(self, message="", id=0):
+   def __init__(self, message='', id=0):
       self.errorID = next(_ErNo) if id == 0 else id
       self.message = message
       errorTrace(self.toString())
@@ -34,68 +34,68 @@ class Error(Exception, Object):
 class ArgumentError(Error):
    name = 'ArguementError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class DefinitionError(Error):
    name = 'DefinitionError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class EvalError(Error):
    name = 'EvalError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class RangeError(Error):
    name = 'RangeError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class ReferenceError(Error):
    name = 'ReferenceError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class SecurityError(Error):
    name = 'SecurityError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class SyntaxError(Error):
    name = 'SyntaxError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class TypeError(Error):
    name = 'TypeError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class URIError(Error):
    name = 'URIError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
 
 
 class VerifyError(Error):
    name = 'VerifyError'
 
-   def __init__(self, message):
+   def __init__(self, message=''):
       super().__init__(message)
