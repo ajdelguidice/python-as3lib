@@ -15,14 +15,35 @@ _ErNo = _genErrNum()
 
 # !Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
 class Error(Exception, Object):
-   name = 'Error'
-   message = 'Error'
-   errorID = 0
+   @property
+   def errorID(self):
+      return self._id
+
+   @property
+   def message(self):
+      return self._message
+
+   @message.setter
+   def message(self, value):
+      self._message = value
+
+   @property
+   def name(self):
+      return self._name
+
+   @name.setter
+   def name(self, value):
+      self._name = value
 
    def __init__(self, message='', id=0):
-      self.errorID = next(_ErNo) if id == 0 else id
-      self.message = message
+      self._name = 'Error'
+      self._id = next(_ErNo) if id == 0 else id
+      self._message = message if message != '' else 'Error'
       errorTrace(self.toString())
+
+   @staticmethod
+   def getErrorMessage(number):
+      raise NotImplementedError
 
    def getStackTrace(self):
       return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
@@ -32,70 +53,59 @@ class Error(Exception, Object):
 
 
 class ArgumentError(Error):
-   name = 'ArguementError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'ArgumentError'
 
 
 class DefinitionError(Error):
-   name = 'DefinitionError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'DefinitionError'
 
 
 class EvalError(Error):
-   name = 'EvalError'
-
    def __init__(self, message=''):
       super().__init__(message)
-
+      self.name = 'EvalError'
 
 class RangeError(Error):
-   name = 'RangeError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'RangeError'
 
 
 class ReferenceError(Error):
-   name = 'ReferenceError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'ReferenceError'
 
 
 class SecurityError(Error):
-   name = 'SecurityError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'SecurityError'
 
 
 class SyntaxError(Error):
-   name = 'SyntaxError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'SyntaxError'
 
 
 class TypeError(Error):
-   name = 'TypeError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'TypeError'
 
 
 class URIError(Error):
-   name = 'URIError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'URIError'
 
 
 class VerifyError(Error):
-   name = 'VerifyError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'VerifyError'

@@ -2,77 +2,66 @@ from as3lib import Error
 
 
 class DRMManagerError(Error):
-   name = 'DRMManagerError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'DRMManagerError'
 
 
 class EOFError(Error):
-   name = 'EOFError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'EOFError'
 
 
 class IllegalOperationError(Error):
-   name = 'IllegalOperationError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'IllegalOperationError'
 
 
 class InvalidSWFError(Error):
-   name = 'InvalidSWFError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'InvalidSWFError'
 
 
 class IOError(Error):
-   name = 'IOError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'IOError'
 
 
 class MemoryError(Error):
-   name = 'MemoryError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'MemoryError'
 
 
 class PermissionError(Error):
-   name = 'PermissionError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'PermissionError'
 
 
 class ScriptTimeoutError(Error):
-   name = 'ScriptTimeoutError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'ScriptTimeoutError'
 
 
 class SQLError(Error):
-   name = 'SQLError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'SQLError'
 
 
 class SQLErrorOperation(Error):
-   name = 'SQLErrorOperation'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'SQLErrorOperation'
 
 
 class StackOverflowError(Error):
-   name = 'StackOverflowError'
-
    def __init__(self, message=''):
       super().__init__(message)
+      self.name = 'StackOverflowError'
