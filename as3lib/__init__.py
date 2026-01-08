@@ -178,12 +178,13 @@ false = Boolean(False)
 true = Boolean(True)
 
 try:
+   # TODO: Add adapter for Date, Object, XML stuff, and Vector
    def adapter(func, obj, encoder):
       return func(obj)
 
    add_type(Array, partial(adapter, list))
    add_type(Boolean, partial(adapter, bool))
-   add_type(int, partial(adapter, builtins.int))
+   add_type(Int, partial(adapter, builtins.int))
    add_type(Number, partial(adapter, float))
    add_type(String, partial(adapter, str))
    add_type(uint, partial(adapter, int))
