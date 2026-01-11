@@ -192,6 +192,9 @@ try:
 except Exception as e:
    raise Error('Failed to set up miniamf type adapters.') from e
 
+# Create NativeApplication Instance
+from as3lib.flash.desktop import NativeApplication
+as3state.nativeApplication = NativeApplication()
 
 __all__ = (
    'true',
