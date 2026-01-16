@@ -151,25 +151,20 @@ if not as3state.initdone:
 
 
 # Export toplevel and set up miniamf adapters
-from ._toplevel.Array import Array
-from ._toplevel.Boolean import Boolean
+from ._toplevel.BaseTypes import (Array, Boolean, null, Number, parseFloat,
+                                  parseInt, String, uint, undefined, Vector)
+from ._toplevel.BaseTypes import int as Int
 from ._toplevel.Class import Class
-from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
-from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
-from ._toplevel.int import int as Int
-from ._toplevel.int import uint
+from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
 from ._toplevel.JSON import JSON
 from ._toplevel.Math import Math
-from ._toplevel.Number import Number
 from ._toplevel.Object import Object
 from ._toplevel.RegExp import RegExp
-from ._toplevel.String import String
 from ._toplevel.trace import trace
 from ._toplevel.Types import allArray, allBoolean, allInt, allNumber, allNone, allString
 from ._toplevel.XML import Namespace, QName, XML, XMLList
-from ._toplevel.Vector import Vector
 
 NaN = Number.NaN
 Infinity = Number.POSITIVE_INFINITY
