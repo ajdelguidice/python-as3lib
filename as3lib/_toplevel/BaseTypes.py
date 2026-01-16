@@ -15,9 +15,6 @@ from numpy import base_repr
 from types import NoneType
 
 
-from as3lib._toplevel.Functions import parseInt, parseFloat
-
-
 # Constants
 _NaN_value = 1e300000 / -1e300000
 _NegInf_value = -1e300000
@@ -68,6 +65,61 @@ class _null:
 
 undefined = _undefined()
 null = _null()
+
+
+# Functions
+def parseFloat(str_: str = None):
+   # TODO: Make stop at second period
+   # TODO: Parse exponents
+   if str_ is None:
+      return Number.NaN
+   str_ = str_.lstrip()
+   size = len(str_)
+   if size == 0:
+      return Number.NaN
+   if str_[0].isdigit() or str_[0] in '-+':
+      j = 0
+      while str_[j] in '-+':
+         j += 1
+      while j != size and (str_[j].isdigit() or str_[j] == "."):
+         j += 1
+      return Number(str_[:j])
+   return Number.NaN
+
+
+def _parseInt(str_: str = None, radix: int | uint = 0):
+   # TODO: Find a better way of doing the sign detection
+   if str_ is None or str_ is undefined:
+      return Number.NaN
+   str_ = str_.lstrip()
+   zero = False
+   minus = 0
+   j1 = 0
+   while j1 < len(str_) and str_[j1] in '-+':
+      if str_[j1] == '-':
+         minus += 1
+      j1 += 1
+   str_ = str_[j1:]
+   if len(str_) >= 2 and str_.startswith('0x'):
+      radix = 16
+      str_ = str_[2:]
+   elif radix < 2 or radix > 36:
+      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
+   if str_.startswith('0'):
+      zero = True
+      str_.lstrip("0")
+   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
+   str_ = str_.upper()
+   j = 0
+   while j < len(str_) and str_[j] in radixchars:
+      j += 1
+   if j == 0:
+      return 0 if zero else Number.NaN
+   return builtins.int(str_[:j], radix) * (-1 if minus % 2 else 1)
+
+
+def parseInt(str_: str = None, radix: int | uint = 0):
+   return Number(_parseInt(str_, radix))
 
 
 # Data types
@@ -531,36 +583,6 @@ class Boolean(Object):
 
    def valueOf(self):
       return self._value
-
-def _parseInt(str_: str = None, radix: int | uint = 0):
-   # TODO: Find a better way of doing the sign detection
-   if str_ is None or str_ is undefined:
-      return Number.NaN
-   str_ = str_.lstrip()
-   zero = False
-   minus = 0
-   j1 = 0
-   while j1 < len(str_) and str_[j1] in '-+':
-      if str_[j1] == '-':
-         minus += 1
-      j1 += 1
-   str_ = str_[j1:]
-   if len(str_) >= 2 and str_.startswith('0x'):
-      radix = 16
-      str_ = str_[2:]
-   elif radix < 2 or radix > 36:
-      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
-   if str_.startswith('0'):
-      zero = True
-      str_.lstrip("0")
-   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
-   str_ = str_.upper()
-   j = 0
-   while j < len(str_) and str_[j] in radixchars:
-      j += 1
-   if j == 0:
-      return 0 if zero else Number.NaN
-   return builtins.int(str_[:j], radix) * (-1 if minus % 2 else 1)
 
 
 class int(Object):

@@ -1,10 +1,8 @@
 from as3lib import as3state
+from as3lib._toplevel.BaseTypes import int, Number, uint, undefined
+from as3lib._toplevel.Errors import Error
 import builtins
 from pathlib import Path, PurePath
-from as3lib._toplevel.Constants import undefined
-from as3lib._toplevel.int import int, uint, _parseInt
-from as3lib._toplevel.Number import Number
-from as3lib._toplevel.Errors import Error
 
 
 def decodeURI():
@@ -49,29 +47,6 @@ def isXMLName(str_: str):
       if not i.isalnum() and i not in whitelist:
          return False
    return True
-
-
-def parseFloat(str_: str = None):
-   # TODO: Make stop at second period
-   # TODO: Parse exponents
-   if str_ is None:
-      return Number.NaN
-   str_ = str_.lstrip()
-   size = len(str_)
-   if size == 0:
-      return Number.NaN
-   if str_[0].isdigit() or str_[0] in '-+':
-      j = 0
-      while str_[j] in '-+':
-         j += 1
-      while j != size and (str_[j].isdigit() or str_[j] == "."):
-         j += 1
-      return Number(str_[:j])
-   return Number.NaN
-
-
-def parseInt(str_: str = None, radix: int | uint = 0):
-   return Number(_parseInt(str_, radix))
 
 
 def unescape():
