@@ -2,7 +2,7 @@ import builtins
 from as3lib._toplevel.Array import Array
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import undefined
-from as3lib._toplevel.Functions import parseInt
+from as3lib._toplevel.Functions import parseInt, parseFloat
 from as3lib._toplevel.int import int
 from as3lib._toplevel.Number import Number
 
@@ -41,6 +41,14 @@ class String(str, Object):
 
    def __bool__(self):
       return self.length > 0
+
+   def __neg__(self):
+      # TODO: Make sure that this is correct
+      return -parseFloat(self)
+
+   def __pos__(self):
+      # TODO: Make sure that this is correct
+      return parseFloat(self)
 
    def charAt(self, index: builtins.int | int = 0):
       if index < 0 or index > len(self) - 1:
