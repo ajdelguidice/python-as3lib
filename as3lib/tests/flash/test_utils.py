@@ -1,0 +1,501 @@
+from as3lib import (ArgumentError, Array, false, null, Object, true, String,
+                    TypeError, undefined)
+from as3lib._toplevel.Keywords import each
+from as3lib.flash.errors import EOFError, IOError
+from as3lib.flash.events import TimerEvent
+from as3lib.flash.utils import (ByteArray, CompressionAlgorithm, Dictionary,
+                                Endian, Timer)
+from as3lib.tests import (as3libTestCase, MethodNotImplemented,
+                          TestNotImplemented)
+
+
+class ByteArrayTests(as3libTestCase):
+   def assertAtStart(self, ba):
+      self.assertEqual(ba.position, 0)
+
+   def assertAtEnd(self, ba):
+      self.assertEqual(ba.position, ba.length)
+
+   def test_compress(self):
+      # TODO: Add tests for compressed bytes
+      def createByteArray():
+         result = ByteArray()
+         for i in range(100):
+            result.writeByte(i)
+         return result
+
+      def readByteArray(ba):
+         ba.position = 0
+         return [ba.readUnsignedByte() for i in range(ba.length)]
+
+      ba = createByteArray()
+
+      ba.compress()
+      self.assertAtEnd(ba)
+
+      ba.uncompress()
+      self.assertAtStart(ba)
+      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+
+      # ba.compress("lzma")
+      # print("compressed (lzma)", ba, false)
+
+      # ba.uncompress("lzma")
+      # print("uncompressed (lzma)", ba, true)
+
+      ba.compress("deflate")
+      self.assertAtEnd(ba)
+
+      ba.uncompress("deflate")
+      self.assertAtStart(ba)
+      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+
+      ba.deflate()
+      self.assertAtEnd(ba)
+
+      ba.inflate()
+      self.assertAtStart(ba)
+      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+
+      ba.compress("zlib")
+      self.assertAtEnd(ba)
+
+      ba.uncompress("zlib")
+      self.assertAtStart(ba)
+      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+
+      # Check zlib header
+      ba = createByteArray()
+      ba.compress("zlib")
+      ba.position = 0
+      self.assertEqual
+      self.assertEqual(ba.readUnsignedByte(), 120)
+      self.assertEqual(ba.readUnsignedByte(), 218)
+
+   def assertRaisesAS3(self, error, id, func, *args, **kwargs):
+      try:
+         func(*args, **kwargs)
+         self.fail('Funcion did not raise an error')
+      except AssertionError as e:
+         # Don't catch failure condition
+         raise e
+      except Exception as e:
+         if type(e) is not error:
+            self.fail('Wrong error type')
+         elif e.errorID != id:
+            self.fail('Wrong error id')
+
+   def test_errors(self):
+      ba = ByteArray()
+      self.assertRaisesAS3(TypeError, 2007, ba.compress, null)
+      self.assertRaisesAS3(IOError, 2058, ba.compress, 'abcdef')
+
+      self.assertRaisesAS3(TypeError, 2007, ba.uncompress, null)
+      self.assertRaisesAS3(IOError, 2058, ba.uncompress, 'abcdef')
+      ba.uncompress('zlib')  # Doesn't raise an error
+
+      def setEndian(barr, endian):
+         barr.endian = endian
+
+      self.assertRaisesAS3(TypeError, 2007, setEndian, ba, null)
+      self.assertRaisesAS3(ArgumentError, 2008, setEndian, ba, 'abcdef')
+
+      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
+      self.assertRaisesAS3(TypeError, 2007, ba.writeUTFBytes, null)
+      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
+      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
+
+      ba.writeMultiByte('abcd', 'utf-8')
+      ba.writeMultiByte('abcd', 'aisjdasd')
+      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, 'utf-8')
+      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, 'aisjdasd')
+      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, null)
+
+      ba.readMultiByte(0, '')
+      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, '')
+      self.assertRaisesAS3(TypeError, 2007, ba.readMultiByte, 0, null)
+      self.assertRaisesAS3(TypeError, 2007, ba.readMultiByte, 20, null)
+      ba.readMultiByte(0, 'aisjdasd')
+      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, 'aisjdasd')
+      ba.readMultiByte(0, 'utf-8')
+      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, 'utf-8')
+
+   def test_oom(self):
+      # This is not supposed to fail
+      b = ByteArray()
+      b.length = 0xFFFFFFFF
+
+   def test_readUTFBytes_bom(self):
+      ba = ByteArray()
+      ba.writeByte(0xEF)
+      ba.writeByte(0xBB)
+      ba.writeByte(0xBF)
+      ba.writeUTFBytes('Text')
+      ba.position = 0
+      text = ba.readUTFBytes(ba.length);
+      self.assertEqual(text, 'Text')
+      self.assertEqual(len(text), 4)
+
+   def test_readUTFBytes_null_bom(self):
+      ba = ByteArray()
+      ba.writeByte(0xEF)
+      ba.writeByte(0xBB)
+      ba.writeByte(0xBF)
+      ba.writeUTFBytes('Text')
+      ba.writeByte(0)
+      ba.position = 0
+      text = ba.readUTFBytes(ba.length)
+      self.assertEqual(text, 'Text')
+      self.assertEqual(len(text), 4)
+
+   def test_readUTF_bom(self):
+      ba = ByteArray()
+      ba.writeShort(3 + 4)  # length of BOM + text
+      ba.writeByte(0xEF)
+      ba.writeByte(0xBB)
+      ba.writeByte(0xBF)
+      ba.writeUTFBytes('Text')
+      ba.position = 0
+      text = ba.readUTF()
+      self.assertEqual(text, 'Text')
+      self.assertEqual(len(text), 4)
+
+   def test_readUTF_null_bom(self):
+      ba = ByteArray()
+      ba.writeShort(3 + 4)  # length of BOM + text
+      ba.writeByte(0xEF)
+      ba.writeByte(0xBB)
+      ba.writeByte(0xBF)
+      ba.writeUTFBytes('Text')
+      ba.writeByte(0)
+      ba.position = 0
+      text = ba.readUTF()
+      self.assertEqual(text, 'Text')
+      self.assertEqual(len(text), 4)
+
+
+class DictionaryTests(as3libTestCase):
+   def assertKeyAmount(self, d, amount):
+      count = 0
+      for i in each(d):
+         count += 1
+
+      self.assertEqual(count, amount)
+
+   def assertIterSorted(self, obj, values, length=None):
+      self.assertArray([i for i in obj].sort(), values, lenth)
+
+   def assertEachSorted(self, obj, values, length=None):
+      self.assertArray([i for i in each(obj)].sort(), values, length)
+
+   def test_access(self):
+      a = Dictionary()
+      a['key'] = 5
+      self.assertEqual(a['key'], 5)
+
+      a['key'] = 6
+
+      class Test:...
+
+      key2 = Test()
+      a[key2] = 23
+
+      key3 = Test()
+      a[key3] = 'Key3 True Value'
+
+      a['key3'] = 'Key3 False Value'
+
+      class testobj:
+         def toString(*args):
+            return 'key4'
+      key4 = testobj()
+
+      a[key4] = 'Key4 True Value'
+
+      a['key4'] = 'Key4 False Value'
+
+      a[13] = "i've been found!"
+      a['13'] = "no I haven't"
+
+      a[1.123] = 'this violates Rust!'
+      a['1.123'] = 'this is perfectly acceptable'
+
+      a[undefined] = 'oh no'
+      a['undefined'] = 'uh huh...'
+
+      a[null] = 'oh YES!'
+      a['null'] = 'yeah sure'
+
+      a[true] = 'true'
+      a['true'] = 'stringy true'
+
+      a[false] = 'false'
+      a['false'] = 'stringy false'
+
+      self.assertEqual(a['key'], 6)
+      self.assertEqual(a[key2], 23)
+      self.assertEqual(a[key3], 'Key3 True Value')
+      self.assertEqual(a['key3'], 'Key3 False Value')
+      self.assertEqual(a[key4], 'Key4 True Value')
+      self.assertEqual(a['key4'], 'Key4 False Value')
+      self.assertEqual(a[13], "no I haven't")
+      self.assertEqual(a[1.123], 'this is perfectly acceptable')
+      self.assertEqual(a['1.123'], 'this is perfectly acceptable')
+      self.assertEqual(a[undefined], 'uh huh...')
+      self.assertEqual(a['undefined'], 'uh huh...')
+      self.assertEqual(a[null], 'yeah sure')
+      self.assertEqual(a['null'], 'yeah sure')
+      self.assertEqual(a[true], 'stringy true')
+      self.assertEqual(a['true'], 'stringy true')
+      self.assertEqual(a[false], 'stringy false')
+      self.assertEqual(a['false'], 'stringy false')
+
+      a[a] = a
+
+      # TODO: Make sure this is correct
+      self.assertEqual(a[a], a)
+
+   def test_delete(self):
+      raise TestNotImplemented
+
+   def test_forEach(self):
+      a = Dictionary()
+
+      a[String('foo')] = 'The value'
+      self.assertEqual(a[String('foo')], 'The value')
+
+      firstKey = Object()
+      a[firstKey] = 'Testing'
+      a[1234567] = true
+      a.setPropertyIsEnumerable(1234567, false)
+      self.assertTrue(a.propertyIsEnumerable(1234567))
+      self.assertFalse(a.propertyIsEnumerable(Object()))
+
+      a.setPropertyIsEnumerable(firstKey, false)
+      self.assertIterSorted(a, ['1234567',firstKey,'foo'], 3)
+
+      a['key'] = 5
+      self.assertEqual(a['key'], 5)
+
+      a['key'] = 6
+
+      class Test:...
+
+      key2 = Test()
+      a[key2] = 23
+
+      key3 = Test()
+      a[key3] = 'Key3 True Value'
+
+      a['key3'] = 'Key3 False Value'
+
+      class testobj:
+         def toString(*args):
+            return 'key4'
+      key4 = testobj()
+
+      a[key4] = 'Key4 True Value'
+
+      a['key4'] = 'Key4 False Value'
+
+      a[13] = "i've been found!"
+      a['13'] = "no I haven't"
+
+      a[1.123] = 'this violates Rust!'
+      a['1.123'] = 'this is perfectly acceptable'
+
+      a[undefined] = 'oh no'
+      a['undefined'] = 'uh huh...'
+
+      a[null] = 'oh YES!'
+      a['null'] = 'yeah sure'
+
+      a[true] = 'true'
+      a['true'] = 'stringy true'
+
+      a[false] = 'false'
+      a['false'] = 'stringy false'
+
+      a[a] = a
+
+      self.assertIterSorted(a,['1.123','1234567','13',a,firstKey,key2,key3,'false','foo','key','key3',key4,'key4','null','true','undefined'])
+
+      self.assertEachSorted(a, ['23','6','Key3 False Value','Key3 True Value','Key4 False Value','Key4 True Value','Testing','The value',a,"no I haven't",'stringy false','stringy true','this is perfectly acceptable',true,'uh huh...','yeah sure'])
+
+      a.setPropertyIsEnumerable(key2, false)
+      a.setPropertyIsEnumerable(key3, false)
+      a.setPropertyIsEnumerable(key4, false)
+
+      self.assertIterSorted(a, ['1.123','1234567','13',a,firstKey,key2,key3,'false','foo','key','key3',key4,'key4','null','true','undefined'])
+      self.assertEachSorted(a, ['23','6','Key3 False Value','Key3 True Value','Key4 False Value','Key4 True Value','Testing','The value',a,"no I haven't",'stringy false','stringy true','this is perfectly acceptable',true,'uh huh...','yeah sure'])
+
+   def test_hasOwnProperty(self):
+      raise TestNotImplemented
+
+   def test_in(self):
+      a = Dictionary()
+      a['key'] = 5
+      a['key'] = 6
+
+      class Test:...
+
+      key2 = Test()
+      a[key2] = 23
+
+      key3 = Test()
+      a[key3] = 'Key3 True Value'
+
+      a['key3'] = 'Key3 False Value'
+
+      class testobj:
+         def toString(*args):
+            return 'key4'
+      key4 = testobj()
+
+      a[key4] = 'Key4 True Value'
+
+      a['key4'] = 'Key4 False Value'
+
+      a[13] = "i've been found!"
+      a['13'] = "no I haven't"
+
+      a[1.123] = 'this violates Rust!'
+      a['1.123'] = 'this is perfectly acceptable'
+
+      a[undefined] = 'oh no'
+      a['undefined'] = 'uh huh...'
+
+      a[null] = 'oh YES!'
+      a['null'] = 'yeah sure'
+
+      a[true] = 'true'
+      a['true'] = 'stringy true'
+
+      a[false] = 'false'
+      a['false'] = 'stringy false'
+
+      self.assertTrue('key' in a)
+      self.assertTrue(key2 in a)
+      self.assertTrue(key3 in a)
+      self.assertTrue('key3' in a)
+      self.assertTrue(key4 in a)
+      self.assertTrue('key4' in a)
+      self.assertTrue(13 in a)
+      self.assertTrue(1.123 in a)
+      self.assertTrue('1.123' in a)
+      self.assertTrue(undefined in a)
+      self.assertTrue('undefined' in a)
+      self.assertTrue(null in a)
+      self.assertTrue('null' in a)
+      self.assertTrue(true in a)
+      self.assertTrue('true' in a)
+      self.assertTrue(false in a)
+      self.assertTrue('false' in a)
+
+      a[a] = a
+      self.assertTrue(a in a)
+
+   def test_iter_modify(self):
+      # NOTE: Should work fine once Object works properly
+      def runTest(obj, check_during, check_after):
+         for i in range(100):
+            obj[f'Key {i}'] = i
+
+         toDelete = []
+         seen = []
+         for key in obj:
+            seen.append(f"Key: '{key}' Value: {obj[key]}")
+
+            if (len(seen) < 94):
+               toDelete.append(key)
+
+            if (len(seen) == 95):
+               for j in range(len(toDelete)):
+                  newKey = toDelete[j]
+                  if (j % 2 == 0):
+                     #delete obj[newKey]
+                     del obj[newKey]
+                  else:
+                     # obj.setPropertyIsEnumerable(newKey, false)
+                     ...
+
+         seen.sort()
+         self.assertEqual(seen, check_during)
+
+         seenAfter = []
+         for newKey in obj:
+            seenAfter.append(f"Key: '{newKey}' Value: {obj[newKey]}")
+
+         seenAfter.sort()
+         self.assertEqual(len(seenAfter), check_after)
+
+      array = Array()
+      array.push("First normal entry")
+      array.push("Second normal entry")
+      # runTest(array)
+
+      d = Dictionary()
+      # dict[new Object()] = "First distinct object key"
+      # dict[new Object()] = "Second distinct object key"
+      runTest(d, ["Key: 'Key 0' Value: 0","Key: 'Key 1' Value: 1","Key: 'Key 10' Value: 10","Key: 'Key 11' Value: 11","Key: 'Key 12' Value: 12","Key: 'Key 13' Value: 13","Key: 'Key 14' Value: 14","Key: 'Key 15' Value: 15","Key: 'Key 16' Value: 16","Key: 'Key 17' Value: 17","Key: 'Key 18' Value: 18","Key: 'Key 19' Value: 19","Key: 'Key 2' Value: 2","Key: 'Key 20' Value: 20","Key: 'Key 21' Value: 21","Key: 'Key 22' Value: 22","Key: 'Key 23' Value: 23","Key: 'Key 24' Value: 24","Key: 'Key 25' Value: 25","Key: 'Key 26' Value: 26","Key: 'Key 27' Value: 27","Key: 'Key 28' Value: 28","Key: 'Key 29' Value: 29","Key: 'Key 3' Value: 3","Key: 'Key 30' Value: 30","Key: 'Key 31' Value: 31","Key: 'Key 32' Value: 32","Key: 'Key 33' Value: 33","Key: 'Key 34' Value: 34","Key: 'Key 35' Value: 35","Key: 'Key 36' Value: 36","Key: 'Key 37' Value: 37","Key: 'Key 38' Value: 38","Key: 'Key 39' Value: 39","Key: 'Key 4' Value: 4","Key: 'Key 40' Value: 40","Key: 'Key 41' Value: 41","Key: 'Key 42' Value: 42","Key: 'Key 43' Value: 43","Key: 'Key 44' Value: 44","Key: 'Key 45' Value: 45","Key: 'Key 46' Value: 46","Key: 'Key 47' Value: 47","Key: 'Key 48' Value: 48","Key: 'Key 49' Value: 49","Key: 'Key 5' Value: 5","Key: 'Key 50' Value: 50","Key: 'Key 51' Value: 51","Key: 'Key 52' Value: 52","Key: 'Key 53' Value: 53","Key: 'Key 54' Value: 54","Key: 'Key 55' Value: 55","Key: 'Key 56' Value: 56","Key: 'Key 57' Value: 57","Key: 'Key 58' Value: 58","Key: 'Key 59' Value: 59","Key: 'Key 6' Value: 6","Key: 'Key 60' Value: 60","Key: 'Key 61' Value: 61","Key: 'Key 62' Value: 62","Key: 'Key 63' Value: 63","Key: 'Key 64' Value: 64","Key: 'Key 65' Value: 65","Key: 'Key 66' Value: 66","Key: 'Key 67' Value: 67","Key: 'Key 68' Value: 68","Key: 'Key 69' Value: 69","Key: 'Key 7' Value: 7","Key: 'Key 70' Value: 70","Key: 'Key 71' Value: 71","Key: 'Key 72' Value: 72","Key: 'Key 73' Value: 73","Key: 'Key 74' Value: 74","Key: 'Key 75' Value: 75","Key: 'Key 76' Value: 76","Key: 'Key 77' Value: 77","Key: 'Key 78' Value: 78","Key: 'Key 79' Value: 79","Key: 'Key 8' Value: 8","Key: 'Key 80' Value: 80","Key: 'Key 81' Value: 81","Key: 'Key 82' Value: 82","Key: 'Key 83' Value: 83","Key: 'Key 84' Value: 84","Key: 'Key 85' Value: 85","Key: 'Key 86' Value: 86","Key: 'Key 87' Value: 87","Key: 'Key 88' Value: 88","Key: 'Key 89' Value: 89","Key: 'Key 9' Value: 9","Key: 'Key 90' Value: 90","Key: 'Key 91' Value: 91","Key: 'Key 92' Value: 92","Key: 'Key 93' Value: 93","Key: 'Key 94' Value: 94","Key: 'Key 95' Value: 95","Key: 'Key 96' Value: 96","Key: 'Key 97' Value: 97","Key: 'Key 98' Value: 98","Key: 'Key 99' Value: 99"], 53)
+
+      raise MethodNotImplemented('Object item assignment')
+
+      runTest(Object(), ["Key: 'Key 0' Value: 0","Key: 'Key 1' Value: 1","Key: 'Key 10' Value: 10","Key: 'Key 11' Value: 11","Key: 'Key 12' Value: 12","Key: 'Key 13' Value: 13","Key: 'Key 14' Value: 14","Key: 'Key 15' Value: 15","Key: 'Key 16' Value: 16","Key: 'Key 17' Value: 17","Key: 'Key 18' Value: 18","Key: 'Key 19' Value: 19","Key: 'Key 2' Value: 2","Key: 'Key 20' Value: 20","Key: 'Key 21' Value: 21","Key: 'Key 22' Value: 22","Key: 'Key 23' Value: 23","Key: 'Key 24' Value: 24","Key: 'Key 25' Value: 25","Key: 'Key 26' Value: 26","Key: 'Key 27' Value: 27","Key: 'Key 28' Value: 28","Key: 'Key 29' Value: 29","Key: 'Key 3' Value: 3","Key: 'Key 30' Value: 30","Key: 'Key 31' Value: 31","Key: 'Key 32' Value: 32","Key: 'Key 33' Value: 33","Key: 'Key 34' Value: 34","Key: 'Key 35' Value: 35","Key: 'Key 36' Value: 36","Key: 'Key 37' Value: 37","Key: 'Key 38' Value: 38","Key: 'Key 39' Value: 39","Key: 'Key 4' Value: 4","Key: 'Key 40' Value: 40","Key: 'Key 41' Value: 41","Key: 'Key 42' Value: 42","Key: 'Key 43' Value: 43","Key: 'Key 44' Value: 44","Key: 'Key 45' Value: 45","Key: 'Key 46' Value: 46","Key: 'Key 47' Value: 47","Key: 'Key 48' Value: 48","Key: 'Key 49' Value: 49","Key: 'Key 5' Value: 5","Key: 'Key 50' Value: 50","Key: 'Key 51' Value: 51","Key: 'Key 52' Value: 52","Key: 'Key 53' Value: 53","Key: 'Key 54' Value: 54","Key: 'Key 55' Value: 55","Key: 'Key 56' Value: 56","Key: 'Key 57' Value: 57","Key: 'Key 58' Value: 58","Key: 'Key 59' Value: 59","Key: 'Key 6' Value: 6","Key: 'Key 60' Value: 60","Key: 'Key 61' Value: 61","Key: 'Key 62' Value: 62","Key: 'Key 63' Value: 63","Key: 'Key 64' Value: 64","Key: 'Key 65' Value: 65","Key: 'Key 66' Value: 66","Key: 'Key 67' Value: 67","Key: 'Key 68' Value: 68","Key: 'Key 69' Value: 69","Key: 'Key 7' Value: 7","Key: 'Key 70' Value: 70","Key: 'Key 71' Value: 71","Key: 'Key 72' Value: 72","Key: 'Key 73' Value: 73","Key: 'Key 74' Value: 74","Key: 'Key 75' Value: 75","Key: 'Key 76' Value: 76","Key: 'Key 77' Value: 77","Key: 'Key 78' Value: 78","Key: 'Key 79' Value: 79","Key: 'Key 8' Value: 8","Key: 'Key 80' Value: 80","Key: 'Key 81' Value: 81","Key: 'Key 82' Value: 82","Key: 'Key 83' Value: 83","Key: 'Key 84' Value: 84","Key: 'Key 85' Value: 85","Key: 'Key 86' Value: 86","Key: 'Key 87' Value: 87","Key: 'Key 88' Value: 88","Key: 'Key 89' Value: 89","Key: 'Key 9' Value: 9","Key: 'Key 90' Value: 90","Key: 'Key 91' Value: 91","Key: 'Key 92' Value: 92","Key: 'Key 93' Value: 93","Key: 'Key 94' Value: 94","Key: 'Key 95' Value: 95","Key: 'Key 96' Value: 96","Key: 'Key 97' Value: 97","Key: 'Key 98' Value: 98","Key: 'Key 99' Value: 99"], 53)
+
+   def test_namespace(self):
+      raise TestNotImplemented
+
+   def test_primativeKeys(self):
+      raise TestNotImplemented
+
+   def test_weakKeys(self):
+      d = Dictionary(true)
+
+      obj1 = Object()
+      obj2 = Object()
+      obj3 = Object()
+      obj4 = Object()
+      obj5 = Object()
+      d[obj1] = 0
+      d[obj2] = 1
+      d[obj3] = 2
+      d[obj4] = 3
+      d[obj5] = 4
+
+      d = d
+      self.assertKeyAmount(d, 5)
+
+      obj1 = null
+      obj3 = null
+      obj5 = null
+      self.assertKeyAmount(d, 2)
+
+
+class TimerTests(as3libTestCase):
+   def test_1(self):
+      raise TestNotImplemented
+
+   def test_events(self):
+      # TODO: Find a better way to assert here
+      # TODO: Add eventPhase to asserts once it is implemented. Both are
+      #       supposed to be '2'
+      def timer(e):
+         self.assertEvent(e, TimerEvent, 'timer', false, false)
+
+      def timerComplete(e):
+         self.assertEvent(e, TimerEvent, 'timerComplete', false, false)
+
+      t = Timer(100, 2)
+      t.addEventListener('timer', timer)
+      t.addEventListener('timerComplete', timerComplete)
+      t.start()
+
+   def test_finish(self):
+      raise TestNotImplemented
+
+   def test_reset(self):
+      raise TestNotImplemented
+
+   def test_setdelay(self):
+      raise TestNotImplemented
