@@ -39,6 +39,9 @@ class String(str, Object):
    def __add__(self, value):
       return String(f'{self}{self._String(value)}')
 
+   def __bool__(self):
+      return self.length > 0
+
    def charAt(self, index: builtins.int | int = 0):
       if index < 0 or index > len(self) - 1:
          return ''
