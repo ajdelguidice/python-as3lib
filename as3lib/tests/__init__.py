@@ -1,4 +1,5 @@
 import as3lib
+from as3lib._toplevel.Keywords import each
 import unittest
 
 
@@ -56,6 +57,20 @@ class as3libTestCase(unittest.TestCase):
 
    def assertMatrix3D(self, matrix, values):
       self.assertArray(matrix.rawData, values)
+
+   def assertEvent(self, e, event, type_, bubbles, cancelable, phase=None):
+      self.assertIs(type(e), event)
+      self.assertEqual(e.type, type_)
+      self.assertEqual(e.bubbles, bubbles)
+      self.assertEqual(e.cancelable, cancelable)
+      if phase is not None:
+         self.assertEqual(e.eventPhase, phase)
+
+   def assertIter(self, obj, values, length=None):
+      self.assertArray([i for i in obj], values, lenth)
+
+   def assertEach(self, obj, values, length=None):
+      self.assertArray([i for i in each(obj)], values, length)
 
 
 class TestNotImplemented(NotImplementedError):
