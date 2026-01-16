@@ -77,7 +77,13 @@ class Number(Object):
    def __gt__(self, value):
       return self._value > value
 
-   def __invert__(self):
+   def __neg__(self):
+      if self._value is _NaN_value:
+         return Number.NaN
+      if self._value == _NegInf_value:
+         return Number.NEGATIVE_INFINITY
+      if self._value == _PosInf_value:
+         return Number.POSITIVE_INFINITY
       return Number(-self._value)
 
    def __bool__(self):
