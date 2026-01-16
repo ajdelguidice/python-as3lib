@@ -1,8 +1,6 @@
 from __future__ import annotations
-from as3lib._toplevel.Boolean import Boolean
 from as3lib._toplevel.Errors import RangeError, Error, TypeError
 from as3lib._toplevel.Math import Math
-from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.trace import trace
 from as3lib.helpers import textObject, recursionDepth

@@ -1,10 +1,8 @@
 from __future__ import annotations
-from as3lib._toplevel.Array import Array
-from as3lib._toplevel.Constants import undefined, null
+from as3lib._toplevel.BaseTypes import Array, String, undefined, null
 from as3lib._toplevel.Errors import ArgumentError
 from as3lib._toplevel.Functions import isXMLName
 from as3lib._toplevel.Object import Object
-from as3lib._toplevel.String import String
 from multipledispatch import dispatch
 
 

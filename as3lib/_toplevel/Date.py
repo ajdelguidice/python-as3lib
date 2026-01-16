@@ -1,5 +1,5 @@
+from as3lib._toplevel.BaseTypes import Number
 from as3lib._toplevel.Math import Math
-from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 import datetime, time
 

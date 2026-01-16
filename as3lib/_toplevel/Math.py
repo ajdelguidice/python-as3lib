@@ -1,7 +1,7 @@
+from as3lib._toplevel.BaseTypes import Number
+from as3lib._toplevel.Object import Object
 import math
 import random
-from as3lib._toplevel.Number import Number
-from as3lib._toplevel.Object import Object
 
 
 class Math(Object):
