@@ -225,12 +225,44 @@ class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ZLIB = 'zlib'
 
 
-class Dictionary(dict):
+class Dictionary(as3.Object):
+   # TODO: weak keys
    def __init__(self, weakKeys: as3.allBoolean = False):
-      return super().__init__()
+      if weakKeys:
+         raise NotImplementedError
+      self._useWeakKeys = weakKeys
+      self._dict = {}
+      # The weak keys must be in a separate dict because string keys are never
+      # weak.
+      self._weakDict = None  # TODO
+
+   def _canCoerce(self, obj):
+      if isinstance(obj, (as3.Int, as3.uint, as3.Number, as3.Boolean, str, bool, int, float)) or obj is as3.undefined or obj is as3.null:
+         return True
+      return False
+
+   def _getKey(self, item):
+      if self._canCoerce(item):
+         return str(item)
+      return item
 
    def __getitem__(self, item):
-      return self.get(item)  # I think this is how actionscript does it but I'm not sure
+      return self._dict.get(self._getKey(item))
+
+   def __setitem__(self, item, value):
+      self._dict[self._getKey(item)] = value
+
+   def __delitem__(self, item):
+      del self._dict[self._getKey(item)]
+
+   def __contains__(self, item):
+      return self._getKey(item) in self._dict
+
+   def __iter__(self):
+      return iter(list(self._dict.keys()))
+
+   def __each__(self):
+      return self._dict.values()
 
    def toJSON(self, k: str):
       return 'Dictionary'
