@@ -8,8 +8,10 @@ import builtins
 from functools import cmp_to_key, partial
 from inspect import isfunction
 from io import StringIO
+import math
 from multipledispatch import dispatch
 from numpy import base_repr
+import random
 from types import NoneType
 
 
@@ -720,84 +722,89 @@ class int(Object):
       return self._value
 
 
-class uint(Object):
-   MAX_VALUE = 4294967295
-   MIN_VALUE = 0
+class Math(Object):
+   E = 2.718281828459045
+   LN10 = 2.302585092994046
+   LN2 = 0.6931471805599453
+   LOG10E = 0.4342944819032518
+   LOG2E = 1.442695040888963387
+   PI = 3.141592653589793
+   SQRT1_2 = 0.7071067811865476
+   SQRT2 = 1.4142135623730951
 
    @staticmethod
-   def _upperBounds(value):
-      return value % uint.MAX_VALUE - 1
+   def abs(val):
+      return abs(val)
 
    @staticmethod
-   def _lowerBounds(value):
-      return value % (uint.MAX_VALUE + 1)
+   def acos(val):
+      return math.acos(val)
 
    @staticmethod
-   def _boundsCheck(value):
-      if value < uint.MIN_VALUE:
-         return uint._lowerBounds(value)
-      if value > uint.MAX_VALUE:
-         return uint._upperBounds(value)
-      return value
+   def asin(val):
+      return math.asin(val)
 
-   def __init__(self, value=undefined):
-      if isinstance(value, str):
-         value = _parseInt(value, 10)
-      if value is undefined or value is null or value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
-         self._value = 0
-      elif isinstance(value, (Number, float)):
-         self._value = uint._boundsCheck(Math.floor(value))
-      elif isinstance(value, (uint, int)):
-         self._value = uint._boundsCheck(value._value)
-      elif isinstance(value, builtins.int):
-         self._value = uint._boundsCheck(value)
-      elif hasattr(value, '__int__'):
-         self._value = uint._boundsCheck(builtins.int(value))
-      else:
-         raise
+   @staticmethod
+   def atan(val):
+      return math.atan(val)
 
-   def __str__(self):
-      return self.toString()
+   @staticmethod
+   def atan2(y, x):
+      return math.atan2(y, x)
 
-   def __repr__(self):
-      return f'as3lib.uint({self._value})'
+   @staticmethod
+   def ceil(val):
+      return math.ceil(val)
 
-   def __eq__(self, value):
-      return self._value == value
+   @staticmethod
+   def cos(angleRadians):
+      return math.cos(angleRadians)
 
-   def __lt__(self, value):
-      return self._value < value
+   @staticmethod
+   def exp(val):
+      return math.exp(val)
 
-   def __gt__(self, value):
-      return self._value > value
+   @staticmethod
+   def floor(val):
+      if val == Number.NEGATIVE_INFINITY or val == Number.POSITIVE_INFINITY or val is Number.NaN:
+         return val
+      return math.floor(val)
 
-   def __truediv__(self, value):
-      if value == 0:
-         if self._value == 0:
-            return Number.NaN
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         raise  # Should not happen
-      try:
-         return uint(self._value / builtins.int(value))
-      except Exception:
-         raise TypeError(f'Can not divide uint by {type(value)}')
+   @staticmethod
+   def log(val):
+      return math.log(val)
 
-   def toExponential(self, fracionDigits):
-      raise NotImplementedError
+   @staticmethod
+   def max(*values):
+      return max(values + (Number.NEGATIVE_INFINITY,))
 
-   def toFixed(self, fracionDigits):
-      raise NotImplementedError
+   @staticmethod
+   def min(*values):
+      return min(values + (Number.POSITIVE_INFINITY,))
 
-   def toPrecision(self, precision):
-      raise NotImplementedError
+   @staticmethod
+   def pow(base, power):
+      return math.pow(base, power)
 
-   def toString(self, radix=10):
-      if radix <= 36 and radix >= 2:
-         return base_repr(self._value, base=radix).lower()
+   @staticmethod
+   def random():
+      return random.random()
 
-   def valueOf(self):
-      return self._value
+   @staticmethod
+   def round(val):
+      return round(val)
+
+   @staticmethod
+   def sin(angleRadians):
+      return math.sin(angleRadians)
+
+   @staticmethod
+   def sqrt(val):
+      return math.sqrt(val)
+
+   @staticmethod
+   def tan(angleRadians):
+      return math.tan(angleRadians)
 
 
 class Number(Object):
@@ -1056,6 +1063,86 @@ class String(str, Object):
 
    def valueOf(self):
       return f"{self}"
+
+
+class uint(Object):
+   MAX_VALUE = 4294967295
+   MIN_VALUE = 0
+
+   @staticmethod
+   def _upperBounds(value):
+      return value % uint.MAX_VALUE - 1
+
+   @staticmethod
+   def _lowerBounds(value):
+      return value % (uint.MAX_VALUE + 1)
+
+   @staticmethod
+   def _boundsCheck(value):
+      if value < uint.MIN_VALUE:
+         return uint._lowerBounds(value)
+      if value > uint.MAX_VALUE:
+         return uint._upperBounds(value)
+      return value
+
+   def __init__(self, value=undefined):
+      if isinstance(value, str):
+         value = _parseInt(value, 10)
+      if value is undefined or value is null or value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         self._value = 0
+      elif isinstance(value, (Number, float)):
+         self._value = uint._boundsCheck(Math.floor(value))
+      elif isinstance(value, (uint, int)):
+         self._value = uint._boundsCheck(value._value)
+      elif isinstance(value, builtins.int):
+         self._value = uint._boundsCheck(value)
+      elif hasattr(value, '__int__'):
+         self._value = uint._boundsCheck(builtins.int(value))
+      else:
+         raise
+
+   def __str__(self):
+      return self.toString()
+
+   def __repr__(self):
+      return f'as3lib.uint({self._value})'
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
+   def __truediv__(self, value):
+      if value == 0:
+         if self._value == 0:
+            return Number.NaN
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         raise  # Should not happen
+      try:
+         return uint(self._value / builtins.int(value))
+      except Exception:
+         raise TypeError(f'Can not divide uint by {type(value)}')
+
+   def toExponential(self, fracionDigits):
+      raise NotImplementedError
+
+   def toFixed(self, fracionDigits):
+      raise NotImplementedError
+
+   def toPrecision(self, precision):
+      raise NotImplementedError
+
+   def toString(self, radix=10):
+      if radix <= 36 and radix >= 2:
+         return base_repr(self._value, base=radix).lower()
+
+   def valueOf(self):
+      return self._value
 
 
 class Vector(list, Object):

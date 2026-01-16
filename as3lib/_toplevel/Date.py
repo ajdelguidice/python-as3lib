@@ -1,5 +1,4 @@
-from as3lib._toplevel.BaseTypes import Number
-from as3lib._toplevel.Math import Math
+from as3lib._toplevel.BaseTypes import Math, Number
 from as3lib._toplevel.Object import Object
 import datetime, time
 
@@ -207,6 +206,9 @@ class Date(Object):
       elif isinstance(yearOrTimevalue, str) and month is None:
          # One arguement of type String is passed. Parse date string
          raise NotImplementedError('One aruement of type String')  # TODO
+      elif isinstance(yearOrTimevalue, Object) and month is None:
+         # TODO: All values should be set to NaN if yearOrTimevalue.valueOf returns a string
+         self._valueUTC = datetime.datetime.fromtimestamp(yearOrTimevalue.valueOf() / 1000, datetime.timezone.utc)
       else:
          # Two or more arguements are passed. Use arguements literally
          # TODO: Figure out what timezone this should be

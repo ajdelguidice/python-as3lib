@@ -151,15 +151,15 @@ if not as3state.initdone:
 
 
 # Export toplevel and set up miniamf adapters
-from ._toplevel.BaseTypes import (Array, Boolean, null, Number, parseFloat,
-                                  parseInt, String, uint, undefined, Vector)
+from ._toplevel.BaseTypes import (Array, Boolean, Math, null, Number,
+                                  parseFloat, parseInt, String, uint,
+                                  undefined, Vector)
 from ._toplevel.BaseTypes import int as Int
 from ._toplevel.Class import Class
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
 from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
 from ._toplevel.JSON import JSON
-from ._toplevel.Math import Math
 from ._toplevel.Object import Object
 from ._toplevel.RegExp import RegExp
 from ._toplevel.trace import trace
