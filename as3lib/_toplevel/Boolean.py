@@ -32,6 +32,9 @@ class Boolean(Object):
    def __eq__(self, value):
       return self._value == value
 
+   def __abs__(self):
+      return Number(self._value)
+
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
          return expression

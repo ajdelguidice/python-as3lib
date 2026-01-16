@@ -91,6 +91,13 @@ class Number(Object):
          return False
       return self._value != 0
 
+   def __abs__(self):
+      if self._value is _NaN_value:
+         return Number.NaN
+      if self._value in {_NegInf_value, _PosInf_value}:
+         return Number.POSITIVE_INFINITY
+      return Number(self._value)
+
    def _Number(self, expression):
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, (float, Number)):
          return expression
