@@ -53,16 +53,18 @@ class namespace:
       return cls
 
 # Other keywords
-def each(array):
+def each(iterable):
    '''
    Replacement for 'for each ...'
 
    Used like 'for i in each(<variable>):'
    '''
-   if hasattr(array, 'values') and callable(array.values):
-      return array.values()
+   if hasattr(iterable, '__each__'):
+      return iterable.__each__()
+   if hasattr(iterable, 'values') and callable(iterable.values):
+      return iterable.values()
    # Do it a bit jank because python and actionscript differ in the way that
    # iterating is done.
-   for i in range(len(array)):
-      yield array[i]
+   for i in range(len(iterable)):
+      yield iterable[i]
    return
