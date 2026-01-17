@@ -6,6 +6,7 @@ from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 import builtins
 from numpy import base_repr
+from ctypes import c_uint32, c_int32
 
 
 def _parseInt(str_: str = None, radix: int | uint = 0):
@@ -43,11 +44,19 @@ class int(Object):
    # TODO: Make this return a Number if the result is a float
    # TODO: Implement checks for max and min value
    # TODO: Fix int conversion
-   __slots__ = ('_value')
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
 
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
    def __init__(self, value=0):
+      self._val = c_int32()
       self._value = self._int(value)
 
    def __repr__(self):
@@ -100,21 +109,17 @@ class int(Object):
    def __gt__(self, value):
       return self._value > value
 
-   @staticmethod
-   def _upperBounds(value):
-      return int.MIN_VALUE + value % (int.MAX_VALUE + 1)
+   def __lshift__(self, value):
+      return int(self._value << self._int(value))
 
-   @staticmethod
-   def _lowerBounds(value):
-      return value % int.MAX_VALUE + 1
+   def __rshift__(self, value):
+      return int(self._value >> self._int(value))
 
-   @staticmethod
-   def _boundsCheck(value):
-      if value < int.MIN_VALUE:
-         return int._lowerBounds(value)
-      if value > int.MAX_VALUE:
-         return int._upperBounds(value)
-      return value
+   def __xor__(self, value):
+      return int(self._value ^ self._int(value))
+
+   def __mod__(self, value):
+      return int(self._value % self._int(value))
 
    def _int(self, value):
       # !It is unclear if most of this is included here, most is from the Number class
@@ -122,12 +127,14 @@ class int(Object):
          value = _parseInt(value, 10)
       if value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          return 0
-      if isinstance(value, (builtins.int, int)):
-         return self._boundsCheck(value)
-      if isinstance(value, (float, Number)):
-         return self._boundsCheck(Math.floor(value))
+      if isinstance(value, (int, uint, Number)):
+         value = value._value
+      if isinstance(value, (builtins.int)):
+         return value
+      if isinstance(value, (float)):
+         return Math.floor(value)
       if hasattr(value, '__int__'):
-         return value.__int__()
+         return builtins.int(value)
       raise TypeError(f'Can not convert type {type(value)} to integer')
 
    def toExponential(self, fractionDigits: builtins.int | int):
@@ -180,35 +187,28 @@ class uint(Object):
    MAX_VALUE = 4294967295
    MIN_VALUE = 0
 
-   @staticmethod
-   def _upperBounds(value):
-      return value % uint.MAX_VALUE - 1
+   @property
+   def _value(self):
+      return self._val.value
 
-   @staticmethod
-   def _lowerBounds(value):
-      return value % (uint.MAX_VALUE + 1)
-
-   @staticmethod
-   def _boundsCheck(value):
-      if value < uint.MIN_VALUE:
-         return uint._lowerBounds(value)
-      if value > uint.MAX_VALUE:
-         return uint._upperBounds(value)
-      return value
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
 
    def __init__(self, value=undefined):
+      self._val = c_uint32()
       if isinstance(value, str):
          value = _parseInt(value, 10)
       if value is undefined or value is null or value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          self._value = 0
       elif isinstance(value, (Number, float)):
-         self._value = uint._boundsCheck(Math.floor(value))
+         self._value = Math.floor(value)
       elif isinstance(value, (uint, int)):
-         self._value = uint._boundsCheck(value._value)
+         self._value = value._value
       elif isinstance(value, builtins.int):
-         self._value = uint._boundsCheck(value)
+         self._value = value
       elif hasattr(value, '__int__'):
-         self._value = uint._boundsCheck(builtins.int(value))
+         self._value = builtins.int(value)
       else:
          raise
 
