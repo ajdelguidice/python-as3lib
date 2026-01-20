@@ -2278,7 +2278,62 @@ class MathTests(as3libTestCase):
 
 class NumberTests(NumberTestsBase):
    def test_constructor(self):
-      raise TestNotImplemented
+      self.assertEqual(as3lib.Number(), 0)
+      self.assertEqual(as3lib.Number(as3lib.Number()), 0)
+      self.assertEqual(as3lib.Number(as3lib.true), 1)
+      self.assertEqual(as3lib.Number(as3lib.false), 0)
+      self.assertEqual(as3lib.Number(as3lib.null), 0)
+      self.assertNaN(as3lib.Number(as3lib.undefined))
+
+      self.assertEqual(as3lib.Number(as3lib.String('')), 0)
+      self.assertEqual(as3lib.Number(''), 0)
+      self.assertNaN(as3lib.Number(as3lib.String('str')))
+      self.assertNaN(as3lib.Number('str'))
+      self.assertNaN(as3lib.Number(as3lib.String('true')))
+      self.assertNaN(as3lib.Number('true'))
+      self.assertNaN(as3lib.Number(as3lib.String('false')))
+      self.assertNaN(as3lib.Number('false'))
+
+      self.assertEqual(as3lib.Number(0.0), 0)
+
+      self.assertNaN(as3lib.Number(as3lib.NaN))
+
+      self.assertEqual(as3lib.Number(-0.0), 0)
+
+      self.assertEqual(as3lib.Number(as3lib.Infinity), as3lib.Infinity)
+
+      self.assertEqual(as3lib.Number(1.0), 1)
+      self.assertEqual(as3lib.Number(-1.0), -1)
+      self.assertEqual(as3lib.Number(0xFF1306), 16716550)
+      self.assertEqual(as3lib.Number(1.2315e2), 123.15)
+      self.assertEqual(as3lib.Number(0.0), 0)
+
+      self.assertNaN(as3lib.Number(as3lib.Object()))
+
+      self.assertEqual(as3lib.Number(as3lib.String('0.0')), 0)
+      self.assertEqual(as3lib.Number('0.0'), 0)
+      self.assertNaN(as3lib.Number(as3lib.String('NaN')))
+      self.assertNaN(as3lib.Number('NaN'))
+      self.assertEqual(as3lib.Number(as3lib.String('-0.0')), 0)
+      self.assertEqual(as3lib.Number('-0.0'), 0)
+      self.assertEqual(as3lib.Number(as3lib.String('Infinity')), as3lib.Infinity)
+      self.assertEqual(as3lib.Number('Infinity'), as3lib.Infinity)
+      self.assertEqual(as3lib.Number(as3lib.String('-Infinity')), -as3lib.Infinity)
+      self.assertEqual(as3lib.Number('-Infinity'), -as3lib.Infinity)
+
+      self.assertNaN(as3lib.Number(as3lib.String('infinity')))
+      self.assertNaN(as3lib.Number('infinity'))
+      self.assertNaN(as3lib.Number(as3lib.String('inf')))
+      self.assertNaN(as3lib.Number('inf'))
+
+      self.assertEqual(as3lib.Number(as3lib.String('1.0')), 1)
+      self.assertEqual(as3lib.Number('1.0'), 1)
+      self.assertEqual(as3lib.Number(as3lib.String('-1.0')), -1)
+      self.assertEqual(as3lib.Number('-1.0'), -1)
+      self.assertEqual(as3lib.Number(as3lib.String('0xFF1306')), 16716550)
+      self.assertEqual(as3lib.Number('0xFF1306'), 16716550)
+      self.assertEqual(as3lib.Number(as3lib.String('1.2315e2')), 123.15)
+      self.assertEqual(as3lib.Number('1.2315e2'), 123.15)
 
 
 class ObjectTests(as3libTestCase):
