@@ -1397,6 +1397,7 @@ class intTests(NumberTestsBase):
       self.assertEqual(as3lib.Int(-0x180000001), 2147483647)
       self.assertEqual(as3lib.Int(-0x100000001), -1)
 
+      # Parse Tests
       self.assertEqual(as3lib.Int(as3lib.String('0.0')), 0)
       self.assertEqual(as3lib.Int('0.0'), 0)
       self.assertEqual(as3lib.Int(as3lib.String('NaN')), 0)
@@ -1409,31 +1410,30 @@ class intTests(NumberTestsBase):
       self.assertEqual(as3lib.Int('1.0'), 1)
       self.assertEqual(as3lib.Int(as3lib.String('-1.0')), -1)
       self.assertEqual(as3lib.Int('-1.0'), -1)
-
       self.assertEqual(as3lib.Int(as3lib.String('0xFF1306')), 16716550)
       self.assertEqual(as3lib.Int('0xFF1306'), 16716550)
       self.assertEqual(as3lib.Int(as3lib.String('1.2315e2')), 123)
-      self.assertEqual(as3lib.Int(1.2315e2), 123)
+      self.assertEqual(as3lib.Int('1.2315e2'), 123)
       self.assertEqual(as3lib.Int(as3lib.String('0x7FFFFFFF')), 2147483647)
-      self.assertEqual(as3lib.Int(0x7FFFFFFF), 2147483647)
+      self.assertEqual(as3lib.Int('0x7FFFFFFF'), 2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('0x80000000')), -2147483648)
-      self.assertEqual(as3lib.Int(0x80000000), -2147483648)
+      self.assertEqual(as3lib.Int('0x80000000'), -2147483648)
       self.assertEqual(as3lib.Int(as3lib.String('0x80000001')), -2147483647)
-      self.assertEqual(as3lib.Int(0x80000001), -2147483647)
+      self.assertEqual(as3lib.Int('0x80000001'), -2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('0x180000001')), -2147483647)
-      self.assertEqual(as3lib.Int(0x180000001), -2147483647)
+      self.assertEqual(as3lib.Int('0x180000001'), -2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('0x100000001')), 1)
-      self.assertEqual(as3lib.Int(0x100000001), 1)
+      self.assertEqual(as3lib.Int('0x100000001'), 1)
       self.assertEqual(as3lib.Int(as3lib.String('-0x7FFFFFFF')), -2147483647)
-      self.assertEqual(as3lib.Int(-0x7FFFFFFF), -2147483647)
+      self.assertEqual(as3lib.Int('-0x7FFFFFFF'), -2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('-0x80000000')), -2147483648)
-      self.assertEqual(as3lib.Int(-0x80000000), -2147483648)
+      self.assertEqual(as3lib.Int('-0x80000000'), -2147483648)
       self.assertEqual(as3lib.Int(as3lib.String('-0x80000001')), 2147483647)
-      self.assertEqual(as3lib.Int(-0x80000001), 2147483647)
+      self.assertEqual(as3lib.Int('-0x80000001'), 2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('-0x180000001')), 2147483647)
-      self.assertEqual(as3lib.Int(-0x180000001), 2147483647)
+      self.assertEqual(as3lib.Int('-0x180000001'), 2147483647)
       self.assertEqual(as3lib.Int(as3lib.String('-0x100000001')), -1)
-      self.assertEqual(as3lib.Int(-0x100000001), -1)
+      self.assertEqual(as3lib.Int('-0x100000001'), -1)
 
       self.assertEqual(as3lib.Int(as3lib.Object()), 0)
 
@@ -1540,93 +1540,95 @@ class intTests(NumberTestsBase):
 
       self.assertToExponential(as3lib.Number(0.0), asrt_0)
       self.assertToExponential(0.0, asrt_0)
-      self.assertToExponential(as3lib.String('0.0'), asrt_0)
-      self.assertToExponential('0.0', asrt_0)
 
       self.assertToExponential(as3lib.NaN, asrt_0)
-      self.assertToExponential(as3lib.String('NaN'), asrt_0)
-      self.assertToExponential('NaN', asrt_0)
 
       self.assertToExponential(as3lib.Number(-0.0), asrt_0)
       self.assertToExponential(-0.0, asrt_0)
-      self.assertToExponential(as3lib.String('-0.0'), asrt_0)
-      self.assertToExponential('-0.0', asrt_0)
 
       self.assertToExponential(as3lib.Infinity, asrt_0)
-      self.assertToExponential(as3lib.String('Infinity'), asrt_0)
-      self.assertToExponential('Infinity', asrt_0)
 
       self.assertToExponential(as3lib.Number(1.0), asrt_1)
       self.assertToExponential(1.0, asrt_1)
-      self.assertToExponential(as3lib.String('1.0'), asrt_1)
-      self.assertToExponential('1.0', asrt_1)
 
       self.assertToExponential(as3lib.Number(-1.0), asrt_n1)
       self.assertToExponential(-1.0, asrt_n1)
-      self.assertToExponential(as3lib.String('-1.0'), asrt_n1)
-      self.assertToExponential('-1.0', asrt_n1)
 
       self.assertToExponential(as3lib.Number(0xFF1306), asrt_16716550)
       self.assertToExponential(0xFF1306, asrt_16716550)
-      self.assertToExponential(as3lib.String('0xFF1306'), asrt_16716550)
-      self.assertToExponential('0xFF1306', asrt_16716550)
 
       self.assertToExponential(as3lib.Number(1.2315e2), asrt_123)
       self.assertToExponential(1.2315e2, asrt_123)
-      self.assertToExponential(as3lib.String('1.2315e2'), asrt_123)
-      self.assertToExponential('1.2315e2', asrt_123)
 
       self.assertToExponential(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
-      self.assertToExponential(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
-      self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
 
       self.assertToExponential(as3lib.Number(0x80000000), asrt_n2147483648)
       self.assertToExponential(0x80000000, asrt_n2147483648)
-      self.assertToExponential(as3lib.String('0x80000000'), asrt_n2147483648)
-      self.assertToExponential('0x80000000', asrt_n2147483648)
 
       self.assertToExponential(as3lib.Number(0x80000001), asrt_n2147483647)
       self.assertToExponential(0x80000001, asrt_n2147483647)
-      self.assertToExponential(as3lib.String('0x80000001'), asrt_n2147483647)
-      self.assertToExponential('0x80000001', asrt_n2147483647)
 
       self.assertToExponential(as3lib.Number(0x180000001), asrt_n2147483647)
       self.assertToExponential(0x180000001, asrt_n2147483647)
-      self.assertToExponential(as3lib.String('0x180000001'), asrt_n2147483647)
-      self.assertToExponential('0x180000001', asrt_n2147483647)
 
       self.assertToExponential(as3lib.Number(0x100000001), asrt_1)
       self.assertToExponential(0x100000001, asrt_1)
-      self.assertToExponential(as3lib.String('0x100000001'), asrt_1)
-      self.assertToExponential('0x100000001', asrt_1)
 
       self.assertToExponential(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToExponential(-0x7FFFFFFF, asrt_n2147483647)
-      self.assertToExponential(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
-      self.assertToExponential('-0x7FFFFFFF', asrt_n2147483647)
 
       self.assertToExponential(as3lib.Number(-0x80000000), asrt_n2147483648)
       self.assertToExponential(-0x80000000, asrt_n2147483648)
-      self.assertToExponential(as3lib.String('-0x80000000'), asrt_n2147483648)
-      self.assertToExponential('-0x80000000', asrt_n2147483648)
 
       self.assertToExponential(as3lib.Number(-0x80000001), asrt_2147483647)
       self.assertToExponential(-0x80000001, asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x80000001'), asrt_2147483647)
-      self.assertToExponential('-0x80000001', asrt_2147483647)
 
       self.assertToExponential(as3lib.Number(-0x180000001), asrt_2147483647)
       self.assertToExponential(-0x180000001, asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x180000001'), asrt_2147483647)
-      self.assertToExponential('-0x180000001', asrt_2147483647)
 
       self.assertToExponential(as3lib.Number(-0x100000001), asrt_n1)
       self.assertToExponential(-0x100000001, asrt_n1)
-      self.assertToExponential(as3lib.String('-0x100000001'), asrt_n1)
-      self.assertToExponential('-0x100000001', asrt_n1)
 
       self.assertToExponential(as3lib.Object(), asrt_0)
+
+      # Parse Tests
+      self.assertToExponential(as3lib.String('0.0'), asrt_0)
+      self.assertToExponential('0.0', asrt_0)
+      self.assertToExponential(as3lib.String('NaN'), asrt_0)
+      self.assertToExponential('NaN', asrt_0)
+      self.assertToExponential(as3lib.String('-0.0'), asrt_0)
+      self.assertToExponential('-0.0', asrt_0)
+      self.assertToExponential(as3lib.String('Infinity'), asrt_0)
+      self.assertToExponential('Infinity', asrt_0)
+      self.assertToExponential(as3lib.String('1.0'), asrt_1)
+      self.assertToExponential('1.0', asrt_1)
+      self.assertToExponential(as3lib.String('-1.0'), asrt_n1)
+      self.assertToExponential('-1.0', asrt_n1)
+      self.assertToExponential(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToExponential('0xFF1306', asrt_16716550)
+      self.assertToExponential(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToExponential('1.2315e2', asrt_123)
+      self.assertToExponential(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
+      self.assertToExponential(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToExponential('0x80000000', asrt_n2147483648)
+      self.assertToExponential(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToExponential('0x80000001', asrt_n2147483647)
+      self.assertToExponential(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToExponential('0x180000001', asrt_n2147483647)
+      self.assertToExponential(as3lib.String('0x100000001'), asrt_1)
+      self.assertToExponential('0x100000001', asrt_1)
+      self.assertToExponential(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToExponential('-0x7FFFFFFF', asrt_n2147483647)
+      self.assertToExponential(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToExponential('-0x80000000', asrt_n2147483648)
+      self.assertToExponential(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToExponential('-0x80000001', asrt_2147483647)
+      self.assertToExponential(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToExponential('-0x180000001', asrt_2147483647)
+      self.assertToExponential(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToExponential('-0x100000001', asrt_n1)
 
    def assertToFixed(self, value, check):
       # null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
@@ -1698,93 +1700,95 @@ class intTests(NumberTestsBase):
 
       self.assertToFixed(as3lib.Number(0.0), asrt_0)
       self.assertToFixed(0.0, asrt_0)
-      self.assertToFixed(as3lib.String('0.0'), asrt_0)
-      self.assertToFixed('0.0', asrt_0)
 
       self.assertToFixed(as3lib.NaN, asrt_0)
-      self.assertToFixed(as3lib.String('NaN'), asrt_0)
-      self.assertToFixed('NaN', asrt_0)
 
       self.assertToFixed(as3lib.Number(-0.0), asrt_0)
       self.assertToFixed(-0.0, asrt_0)
-      self.assertToFixed(as3lib.String('-0.0'), asrt_0)
-      self.assertToFixed('-0.0', asrt_0)
 
       self.assertToFixed(as3lib.Infinity, asrt_0)
-      self.assertToFixed(as3lib.String('Infinity'), asrt_0)
-      self.assertToFixed('Infinity', asrt_0)
 
       self.assertToFixed(as3lib.Number(1.0), asrt_1)
       self.assertToFixed(1.0, asrt_1)
-      self.assertToFixed(as3lib.String('1.0'), asrt_1)
-      self.assertToFixed('1.0', asrt_1)
 
       self.assertToFixed(as3lib.Number(-1.0), asrt_n1)
       self.assertToFixed(-1.0, asrt_n1)
-      self.assertToFixed(as3lib.String('-1.0'), asrt_n1)
-      self.assertToFixed('-1.0', asrt_n1)
 
       self.assertToFixed(as3lib.Number(0xFF1306), asrt_16716550)
       self.assertToFixed(0xFF1306, asrt_16716550)
-      self.assertToFixed(as3lib.String('0xFF1306'), asrt_16716550)
-      self.assertToFixed('0xFF1306', asrt_16716550)
 
       self.assertToFixed(as3lib.Number(1.2315e2), asrt_123)
       self.assertToFixed(1.2315e2, asrt_123)
-      self.assertToFixed(as3lib.String('1.2315e2'), asrt_123)
-      self.assertToFixed('1.2315e2', asrt_123)
 
       self.assertToFixed(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
-      self.assertToFixed(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
-      self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
 
       self.assertToFixed(as3lib.Number(0x80000000), asrt_n2147483648)
       self.assertToFixed(0x80000000, asrt_n2147483648)
-      self.assertToFixed(as3lib.String('0x80000000'), asrt_n2147483648)
-      self.assertToFixed('0x80000000', asrt_n2147483648)
 
       self.assertToFixed(as3lib.Number(0x80000001), asrt_n2147483647)
       self.assertToFixed(0x80000001, asrt_n2147483647)
-      self.assertToFixed(as3lib.String('0x80000001'), asrt_n2147483647)
-      self.assertToFixed('0x80000001', asrt_n2147483647)
 
       self.assertToFixed(as3lib.Number(0x180000001), asrt_n2147483647)
       self.assertToFixed(0x180000001, asrt_n2147483647)
-      self.assertToFixed(as3lib.String('0x180000001'), asrt_n2147483647)
-      self.assertToFixed('0x180000001', asrt_n2147483647)
 
       self.assertToFixed(as3lib.Number(0x100000001), asrt_1)
       self.assertToFixed(0x100000001, asrt_1)
-      self.assertToFixed(as3lib.String('0x100000001'), asrt_1)
-      self.assertToFixed('0x100000001', asrt_1)
 
       self.assertToFixed(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToFixed(-0x7FFFFFFF, asrt_n2147483647)
-      self.assertToFixed(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
-      self.assertToFixed('-0x7FFFFFFF', asrt_n2147483647)
 
       self.assertToFixed(as3lib.Number(-0x80000000), asrt_n2147483648)
       self.assertToFixed(-0x80000000, asrt_n2147483648)
-      self.assertToFixed(as3lib.String('-0x80000000'), asrt_n2147483648)
-      self.assertToFixed('-0x80000000', asrt_n2147483648)
 
       self.assertToFixed(as3lib.Number(-0x80000001), asrt_2147483647)
       self.assertToFixed(-0x80000001, asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x80000001'), asrt_2147483647)
-      self.assertToFixed('-0x80000001', asrt_2147483647)
 
       self.assertToFixed(as3lib.Number(-0x180000001), asrt_2147483647)
       self.assertToFixed(-0x180000001, asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x180000001'), asrt_2147483647)
-      self.assertToFixed('-0x180000001', asrt_2147483647)
 
       self.assertToFixed(as3lib.Number(-0x100000001), asrt_n1)
       self.assertToFixed(-0x100000001, asrt_n1)
-      self.assertToFixed(as3lib.String('-0x100000001'), asrt_n1)
-      self.assertToFixed('-0x100000001', asrt_n1)
 
       self.assertToFixed(as3lib.Object(), asrt_0)
+
+      # Parse Tests
+      self.assertToFixed(as3lib.String('0.0'), asrt_0)
+      self.assertToFixed('0.0', asrt_0)
+      self.assertToFixed(as3lib.String('NaN'), asrt_0)
+      self.assertToFixed('NaN', asrt_0)
+      self.assertToFixed(as3lib.String('-0.0'), asrt_0)
+      self.assertToFixed('-0.0', asrt_0)
+      self.assertToFixed(as3lib.String('Infinity'), asrt_0)
+      self.assertToFixed('Infinity', asrt_0)
+      self.assertToFixed(as3lib.String('1.0'), asrt_1)
+      self.assertToFixed('1.0', asrt_1)
+      self.assertToFixed(as3lib.String('-1.0'), asrt_n1)
+      self.assertToFixed('-1.0', asrt_n1)
+      self.assertToFixed(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToFixed('0xFF1306', asrt_16716550)
+      self.assertToFixed(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToFixed('1.2315e2', asrt_123)
+      self.assertToFixed(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
+      self.assertToFixed(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToFixed('0x80000000', asrt_n2147483648)
+      self.assertToFixed(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToFixed('0x80000001', asrt_n2147483647)
+      self.assertToFixed(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToFixed('0x180000001', asrt_n2147483647)
+      self.assertToFixed(as3lib.String('0x100000001'), asrt_1)
+      self.assertToFixed('0x100000001', asrt_1)
+      self.assertToFixed(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToFixed('-0x7FFFFFFF', asrt_n2147483647)
+      self.assertToFixed(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToFixed('-0x80000000', asrt_n2147483648)
+      self.assertToFixed(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToFixed('-0x80000001', asrt_2147483647)
+      self.assertToFixed(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToFixed('-0x180000001', asrt_2147483647)
+      self.assertToFixed(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToFixed('-0x100000001', asrt_n1)
 
    def assertToPrecision(self, value, check):
       val = as3lib.Int(value)
@@ -1841,93 +1845,95 @@ class intTests(NumberTestsBase):
 
       self.assertToPrecision(as3lib.Number(0.0), asrt_0)
       self.assertToPrecision(0.0, asrt_0)
-      self.assertToPrecision(as3lib.String('0.0'), asrt_0)
-      self.assertToPrecision('0.0', asrt_0)
 
       self.assertToPrecision(as3lib.NaN, asrt_0)
-      self.assertToPrecision(as3lib.String('NaN'), asrt_0)
-      self.assertToPrecision('NaN', asrt_0)
 
       self.assertToPrecision(as3lib.Number(-0.0), asrt_0)
       self.assertToPrecision(-0.0, asrt_0)
-      self.assertToPrecision(as3lib.String('-0.0'), asrt_0)
-      self.assertToPrecision('-0.0', asrt_0)
 
       self.assertToPrecision(as3lib.Infinity, asrt_0)
-      self.assertToPrecision(as3lib.String('Infinity'), asrt_0)
-      self.assertToPrecision('Infinity', asrt_0)
 
       self.assertToPrecision(as3lib.Number(1.0), asrt_1)
       self.assertToPrecision(1.0, asrt_1)
-      self.assertToPrecision(as3lib.String('1.0'), asrt_1)
-      self.assertToPrecision('1.0', asrt_1)
 
       self.assertToPrecision(as3lib.Number(-1.0), asrt_n1)
       self.assertToPrecision(-1.0, asrt_n1)
-      self.assertToPrecision(as3lib.String('-1.0'), asrt_n1)
-      self.assertToPrecision('-1.0', asrt_n1)
 
       self.assertToPrecision(as3lib.Number(0xFF1306), asrt_16716550)
       self.assertToPrecision(0xFF1306, asrt_16716550)
-      self.assertToPrecision(as3lib.String('0xFF1306'), asrt_16716550)
-      self.assertToPrecision('0xFF1306', asrt_16716550)
 
       self.assertToPrecision(as3lib.Number(1.2315e2), asrt_123)
       self.assertToPrecision(1.2315e2, asrt_123)
-      self.assertToPrecision(as3lib.String('1.2315e2'), asrt_123)
-      self.assertToPrecision('1.2315e2', asrt_123)
 
       self.assertToPrecision(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
-      self.assertToPrecision(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
-      self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
 
       self.assertToPrecision(as3lib.Number(0x80000000), asrt_n2147483648)
       self.assertToPrecision(0x80000000, asrt_n2147483648)
-      self.assertToPrecision(as3lib.String('0x80000000'), asrt_n2147483648)
-      self.assertToPrecision('0x80000000', asrt_n2147483648)
 
       self.assertToPrecision(as3lib.Number(0x80000001), asrt_n2147483647)
       self.assertToPrecision(0x80000001, asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('0x80000001'), asrt_n2147483647)
-      self.assertToPrecision('0x80000001', asrt_n2147483647)
 
       self.assertToPrecision(as3lib.Number(0x180000001), asrt_n2147483647)
       self.assertToPrecision(0x180000001, asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('0x180000001'), asrt_n2147483647)
-      self.assertToPrecision('0x180000001', asrt_n2147483647)
 
       self.assertToPrecision(as3lib.Number(0x100000001), asrt_1)
       self.assertToPrecision(0x100000001, asrt_1)
-      self.assertToPrecision(as3lib.String('0x100000001'), asrt_1)
-      self.assertToPrecision('0x100000001', asrt_1)
 
       self.assertToPrecision(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToPrecision(-0x7FFFFFFF, asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
-      self.assertToPrecision('-0x7FFFFFFF', asrt_n2147483647)
 
       self.assertToPrecision(as3lib.Number(-0x80000000), asrt_n2147483648)
       self.assertToPrecision(-0x80000000, asrt_n2147483648)
-      self.assertToPrecision(as3lib.String('-0x80000000'), asrt_n2147483648)
-      self.assertToPrecision('-0x80000000', asrt_n2147483648)
 
       self.assertToPrecision(as3lib.Number(-0x80000001), asrt_2147483647)
       self.assertToPrecision(-0x80000001, asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x80000001'), asrt_2147483647)
-      self.assertToPrecision('-0x80000001', asrt_2147483647)
 
       self.assertToPrecision(as3lib.Number(-0x180000001), asrt_2147483647)
       self.assertToPrecision(-0x180000001, asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x180000001'), asrt_2147483647)
-      self.assertToPrecision('-0x180000001', asrt_2147483647)
 
       self.assertToPrecision(as3lib.Number(-0x100000001), asrt_n1)
       self.assertToPrecision(-0x100000001, asrt_n1)
-      self.assertToPrecision(as3lib.String('-0x100000001'), asrt_n1)
-      self.assertToPrecision('-0x100000001', asrt_n1)
 
       self.assertToPrecision(as3lib.Object(), asrt_0)
+
+      # Parse Tests
+      self.assertToPrecision(as3lib.String('0.0'), asrt_0)
+      self.assertToPrecision('0.0', asrt_0)
+      self.assertToPrecision(as3lib.String('NaN'), asrt_0)
+      self.assertToPrecision('NaN', asrt_0)
+      self.assertToPrecision(as3lib.String('-0.0'), asrt_0)
+      self.assertToPrecision('-0.0', asrt_0)
+      self.assertToPrecision(as3lib.String('Infinity'), asrt_0)
+      self.assertToPrecision('Infinity', asrt_0)
+      self.assertToPrecision(as3lib.String('1.0'), asrt_1)
+      self.assertToPrecision('1.0', asrt_1)
+      self.assertToPrecision(as3lib.String('-1.0'), asrt_n1)
+      self.assertToPrecision('-1.0', asrt_n1)
+      self.assertToPrecision(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToPrecision('0xFF1306', asrt_16716550)
+      self.assertToPrecision(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToPrecision('1.2315e2', asrt_123)
+      self.assertToPrecision(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToPrecision('0x80000000', asrt_n2147483648)
+      self.assertToPrecision(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToPrecision('0x80000001', asrt_n2147483647)
+      self.assertToPrecision(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToPrecision('0x180000001', asrt_n2147483647)
+      self.assertToPrecision(as3lib.String('0x100000001'), asrt_1)
+      self.assertToPrecision('0x100000001', asrt_1)
+      self.assertToPrecision(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToPrecision('-0x7FFFFFFF', asrt_n2147483647)
+      self.assertToPrecision(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToPrecision('-0x80000000', asrt_n2147483648)
+      self.assertToPrecision(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToPrecision('-0x80000001', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToPrecision('-0x180000001', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToPrecision('-0x100000001', asrt_n1)
 
    def assertToString(self, value, check):
       #2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
@@ -2018,93 +2024,95 @@ class intTests(NumberTestsBase):
 
       self.assertToString(as3lib.Number(0.0), asrt_0)
       self.assertToString(0.0, asrt_0)
-      self.assertToString(as3lib.String('0.0'), asrt_0)
-      self.assertToString('0.0', asrt_0)
 
       self.assertToString(as3lib.NaN, asrt_0)
-      self.assertToString(as3lib.String('NaN'), asrt_0)
-      self.assertToString('NaN', asrt_0)
 
       self.assertToString(as3lib.Number(-0.0), asrt_0)
       self.assertToString(-0.0, asrt_0)
-      self.assertToString(as3lib.String('-0.0'), asrt_0)
-      self.assertToString('-0.0', asrt_0)
 
       self.assertToString(as3lib.Infinity, asrt_0)
-      self.assertToString(as3lib.String('Infinity'), asrt_0)
-      self.assertToString('Infinity', asrt_0)
 
       self.assertToString(as3lib.Number(1.0), asrt_1)
       self.assertToString(1.0, asrt_1)
-      self.assertToString(as3lib.String('1.0'), asrt_1)
-      self.assertToString('1.0', asrt_1)
 
       self.assertToString(as3lib.Number(-1.0), asrt_n1)
       self.assertToString(-1.0, asrt_n1)
-      self.assertToString(as3lib.String('-1.0'), asrt_n1)
-      self.assertToString('-1.0', asrt_n1)
 
       self.assertToString(as3lib.Number(0xFF1306), asrt_16716550)
       self.assertToString(0xFF1306, asrt_16716550)
-      self.assertToString(as3lib.String('0xFF1306'), asrt_16716550)
-      self.assertToString('0xFF1306', asrt_16716550)
 
       self.assertToString(as3lib.Number(1.2315e2), asrt_123)
       self.assertToString(1.2315e2, asrt_123)
-      self.assertToString(as3lib.String('1.2315e2'), asrt_123)
-      self.assertToString('1.2315e2', asrt_123)
 
       self.assertToString(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToString(0x7FFFFFFF, asrt_2147483647)
-      self.assertToString(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
-      self.assertToString('0x7FFFFFFF', asrt_2147483647)
 
       self.assertToString(as3lib.Number(0x80000000), asrt_n2147483648)
       self.assertToString(0x80000000, asrt_n2147483648)
-      self.assertToString(as3lib.String('0x80000000'), asrt_n2147483648)
-      self.assertToString('0x80000000', asrt_n2147483648)
 
       self.assertToString(as3lib.Number(0x80000001), asrt_n2147483647)
       self.assertToString(0x80000001, asrt_n2147483647)
-      self.assertToString(as3lib.String('0x80000001'), asrt_n2147483647)
-      self.assertToString('0x80000001', asrt_n2147483647)
 
       self.assertToString(as3lib.Number(0x180000001), asrt_n2147483647)
       self.assertToString(0x180000001, asrt_n2147483647)
-      self.assertToString(as3lib.String('0x180000001'), asrt_n2147483647)
-      self.assertToString('0x180000001', asrt_n2147483647)
 
       self.assertToString(as3lib.Number(0x100000001), asrt_1)
       self.assertToString(0x100000001, asrt_1)
-      self.assertToString(as3lib.String('0x100000001'), asrt_1)
-      self.assertToString('0x100000001', asrt_1)
 
       self.assertToString(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToString(-0x7FFFFFFF, asrt_n2147483647)
-      self.assertToString(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
-      self.assertToString('-0x7FFFFFFF', asrt_n2147483647)
 
       self.assertToString(as3lib.Number(-0x80000000), asrt_n2147483648)
       self.assertToString(-0x80000000, asrt_n2147483648)
-      self.assertToString(as3lib.String('-0x80000000'), asrt_n2147483648)
-      self.assertToString('-0x80000000', asrt_n2147483648)
 
       self.assertToString(as3lib.Number(-0x80000001), asrt_2147483647)
       self.assertToString(-0x80000001, asrt_2147483647)
-      self.assertToString(as3lib.String('-0x80000001'), asrt_2147483647)
-      self.assertToString('-0x80000001', asrt_2147483647)
 
       self.assertToString(as3lib.Number(-0x180000001), asrt_2147483647)
       self.assertToString(-0x180000001, asrt_2147483647)
-      self.assertToString(as3lib.String('-0x180000001'), asrt_2147483647)
-      self.assertToString('-0x180000001', asrt_2147483647)
 
       self.assertToString(as3lib.Number(-0x100000001), asrt_n1)
       self.assertToString(-0x100000001, asrt_n1)
-      self.assertToString(as3lib.String('-0x100000001'), asrt_n1)
-      self.assertToString('-0x100000001', asrt_n1)
 
       self.assertToString(as3lib.Object(), asrt_0)
+
+      # Parse Tests
+      self.assertToString(as3lib.String('0.0'), asrt_0)
+      self.assertToString('0.0', asrt_0)
+      self.assertToString(as3lib.String('NaN'), asrt_0)
+      self.assertToString('NaN', asrt_0)
+      self.assertToString(as3lib.String('-0.0'), asrt_0)
+      self.assertToString('-0.0', asrt_0)
+      self.assertToString(as3lib.String('Infinity'), asrt_0)
+      self.assertToString('Infinity', asrt_0)
+      self.assertToString(as3lib.String('1.0'), asrt_1)
+      self.assertToString('1.0', asrt_1)
+      self.assertToString(as3lib.String('-1.0'), asrt_n1)
+      self.assertToString('-1.0', asrt_n1)
+      self.assertToString(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToString('0xFF1306', asrt_16716550)
+      self.assertToString(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToString('1.2315e2', asrt_123)
+      self.assertToString(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToString('0x7FFFFFFF', asrt_2147483647)
+      self.assertToString(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToString('0x80000000', asrt_n2147483648)
+      self.assertToString(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToString('0x80000001', asrt_n2147483647)
+      self.assertToString(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToString('0x180000001', asrt_n2147483647)
+      self.assertToString(as3lib.String('0x100000001'), asrt_1)
+      self.assertToString('0x100000001', asrt_1)
+      self.assertToString(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToString('-0x7FFFFFFF', asrt_n2147483647)
+      self.assertToString(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToString('-0x80000000', asrt_n2147483648)
+      self.assertToString(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToString('-0x80000001', asrt_2147483647)
+      self.assertToString(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToString('-0x180000001', asrt_2147483647)
+      self.assertToString(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToString('-0x100000001', asrt_n1)
 
 
 class MathTests(as3libTestCase):
@@ -2497,6 +2505,7 @@ class uintTests(NumberTestsBase):
       self.assertEqual(as3lib.uint(-0x180000001), 2147483647)
       self.assertEqual(as3lib.uint(-0x100000001), 4294967295)
 
+      # Parse Tests
       self.assertEqual(as3lib.uint(as3lib.String('0.0')), 0)
       self.assertEqual(as3lib.uint(as3lib.String('NaN')), 0)
       self.assertEqual(as3lib.uint(as3lib.String('-0.0')), 0)
@@ -2523,28 +2532,648 @@ class uintTests(NumberTestsBase):
       self._assertToExponential(val, check)
 
    def test_toExponential(self):
-      raise TestNotImplemented
+      asrt_1 = ('1', '1.0', '1.00', '1.000', '1.0000', '1.00000', '1.000000',
+                '1.0000000', '1.00000000', '1.000000000', '1.0000000000',
+                '1.00000000000000000000')
+
+      asrt_0 = ('1e-15', '0.0e-16', '0.00e-16', '0.000e-16', '0.0000e-16',
+                '0.00000e-16', '0.000000e-16', '0.0000000e-16',
+                '0.00000000e-16', '0.000000000e-16', '0.0000000000e-16',
+                '0.00000000000000000000e-16')
+
+      asrt_4294967295 = ('4e+9', '4.3e+9', '4.29e+9', '4.295e+9', '4.2950e+9',
+                         '4.29497e+9', '4.294967e+9', '4.2949673e+9',
+                         '4.29496730e+9', '4.294967295e+9', '4.2949672950e+9',
+                         '4.29496729500000000000e+9')
+
+      asrt_16716550 = ('2e+7', '1.7e+7', '1.67e+7', '1.672e+7', '1.6717e+7',
+                       '1.67166e+7', '1.671655e+7', '1.6716550e+7',
+                       '1.67165500e+7', '1.671655000e+7', '1.6716550000e+7',
+                       '1.67165500000000000000e+7')
+
+      asrt_123 = ('1e+2', '1.2e+2', '1.23e+2', '1.230e+2', '1.2300e+2',
+                  '1.23000e+2', '1.230000e+2', '1.2300000e+2',
+                  '1.23000000e+2', '1.230000000e+2', '1.2300000000e+2',
+                  '1.23000000000000000000e+2')
+
+      asrt_2147483647 = ('2e+9', '2.1e+9', '2.15e+9', '2.147e+9', '2.1475e+9',
+                         '2.14748e+9', '2.147484e+9', '2.1474836e+9',
+                         '2.14748365e+9', '2.147483647e+9', '2.1474836470e+9',
+                         '2.14748364700000000000e+9')
+
+      asrt_2147483648 = ('2e+9', '2.1e+9', '2.15e+9', '2.147e+9', '2.1475e+9',
+                         '2.14748e+9', '2.147484e+9', '2.1474836e+9',
+                         '2.14748365e+9', '2.147483648e+9', '2.1474836480e+9',
+                         '2.14748364800000000000e+9')
+
+      asrt_2147483649 = ('2e+9','2.1e+9', '2.15e+9', '2.147e+9', '2.1475e+9',
+                         '2.14748e+9', '2.147484e+9', '2.1474836e+9',
+                         '2.14748365e+9', '2.147483649e+9', '2.1474836490e+9',
+                         '2.14748364900000000000e+9')
+
+      self.assertToExponential(as3lib.true, asrt_1)
+
+      self.assertToExponential(as3lib.false, asrt_0)
+      self.assertToExponential(as3lib.null, asrt_0)
+      self.assertToExponential(as3lib.undefined, asrt_0)
+
+      self.assertToExponential(as3lib.String(''), asrt_0)
+      self.assertToExponential('', asrt_0)
+
+      self.assertToExponential(as3lib.String('str'), asrt_0)
+      self.assertToExponential('str', asrt_0)
+
+      self.assertToExponential(as3lib.String('true'), asrt_0)
+      self.assertToExponential('true', asrt_0)
+
+      self.assertToExponential(as3lib.String('false'), asrt_0)
+      self.assertToExponential('false', asrt_0)
+
+      self.assertToExponential(as3lib.Number(0.0), asrt_0)
+      self.assertToExponential(0.0, asrt_0)
+
+      self.assertToExponential(as3lib.NaN, asrt_0)
+
+      self.assertToExponential(as3lib.Number(-0.0), asrt_0)
+      self.assertToExponential(-0.0, asrt_0)
+
+      self.assertToExponential(as3lib.Infinity, asrt_0)
+
+      self.assertToExponential(as3lib.Number(1.0), asrt_1)
+      self.assertToExponential(1.0, asrt_1)
+
+      self.assertToExponential(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToExponential(-1.0, asrt_4294967295)
+
+      self.assertToExponential(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToExponential(0xFF1306, asrt_16716550)
+
+      self.assertToExponential(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToExponential(1.2315e2, asrt_123)
+
+      self.assertToExponential(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
+
+      self.assertToExponential(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToExponential(0x80000000, asrt_2147483648)
+
+      self.assertToExponential(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToExponential(0x80000001, asrt_2147483649)
+
+      self.assertToExponential(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToExponential(0x180000001, asrt_2147483649)
+
+      self.assertToExponential(as3lib.Number(0x100000001), asrt_1)
+      self.assertToExponential(0x100000001, asrt_1)
+
+      self.assertToExponential(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToExponential(-0x7FFFFFFF, asrt_2147483649)
+
+      self.assertToExponential(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToExponential(-0x80000000, asrt_2147483648)
+
+      self.assertToExponential(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToExponential(-0x80000001, asrt_2147483647)
+
+      self.assertToExponential(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToExponential(-0x180000001, asrt_2147483647)
+
+      self.assertToExponential(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToExponential(-0x100000001, asrt_4294967295)
+
+      self.assertToExponential(as3lib.Object(), asrt_0)
+
+      # Parse tests
+      self.assertToExponential(as3lib.String('0.0'), asrt_0)
+      self.assertToExponential('0.0', asrt_0)
+      self.assertToExponential(as3lib.String('NaN'), asrt_0)
+      self.assertToExponential('NaN', asrt_0)
+      self.assertToExponential(as3lib.String('-0.0'), asrt_0)
+      self.assertToExponential('-0.0', asrt_0)
+      self.assertToExponential(as3lib.String('Infinity'), asrt_0)
+      self.assertToExponential('Infinity', asrt_0)
+      self.assertToExponential(as3lib.String('1.0'), asrt_1)
+      self.assertToExponential('1.0', asrt_1)
+      self.assertToExponential(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToExponential('-1.0', asrt_4294967295)
+      self.assertToExponential(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToExponential('0xFF1306', asrt_16716550)
+      self.assertToExponential(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToExponential('1.2315e2', asrt_123)
+      self.assertToExponential(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
+      self.assertToExponential(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToExponential('0x80000000', asrt_2147483648)
+      self.assertToExponential(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToExponential('0x80000001', asrt_2147483649)
+      self.assertToExponential(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToExponential('0x180000001', asrt_2147483649)
+      self.assertToExponential(as3lib.String('0x100000001'), asrt_1)
+      self.assertToExponential('0x100000001', asrt_1)
+      self.assertToExponential(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToExponential('-0x7FFFFFFF', asrt_2147483649)
+      self.assertToExponential(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToExponential('-0x80000000', asrt_2147483648)
+      self.assertToExponential(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToExponential('-0x80000001', asrt_2147483647)
+      self.assertToExponential(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToExponential('-0x180000001', asrt_2147483647)
+      self.assertToExponential(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToExponential('-0x100000001', asrt_4294967295)
 
    def assertToFixed(self, value, check):
       val = as3lib.uint(value)
       self._assertToFixed(val, check)
 
    def test_toFixed(self):
-      raise TestNotImplemented
+      asrt_1 = ('1', '1.0', '1.00', '1.000', '1.0000', '1.00000', '1.000000',
+                '1.0000000', '1.00000000', '1.000000000', '1.0000000000',
+                '1.00000000000000000000')
+
+      asrt_0 = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000000',
+                '0.0000000', '0.00000000', '0.000000000', '0.0000000000',
+                '0.00000000000000000000')
+
+      asrt_4294967295 = ('4294967295', '4294967295.0', '4294967295.00',
+                         '4294967295.000', '4294967295.0000',
+                         '4294967295.00000', '4294967295.000000',
+                         '4294967295.0000000', '4294967295.00000000',
+                         '4294967295.000000000', '4294967295.0000000000',
+                         '4294967295.00000000000000000000')
+
+      asrt_16716550 = ('16716550', '16716550.0', '16716550.00',
+                       '16716550.000', '16716550.0000', '16716550.00000',
+                       '16716550.000000', '16716550.0000000',
+                       '16716550.00000000', '16716550.000000000',
+                       '16716550.0000000000', '16716550.00000000000000000000')
+
+      asrt_123 = ('123', '123.0', '123.00', '123.000', '123.0000',
+                  '123.00000', '123.000000', '123.0000000', '123.00000000',
+                  '123.000000000', '123.0000000000',
+                  '123.00000000000000000000')
+
+      asrt_2147483647 = ('2147483647', '2147483647.0', '2147483647.00',
+                         '2147483647.000', '2147483647.0000',
+                         '2147483647.00000', '2147483647.000000',
+                         '2147483647.0000000', '2147483647.00000000',
+                         '2147483647.000000000', '2147483647.0000000000',
+                         '2147483647.00000000000000000000')
+
+      asrt_2147483648 = ('2147483648', '2147483648.0', '2147483648.00',
+                         '2147483648.000', '2147483648.0000',
+                         '2147483648.00000', '2147483648.000000',
+                         '2147483648.0000000', '2147483648.00000000',
+                         '2147483648.000000000', '2147483648.0000000000',
+                         '2147483648.00000000000000000000')
+
+      asrt_2147483649 = ('2147483649', '2147483649.0', '2147483649.00',
+                         '2147483649.000', '2147483649.0000',
+                         '2147483649.00000', '2147483649.000000',
+                         '2147483649.0000000', '2147483649.00000000',
+                         '2147483649.000000000', '2147483649.0000000000',
+                         '2147483649.00000000000000000000')
+
+      self.assertToFixed(as3lib.true, asrt_1)
+
+      self.assertToFixed(as3lib.false, asrt_0)
+      self.assertToFixed(as3lib.null, asrt_0)
+      self.assertToFixed(as3lib.undefined, asrt_0)
+
+      self.assertToFixed(as3lib.String(''), asrt_0)
+      self.assertToFixed('', asrt_0)
+
+      self.assertToFixed(as3lib.String('str'), asrt_0)
+      self.assertToFixed('str', asrt_0)
+
+      self.assertToFixed(as3lib.String('true'), asrt_0)
+      self.assertToFixed('true', asrt_0)
+
+      self.assertToFixed(as3lib.String('false'), asrt_0)
+      self.assertToFixed('false', asrt_0)
+
+      self.assertToFixed(as3lib.Number(0.0), asrt_0)
+      self.assertToFixed(0.0, asrt_0)
+
+      self.assertToFixed(as3lib.NaN, asrt_0)
+
+      self.assertToFixed(as3lib.Number(-0.0), asrt_0)
+      self.assertToFixed(-0.0, asrt_0)
+
+      self.assertToFixed(as3lib.Infinity, asrt_0)
+
+      self.assertToFixed(as3lib.Number(1.0), asrt_1)
+      self.assertToFixed(1.0, asrt_1)
+
+      self.assertToFixed(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToFixed(-1.0, asrt_4294967295)
+
+      self.assertToFixed(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToFixed(0xFF1306, asrt_16716550)
+
+      self.assertToFixed(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToFixed(1.2315e2, asrt_123)
+
+      self.assertToFixed(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
+
+      self.assertToFixed(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToFixed(0x80000000, asrt_2147483648)
+
+      self.assertToFixed(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToFixed(0x80000001, asrt_2147483649)
+
+      self.assertToFixed(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToFixed(0x180000001, asrt_2147483649)
+
+      self.assertToFixed(as3lib.Number(0x100000001), asrt_1)
+      self.assertToFixed(0x100000001, asrt_1)
+
+      self.assertToFixed(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToFixed(-0x7FFFFFFF, asrt_2147483649)
+
+      self.assertToFixed(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToFixed(-0x80000000, asrt_2147483648)
+
+      self.assertToFixed(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToFixed(-0x80000001, asrt_2147483647)
+
+      self.assertToFixed(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToFixed(-0x180000001, asrt_2147483647)
+
+      self.assertToFixed(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToFixed(-0x100000001, asrt_4294967295)
+
+      self.assertToFixed(as3lib.Object(), asrt_0)
+
+      # Parse tests
+      self.assertToFixed(as3lib.String('0.0'), asrt_0)
+      self.assertToFixed('0.0', asrt_0)
+      self.assertToFixed(as3lib.String('NaN'), asrt_0)
+      self.assertToFixed('NaN', asrt_0)
+      self.assertToFixed(as3lib.String('-0.0'), asrt_0)
+      self.assertToFixed('-0.0', asrt_0)
+      self.assertToFixed(as3lib.String('Infinity'), asrt_0)
+      self.assertToFixed('Infinity', asrt_0)
+      self.assertToFixed(as3lib.String('1.0'), asrt_1)
+      self.assertToFixed('1.0', asrt_1)
+      self.assertToFixed(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToFixed('-1.0', asrt_4294967295)
+      self.assertToFixed(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToFixed('0xFF1306', asrt_16716550)
+      self.assertToFixed(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToFixed('1.2315e2', asrt_123)
+      self.assertToFixed(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
+      self.assertToFixed(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToFixed('0x80000000', asrt_2147483648)
+      self.assertToFixed(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToFixed('0x80000001', asrt_2147483649)
+      self.assertToFixed(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToFixed('0x180000001', asrt_2147483649)
+      self.assertToFixed(as3lib.String('0x100000001'), asrt_1)
+      self.assertToFixed('0x100000001', asrt_1)
+      self.assertToFixed(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToFixed('-0x7FFFFFFF', asrt_2147483649)
+      self.assertToFixed(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToFixed('-0x80000000', asrt_2147483648)
+      self.assertToFixed(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToFixed('-0x80000001', asrt_2147483647)
+      self.assertToFixed(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToFixed('-0x180000001', asrt_2147483647)
+      self.assertToFixed(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToFixed('-0x100000001', asrt_4294967295)
 
    def assertToPrecision(self, value, check):
       val = as3lib.uint(value)
       self._assertToPrecision(val, check)
 
    def test_toPrecision(self):
-      raise TestNotImplemented
+      asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1')
+
+      asrt_0 = ('0e+1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0')
+
+      asrt_4294967295 = ('3.9999999999999996e+9', '4.2e+9', '4.29e+9',
+                         '4.294e+9', '4.294899999999999e+9', '4.29496e+9',
+                         '4.294967e+9', '4.2949672e+9', '4.29496729e+9',
+                         '4294967295', '4294967295', '4294967295')
+
+      asrt_16716550 = ('1e+7', '1.6e+7', '1.6699999999999997e+7', '1.671e+7',
+                       '1.6716e+7', '1.67165e+7', '1.671655e+7', '16716550',
+                       '16716550', '16716550', '16716550',
+                       '16716550.000000002')
+
+      asrt_123 = ('1e+2', '1.2e+2', '123', '123', '123', '123', '123', '123',
+                  '123', '123', '123', '123')
+
+      asrt_2147483647 = ('1.9999999999999998e+9', '2.1e+9', '2.14e+9',
+                         '2.147e+9', '2.1473999999999998e+9', '2.14748e+9',
+                         '2.147483e+9', '2.1474836e+9', '2.14748364e+9',
+                         '2147483647', '2147483647', '2147483647')
+
+      asrt_2147483648 = ('1.9999999999999998e+9', '2.1e+9', '2.14e+9',
+                         '2.147e+9', '2.1473999999999998e+9', '2.14748e+9',
+                         '2.147483e+9', '2.1474836e+9', '2.14748364e+9',
+                         '2147483648', '2147483648', '2147483648')
+
+      asrt_2147483649 = ('1.9999999999999998e+9', '2.1e+9', '2.14e+9',
+                         '2.147e+9', '2.1473999999999998e+9', '2.14748e+9',
+                         '2.147483e+9', '2.1474836e+9', '2.14748364e+9',
+                         '2147483649', '2147483649', '2147483649')
+
+      self.assertToPrecision(as3lib.true, asrt_1)
+
+      self.assertToPrecision(as3lib.false, asrt_0)
+      self.assertToPrecision(as3lib.null, asrt_0)
+      self.assertToPrecision(as3lib.undefined, asrt_0)
+
+      self.assertToPrecision(as3lib.String(''), asrt_0)
+      self.assertToPrecision('', asrt_0)
+
+      self.assertToPrecision(as3lib.String('str'), asrt_0)
+      self.assertToPrecision('str', asrt_0)
+
+      self.assertToPrecision(as3lib.String('true'), asrt_0)
+      self.assertToPrecision('true', asrt_0)
+
+      self.assertToPrecision(as3lib.String('false'), asrt_0)
+      self.assertToPrecision('false', asrt_0)
+
+      self.assertToPrecision(as3lib.Number(0.0), asrt_0)
+      self.assertToPrecision(0.0, asrt_0)
+
+      self.assertToPrecision(as3lib.NaN, asrt_0)
+
+      self.assertToPrecision(as3lib.Number(-0.0), asrt_0)
+      self.assertToPrecision(-0.0, asrt_0)
+
+      self.assertToPrecision(as3lib.Infinity, asrt_0)
+
+      self.assertToPrecision(as3lib.Number(1.0), asrt_1)
+      self.assertToPrecision(1.0, asrt_1)
+
+      self.assertToPrecision(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToPrecision(-1.0, asrt_4294967295)
+
+      self.assertToPrecision(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToPrecision(0xFF1306, asrt_16716550)
+
+      self.assertToPrecision(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToPrecision(1.2315e2, asrt_123)
+
+      self.assertToPrecision(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
+
+      self.assertToPrecision(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToPrecision(0x80000000, asrt_2147483648)
+
+      self.assertToPrecision(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToPrecision(0x80000001, asrt_2147483649)
+
+      self.assertToPrecision(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToPrecision(0x180000001, asrt_2147483649)
+
+      self.assertToPrecision(as3lib.Number(0x100000001), asrt_1)
+      self.assertToPrecision(0x100000001, asrt_1)
+
+      self.assertToPrecision(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToPrecision(-0x7FFFFFFF, asrt_2147483649)
+
+      self.assertToPrecision(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToPrecision(-0x80000000, asrt_2147483648)
+
+      self.assertToPrecision(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToPrecision(-0x80000001, asrt_2147483647)
+
+      self.assertToPrecision(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToPrecision(-0x180000001, asrt_2147483647)
+
+      self.assertToPrecision(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToPrecision(-0x100000001, asrt_4294967295)
+
+      self.assertToPrecision(as3lib.Object(), asrt_0)
+
+      # Parse tests
+      self.assertToPrecision(as3lib.String('0.0'), asrt_0)
+      self.assertToPrecision('0.0', asrt_0)
+      self.assertToPrecision(as3lib.String('NaN'), asrt_0)
+      self.assertToPrecision('NaN', asrt_0)
+      self.assertToPrecision(as3lib.String('-0.0'), asrt_0)
+      self.assertToPrecision('-0.0', asrt_0)
+      self.assertToPrecision(as3lib.String('Infinity'), asrt_0)
+      self.assertToPrecision('Infinity', asrt_0)
+      self.assertToPrecision(as3lib.String('1.0'), asrt_1)
+      self.assertToPrecision('1.0', asrt_1)
+      self.assertToPrecision(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToPrecision('-1.0', asrt_4294967295)
+      self.assertToPrecision(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToPrecision('0xFF1306', asrt_16716550)
+      self.assertToPrecision(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToPrecision('1.2315e2', asrt_123)
+      self.assertToPrecision(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToPrecision('0x80000000', asrt_2147483648)
+      self.assertToPrecision(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToPrecision('0x80000001', asrt_2147483649)
+      self.assertToPrecision(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToPrecision('0x180000001', asrt_2147483649)
+      self.assertToPrecision(as3lib.String('0x100000001'), asrt_1)
+      self.assertToPrecision('0x100000001', asrt_1)
+      self.assertToPrecision(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToPrecision('-0x7FFFFFFF', asrt_2147483649)
+      self.assertToPrecision(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToPrecision('-0x80000000', asrt_2147483648)
+      self.assertToPrecision(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToPrecision('-0x80000001', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToPrecision('-0x180000001', asrt_2147483647)
+      self.assertToPrecision(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToPrecision('-0x100000001', asrt_4294967295)
 
    def assertToString(self, value, check):
       val = as3lib.uint(value)
       self._assertToString(val, check)
 
    def test_toString(self):
-      raise TestNotImplemented
+      asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+                '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+                '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', 1)
+
+      asrt_0 = ('0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 0)
+
+      asrt_4294967295 = ('11111111111111111111111111111111',
+                         '102002022201221111210', '3333333333333333',
+                         '32244002423140', '1550104015503', '211301422353',
+                         '37777777777', '12068657453', '4294967295',
+                         '1904440553', '9ba461593', '535a79888', '2ca5b7463',
+                         '1a20dcd80', 'ffffffff', 'a7ffda90', '704he7g3',
+                         '4f5aff65', '3723ai4f', '281d55i3', '1fj8b183',
+                         '1606k7ib', 'mb994af', 'hek2mgk', 'dnchbnl',
+                         'b28jpdl', '8pfgih3', '76beigf', '5qmcpqf',
+                         '4q0jto3', '3vvvvvv', '3aokq93', '2qhxjlh',
+                         '2br45qa', '1z141z3', 4294967295)
+
+      asrt_16716550 = ('111111110001001100000110', '1011110021210111',
+                       '333301030012', '13234412200', '1354143234',
+                       '262042204', '77611406', '34407714', '16716550',
+                       '9488434', '5721b1a', '3603a66', '2312074', '17030ba',
+                       'ff1306', 'bd28c8', '8f4654', '6e5348', '549b7a',
+                       '41k104', '357k74', '2dgl6c', '2295im', '1hjlc0',
+                       '1af2g6', '14c7ld', 'r5e3i', 'nibsm', 'kj3sa', 'i33th',
+                       'fu4o6', 'e35c4', 'chan8', 'b4v5p', '9yakm', 16716550)
+
+      asrt_123 = ('1111011', '11120', '1323', '443', '323', '234', '173',
+                  '146', '123', '102', 'a3', '96', '8b', '83', '7b', '74',
+                  '6f', '69', '63', '5i', '5d', '58', '53', '4n', '4j', '4f',
+                  '4b', '47', '43', '3u', '3r', '3o', '3l', '3i', '3f', 123)
+
+      asrt_2147483647 = ('1111111111111111111111111111111',
+                         '12112122212110202101', '1333333333333333',
+                         '13344223434042', '553032005531', '104134211161',
+                         '17777777777', '5478773671', '2147483647',
+                         'a02220281', '4bb2308a7', '282ba4aaa', '1652ca931',
+                         'c87e66b7', '7fffffff', '53g7f548', '3928g3h1',
+                         '27c57h32', '1db1f927', '140h2d91', 'ikf5bf1',
+                         'ebelf95', 'b5gge57', '8jmdnkm', '6oj8ion',
+                         '5ehncka', '4clm98f', '3hk7987', '2sb6cs7',
+                         '2d09uc1', '1vvvvvv', '1lsqtl1', '1d8xqrp',
+                         '15v22um', 'zik0zj', 2147483647)
+
+      asrt_2147483648 = ('10000000000000000000000000000000',
+                         '12112122212110202102', '2000000000000000',
+                         '13344223434043', '553032005532', '104134211162',
+                         '20000000000', '5478773672', '2147483648',
+                         'a02220282', '4bb2308a8', '282ba4aab', '1652ca932',
+                         'c87e66b8', '80000000', '53g7f549', '3928g3h2',
+                         '27c57h33', '1db1f928', '140h2d92', 'ikf5bf2',
+                         'ebelf96', 'b5gge58', '8jmdnkn', '6oj8ioo',
+                         '5ehnckb', '4clm98g', '3hk7988', '2sb6cs8',
+                         '2d09uc2', '2000000', '1lsqtl2', '1d8xqrq',
+                         '15v22un', 'zik0zk', 2147483648)
+
+      asrt_2147483649 = ('10000000000000000000000000000001',
+                         '12112122212110202110', '2000000000000001',
+                         '13344223434044', '553032005533', '104134211163',
+                         '20000000001', '5478773673', '2147483649',
+                         'a02220283', '4bb2308a9', '282ba4aac', '1652ca933',
+                         'c87e66b9', '80000001', '53g7f54a', '3928g3h3',
+                         '27c57h34', '1db1f929', '140h2d93', 'ikf5bf3',
+                         'ebelf97', 'b5gge59', '8jmdnko', '6oj8iop',
+                         '5ehnckc', '4clm98h', '3hk7989', '2sb6cs9',
+                         '2d09uc3', '2000001', '1lsqtl3', '1d8xqrr',
+                         '15v22uo', 'zik0zl', 2147483649)
+
+      self.assertToString(as3lib.true, asrt_1)
+
+      self.assertToString(as3lib.false, asrt_0)
+      self.assertToString(as3lib.null, asrt_0)
+      self.assertToString(as3lib.undefined, asrt_0)
+
+      self.assertToString(as3lib.String(''), asrt_0)
+      self.assertToString('', asrt_0)
+
+      self.assertToString(as3lib.String('str'), asrt_0)
+      self.assertToString('str', asrt_0)
+
+      self.assertToString(as3lib.String('true'), asrt_0)
+      self.assertToString('true', asrt_0)
+
+      self.assertToString(as3lib.String('false'), asrt_0)
+      self.assertToString('false', asrt_0)
+
+      self.assertToString(as3lib.Number(0.0), asrt_0)
+      self.assertToString(0.0, asrt_0)
+
+      self.assertToString(as3lib.NaN, asrt_0)
+
+      self.assertToString(as3lib.Number(-0.0), asrt_0)
+      self.assertToString(-0.0, asrt_0)
+
+      self.assertToString(as3lib.Infinity, asrt_0)
+
+      self.assertToString(as3lib.Number(1.0), asrt_1)
+      self.assertToString(1.0, asrt_1)
+
+      self.assertToString(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToString(-1.0, asrt_4294967295)
+
+      self.assertToString(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToString(0xFF1306, asrt_16716550)
+
+      self.assertToString(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToString(1.2315e2, asrt_123)
+
+      self.assertToString(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToString(0x7FFFFFFF, asrt_2147483647)
+
+      self.assertToString(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToString(0x80000000, asrt_2147483648)
+
+      self.assertToString(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToString(0x80000001, asrt_2147483649)
+
+      self.assertToString(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToString(0x180000001, asrt_2147483649)
+
+      self.assertToString(as3lib.Number(0x100000001), asrt_1)
+      self.assertToString(0x100000001, asrt_1)
+
+      self.assertToString(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToString(-0x7FFFFFFF, asrt_2147483649)
+
+      self.assertToString(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToString(-0x80000000, asrt_2147483648)
+
+      self.assertToString(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToString(-0x80000001, asrt_2147483647)
+
+      self.assertToString(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToString(-0x180000001, asrt_2147483647)
+
+      self.assertToString(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToString(-0x100000001, asrt_4294967295)
+
+      self.assertToString(as3lib.Object(), asrt_0)
+
+      # Parse tests
+      self.assertToString(as3lib.String('0.0'), asrt_0)
+      self.assertToString('0.0', asrt_0)
+      self.assertToString(as3lib.String('NaN'), asrt_0)
+      self.assertToString('NaN', asrt_0)
+      self.assertToString(as3lib.String('-0.0'), asrt_0)
+      self.assertToString('-0.0', asrt_0)
+      self.assertToString(as3lib.String('Infinity'), asrt_0)
+      self.assertToString('Infinity', asrt_0)
+      self.assertToString(as3lib.String('1.0'), asrt_1)
+      self.assertToString('1.0', asrt_1)
+      self.assertToString(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToString('-1.0', asrt_4294967295)
+      self.assertToString(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToString('0xFF1306', asrt_16716550)
+      self.assertToString(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToString('1.2315e2', asrt_123)
+      self.assertToString(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToString('0x7FFFFFFF', asrt_2147483647)
+      self.assertToString(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToString('0x80000000', asrt_2147483648)
+      self.assertToString(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToString('0x80000001', asrt_2147483649)
+      self.assertToString(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToString('0x180000001', asrt_2147483649)
+      self.assertToString(as3lib.String('0x100000001'), asrt_1)
+      self.assertToString('0x100000001', asrt_1)
+      self.assertToString(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToString('-0x7FFFFFFF', asrt_2147483649)
+      self.assertToString(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToString('-0x80000000', asrt_2147483648)
+      self.assertToString(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToString('-0x80000001', asrt_2147483647)
+      self.assertToString(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToString('-0x180000001', asrt_2147483647)
+      self.assertToString(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToString('-0x100000001', asrt_4294967295)
 
 
 class VectorTests(as3libTestCase):
