@@ -5,8 +5,8 @@ from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 import builtins
-from numpy import base_repr
 from ctypes import c_uint32, c_int32
+from numpy import base_repr
 
 
 def _parseInt(str_: str = None, radix: int | uint = 0):
@@ -42,7 +42,6 @@ def _parseInt(str_: str = None, radix: int | uint = 0):
 
 class int(Object):
    # TODO: Make this return a Number if the result is a float
-   # TODO: Implement checks for max and min value
    # TODO: Fix int conversion
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
@@ -58,6 +57,15 @@ class int(Object):
    def __init__(self, value=0):
       self._val = c_int32()
       self._value = self._int(value)
+
+   def __float__(self):
+      return float(self._value)
+
+   def __int__(self):
+      return self._value
+
+   def __bool__(self):
+      return bool(self._value)
 
    def __repr__(self):
       return f'as3lib.int({self._value})'
@@ -91,15 +99,6 @@ class int(Object):
       except Exception:
          raise TypeError(f'Can not divide int by {type(value)}')
 
-   def __float__(self):
-      return float(self._value)
-
-   def __int__(self):
-      return self._value
-
-   def __bool__(self):
-      return bool(self._value)
-
    def __eq__(self, value):
       return self._value == value
 
@@ -122,7 +121,6 @@ class int(Object):
       return int(self._value % self._int(value))
 
    def _int(self, value):
-      # !It is unclear if most of this is included here, most is from the Number class
       if isinstance(value, str):
          value = _parseInt(value, 10)
       if value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
@@ -137,7 +135,9 @@ class int(Object):
          return builtins.int(value)
       raise TypeError(f'Can not convert type {type(value)} to integer')
 
-   def toExponential(self, fractionDigits: builtins.int | int):
+   def toExponential(self, fractionDigits: builtins.int | int = null):
+      if fractionDigits is null:
+         fractionDigits = 0
       if fractionDigits < 0 and fractionDigits > 20:
          raise RangeError('fractionDigits is outside of acceptable range')
       temp = str(self._value)
@@ -157,12 +157,14 @@ class int(Object):
          return f'{whole}.{"".join([temp[i] for i in range(fractionDigits)])}e+{exponent}'
       return f'{whole}e+{exponent}'
 
-   def toFixed(self, fractionDigits: builtins.int | int):
+   def toFixed(self, fractionDigits: builtins.int | int = null):
+      if fractionDigits is null:
+         fractionDigits = 0
       if fractionDigits < 0 or fractionDigits > 20:
          raise RangeError('fractionDigits is outside of acceptable range')
       if fractionDigits == 0:
-         return f'{self._value}'
-      return f'{self._value}.{"0"*fractionDigits}'
+         return '%s' % self._value
+      return '%s.%s' % (self._value, '0' * fractionDigits)
 
    def toPrecision(self, precision: builtins.int | int | uint):
       if precision < 1 or precision > 21:
@@ -173,11 +175,11 @@ class int(Object):
          return self.toExponential(precision-1)
       if precision == length:
          return temp
-      return f'{temp}.{"0"*(precision-length)}'
+      return '%s.%s' % (temp, '0' * (precision - length))
 
    def toString(self, radix: builtins.int | int | uint = 10):
       if radix <= 36 and radix >= 2:
-         return base_repr(self._value, base=radix)
+         return base_repr(self._value, base=radix).lower()
 
    def valueOf(self):
       return self._value
