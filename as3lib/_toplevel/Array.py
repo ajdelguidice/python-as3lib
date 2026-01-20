@@ -297,70 +297,39 @@ class Array(list, Object):
             return True
       return False
 
+   def _flagSort(self, flags):
+      # NOTE: These are flags, not exclusive values
+      if flags & 4:  # UNIQUESORT
+         raise NotImplementedError
+      if flags & 1:  # CASEINSENSITIVE
+         raise NotImplementedError
+      if flags & 2:  # DESCENDING
+         raise NotImplementedError
+      if flags & 8:  # RETURNINDEXEDARRAY
+         raise NotImplementedError
+      if flags & 16:  # NUMERIC
+         super().sort(key=Number)
+
    def sort(self, *args):
       '''
       Warning: Maximum element length is 100000
       '''
-      if len(args) == 0:
-         '''
-         Sorting is case-sensitive (Z precedes a).
-         Sorting is ascending (a precedes b).
-         The array is modified to reflect the sort order; multiple elements that have identical sort fields are placed consecutively in the sorted array in no particular order.
-         All elements, regardless of data type, are sorted as if they were strings, so 100 precedes 99, because "1" is a lower string value than "9".
-         '''
-         def s(x, y):
-            trace('Array.sort: BROKEN: Using Array.sort with no arguements doesn\'t work as intended because the documentation does not include the entire sort order')
-            sortorder = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'  # 123456789 #!Where numbers and symbols?
-            x, y = str(x), str(y)
-            if sortorder.index(x[0]) > sortorder.index(y[0]):
-               return 1
-            if sortorder.index(x[0]) < sortorder.index(y[0]):
-               return -1
-            if sortorder.index(x[0]) == sortorder.index(y[0]):
-               if len(x) > 1 and len(y) > 1:
-                  return s(x[1:], y[1:])
-               if len(x) > 1:
-                  return 1
-               if len(y) > 1:
-                  return -1
-               return 0
-         with recursionDepth(100000):
-            super().sort(key=cmp_to_key(s))
-      elif len(args) == 1:
-         if isinstance(args[0], (bool, Boolean)) and args[0] is True:
-            super().sort()
-         elif isfunction(args[0]):
-            super().sort(key=lambda: cmp_to_key(args[0]))
-         elif isinstance(args[0], (builtins.int, float, int, uint, Number)):
-            if args[0] == 1:  # CASEINSENSITIVE
-               raise NotImplementedError('Array.sort(1)')
-            elif args[0] == 2:  # DESCENDING
-               raise NotImplementedError('Array.sort(2)')
-            elif args[0] == 4:  # UNIQUESORT
-               raise NotImplementedError('Array.sort(4)')
-            elif args[0] == 8:  # RETURNINDEXEDARRAY
-               raise NotImplementedError('Array.sort(8)')
-            elif args[0] == 16:  # NUMERIC
-               def s(x, y):
-                  try:
-                     x, y = float(x), float(y)
-                  except Exception:
-                     raise Error('Array.sort; Can not use Array.NUMERIC (16) when array doesn\'t only contain numbers or strings that convert to numbers')
-                  if x > y:
-                     return 1
-                  if x < y:
-                     return -1
-                  if x == y:
-                     return 0
-               super().sort(key=cmp_to_key(s))
-            else:
-               raise NotImplementedError(f'Array.sort({args[0]})')
-         elif type(args[0]) in (tuple, list, Array):
-            raise NotImplementedError('Array.sort with multiple sortOptions')
-      else:
-         raise NotImplementedError('Array.sort with more than one arguement')
+      # NOTE: Only returns when 4 or 8 is specified
+      if len(args) == 0:  # Default sorting
+         # TODO: Ensure that this is correct
+         super().sort(key=str)
+      elif len(args) == 1:  # Comparison function or flags
+         if callable(args[0]):
+            super().sort(key=cmp_to_key(args[0]))
+         else:
+            s = self._flagSort(args[0])
+            if args[0] & 4 or args[0] & 8:
+               return s
+      elif len(args) == 2:  # Comparison function and flags
+         raise NotImplementedError
 
-   def sortOn():...
+   def sortOn(self, fieldName, options=null):
+      raise NotImplementedError
 
    def splice(self, startIndex: builtins.int | int, deleteCount: builtins.int | int, *values):
       '''
