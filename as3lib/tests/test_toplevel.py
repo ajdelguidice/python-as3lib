@@ -2,16 +2,15 @@
 # https://github.com/ruffle-rs/ruffle
 
 import as3lib
-from as3lib import (ArgumentError, Error, EvalError, Math, RangeError,
-                    ReferenceError, URIError, VerifyError)
-from as3lib._toplevel.Keywords import each
+from as3lib import (ArgumentError, DefinitionError, Error, EvalError, Math,
+                    RangeError, ReferenceError, URIError, VerifyError)
 from as3lib.flash.errors import (EOFError, IllegalOperationError,
                                  InvalidSWFError, IOError, MemoryError,
                                  ScriptTimeoutError, StackOverflowError)
 from as3lib.flash.utils import setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
-
 # TODO: Clear prototypes after every test
+
 
 class ArrayTests(as3libTestCase):
    # NOTE: prototype is required for some tests
@@ -374,12 +373,13 @@ class ArrayTests(as3libTestCase):
 
    def test_sort(self):
       def newArray():  # fresh_array
-         a = as3lib.Array(5,3,1,'Abc','2','aba',as3lib.false,as3lib.null,'zzz')
+         a = as3lib.Array(5, 3, 1, 'Abc', '2', 'aba', as3lib.false,
+                          as3lib.null, 'zzz')
          a[11] = 'not a hole'
          return a
 
       def newArray2():  # fresh_array_b
-         b = as3lib.Array(5,3,'2',as3lib.false,as3lib.true,as3lib.NaN)
+         b = as3lib.Array(5, 3, '2', as3lib.false, as3lib.true, as3lib.NaN)
          return b
 
       def sub_comparison(a, b):
@@ -434,48 +434,62 @@ class ArrayTests(as3libTestCase):
 
       a = newArray()
       s = a.sort(as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [2,4,1,0,3,5,6,10,11,7,8,9])
+      self.assertArray(s, [2, 4, 1, 0, 3, 5, 6, 10, 11, 7, 8, 9])
 
       a.sort()
-      self.assertArray(a, [1,'2',3,5,'Abc','aba',as3lib.false,'hole in slot 10','not a hole',as3lib.null,'zzz',as3lib.undefined])
+      self.assertArray(a, [1, '2', 3, 5, 'Abc', 'aba', as3lib.false,
+                           'hole in slot 10', 'not a hole', as3lib.null,
+                           'zzz', as3lib.undefined])
 
-      check_holes(a, [1,'2',3,5,'Abc','aba',as3lib.false,'hole in slot 10','not a hole',as3lib.null,'zzz','hole11'])
+      check_holes(a, [1, '2', 3, 5, 'Abc', 'aba', as3lib.false,
+                      'hole in slot 10', 'not a hole', as3lib.null, 'zzz',
+                      'hole11'])
 
 
       a = newArray()
 
       s = a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [2,4,1,0,5,3,6,10,11,7,8,9])
+      self.assertArray(s, [2, 4, 1, 0, 5, 3, 6, 10, 11, 7, 8, 9])
 
       a.sort(as3lib.Array.CASEINSENSITIVE)
-      self.assertArray(a, [1,'2',3,5,'aba','Abc',as3lib.false,'hole in slot 10','not a hole',as3lib.null,'zzz',as3lib.undefined])
+      self.assertArray(a, [1, '2', 3, 5, 'aba', 'Abc', as3lib.false,
+                           'hole in slot 10', 'not a hole', as3lib.null,
+                           'zzz', as3lib.undefined])
 
-      check_holes(a, [1,'2',3,5,'aba','Abc',as3lib.false,'hole in slot 10','not a hole',as3lib.null,'zzz','hole11'])
+      check_holes(a, [1, '2', 3, 5, 'aba', 'Abc', as3lib.false,
+                      'hole in slot 10', 'not a hole', as3lib.null, 'zzz',
+                      'hole11'])
 
 
       a = newArray()
 
       s = a.sort(as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [8,7,11,10,6,5,3,0,1,4,2,9])
+      self.assertArray(s, [8, 7, 11, 10, 6, 5, 3, 0, 1, 4, 2, 9])
 
       a.sort(as3lib.Array.DESCENDING)
-      self.assertArray(a, ['zzz',as3lib.null,'not a hole','hole in slot 10',as3lib.false,'aba','Abc',5,3,'2',1,as3lib.undefined])
+      self.assertArray(a, ['zzz', as3lib.null, 'not a hole',
+                           'hole in slot 10', as3lib.false, 'aba', 'Abc', 5,
+                           3, '2', 1, as3lib.undefined])
 
-      check_holes(a, ['zzz',as3lib.null,'not a hole','hole in slot 10',as3lib.false,'aba','Abc',5,3,'2',1,'hole11'])
+      check_holes(a, ['zzz', as3lib.null, 'not a hole', 'hole in slot 10',
+                      as3lib.false, 'aba', 'Abc', 5, 3, '2', 1, 'hole11'])
 
 
       a = newArray()
 
       s = a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [8,7,11,10,6,3,5,0,1,4,2,9])
+      self.assertArray(s, [8, 7, 11, 10, 6, 3, 5, 0, 1, 4, 2, 9])
 
       a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.DESCENDING)
-      self.assertArray(a, ['zzz',as3lib.null,'not a hole','hole in slot 10',as3lib.false,'Abc','aba',5,3,'2',1,as3lib.undefined])
+      self.assertArray(a, ['zzz', as3lib.null, 'not a hole',
+                           'hole in slot 10', as3lib.false, 'Abc', 'aba', 5,
+                           3, '2', 1, as3lib.undefined])
 
-      check_holes(a, ['zzz',as3lib.null,'not a hole','hole in slot 10',as3lib.false,'Abc','aba',5,3,'2',1,'hole11'])
+      check_holes(a, ['zzz', as3lib.null, 'not a hole', 'hole in slot 10',
+                      as3lib.false, 'Abc', 'aba', 5, 3, '2', 1, 'hole11'])
 
 
-      b = as3lib.Array(5,3,2,1,'2',as3lib.false,as3lib.true,as3lib.NaN)
+      b = as3lib.Array(5, 3, 2, 1, '2', as3lib.false, as3lib.true, as3lib.NaN)
       s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.UNIQUESORT)
       self.assertEqual(s, 0)
 
@@ -483,55 +497,55 @@ class ArrayTests(as3libTestCase):
       b = newArray2()
 
       s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [3,4,2,1,0,5])
+      self.assertArray(s, [3, 4, 2, 1, 0, 5])
 
       b.sort(as3lib.Array.NUMERIC)
-      self.assertArray(b, [as3lib.false,as3lib.true,'2',3,5,as3lib.NaN])
+      self.assertArray(b, [as3lib.false, as3lib.true, '2', 3, 5, as3lib.NaN])
 
-      check_holes(b, [as3lib.false,as3lib.true,'2',3,5,as3lib.NaN])
+      check_holes(b, [as3lib.false, as3lib.true, '2', 3, 5, as3lib.NaN])
 
 
       b = newArray2()
 
       b.sort(as3lib.Array.NUMERIC | 1)
-      self.assertArray(b, [as3lib.false,as3lib.true,'2',3,5,as3lib.NaN])
+      self.assertArray(b, [as3lib.false, as3lib.true, '2', 3, 5, as3lib.NaN])
 
 
       b = newArray2()
 
       s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [5,0,1,2,4,3])
+      self.assertArray(s, [5, 0, 1, 2, 4, 3])
 
       b.sort(16 | as3lib.Array.DESCENDING)
-      self.assertArray(b, [as3lib.NaN,5,3,'2',as3lib.true,as3lib.false])
+      self.assertArray(b, [as3lib.NaN, 5, 3, '2', as3lib.true, as3lib.false])
 
-      check_holes(b, [as3lib.NaN,5,3,'2',as3lib.true,as3lib.false])
+      check_holes(b, [as3lib.NaN, 5, 3, '2', as3lib.true, as3lib.false])
 
 
-      a = as3lib.Array(7,2,1,'3','4')
+      a = as3lib.Array(7, 2, 1, '3', '4')
 
       a.sort(sub_comparison)
-      self.assertArray(a, [7,'4','3',2,1])
+      self.assertArray(a, [7, '4', '3', 2, 1])
 
       a.sort(sub_comparison, 2)
-      self.assertArray(a, [1,2,'3','4',7])
+      self.assertArray(a, [1, 2, '3', '4', 7])
 
       s = a.sort(sub_comparison, as3lib.Array.RETURNINDEXEDARRAY)
-      self.assertArray(s, [4,3,2,1,0])
+      self.assertArray(s, [4, 3, 2, 1, 0])
 
       s = a.sort(sub_comparison, as3lib.Array.DESCENDING | 8)
-      self.assertArray(s, [0,1,2,3,4])
+      self.assertArray(s, [0, 1, 2, 3, 4])
 
       s = a.sort(sub_comparison, as3lib.Array.UNIQUESORT)
       self.assertNotEqual(s, 0)
 
 
-      c = as3lib.Array(3,'abc')
+      c = as3lib.Array(3, 'abc')
 
       s = c.sort(sub_comparison, as3lib.Array.UNIQUESORT)
       self.assertEqual(s, 0)
 
-      d = as3lib.Array(3,'4')
+      d = as3lib.Array(3, '4')
 
       s = d.sort(sub_comparison, 4)
       self.assertArray(s, ['4', 3])
@@ -560,8 +574,11 @@ class ArrayTests(as3libTestCase):
          return -1
 
       array.sort(sortfunc)
-      self.assertArray(array, [13,35,24,1,8,33,6,3,9,38,20,7,23,40,19,16,12,15,14,4,22,37,21,18,45,25,41,27,36,32,47,44,43,48,29,5,26,11,10,39,17,42,49,2,31,28,0,30,34,46])
-
+      self.assertArray(array, [13, 35, 24, 1, 8, 33, 6, 3, 9, 38, 20, 7, 23,
+                               40, 19, 16, 12, 15, 14, 4, 22, 37, 21, 18, 45,
+                               25, 41, 27, 36, 32, 47, 44, 43, 48, 29, 5, 26,
+                               11, 10, 39, 17, 42, 49, 2, 31, 28, 0, 30, 34,
+                               46])
 
    def test_sortOn(self):
       raise TestNotImplemented
@@ -1153,15 +1170,15 @@ class FunctionTests(as3libTestCase):
       self.assertNaN(as3lib.parseFloat(as3lib.String.fromCharCode(305)))
 
       # non-string inputs
-      ## Booleans
+      #  Booleans
       self.assertNaN(as3lib.parseFloat(as3lib.true))
-      ## Numbers
+      #  Numbers
       self.assertEqual(as3lib.parseFloat(1.2), as3lib.Number(1.2))
-      ## Infinity objects
+      #  Infinity objects
       self.assertEqual(as3lib.parseFloat(as3lib.Infinity), as3lib.Infinity)
-      ## Function that returns a string
+      #  Function that returns a string
       self.assertEqual(as3lib.parseFloat(lambda: '5'), as3lib.Number(5))
-      ## Class with toString method
+      #  Class with toString method
 
       class C:
          def toString():
@@ -1175,15 +1192,15 @@ class FunctionTests(as3libTestCase):
       self.assertEqual(as3lib.parseInt(as3lib.undefined, 32), as3lib.Int(785077))
       self.assertEqual(as3lib.parseInt('undefined', 32), as3lib.Int(33790067563981))
       self.assertNaN(as3lib.parseInt(''))
-      self.assertEqual(as3lib.parseInt(123), as3lib.Int(123))
-      self.assertEqual(as3lib.parseInt(100, 10), as3lib.Int(100))
-      self.assertEqual(as3lib.parseInt(100, 0), as3lib.Int(100))
-      self.assertNaN(as3lib.parseInt(100, 1))
-      self.assertEqual(as3lib.parseInt(100, 2), as3lib.Int(4))
-      self.assertEqual(as3lib.parseInt(100, 36), as3lib.Int(1296))
-      self.assertNaN(as3lib.parseInt(100, 37))
-      self.assertNaN(as3lib.parseInt(100, -1))
-      self.assertEqual(as3lib.parseInt(100, as3lib.Object()), as3lib.Int(100))
+      self.assertEqual(as3lib.parseInt('123'), as3lib.Int(123))
+      self.assertEqual(as3lib.parseInt('100', 10), as3lib.Int(100))
+      self.assertEqual(as3lib.parseInt('100', 0), as3lib.Int(100))
+      self.assertNaN(as3lib.parseInt('100', 1))
+      self.assertEqual(as3lib.parseInt('100', 2), as3lib.Int(4))
+      self.assertEqual(as3lib.parseInt('100', 36), as3lib.Int(1296))
+      self.assertNaN(as3lib.parseInt('100', 37))
+      self.assertNaN(as3lib.parseInt('100', -1))
+      self.assertEqual(as3lib.parseInt('100', as3lib.Object()), as3lib.Int(100))
       self.assertNaN(as3lib.parseInt('100', as3lib.true))
       self.assertEqual(as3lib.parseInt('100', as3lib.false), as3lib.Int(100))
       self.assertEqual(as3lib.parseInt('100', as3lib.NaN), as3lib.Int(100))
@@ -1347,7 +1364,7 @@ class NumberTestsBase(as3libTestCase):
       self.assertEqual(val.toPrecision(21), check[11])
 
    def _assertToString(self, val, check):
-      #2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
+      # 2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
       self.assertEqual(val.toString(), check[8])
       for i in range(35):
          self.assertEqual(val.toString(i + 2), check[i])
@@ -1495,9 +1512,9 @@ class intTests(NumberTestsBase):
                  '-1.0000000000', '-1.00000000000000000000')
 
       asrt_16716550 = ('2e+7', '1.7e+7', '1.67e+7', '1.672e+7', '1.6717e+7',
-                      '1.67166e+7', '1.671655e+7', '1.6716550e+7',
-                      '1.67165500e+7', '1.671655000e+7', '1.6716550000e+7',
-                      '1.67165500000000000000e+7')
+                       '1.67166e+7', '1.671655e+7', '1.6716550e+7',
+                       '1.67165500e+7', '1.671655000e+7', '1.6716550000e+7',
+                       '1.67165500000000000000e+7')
 
       asrt_123 = ('1e+2', '1.2e+2', '1.23e+2', '1.230e+2', '1.2300e+2',
                   '1.23000e+2', '1.230000e+2', '1.2300000e+2',
@@ -1512,8 +1529,9 @@ class intTests(NumberTestsBase):
       asrt_n2147483648 = ('-2e+9', '-2.1e+9', '-2.15e+9', '-2.147e+9',
                           '-2.1475e+9', '-2.14748e+9', '-2.147484e+9',
                           '-2.1474836e+9', '-2.14748365e+9',
-                          '-2.147483648e+9','-2.1474836480e+9',
+                          '-2.147483648e+9', '-2.1474836480e+9',
                           '-2.14748364800000000000e+9')
+
       asrt_n2147483647 = ('-2e+9', '-2.1e+9', '-2.15e+9', '-2.147e+9',
                           '-2.1475e+9', '-2.14748e+9', '-2.147484e+9',
                           '-2.1474836e+9', '-2.14748365e+9',
@@ -1936,7 +1954,7 @@ class intTests(NumberTestsBase):
       self.assertToPrecision('-0x100000001', asrt_n1)
 
    def assertToString(self, value, check):
-      #2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
+      # 2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
       val = as3lib.Int(value)
       self._assertToString(val, check)
 
@@ -2621,7 +2639,7 @@ class uintTests(NumberTestsBase):
                          '2.14748365e+9', '2.147483648e+9', '2.1474836480e+9',
                          '2.14748364800000000000e+9')
 
-      asrt_2147483649 = ('2e+9','2.1e+9', '2.15e+9', '2.147e+9', '2.1475e+9',
+      asrt_2147483649 = ('2e+9', '2.1e+9', '2.15e+9', '2.147e+9', '2.1475e+9',
                          '2.14748e+9', '2.147484e+9', '2.1474836e+9',
                          '2.14748365e+9', '2.147483649e+9', '2.1474836490e+9',
                          '2.14748364900000000000e+9')
@@ -3245,9 +3263,11 @@ class VectorTests(as3libTestCase):
       self.assertEqual(c_bool.length, 0)
       self.assertFalse(c_bool.fixed)
 
-      class Superclass:...
+      class Superclass:
+         ...
 
-      class Subclass(Superclass):...
+      class Subclass(Superclass):
+         ...
 
       a0_class = Superclass()
       a1_class = Subclass()
@@ -3330,9 +3350,11 @@ class VectorTests(as3libTestCase):
       b_bool = as3lib.Vector.Boolean([False, True, False])
       self.assertArray(a_bool.concat(b_bool), (True, False, False, True, False))
 
-      class Superclass:...
+      class Superclass:
+         ...
 
-      class Subclass(Superclass):...
+      class Subclass(Superclass):
+         ...
 
       a_class = as3lib.Vector([], type=Superclass)
       a_class.length = 2
@@ -3356,7 +3378,8 @@ class VectorTests(as3libTestCase):
       self.assertType(c_class_flipped[0], Subclass)
       self.assertType(c_class_flipped[1], Subclass)
 
-      class Interface:...
+      class Interface:
+         ...
       '''
       class Implementer implements Interface {
 
