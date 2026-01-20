@@ -207,6 +207,15 @@ class MatrixConcatTests(as3libTestCase):
       cls.rotate = Matrix()
       cls.rotate.rotate(Math.PI / 2)
 
+   def assertMatrixClose(self, matrix, a, b, c, d, tx, ty):
+      # TODO: Remove this once Number is used instead of float
+      self.assertAlmostEqual(matrix.a, a, 15)
+      self.assertAlmostEqual(matrix.b, b, 15)
+      self.assertAlmostEqual(matrix.c, c, 15)
+      self.assertAlmostEqual(matrix.d, d, 15)
+      self.assertAlmostEqual(matrix.tx, tx, 15)
+      self.assertAlmostEqual(matrix.ty, ty, 15)
+
    def test_double(self):
       # Scale + Translate
       result = self.scale.clone()
@@ -222,59 +231,59 @@ class MatrixConcatTests(as3libTestCase):
       # Scale + Rotate
       result = self.scale.clone()
       result.concat(self.rotate)
-      self.assertMatrix(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 0, 0)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 0, 0)
 
       # Rotate + Scale
       result = self.rotate.clone()
       result.concat(self.scale)
-      self.assertMatrix(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 0, 0)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 0, 0)
 
       # Translate + Rotate
       result = self.translate.clone()
       result.concat(self.rotate)
-      self.assertMatrix(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, -9, 7.000000000000001)
+      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, -9, 7.000000000000001)
 
       # Rotate + Translate
       result = self.rotate.clone()
       result.concat(self.translate)
-      self.assertMatrix(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, 7, 9)
+      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, 7, 9)
 
    def test_triple(self):
       # Scale + Translate + Rotate
       result = self.scale.clone()
       result.concat(self.translate)
       result.concat(self.rotate)
-      self.assertMatrix(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -9, 7.000000000000001)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -9, 7.000000000000001)
 
       # Scale + Rotate + Translate
       result = self.scale.clone()
       result.concat(self.rotate)
       result.concat(self.translate)
-      self.assertMatrix(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 7, 9)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 7, 9)
 
       # Translate + Scale + Rotate
       result = self.translate.clone()
       result.concat(self.scale)
       result.concat(self.rotate)
-      self.assertMatrix(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -45, 21.000000000000004)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -45, 21.000000000000004)
 
       # Translate + Rotate + Scale
       result = self.translate.clone()
       result.concat(self.rotate)
       result.concat(self.scale)
-      self.assertMatrix(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, -27, 35.00000000000001)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, -27, 35.00000000000001)
 
       # Rotate + Translate + Scale
       result = self.rotate.clone()
       result.concat(self.translate)
       result.concat(self.scale)
-      self.assertMatrix(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 21, 45)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 21, 45)
 
       # Rotate + Scale + Translate
       result = self.rotate.clone()
       result.concat(self.scale)
       result.concat(self.translate)
-      self.assertMatrix(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 7, 9)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 7, 9)
 
    def test_right_single(self):
       # Matrix + Scale
