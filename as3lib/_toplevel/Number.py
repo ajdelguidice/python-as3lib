@@ -12,6 +12,7 @@ _PosInf_value = 1e300000
 
 def _parseFloat(str_):
    # TODO: Make stop at second period
+   # TODO: '100a' should return NaN
    if str_ is None:
       return _NaN_value
    str_ = str_.lstrip()
@@ -189,8 +190,8 @@ class Number(Object):
       if radix != 10:
          raise NotImplementedError
       if self._value.is_integer():
-         return f'{int(self._value)}'
-      return f'{self._value}'
+         return '%i' % self._value
+      return '%s' % self._value
 
    def valueOf(self):
       return self._value
