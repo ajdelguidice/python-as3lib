@@ -2,6 +2,7 @@ import builtins
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
+from ctypes import c_double
 
 
 _NaN_value = 1e300000 / -1e300000
@@ -13,13 +14,13 @@ def _parseFloat(str_):
    # TODO: Make stop at second period
    if str_ is None:
       return _NaN_value
+   str_ = str_.lstrip()
    if str_ == '':
       return 0
    if str_ == 'Infinity':
       return _PosInf_value
    if str_ == '-Infinity':
       return _NegInf_value
-   str_ = str_.lstrip()
    size = len(str_)
    if size == 0:
       return _NaN_value
@@ -50,11 +51,22 @@ def _parseFloat(str_):
 
 
 class Number(Object):
-   __slots__ = ('_value')
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
 
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
+   def _is_nan(self):
+      return self._value.hex() == 'nan'
+
    def __init__(self, num=null):
+      self._val = c_double()
       self._value = self._Number(num)
 
    def __str__(self):
@@ -106,9 +118,6 @@ class Number(Object):
    def __int__(self):
       return builtins.int(self._value)
 
-   def __bool__(self):
-      bool(self._value)
-
    def __eq__(self, value):
       return self._value == value
 
@@ -119,7 +128,7 @@ class Number(Object):
       return self._value > value
 
    def __neg__(self):
-      if self._value is _NaN_value:
+      if self._is_nan():
          return Number.NaN
       if self._value == _NegInf_value:
          return Number.POSITIVE_INFINITY
@@ -128,18 +137,20 @@ class Number(Object):
       return Number(-self._value)
 
    def __bool__(self):
-      if self._value is _NaN_value:
+      if self._is_nan():
          return False
       return self._value != 0
 
    def __abs__(self):
-      if self._value is _NaN_value:
+      if self._is_nan():
          return Number.NaN
       if self._value in {_NegInf_value, _PosInf_value}:
          return Number.POSITIVE_INFINITY
       return Number(self._value)
 
    def _Number(self, expression):
+      if hasattr(expression, '_is_nan') and expression._is_nan():
+         return _NaN_value
       if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
          expression = expression.valueOf()
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
@@ -169,7 +180,7 @@ class Number(Object):
 
    def toString(self, radix=10):
       # TODO: Radix
-      if self._value is _NaN_value:
+      if self._is_nan():
          return 'NaN'
       if self._value == _NegInf_value:
          return "-Infinity"
