@@ -3,7 +3,7 @@ import builtins
 from pathlib import Path, PurePath
 from as3lib._toplevel.Constants import undefined
 from as3lib._toplevel.int import int, uint, _parseInt
-from as3lib._toplevel.Number import Number, _parseFloat
+from as3lib._toplevel.Number import _NaN_value, _parseFloat, Number
 from as3lib._toplevel.Errors import Error
 
 
@@ -33,17 +33,19 @@ def escape():
 
 
 def isFinite(num):
-   return not (num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY)
+   num = Number(num)
+   return not (num._is_nan() or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY)
 
 
 def isNaN(num):
-   return num is Number.NaN._value or num is Number.NaN
+   num = Number(num)
+   return num._is_nan()
 
 
 def isXMLName(str_: str):
    # currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
    whitelist = {'-', '_', '.'}
-   if len(str_) == 0 or not str_[0].isalpha() and str_[0] != '_' or str_[:3].lower() == 'xml' or ' ' in str_:
+   if not isinstance(str_, str) or not len(str_) or not str_[0].isalpha() and str_[0] != '_' or str_[:3].lower() == 'xml' or ' ' in str_:
       return False
    for i in str_:
       if not i.isalnum() and i not in whitelist:
