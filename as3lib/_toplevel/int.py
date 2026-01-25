@@ -2,16 +2,29 @@ from __future__ import annotations
 from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import Error, RangeError, TypeError
 from as3lib._toplevel.Math import Math
-from as3lib._toplevel.Number import Number
+from as3lib._toplevel.Number import Number, _parseFloat
 from as3lib._toplevel.Object import Object
 import builtins
 from ctypes import c_uint32, c_int32
-from numpy import base_repr
+
+
+_base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+def _as_base(num, radix):
+   if num == 0:
+      return '0'
+   l = []
+   temp = abs(num)
+   while temp > 0:
+      l.append(_base_digits[temp % radix])
+      temp //= radix
+   if num < 0:
+      l.append('-')
+   l.reverse()
+   return ''.join(l)
 
 
 def _parseInt(str_: str = None, radix: int | uint = 0):
    # TODO: Find a better way of doing the sign detection
-   # TODO: Exponent
    if str_ is undefined:
       if radix == 32:
          return 785077
@@ -127,8 +140,8 @@ class int(Object):
 
    def _int(self, value):
       if isinstance(value, str):
-         value = _parseInt(value, 10)
-      if value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         value = Number(_parseFloat(value))
+      if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          return 0
       if isinstance(value, (int, uint, Number)):
          value = value._value
@@ -186,7 +199,7 @@ class int(Object):
 
    def toString(self, radix: builtins.int | int | uint = 10):
       if radix <= 36 and radix >= 2:
-         return base_repr(self._value, base=radix).lower()
+         return _as_base(self._value, radix)
 
    def valueOf(self):
       return self._value
@@ -207,8 +220,8 @@ class uint(Object):
    def __init__(self, value=undefined):
       self._val = c_uint32()
       if isinstance(value, str):
-         value = _parseInt(value, 10)
-      if value is undefined or value is null or value is Number.NaN or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         value = Number(_parseFloat(value))
+      if hasattr(value, '_is_nan') and value._is_nan() or value is undefined or value is null or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          self._value = 0
       elif isinstance(value, (Number, float)):
          self._value = Math.floor(value)
@@ -267,7 +280,7 @@ class uint(Object):
 
    def toString(self, radix=10):
       if radix <= 36 and radix >= 2:
-         return base_repr(self._value, base=radix).lower()
+         return _as_base(self._value, radix)
 
    def valueOf(self):
       return self._value
