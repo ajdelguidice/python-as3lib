@@ -23,7 +23,7 @@ def _parseFloat(str_):
    size = len(str_)
    if size == 0:
       return _NaN_value
-   if str_[0].isdigit() or str_[0] in '-+':
+   if str_[0].isdigit() or str_[0] in '-+.':
       j = 0
       while str_[j] in '-+':
          j += 1
@@ -155,9 +155,14 @@ class Number(Object):
       if isinstance(expression, Object):
          return _NaN_value
 
-   def toExponential(self):...
-   def toFixed(self):...
-   def toPrecision():...
+   def toExponential(self):
+      raise NotImplementedError
+
+   def toFixed(self):
+      raise NotImplementedError
+
+   def toPrecision(self):
+      raise NotImplementedError
 
    def toLocaleString(self):
       return self.toString()
@@ -170,6 +175,8 @@ class Number(Object):
          return "-Infinity"
       if self._value == _PosInf_value:
          return "Infinity"
+      if radix != 10:
+         raise NotImplementedError
       if self._value.is_integer():
          return f'{int(self._value)}'
       return f'{self._value}'
