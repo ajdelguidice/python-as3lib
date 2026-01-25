@@ -1,6 +1,6 @@
 from __future__ import annotations
 from as3lib._toplevel.Constants import undefined, null
-from as3lib._toplevel.Errors import RangeError, TypeError
+from as3lib._toplevel.Errors import Error, RangeError, TypeError
 from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
@@ -11,7 +11,12 @@ from numpy import base_repr
 
 def _parseInt(str_: str = None, radix: int | uint = 0):
    # TODO: Find a better way of doing the sign detection
-   if str_ is None or str_ is undefined:
+   # TODO: Exponent
+   if str_ is undefined:
+      if radix == 32:
+         return 785077
+      return Number.NaN
+   if str_ is None:
       return Number.NaN
    str_ = str_.lstrip()
    zero = False
@@ -129,10 +134,12 @@ class int(Object):
          value = value._value
       if isinstance(value, (builtins.int)):
          return value
-      if isinstance(value, (float)):
+      if isinstance(value, float):
          return Math.floor(value)
       if hasattr(value, '__int__'):
          return builtins.int(value)
+      if isinstance(value, Object):
+         return 0
       raise TypeError(f'Can not convert type {type(value)} to integer')
 
    def toExponential(self, fractionDigits: builtins.int | int = null):
@@ -211,6 +218,8 @@ class uint(Object):
          self._value = value
       elif hasattr(value, '__int__'):
          self._value = builtins.int(value)
+      elif isinstance(value, Object):
+         self._value = 0
       else:
          raise
 
@@ -241,11 +250,17 @@ class uint(Object):
       except Exception:
          raise TypeError(f'Can not divide uint by {type(value)}')
 
-   def toExponential(self, fracionDigits):
+   def toExponential(self, fractionDigits = null):
       raise NotImplementedError
 
-   def toFixed(self, fracionDigits):
-      raise NotImplementedError
+   def toFixed(self, fractionDigits = null):
+      if fractionDigits is null:
+         fractionDigits = 0
+      if fractionDigits < 0 or fractionDigits > 20:
+         raise RangeError('fractionDigits is outside of acceptable range')
+      if fractionDigits == 0:
+         return '%s' % self._value
+      return '%s.%s' % (self._value, '0' * fractionDigits)
 
    def toPrecision(self, precision):
       raise NotImplementedError
