@@ -91,6 +91,12 @@ class Vector(list, Object):
    def __init__(self, **kwargs):
       self._number_init(0, False, **kwargs)
 
+   def __iter__(self):
+      return (i for i in range(len(self)))
+
+   def __each__(self):
+      return (self[i] for i in range(len(self)))
+
    @property
    def fixed(self):
       return self._fixed
