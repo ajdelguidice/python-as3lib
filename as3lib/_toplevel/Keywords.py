@@ -65,6 +65,4 @@ def each(iterable):
       return iterable.values()
    # Do it a bit jank because python and actionscript differ in the way that
    # iterating is done.
-   for i in range(len(iterable)):
-      yield iterable[i]
-   return
+   return (iterable[i] for i in range(len(iterable)))
