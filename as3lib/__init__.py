@@ -179,9 +179,24 @@ false = Boolean(False)
 true = Boolean(True)
 
 try:
-   # TODO: Add adapter for Date, Object, XML stuff, and Vector
+   from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
+   # TODO: Add adapter for Date, Object, XML stuff
    def adapter(func, obj, encoder):
       return func(obj)
+
+   def vectorAdapter(obj, encoder):
+      if obj._type is int:
+         out = IntVector(obj)
+      elif obj._type is uint:
+         out = UintVector(obj)
+      elif obj._type is Number:
+         out = DoubleVector(obj)
+      else:
+         out = ObjectVector(obj)
+         # TODO
+         # out.classname =
+      out.fixed = obj.fixed
+      return out
 
    add_type(Array, partial(adapter, list))
    add_type(Boolean, partial(adapter, bool))
@@ -189,6 +204,7 @@ try:
    add_type(Number, partial(adapter, float))
    add_type(String, partial(adapter, str))
    add_type(uint, partial(adapter, int))
+   add_type(Vector, vectorAdapter)
 except Exception as e:
    raise Error('Failed to set up miniamf type adapters.') from e
 
