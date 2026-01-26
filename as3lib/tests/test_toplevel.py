@@ -2,14 +2,17 @@
 # https://github.com/ruffle-rs/ruffle
 
 import as3lib
-from as3lib import (ArgumentError, DefinitionError, encodeURI,
-                    encodeURIComponent, Error, escape, EvalError, false, Math,
-                    null, RangeError, ReferenceError, SyntaxError, true,
-                    TypeError, undefined, unescape, URIError, VerifyError)
+from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
+                    encodeURI, encodeURIComponent, Error, escape, EvalError,
+                    false, Infinity, JSON, Math, Namespace, NaN, null, Number,
+                    Object, QName, RangeError, ReferenceError, RegExp,
+                    SecurityError, String, SyntaxError, true, TypeError, uint,
+                    undefined, unescape, URIError, Vector, VerifyError, XML,
+                    XMLList)
 from as3lib.flash.errors import (EOFError, IllegalOperationError,
                                  InvalidSWFError, IOError, MemoryError,
                                  ScriptTimeoutError, StackOverflowError)
-from as3lib.flash.utils import setTimeout, getDefinitionByName
+from as3lib.flash.utils import setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
 # TODO: Clear prototypes after every test
 
@@ -17,7 +20,7 @@ from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemente
 class ArrayTests(as3libTestCase):
    # NOTE: prototype is required for some tests
    def assertIndex(self, index, length, hasprop):
-      arr = as3lib.Array()
+      arr = Array()
       arr[index] = 0
       self.assertEqual(arr.length, length)
       self.assertEqual(arr.hasOwnProperty(index), hasprop)
@@ -25,12 +28,12 @@ class ArrayTests(as3libTestCase):
 
    def test_access(self):
       # TODO: Add more of this test
-      a = as3lib.Array('a', 'b', 'c')
+      a = Array('a', 'b', 'c')
       self.assertEqual(a[0], 'a')
       self.assertEqual(a[1], 'b')
       self.assertEqual(a[2], 'c')
 
-      a = as3lib.Array(5)
+      a = Array(5)
       self.assertEqual(a.length, 5)
       a[0] = 'First'
       a[2] = 'Second'
@@ -39,8 +42,8 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.length, 4)
 
    def test_concat(self):
-      a = as3lib.Array('a', 'b', 'c')
-      b = as3lib.Array('d', 'e', 'f')
+      a = Array('a', 'b', 'c')
+      b = Array('d', 'e', 'f')
       c = a.concat(b)
       self.assertEqual(c, ['a', 'b', 'c', 'd', 'e', 'f'])
       d = a.concat('d', 'e', 'f')
@@ -53,16 +56,16 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(g, ['a', 'b', 'c', null, undefined])
 
    def test_constructor(self):
-      self.assertEqual(as3lib.Array().length, 0)
-      self.assertEqual(as3lib.Array(5).length, 5)
-      self.assertEqual(as3lib.Array('5').length, 1)
-      self.assertEqual(as3lib.Array(5, 6).length, 2)
-      self.assertEqual(as3lib.Array(5, 'abc').length, 2)
+      self.assertEqual(Array().length, 0)
+      self.assertEqual(Array(5).length, 5)
+      self.assertEqual(Array('5').length, 1)
+      self.assertEqual(Array(5, 6).length, 2)
+      self.assertEqual(Array(5, 'abc').length, 2)
 
    def test_delete(self):
       raise MethodNotImplemented('delete')
       # TODO: Add a delete function that returns True if successful
-      a = as3lib.Array('a', 'b', 'c')
+      a = Array('a', 'b', 'c')
 
       # Delete a[1]
       self.assertTrue(as3lib.delete(a[1]))
@@ -90,10 +93,10 @@ class ArrayTests(as3libTestCase):
 
    def test_enumeration(self):
       # NOTE: This test seems to prove that Arrays act more like python dictionaries
-      a = as3lib.Array(1, 2, 3, 4, 5)
+      a = Array(1, 2, 3, 4, 5)
       self.assertArray(a, [1, 2, 3, 4, 5])
 
-      array = as3lib.Array(5)
+      array = Array(5)
       array[0] = 'elem0'
       array[4] = 'elem4'
       array.prop = 'property'
@@ -107,7 +110,7 @@ class ArrayTests(as3libTestCase):
       self.assertEach(array, ['elem0', 'elem4'], 4)
 
    def test_enumeration_elements(self):
-      a = as3lib.Array(1, 2, 3, 4, 5)
+      a = Array(1, 2, 3, 4, 5)
       a.elem = 'test'
 
       self.assertEach(a, [1, 2, 3, 4, 5, 'test'], 6)
@@ -119,20 +122,20 @@ class ArrayTests(as3libTestCase):
       self.assertFalse(a.propertyIsEnumerable('7'))
 
    def test_every(self):
-      a = as3lib.Array(5, 3, 1, 9, 16)
+      a = Array(5, 3, 1, 9, 16)
       self.assertFalse(a.every(lambda val, i, j: val == 5))
       self.assertTrue(a.every(lambda val, i, j: val != 20))
 
-      b = as3lib.Array()
+      b = Array()
       self.assertTrue(b.every(lambda val, i, j: val == 5))
 
    def test_filter(self):
-      a = as3lib.Array(5, 3, 1, 9, 16)
+      a = Array(5, 3, 1, 9, 16)
       b = a.filter(lambda val, i, j: val <= 5)
       self.assertEqual(b, [5, 3, 1])
 
    def test_forEach(self):
-      a = as3lib.Array(5, 'abc')
+      a = Array(5, 'abc')
 
       def test(val, index, array):
          self.assertTrue(val in a)
@@ -142,9 +145,9 @@ class ArrayTests(as3libTestCase):
       a.forEach(test)
 
    def test_hasOwnProperty(self):
-      a = as3lib.Array(5)
+      a = Array(5)
 
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
       self.assertFalse(a.hasOwnProperty('2'))
       self.assertFalse(a.hasOwnProperty('3'))
 
@@ -153,9 +156,9 @@ class ArrayTests(as3libTestCase):
       self.assertTrue(a.hasOwnProperty('3'))
 
    def test_holes(self):
-      a = as3lib.Array(5)
+      a = Array(5)
 
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
       self.assertEqual(a[2], undefined)
       self.assertEqual(a[3], 'works')
 
@@ -182,7 +185,7 @@ class ArrayTests(as3libTestCase):
       self.assertIndex(2147483649, 2147483650, True)
 
    def test_indexOf(self):
-      a = as3lib.Array(5, '5', 3, False, 4, 5, undefined, 9)
+      a = Array(5, '5', 3, False, 4, 5, undefined, 9)
       self.assertEqual(a.indexOf(5), 0)
       self.assertEqual(a.indexOf(5, 1), 5)
       self.assertEqual(a.indexOf(5, 2), 5)
@@ -193,24 +196,24 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.indexOf('5'), 1)
 
    def test_join(self):
-      a = as3lib.Array('a', 'b', 'c')
-      b = as3lib.Array(1, 2, 3)
-      c = as3lib.Array(a, b)
-      d = as3lib.Array('str', 123, undefined, null, true, false)
+      a = Array('a', 'b', 'c')
+      b = Array(1, 2, 3)
+      c = Array(a, b)
+      d = Array('str', 123, undefined, null, true, false)
       self.assertEqual(a.join(), 'a,b,c')
       self.assertEqual(b.join(), '1,2,3')
       self.assertEqual(c.join(), 'a,b,c,1,2,3')
       self.assertEqual(c.join(undefined), 'a,b,c,1,2,3')
       self.assertEqual(c.join(null), 'a,b,cnull1,2,3')
       self.assertEqual(c.join(false), 'a,b,cfalse1,2,3')
-      self.assertEqual(a.join(as3lib.NaN), 'aNaNbNaNc')
+      self.assertEqual(a.join(NaN), 'aNaNbNaNc')
       self.assertEqual(b.join(5), '15253')
       self.assertEqual(c.join(' + '), 'a,b,c + 1,2,3')
       self.assertEqual(c.join(b), 'a,b,c1,2,31,2,3')
       self.assertEqual(d.join('!'), 'str!123!!!true!false')
 
    def test_lastIndexOf(self):
-      a = as3lib.Array(5, '5', 3, False, 4, 5, undefined, 9)
+      a = Array(5, '5', 3, False, 4, 5, undefined, 9)
       self.assertEqual(a.lastIndexOf(5), 5)
       self.assertEqual(a.lastIndexOf(5, 1), 0)
       self.assertEqual(a.lastIndexOf(5, 2), 0)
@@ -221,10 +224,10 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.lastIndexOf('5'), 1)
 
    def test_length(self):
-      self.assertEqual(as3lib.Array().length, 0)
-      self.assertEqual(as3lib.Array(0, 1, 2, 3, 4).length, 5)
-      self.assertEqual(as3lib.Array(undefined).length, 1)
-      a = as3lib.Array(0, 1, 2)
+      self.assertEqual(Array().length, 0)
+      self.assertEqual(Array(0, 1, 2, 3, 4).length, 5)
+      self.assertEqual(Array(undefined).length, 1)
+      a = Array(0, 1, 2)
       self.assertEqual(a.length, 3)
       a.length = 5
       self.assertEqual(a.length, 5)
@@ -234,21 +237,21 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.toString(), '')
 
    def test_literal(self):
-      a = as3lib.Array('a', 'b', 'c')
+      a = Array('a', 'b', 'c')
       self.assertEqual(a[0], 'a')
       self.assertEqual(a[1], 'b')
       self.assertEqual(a[2], 'c')
 
    def test_map(self):
-      a = as3lib.Array(5, 3, 1, 9, 16)
+      a = Array(5, 3, 1, 9, 16)
       b = a.map(lambda val, i, j: val + 1)
       self.assertEqual(b, [6, 4, 2, 10, 17])
 
    def test_pop(self):
-      a = as3lib.Array(5)
+      a = Array(5)
       a[1] = 'other_test'
       a[2] = 'test'
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
 
       self.assertEqual(a.toString(), ',other_test,test,works,')
       self.assertEqual(a.length, 5)
@@ -278,9 +281,9 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.length, 0)
 
    def test_push(self):
-      a = as3lib.Array(5)
+      a = Array(5)
       a[2] = 'test'
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
 
       self.assertEqual(a.toString(), ',,test,works,')
 
@@ -293,12 +296,12 @@ class ArrayTests(as3libTestCase):
       self.assertEquals(a.toString(), ',,test,works,,hi,bye')
 
    def test_reverse(self):
-      a = as3lib.Array(5)
-      as3lib.Array.prototype[0] = 0
+      a = Array(5)
+      Array.prototype[0] = 0
       a[1] = 1
       a[2] = 2
       a[3] = undefined
-      as3lib.Array.prototype[4] = 4
+      Array.prototype[4] = 4
 
       self.assertEqual(a.length, 5)
 
@@ -307,13 +310,13 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(a.toString(), ',2,1,,4')
       self.assertEqual(b.toString(), ',2,1,,4')
 
-      as3lib.Array.prototype[4] = 999
+      Array.prototype[4] = 999
       self.assertEqual(b.toString(), ',2,1,,999')
 
    def test_shift(self):
-      a = as3lib.Array(5)
+      a = Array(5)
       a[2] = 'test'
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
 
       self.assertArray(a, [undefined, undefined, 'test', 'works', undefined], 5)
 
@@ -336,16 +339,16 @@ class ArrayTests(as3libTestCase):
       self.assertArray(a, [], 0)
 
    def test_slice(self):
-      a = as3lib.Array(8)
+      a = Array(8)
 
-      as3lib.Array.prototype[0] = 999
-      as3lib.Array.prototype[1] = 998
+      Array.prototype[0] = 999
+      Array.prototype[1] = 998
       a[2] = 2
-      as3lib.Array.prototype[3] = 997
+      Array.prototype[3] = 997
       a[4] = 4
-      as3lib.Array.prototype[5] = 996
+      Array.prototype[5] = 996
       a[6] = 6
-      as3lib.Array.prototype[7] = 995
+      Array.prototype[7] = 995
 
       b = a.slice()
       self.assertArray(b, [999, 998, 2, 997, 4, 996, 6, 995])
@@ -366,21 +369,21 @@ class ArrayTests(as3libTestCase):
       self.assertArray(g, [999, 6])
 
    def test_some(self):
-      a = as3lib.Array(5, 3, 1, 9, 16)
+      a = Array(5, 3, 1, 9, 16)
       self.assertTrue(a.some(lambda val, i, j: val == 5))
       self.assertFalse(a.some(lambda val, i, j: val == 20))
 
-      b = as3lib.Array()
+      b = Array()
       self.assertFalse(b.some(lambda val, i, j: val == 30))
 
    def test_sort(self):
       def newArray():  # fresh_array
-         a = as3lib.Array(5, 3, 1, 'Abc', '2', 'aba', false, null, 'zzz')
+         a = Array(5, 3, 1, 'Abc', '2', 'aba', false, null, 'zzz')
          a[11] = 'not a hole'
          return a
 
       def newArray2():  # fresh_array_b
-         b = as3lib.Array(5, 3, '2', false, true, as3lib.NaN)
+         b = Array(5, 3, '2', false, true, NaN)
          return b
 
       def sub_comparison(a, b):
@@ -411,30 +414,30 @@ class ArrayTests(as3libTestCase):
          return x
 
       def check_holes(a, check):
-         as3lib.Array.prototype[10] = 'hole10'
-         as3lib.Array.prototype[11] = 'hole11'
-         as3lib.Array.prototype[12] = 'hole12'
+         Array.prototype[10] = 'hole10'
+         Array.prototype[11] = 'hole11'
+         Array.prototype[12] = 'hole12'
 
          self.assertArray(a, check)
 
          # Clean up (used delete)
-         del as3lib.Array.prototype[10]
-         del as3lib.Array.prototype[11]
-         del as3lib.Array.prototype[12]
+         del Array.prototype[10]
+         del Array.prototype[11]
+         del Array.prototype[12]
 
-         as3lib.Array.prototype[9] = undefined
-         as3lib.Array.prototype[10] = 'hole in slot 10'
+         Array.prototype[9] = undefined
+         Array.prototype[10] = 'hole in slot 10'
 
       # NOTE: Only returns when 4 or 8 is specified
       a = newArray()
-      as3lib.Array.prototype[9] = undefined
-      as3lib.Array.prototype[10] = 'hole in slot 10'
-      s = a.sort(as3lib.Array.UNIQUESORT)
+      Array.prototype[9] = undefined
+      Array.prototype[10] = 'hole in slot 10'
+      s = a.sort(Array.UNIQUESORT)
       self.assertNotEqual(s, 0)
 
 
       a = newArray()
-      s = a.sort(as3lib.Array.RETURNINDEXEDARRAY)
+      s = a.sort(Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [2, 4, 1, 0, 3, 5, 6, 10, 11, 7, 8, 9])
 
       a.sort()
@@ -448,10 +451,10 @@ class ArrayTests(as3libTestCase):
 
       a = newArray()
 
-      s = a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.RETURNINDEXEDARRAY)
+      s = a.sort(Array.CASEINSENSITIVE | Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [2, 4, 1, 0, 5, 3, 6, 10, 11, 7, 8, 9])
 
-      a.sort(as3lib.Array.CASEINSENSITIVE)
+      a.sort(Array.CASEINSENSITIVE)
       self.assertArray(a, [1, '2', 3, 5, 'aba', 'Abc', false,
                            'hole in slot 10', 'not a hole', null, 'zzz',
                            undefined])
@@ -462,10 +465,10 @@ class ArrayTests(as3libTestCase):
 
       a = newArray()
 
-      s = a.sort(as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
+      s = a.sort(Array.DESCENDING | Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [8, 7, 11, 10, 6, 5, 3, 0, 1, 4, 2, 9])
 
-      a.sort(as3lib.Array.DESCENDING)
+      a.sort(Array.DESCENDING)
       self.assertArray(a, ['zzz', null, 'not a hole', 'hole in slot 10',
                            false, 'aba', 'Abc', 5, 3, '2', 1, undefined])
 
@@ -475,10 +478,10 @@ class ArrayTests(as3libTestCase):
 
       a = newArray()
 
-      s = a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
+      s = a.sort(Array.CASEINSENSITIVE | Array.DESCENDING | Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [8, 7, 11, 10, 6, 3, 5, 0, 1, 4, 2, 9])
 
-      a.sort(as3lib.Array.CASEINSENSITIVE | as3lib.Array.DESCENDING)
+      a.sort(Array.CASEINSENSITIVE | Array.DESCENDING)
       self.assertArray(a, ['zzz', null, 'not a hole', 'hole in slot 10',
                            false, 'Abc', 'aba', 5, 3, '2', 1,
                            undefined])
@@ -487,40 +490,40 @@ class ArrayTests(as3libTestCase):
                       'Abc', 'aba', 5, 3, '2', 1, 'hole11'])
 
 
-      b = as3lib.Array(5, 3, 2, 1, '2', false, true, as3lib.NaN)
-      s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.UNIQUESORT)
+      b = Array(5, 3, 2, 1, '2', false, true, NaN)
+      s = b.sort(Array.NUMERIC | Array.UNIQUESORT)
       self.assertEqual(s, 0)
 
 
       b = newArray2()
 
-      s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.RETURNINDEXEDARRAY)
+      s = b.sort(Array.NUMERIC | Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [3, 4, 2, 1, 0, 5])
 
-      b.sort(as3lib.Array.NUMERIC)
-      self.assertArray(b, [false, true, '2', 3, 5, as3lib.NaN])
+      b.sort(Array.NUMERIC)
+      self.assertArray(b, [false, true, '2', 3, 5, NaN])
 
-      check_holes(b, [false, true, '2', 3, 5, as3lib.NaN])
-
-
-      b = newArray2()
-
-      b.sort(as3lib.Array.NUMERIC | 1)
-      self.assertArray(b, [false, true, '2', 3, 5, as3lib.NaN])
+      check_holes(b, [false, true, '2', 3, 5, NaN])
 
 
       b = newArray2()
 
-      s = b.sort(as3lib.Array.NUMERIC | as3lib.Array.DESCENDING | as3lib.Array.RETURNINDEXEDARRAY)
+      b.sort(Array.NUMERIC | 1)
+      self.assertArray(b, [false, true, '2', 3, 5, NaN])
+
+
+      b = newArray2()
+
+      s = b.sort(Array.NUMERIC | Array.DESCENDING | Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [5, 0, 1, 2, 4, 3])
 
-      b.sort(16 | as3lib.Array.DESCENDING)
-      self.assertArray(b, [as3lib.NaN, 5, 3, '2', true, false])
+      b.sort(16 | Array.DESCENDING)
+      self.assertArray(b, [NaN, 5, 3, '2', true, false])
 
-      check_holes(b, [as3lib.NaN, 5, 3, '2', true, false])
+      check_holes(b, [NaN, 5, 3, '2', true, false])
 
 
-      a = as3lib.Array(7, 2, 1, '3', '4')
+      a = Array(7, 2, 1, '3', '4')
 
       a.sort(sub_comparison)
       self.assertArray(a, [7, '4', '3', 2, 1])
@@ -528,22 +531,22 @@ class ArrayTests(as3libTestCase):
       a.sort(sub_comparison, 2)
       self.assertArray(a, [1, 2, '3', '4', 7])
 
-      s = a.sort(sub_comparison, as3lib.Array.RETURNINDEXEDARRAY)
+      s = a.sort(sub_comparison, Array.RETURNINDEXEDARRAY)
       self.assertArray(s, [4, 3, 2, 1, 0])
 
-      s = a.sort(sub_comparison, as3lib.Array.DESCENDING | 8)
+      s = a.sort(sub_comparison, Array.DESCENDING | 8)
       self.assertArray(s, [0, 1, 2, 3, 4])
 
-      s = a.sort(sub_comparison, as3lib.Array.UNIQUESORT)
+      s = a.sort(sub_comparison, Array.UNIQUESORT)
       self.assertNotEqual(s, 0)
 
 
-      c = as3lib.Array(3, 'abc')
+      c = Array(3, 'abc')
 
-      s = c.sort(sub_comparison, as3lib.Array.UNIQUESORT)
+      s = c.sort(sub_comparison, Array.UNIQUESORT)
       self.assertEqual(s, 0)
 
-      d = as3lib.Array(3, '4')
+      d = Array(3, '4')
 
       s = d.sort(sub_comparison, 4)
       self.assertArray(s, ['4', 3])
@@ -560,7 +563,7 @@ class ArrayTests(as3libTestCase):
 
       rng = _rng()
 
-      array = as3lib.Array(*[i for i in range(50)])
+      array = Array(*[i for i in range(50)])
 
       # "sort" the array using randomly-chosen comparison results.
       def sortfunc(a, b):
@@ -582,7 +585,7 @@ class ArrayTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_sparse_ops(self):
-      arr = as3lib.Array(1, 2)
+      arr = Array(1, 2)
       arr[50] = 6
       arr[100] = 10
       arr[500] = 11
@@ -638,17 +641,17 @@ class ArrayTests(as3libTestCase):
    def test_splice(self):
       # TODO: Ensure that the length asserts are correct
       def constructArray():
-         arr = as3lib.Array(8)
+         arr = Array(8)
          arr[2] = 2
          arr[4] = 4
          arr[6] = 6
          return arr
 
-      as3lib.Array.prototype[0] = 999
-      as3lib.Array.prototype[1] = 998
-      as3lib.Array.prototype[3] = 997
-      as3lib.Array.prototype[5] = 996
-      as3lib.Array.prototype[7] = 995
+      Array.prototype[0] = 999
+      Array.prototype[1] = 998
+      Array.prototype[3] = 997
+      Array.prototype[5] = 996
+      Array.prototype[7] = 995
 
       a = constructArray()
       b = a.splice()
@@ -690,9 +693,9 @@ class ArrayTests(as3libTestCase):
 
       a = constructArray()
 
-      as3lib.Array.prototype[0] = 99
-      as3lib.Array.prototype[5] = 96
-      as3lib.Array.prototype[7] = 95
+      Array.prototype[0] = 99
+      Array.prototype[5] = 96
+      Array.prototype[7] = 95
 
       self.assertArray(a, [99, 998, 2, 997, 4, 96, 6, 95], 8)
       self.assertArray(c, [999, 998, 2], 3)
@@ -707,7 +710,7 @@ class ArrayTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_storage(self):
-      a = as3lib.Array('a', 'b', 'c')
+      a = Array('a', 'b', 'c')
 
       self.assertEqual(a.length, 3)
 
@@ -721,19 +724,19 @@ class ArrayTests(as3libTestCase):
 
    def test_toLocaleString(self):
       # TODO: The answer that ruffle gives looks wrong, check on actual flash player
-      a = as3lib.Array(as3lib.String('a'), as3lib.String('b'), as3lib.String('c'))
-      b = as3lib.Array(as3lib.Number(1), as3lib.Number(2), as3lib.Number(3))
-      c = as3lib.Array(a, b)
+      a = Array(String('a'), String('b'), String('c'))
+      b = Array(Number(1), Number(2), Number(3))
+      c = Array(a, b)
 
       self.assertEqual(a.toLocaleString(), '[object String],[object String],[object String]')
       self.assertEqual(b.toLocaleString(), '1,2,3')
       self.assertEqual(c.toLocaleString(), '[object String],[object String],[object String],1,2,3')
 
    def test_toString(self):
-      a = as3lib.Array('a', 'b', 'c')
-      b = as3lib.Array(1, 2, 3)
-      c = as3lib.Array(a, b)
-      d = as3lib.Array('str', 123, undefined, null, true, false)
+      a = Array('a', 'b', 'c')
+      b = Array(1, 2, 3)
+      c = Array(a, b)
+      d = Array('str', 123, undefined, null, true, false)
 
       self.assertEqual(a.toString(), 'a,b,c')
       self.assertEqual(b.toString(), '1,2,3')
@@ -741,9 +744,9 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(d.toString(), 'str,123,,,true,false')
 
    def test_unshift(self):
-      a = as3lib.Array(5)
+      a = Array(5)
       a[2] = 'test'
-      as3lib.Array.prototype[3] = 'works'
+      Array.prototype[3] = 'works'
 
       self.asserArray(a, [undefined, undefined, 'test', 'works', undefined])
 
@@ -755,18 +758,18 @@ class ArrayTests(as3libTestCase):
 
    def test_valueOf(self):
       # TODO: Make sure that valueOf is supposed to return the array
-      a = as3lib.Array('a', 'b', 'c')
+      a = Array('a', 'b', 'c')
       self.assertEqual(a.valueOf(), a)
 
-      b = as3lib.Array(1, 2, 3)
+      b = Array(1, 2, 3)
       self.assertEqual(b.valueOf(), b)
 
-      c = as3lib.Array(a, b)
+      c = Array(a, b)
       self.assertEqual(c.valueOf(), c)
 
    def test_null_callback(self):
       # TODO: Make sure this is correct
-      a = as3lib.Array()
+      a = Array()
       a.push(1)
 
       self.assertTrue(a.every(null))
@@ -782,32 +785,32 @@ class BitwiseTests(as3libTestCase):
       self.assertEqual(false & value, check[1])
       self.assertEqual(null & value, check[2])
       self.assertEqual(undefined & value, check[3])
-      self.assertEqual(as3lib.String('') & value, check[4])
-      self.assertEqual(as3lib.String('str') & value, check[5])
-      self.assertEqual(as3lib.String('true') & value, check[6])
-      self.assertEqual(as3lib.String('false') & value, check[7])
-      self.assertEqual(as3lib.Number(0.0) & value, check[8])
-      self.assertEqual(as3lib.NaN & value, check[9])
-      self.assertEqual(as3lib.Number(-0.0) & value, check[10])
-      self.assertEqual(as3lib.Infinity & value, check[11])
-      self.assertEqual(as3lib.Number(1.0) & value, check[12])
-      self.assertEqual(as3lib.Number(-1.0) & value, check[13])
-      self.assertEqual(as3lib.Number(0xFF1306) & value, check[14])
-      self.assertEqual(as3lib.Object() & value, check[15])
-      self.assertEqual(as3lib.String('0.0') & value, check[16])
-      self.assertEqual(as3lib.String('NaN') & value, check[17])
-      self.assertEqual(as3lib.String('-0.0') & value, check[18])
-      self.assertEqual(as3lib.String('Infinity') & value, check[19])
-      self.assertEqual(as3lib.String('1.0') & value, check[20])
-      self.assertEqual(as3lib.String('-1.0') & value, check[21])
-      self.assertEqual(as3lib.String('0xFF1306') & value, check[22])
+      self.assertEqual(String('') & value, check[4])
+      self.assertEqual(String('str') & value, check[5])
+      self.assertEqual(String('true') & value, check[6])
+      self.assertEqual(String('false') & value, check[7])
+      self.assertEqual(Number(0.0) & value, check[8])
+      self.assertEqual(NaN & value, check[9])
+      self.assertEqual(Number(-0.0) & value, check[10])
+      self.assertEqual(Infinity & value, check[11])
+      self.assertEqual(Number(1.0) & value, check[12])
+      self.assertEqual(Number(-1.0) & value, check[13])
+      self.assertEqual(Number(0xFF1306) & value, check[14])
+      self.assertEqual(Object() & value, check[15])
+      self.assertEqual(String('0.0') & value, check[16])
+      self.assertEqual(String('NaN') & value, check[17])
+      self.assertEqual(String('-0.0') & value, check[18])
+      self.assertEqual(String('Infinity') & value, check[19])
+      self.assertEqual(String('1.0') & value, check[20])
+      self.assertEqual(String('-1.0') & value, check[21])
+      self.assertEqual(String('0xFF1306') & value, check[22])
 
    def test_and(self):
       asrt_1 = (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
-              1, 0)
+                1, 0)
 
       asrt_0 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-              0, 0)
+                0, 0)
 
       asrt_n1 = (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 16716550, 0, 0, 0,
                  0, 0, 1, -1, 16716550)
@@ -820,32 +823,32 @@ class BitwiseTests(as3libTestCase):
       self.assertAnd(false, asrt_0)
       self.assertAnd(null, asrt_0)
       self.assertAnd(undefined, asrt_0)
-      self.assertAnd(as3lib.String(''), asrt_0)
-      self.assertAnd(as3lib.String('str'), asrt_0)
-      self.assertAnd(as3lib.String('true'), asrt_0)
-      self.assertAnd(as3lib.String('false'), asrt_0)
-      self.assertAnd(as3lib.Number(0.0), asrt_0)
-      self.assertAnd(as3lib.NaN, asrt_0)
-      self.assertAnd(as3lib.Number(-0.0), asrt_0)
-      self.assertAnd(as3lib.Infinity, asrt_0)
+      self.assertAnd(String(''), asrt_0)
+      self.assertAnd(String('str'), asrt_0)
+      self.assertAnd(String('true'), asrt_0)
+      self.assertAnd(String('false'), asrt_0)
+      self.assertAnd(Number(0.0), asrt_0)
+      self.assertAnd(NaN, asrt_0)
+      self.assertAnd(Number(-0.0), asrt_0)
+      self.assertAnd(Infinity, asrt_0)
 
-      self.assertAnd(as3lib.Number(1.0), asrt_1)
+      self.assertAnd(Number(1.0), asrt_1)
 
-      self.assertAnd(as3lib.Number(-1.0), asrt_n1)
+      self.assertAnd(Number(-1.0), asrt_n1)
 
-      self.assertAnd(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertAnd(Number(0xFF1306), asrt_16716550)
 
-      self.assertAnd(as3lib.Object(), asrt_0)
-      self.assertAnd(as3lib.String('0.0'), asrt_0)
-      self.assertAnd(as3lib.String('NaN'), asrt_0)
-      self.assertAnd(as3lib.String('-0.0'), asrt_0)
-      self.assertAnd(as3lib.String('Infinity'), asrt_0)
+      self.assertAnd(Object(), asrt_0)
+      self.assertAnd(String('0.0'), asrt_0)
+      self.assertAnd(String('NaN'), asrt_0)
+      self.assertAnd(String('-0.0'), asrt_0)
+      self.assertAnd(String('Infinity'), asrt_0)
 
-      self.assertAnd(as3lib.String('1.0'), asrt_1)
+      self.assertAnd(String('1.0'), asrt_1)
 
-      self.assertAnd(as3lib.String('-1.0'), asrt_n1)
+      self.assertAnd(String('-1.0'), asrt_n1)
 
-      self.assertAnd(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertAnd(String('0xFF1306'), asrt_16716550)
 
    def assertNot(self, value, check):
       self.assertEqual(~value, check)
@@ -856,57 +859,57 @@ class BitwiseTests(as3libTestCase):
       self.assertNot(false, -1)
       self.assertNot(null, -1)
       self.assertNot(undefined, -1)
-      self.assertNot(as3lib.String(''), -1)
-      self.assertNot(as3lib.String('str'), -1)
-      self.assertNot(as3lib.String('true'), -1)
-      self.assertNot(as3lib.String('false'), -1)
-      self.assertNot(as3lib.Number(0.0), -1)
-      self.assertNot(as3lib.NaN, -1)
-      self.assertNot(as3lib.Number(-0.0), -1)
-      self.assertNot(as3lib.Infinity, -1)
+      self.assertNot(String(''), -1)
+      self.assertNot(String('str'), -1)
+      self.assertNot(String('true'), -1)
+      self.assertNot(String('false'), -1)
+      self.assertNot(Number(0.0), -1)
+      self.assertNot(NaN, -1)
+      self.assertNot(Number(-0.0), -1)
+      self.assertNot(Infinity, -1)
 
-      self.assertNot(as3lib.Number(1.0), -2)
+      self.assertNot(Number(1.0), -2)
 
-      self.assertNot(as3lib.Number(-1.0), 0)
+      self.assertNot(Number(-1.0), 0)
 
-      self.assertNot(as3lib.Number(0xFF1306), -16716551)
+      self.assertNot(Number(0xFF1306), -16716551)
 
-      self.assertNot(as3lib.Object(), -1)
-      self.assertNot(as3lib.String('0.0'), -1)
-      self.assertNot(as3lib.String('NaN'), -1)
-      self.assertNot(as3lib.String('-0.0'), -1)
-      self.assertNot(as3lib.String('Infinity'), -1)
+      self.assertNot(Object(), -1)
+      self.assertNot(String('0.0'), -1)
+      self.assertNot(String('NaN'), -1)
+      self.assertNot(String('-0.0'), -1)
+      self.assertNot(String('Infinity'), -1)
 
-      self.assertNot(as3lib.String('1.0'), -2)
+      self.assertNot(String('1.0'), -2)
 
-      self.assertNot(as3lib.String('-1.0'), 0)
+      self.assertNot(String('-1.0'), 0)
 
-      self.assertNot(as3lib.String('0xFF1306'), -16716551)
+      self.assertNot(String('0xFF1306'), -16716551)
 
    def assertOr(self, value, check):
       self.assertEqual(true | value, check[0])
       self.assertEqual(false | value, check[1])
       self.assertEqual(null | value, check[2])
       self.assertEqual(undefined | value, check[3])
-      self.assertEqual(as3lib.String('') | value, check[4])
-      self.assertEqual(as3lib.String('str') | value, check[5])
-      self.assertEqual(as3lib.String('true') | value, check[6])
-      self.assertEqual(as3lib.String('false') | value, check[7])
-      self.assertEqual(as3lib.Number(0.0) | value, check[8])
-      self.assertEqual(as3lib.NaN | value, check[9])
-      self.assertEqual(as3lib.Number(-0.0) | value, check[10])
-      self.assertEqual(as3lib.Infinity | value, check[11])
-      self.assertEqual(as3lib.Number(1.0) | value, check[12])
-      self.assertEqual(as3lib.Number(-1.0) | value, check[13])
-      self.assertEqual(as3lib.Number(0xFF1306) | value, check[14])
-      self.assertEqual(as3lib.Object() | value, check[15])
-      self.assertEqual(as3lib.String('0.0') | value, check[16])
-      self.assertEqual(as3lib.String('NaN') | value, check[17])
-      self.assertEqual(as3lib.String('-0.0') | value, check[18])
-      self.assertEqual(as3lib.String('Infinity') | value, check[19])
-      self.assertEqual(as3lib.String('1.0') | value, check[20])
-      self.assertEqual(as3lib.String('-1.0') | value, check[21])
-      self.assertEqual(as3lib.String('0xFF1306') | value, check[22])
+      self.assertEqual(String('') | value, check[4])
+      self.assertEqual(String('str') | value, check[5])
+      self.assertEqual(String('true') | value, check[6])
+      self.assertEqual(String('false') | value, check[7])
+      self.assertEqual(Number(0.0) | value, check[8])
+      self.assertEqual(NaN | value, check[9])
+      self.assertEqual(Number(-0.0) | value, check[10])
+      self.assertEqual(Infinity | value, check[11])
+      self.assertEqual(Number(1.0) | value, check[12])
+      self.assertEqual(Number(-1.0) | value, check[13])
+      self.assertEqual(Number(0xFF1306) | value, check[14])
+      self.assertEqual(Object() | value, check[15])
+      self.assertEqual(String('0.0') | value, check[16])
+      self.assertEqual(String('NaN') | value, check[17])
+      self.assertEqual(String('-0.0') | value, check[18])
+      self.assertEqual(String('Infinity') | value, check[19])
+      self.assertEqual(String('1.0') | value, check[20])
+      self.assertEqual(String('-1.0') | value, check[21])
+      self.assertEqual(String('0xFF1306') | value, check[22])
 
    def test_or(self):
       asrt_1 = (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 16716551, 1, 1, 1,
@@ -929,57 +932,57 @@ class BitwiseTests(as3libTestCase):
       self.assertOr(false, asrt_0)
       self.assertOr(null, asrt_0)
       self.assertOr(undefined, asrt_0)
-      self.assertOr(as3lib.String(''), asrt_0)
-      self.assertOr(as3lib.String('str'), asrt_0)
-      self.assertOr(as3lib.String('true'), asrt_0)
-      self.assertOr(as3lib.String('false'), asrt_0)
-      self.assertOr(as3lib.Number(0.0), asrt_0)
-      self.assertOr(as3lib.NaN, asrt_0)
-      self.assertOr(as3lib.Number(-0.0), asrt_0)
-      self.assertOr(as3lib.Infinity, asrt_0)
+      self.assertOr(String(''), asrt_0)
+      self.assertOr(String('str'), asrt_0)
+      self.assertOr(String('true'), asrt_0)
+      self.assertOr(String('false'), asrt_0)
+      self.assertOr(Number(0.0), asrt_0)
+      self.assertOr(NaN, asrt_0)
+      self.assertOr(Number(-0.0), asrt_0)
+      self.assertOr(Infinity, asrt_0)
 
-      self.assertOr(as3lib.Number(1.0), asrt_1)
+      self.assertOr(Number(1.0), asrt_1)
 
-      self.assertOr(as3lib.Number(-1.0), asrt_n1)
+      self.assertOr(Number(-1.0), asrt_n1)
 
-      self.assertOr(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertOr(Number(0xFF1306), asrt_16716550)
 
-      self.assertOr(as3lib.Object(), asrt_0)
-      self.assertOr(as3lib.String('0.0'), asrt_0)
-      self.assertOr(as3lib.String('NaN'), asrt_0)
-      self.assertOr(as3lib.String('-0.0'), asrt_0)
-      self.assertOr(as3lib.String('Infinity'), asrt_0)
+      self.assertOr(Object(), asrt_0)
+      self.assertOr(String('0.0'), asrt_0)
+      self.assertOr(String('NaN'), asrt_0)
+      self.assertOr(String('-0.0'), asrt_0)
+      self.assertOr(String('Infinity'), asrt_0)
 
-      self.assertOr(as3lib.String('1.0'), asrt_1)
+      self.assertOr(String('1.0'), asrt_1)
 
-      self.assertOr(as3lib.String('-1.0'), asrt_n1)
+      self.assertOr(String('-1.0'), asrt_n1)
 
-      self.assertOr(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertOr(String('0xFF1306'), asrt_16716550)
 
    def assertXor(self, value, check):
       self.assertEqual(true ^ value, check[0])
       self.assertEqual(false ^ value, check[1])
       self.assertEqual(null ^ value, check[2])
       self.assertEqual(undefined ^ value, check[3])
-      self.assertEqual(as3lib.String('') ^ value, check[4])
-      self.assertEqual(as3lib.String('str') ^ value, check[5])
-      self.assertEqual(as3lib.String('true') ^ value, check[6])
-      self.assertEqual(as3lib.String('false') ^ value, check[7])
-      self.assertEqual(as3lib.Number(0.0) ^ value, check[8])
-      self.assertEqual(as3lib.NaN ^ value, check[9])
-      self.assertEqual(as3lib.Number(-0.0) ^ value, check[10])
-      self.assertEqual(as3lib.Infinity ^ value, check[11])
-      self.assertEqual(as3lib.Number(1.0) ^ value, check[12])
-      self.assertEqual(as3lib.Number(-1.0) ^ value, check[13])
-      self.assertEqual(as3lib.Number(0xFF1306) ^ value, check[14])
-      self.assertEqual(as3lib.Object() ^ value, check[15])
-      self.assertEqual(as3lib.String('0.0') ^ value, check[16])
-      self.assertEqual(as3lib.String('NaN') ^ value, check[17])
-      self.assertEqual(as3lib.String('-0.0') ^ value, check[18])
-      self.assertEqual(as3lib.String('Infinity') ^ value, check[19])
-      self.assertEqual(as3lib.String('1.0') ^ value, check[20])
-      self.assertEqual(as3lib.String('-1.0') ^ value, check[21])
-      self.assertEqual(as3lib.String('0xFF1306') ^ value, check[22])
+      self.assertEqual(String('') ^ value, check[4])
+      self.assertEqual(String('str') ^ value, check[5])
+      self.assertEqual(String('true') ^ value, check[6])
+      self.assertEqual(String('false') ^ value, check[7])
+      self.assertEqual(Number(0.0) ^ value, check[8])
+      self.assertEqual(NaN ^ value, check[9])
+      self.assertEqual(Number(-0.0) ^ value, check[10])
+      self.assertEqual(Infinity ^ value, check[11])
+      self.assertEqual(Number(1.0) ^ value, check[12])
+      self.assertEqual(Number(-1.0) ^ value, check[13])
+      self.assertEqual(Number(0xFF1306) ^ value, check[14])
+      self.assertEqual(Object() ^ value, check[15])
+      self.assertEqual(String('0.0') ^ value, check[16])
+      self.assertEqual(String('NaN') ^ value, check[17])
+      self.assertEqual(String('-0.0') ^ value, check[18])
+      self.assertEqual(String('Infinity') ^ value, check[19])
+      self.assertEqual(String('1.0') ^ value, check[20])
+      self.assertEqual(String('-1.0') ^ value, check[21])
+      self.assertEqual(String('0xFF1306') ^ value, check[22])
 
    def test_xor(self):
       asrt_1 = (0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, -2, 16716551, 1, 1, 1,
@@ -1002,79 +1005,79 @@ class BitwiseTests(as3libTestCase):
       self.assertXor(false, asrt_0)
       self.assertXor(null, asrt_0)
       self.assertXor(undefined, asrt_0)
-      self.assertXor(as3lib.String(''), asrt_0)
-      self.assertXor(as3lib.String('str'), asrt_0)
-      self.assertXor(as3lib.String('true'), asrt_0)
-      self.assertXor(as3lib.String('false'), asrt_0)
-      self.assertXor(as3lib.Number(0.0), asrt_0)
-      self.assertXor(as3lib.NaN, asrt_0)
-      self.assertXor(as3lib.Number(-0.0), asrt_0)
-      self.assertXor(as3lib.Infinity, asrt_0)
+      self.assertXor(String(''), asrt_0)
+      self.assertXor(String('str'), asrt_0)
+      self.assertXor(String('true'), asrt_0)
+      self.assertXor(String('false'), asrt_0)
+      self.assertXor(Number(0.0), asrt_0)
+      self.assertXor(NaN, asrt_0)
+      self.assertXor(Number(-0.0), asrt_0)
+      self.assertXor(Infinity, asrt_0)
 
-      self.assertXor(as3lib.Number(1.0), asrt_1)
+      self.assertXor(Number(1.0), asrt_1)
 
-      self.assertXor(as3lib.Number(-1.0), asrt_n1)
+      self.assertXor(Number(-1.0), asrt_n1)
 
-      self.assertXor(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertXor(Number(0xFF1306), asrt_16716550)
 
-      self.assertXor(as3lib.Object(), asrt_0)
-      self.assertXor(as3lib.String('0.0'), asrt_0)
-      self.assertXor(as3lib.String('NaN'), asrt_0)
-      self.assertXor(as3lib.String('-0.0'), asrt_0)
-      self.assertXor(as3lib.String('Infinity'), asrt_0)
+      self.assertXor(Object(), asrt_0)
+      self.assertXor(String('0.0'), asrt_0)
+      self.assertXor(String('NaN'), asrt_0)
+      self.assertXor(String('-0.0'), asrt_0)
+      self.assertXor(String('Infinity'), asrt_0)
 
-      self.assertXor(as3lib.String('1.0'), asrt_1)
+      self.assertXor(String('1.0'), asrt_1)
 
-      self.assertXor(as3lib.String('-1.0'), asrt_n1)
+      self.assertXor(String('-1.0'), asrt_n1)
 
-      self.assertXor(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertXor(String('0xFF1306'), asrt_16716550)
 
 
 class BooleanTests(as3libTestCase):
    def test_constructor(self):
-      self.assertFalse(as3lib.Boolean())
-      self.assertTrue(as3lib.Boolean(true))
-      self.assertTrue(as3lib.Boolean(True))
-      self.assertFalse(as3lib.Boolean(false))
-      self.assertFalse(as3lib.Boolean(False))
-      self.assertFalse(as3lib.Boolean(null))
-      self.assertFalse(as3lib.Boolean(undefined))
-      self.assertFalse(as3lib.Boolean(as3lib.String('')))
-      self.assertFalse(as3lib.Boolean(''))
-      self.assertTrue(as3lib.Boolean(as3lib.String('str')))
-      self.assertTrue(as3lib.Boolean('str'))
-      self.assertTrue(as3lib.Boolean(as3lib.String('true')))
-      self.assertTrue(as3lib.Boolean('true'))
-      self.assertTrue(as3lib.Boolean(as3lib.String('false')))
-      self.assertTrue(as3lib.Boolean('false'))
-      self.assertFalse(as3lib.Boolean(as3lib.Number(0.0)))
-      self.assertFalse(as3lib.Boolean(0.0))
-      self.assertFalse(as3lib.Boolean(as3lib.NaN))
-      self.assertFalse(as3lib.Boolean(as3lib.Number(-0.0)))
-      self.assertFalse(as3lib.Boolean(-0.0))
-      self.assertTrue(as3lib.Boolean(as3lib.Infinity))
-      self.assertTrue(as3lib.Boolean(as3lib.Number(1.0)))
-      self.assertTrue(as3lib.Boolean(1.0))
-      self.assertTrue(as3lib.Boolean(as3lib.Number(-1.0)))
-      self.assertTrue(as3lib.Boolean(-1.0))
-      self.assertTrue(as3lib.Boolean(as3lib.Object()))
+      self.assertFalse(Boolean())
+      self.assertTrue(Boolean(true))
+      self.assertTrue(Boolean(True))
+      self.assertFalse(Boolean(false))
+      self.assertFalse(Boolean(False))
+      self.assertFalse(Boolean(null))
+      self.assertFalse(Boolean(undefined))
+      self.assertFalse(Boolean(String('')))
+      self.assertFalse(Boolean(''))
+      self.assertTrue(Boolean(String('str')))
+      self.assertTrue(Boolean('str'))
+      self.assertTrue(Boolean(String('true')))
+      self.assertTrue(Boolean('true'))
+      self.assertTrue(Boolean(String('false')))
+      self.assertTrue(Boolean('false'))
+      self.assertFalse(Boolean(Number(0.0)))
+      self.assertFalse(Boolean(0.0))
+      self.assertFalse(Boolean(NaN))
+      self.assertFalse(Boolean(Number(-0.0)))
+      self.assertFalse(Boolean(-0.0))
+      self.assertTrue(Boolean(Infinity))
+      self.assertTrue(Boolean(Number(1.0)))
+      self.assertTrue(Boolean(1.0))
+      self.assertTrue(Boolean(Number(-1.0)))
+      self.assertTrue(Boolean(-1.0))
+      self.assertTrue(Boolean(Object()))
 
    def test_negation(self):
       self.assertFalse(not true)
       self.assertTrue(not false)
       self.assertTrue(not null)
       self.assertTrue(not undefined)
-      self.assertTrue(not as3lib.String(''))
-      self.assertFalse(not as3lib.String('str'))
-      self.assertFalse(not as3lib.String('true'))
-      self.assertFalse(not as3lib.String('false'))
-      self.assertTrue(not as3lib.Number(0.0))
-      self.assertTrue(not as3lib.NaN)
-      self.assertTrue(not as3lib.Number(-0.0))
-      self.assertFalse(not as3lib.Infinity)
-      self.assertFalse(not as3lib.Number(1.0))
-      self.assertFalse(not as3lib.Number(-1.0))
-      self.assertFalse(not as3lib.Object())
+      self.assertTrue(not String(''))
+      self.assertFalse(not String('str'))
+      self.assertFalse(not String('true'))
+      self.assertFalse(not String('false'))
+      self.assertTrue(not Number(0.0))
+      self.assertTrue(not NaN)
+      self.assertTrue(not Number(-0.0))
+      self.assertFalse(not Infinity)
+      self.assertFalse(not Number(1.0))
+      self.assertFalse(not Number(-1.0))
+      self.assertFalse(not Object())
 
    def test_toString(self):
       # TODO: Make sure assertIs is correct here
@@ -1108,32 +1111,32 @@ class DateTests(as3libTestCase):
          self.assertEqual(obj.millisecondsUTC, milliseconds)
 
    def assertParsed(self, string, useUTC, *args):
-      milliseconds = as3lib.Date.parse(string)
+      milliseconds = Date.parse(string)
       if as3lib.isNaN(milliseconds) or milliseconds is None:
          self.fail('Date.parse returned NaN')
-      newdate = as3lib.Date(milliseconds)
+      newdate = Date(milliseconds)
       if useUTC:
          self.assertDateUTC(newdate, *args)
       else:
          self.assertDate(newdate, *args)
 
    def assertNotParsed(self, string):
-      milliseconds = as3lib.Date.parse(string)
+      milliseconds = Date.parse(string)
       if not as3lib.isNaN(milliseconds) and milliseconds is not None:
          self.fail('Date.parse returned valid date when it wasn\'t supposed to')
 
    def test_timestamp(self):
-      date = as3lib.Date(929156400000)
+      date = Date(929156400000)
 
       self.assertDateUTC(date, 1999, 5, 12, 6, 3, 0, 0)
 
    def test_arguements(self):
-      date = as3lib.Date(2021, 7, 29, 4, 22, 55, 11)
+      date = Date(2021, 7, 29, 4, 22, 55, 11)
 
       self.assertDate(date, 2021, 7, 29, 0, 4, 22, 55, 11)
 
    def test_invalid_string(self):
-      date = as3lib.Date('12')
+      date = Date('12')
 
       self.assertNaN(date.fullYear)
       self.assertNaN(date.month)
@@ -1144,25 +1147,25 @@ class DateTests(as3libTestCase):
       self.assertNaN(date.seconds)
 
    def test_object_aruement(self):
-      o = as3lib.Object()
+      o = Object()
 
       def valueOf():
          return 929156400000
 
       o.valueOf = valueOf
-      date = as3lib.Date(o)
+      date = Date(o)
 
       self.assertDateUTC(date, 1999, 5, 12, 6, 3, 0, 0)
 
    def test_invalid_object_aruement(self):
       # TODO: Make Date accept objects
-      o = as3lib.Object()
+      o = Object()
 
       def valueOf():
          return "Tue Feb 1 05:12:30 2005"
 
       o.valueOf = valueOf
-      date = as3lib.Date(o)
+      date = Date(o)
 
       self.assertNaN(date.fullYear)
       self.assertNaN(date.month)
@@ -1173,13 +1176,13 @@ class DateTests(as3libTestCase):
       self.assertNaN(date.seconds)
 
    def test_string_arguement(self):
-      date = as3lib.Date("Tue Feb 1 05:12:30 2005")
+      date = Date("Tue Feb 1 05:12:30 2005")
 
       self.assertDate(date, 2005, 1, 1, 2, 5, 12, 30)
 
    def test_setting_values(self):
       # TODO: test UTC properties
-      date = as3lib.Date(0)
+      date = Date(0)
 
       date.fullYear = 2000
       self.assertEqual(date.fullYear, 2000)
@@ -1206,7 +1209,7 @@ class DateTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_properties_with_NaN(self):
-      date = as3lib.Date(as3lib.NaN)
+      date = Date(NaN)
 
       self.assertisNaN(date.fullYear)
       self.assertisNaN(date.month)
@@ -1221,7 +1224,7 @@ class DateTests(as3libTestCase):
 
       self.assertDate(date, 1999, 0, 1, 5, 0, 0, 0)
 
-      date.time = as3lib.NaN
+      date.time = NaN
       date.fullYearUTC = 2004
 
       self.assertDateUTC(date, 2004, 0, 1, 4, 0, 0, 0)
@@ -1301,7 +1304,7 @@ class FunctionTests(as3libTestCase):
       input = 'test'
       self.assertEqual(fn(input), check[4])
 
-      input = "!\"£$%^&*()1234567890qwertyuiop[]asdfghjkl;'#\zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:@~|ZXCVBNM<>?\u0010"
+      input = "!\"£$%^&*()1234567890qwertyuiop[]asdfghjkl;'#\\zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:@~|ZXCVBNM<>?\u0010"
       self.assertEqual(fn(input), check[5])
 
       input = '\x05'
@@ -1331,54 +1334,54 @@ class FunctionTests(as3libTestCase):
    def test_isfinite(self):
       self.assertTrue(as3lib.isFinite(true))
       self.assertTrue(as3lib.isFinite(false))
-      self.assertTrue(as3lib.isFinite(as3lib.Number(10.0)))
+      self.assertTrue(as3lib.isFinite(Number(10.0)))
       self.assertTrue(as3lib.isFinite(10.0))
-      self.assertTrue(as3lib.isFinite(as3lib.Number(-10.0)))
+      self.assertTrue(as3lib.isFinite(Number(-10.0)))
       self.assertTrue(as3lib.isFinite(-10.0))
-      self.assertTrue(as3lib.isFinite(as3lib.Number(0.0)))
+      self.assertTrue(as3lib.isFinite(Number(0.0)))
       self.assertTrue(as3lib.isFinite(0.0))
-      self.assertFalse(as3lib.isFinite(as3lib.NaN))
-      self.assertFalse(as3lib.isFinite(as3lib.Infinity))
-      self.assertFalse(as3lib.isFinite(-as3lib.Infinity))
-      self.assertTrue(as3lib.isFinite(as3lib.String('')))
+      self.assertFalse(as3lib.isFinite(NaN))
+      self.assertFalse(as3lib.isFinite(Infinity))
+      self.assertFalse(as3lib.isFinite(-Infinity))
+      self.assertTrue(as3lib.isFinite(String('')))
       self.assertTrue(as3lib.isFinite(''))
-      self.assertFalse(as3lib.isFinite(as3lib.String('hello')))
+      self.assertFalse(as3lib.isFinite(String('hello')))
       self.assertFalse(as3lib.isFinite('hello'))
-      self.assertTrue(as3lib.isFinite(as3lib.String(' ')))
+      self.assertTrue(as3lib.isFinite(String(' ')))
       self.assertTrue(as3lib.isFinite(' '))
-      self.assertTrue(as3lib.isFinite(as3lib.String('  5  ')))
+      self.assertTrue(as3lib.isFinite(String('  5  ')))
       self.assertTrue(as3lib.isFinite('  5  '))
-      self.assertTrue(as3lib.isFinite(as3lib.String('0')))
+      self.assertTrue(as3lib.isFinite(String('0')))
       self.assertTrue(as3lib.isFinite('0'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('NaN')))
+      self.assertFalse(as3lib.isFinite(String('NaN')))
       self.assertFalse(as3lib.isFinite('NaN'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('Infinity')))
+      self.assertFalse(as3lib.isFinite(String('Infinity')))
       self.assertFalse(as3lib.isFinite('Infinity'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('-Infinity')))
+      self.assertFalse(as3lib.isFinite(String('-Infinity')))
       self.assertFalse(as3lib.isFinite('-Infinity'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('100a')))
+      self.assertFalse(as3lib.isFinite(String('100a')))
       self.assertFalse(as3lib.isFinite('100a'))
-      self.assertTrue(as3lib.isFinite(as3lib.String('0x10')))
+      self.assertTrue(as3lib.isFinite(String('0x10')))
       self.assertTrue(as3lib.isFinite('0x10'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('0xhello')))
+      self.assertFalse(as3lib.isFinite(String('0xhello')))
       self.assertFalse(as3lib.isFinite('0xhello'))
-      self.assertTrue(as3lib.isFinite(as3lib.String('0x1999999981ffffff')))
+      self.assertTrue(as3lib.isFinite(String('0x1999999981ffffff')))
       self.assertTrue(as3lib.isFinite('0x1999999981ffffff'))
-      self.assertFalse(as3lib.isFinite(as3lib.String('0xUIXUIDFKHJDF012345678')))
+      self.assertFalse(as3lib.isFinite(String('0xUIXUIDFKHJDF012345678')))
       self.assertFalse(as3lib.isFinite('0xUIXUIDFKHJDF012345678'))
-      self.assertTrue(as3lib.isFinite(as3lib.String('123e-1')))
+      self.assertTrue(as3lib.isFinite(String('123e-1')))
       self.assertTrue(as3lib.isFinite('123e-1'))
       self.assertFalse(as3lib.isFinite())
 
    def test_isNaN(self):
       self.assertFalse(as3lib.isNaN(true))
       self.assertFalse(as3lib.isNaN(false))
-      self.assertFalse(as3lib.isNaN(as3lib.Number(10.0)))
-      self.assertFalse(as3lib.isNaN(as3lib.Number(-10.0)))
-      self.assertFalse(as3lib.isNaN(as3lib.Number(0.0)))
-      self.assertTrue(as3lib.isNaN(as3lib.NaN))
-      self.assertFalse(as3lib.isNaN(as3lib.Infinity))
-      self.assertFalse(as3lib.isNaN(as3lib.NInfinity))
+      self.assertFalse(as3lib.isNaN(Number(10.0)))
+      self.assertFalse(as3lib.isNaN(Number(-10.0)))
+      self.assertFalse(as3lib.isNaN(Number(0.0)))
+      self.assertTrue(as3lib.isNaN(NaN))
+      self.assertFalse(as3lib.isNaN(Infinity))
+      self.assertFalse(as3lib.isNaN(-Infinity))
       self.assertFalse(as3lib.isNaN(''))
       self.assertTrue(as3lib.isNaN('hello'))
       self.assertFalse(as3lib.isNaN(' '))
@@ -1399,83 +1402,83 @@ class FunctionTests(as3libTestCase):
       self.assertNaN(as3lib.parseFloat())
 
       # integer
-      self.assertEqual(as3lib.parseFloat('12345'), as3lib.Number(12345))
+      self.assertEqual(as3lib.parseFloat('12345'), Number(12345))
 
       # decimal point
-      self.assertEqual(as3lib.parseFloat('012345.67890'), as3lib.Number(012345.6789))
+      self.assertEqual(as3lib.parseFloat('012345.67890'), Number(012345.6789))
 
       # ignore leading/trailing whitespace
-      self.assertEqual(as3lib.parseFloat(" \t\r\n99999.99999\t\r\n      "), as3lib.Number(99999.99999))
+      self.assertEqual(as3lib.parseFloat(" \t\r\n99999.99999\t\r\n      "), Number(99999.99999))
 
       # long numbers (more than 15 digits)
-      self.assertEqual(as3lib.parseFloat('-22222222222222222'), as3lib.Number(-22222222222222224))
-      self.assertEqual(as3lib.parseFloat('-22222222.222222222'), as3lib.Number(-22222222.222222224))
+      self.assertEqual(as3lib.parseFloat('-22222222222222222'), Number(-22222222222222224))
+      self.assertEqual(as3lib.parseFloat('-22222222.222222222'), Number(-22222222.222222224))
 
       # subnormal number
       self.assertEqual(as3lib.parseFloat('.0000000000000000000000005').toString(), '4.999999999999999e-25')
 
       # ignore trailing garbage
-      self.assertEqual(as3lib.parseFloat("0000.12345GIBBERISH"), as3lib.Number(0.12345))
+      self.assertEqual(as3lib.parseFloat("0000.12345GIBBERISH"), Number(0.12345))
 
       # exponent
-      self.assertEqual(as3lib.parseFloat("9e99999"), as3lib.Infinity)
+      self.assertEqual(as3lib.parseFloat("9e99999"), Infinity)
       self.assertEqual(as3lib.parseFloat("+100e-100").toString(), '0.999999999999999e-98')
       self.assertEqual(as3lib.parseFloat("-123.234E+66").toString(), '-1.23234e+68')
-      self.assertEqual(as3lib.parseFloat(".2E20E1"), as3lib.Number(20000000000000000000))
-      self.assertEqual(as3lib.parseFloat("-034.1+e20"), as3lib.Number(-34.1))
-      self.assertEqual(as3lib.parseFloat("10e"), as3lib.Number(10))
+      self.assertEqual(as3lib.parseFloat(".2E20E1"), Number(20000000000000000000))
+      self.assertEqual(as3lib.parseFloat("-034.1+e20"), Number(-34.1))
+      self.assertEqual(as3lib.parseFloat("10e"), Number(10))
       self.assertNaN(as3lib.parseFloat("e10"))
       self.assertNaN(as3lib.parseFloat("10e-"))
 
       # exponent overflow
-      self.assertEqual(as3lib.parseFloat("1e4294967297"), as3lib.Number(10))
-      self.assertEqual(as3lib.parseFloat("1e2147483648"), as3lib.Number(0))
-      self.assertEqual(as3lib.parseFloat("1e-2147483648"), as3lib.Number(0))
+      self.assertEqual(as3lib.parseFloat("1e4294967297"), Number(10))
+      self.assertEqual(as3lib.parseFloat("1e2147483648"), Number(0))
+      self.assertEqual(as3lib.parseFloat("1e-2147483648"), Number(0))
 
       # multiple dots
-      self.assertEqual(as3lib.parseFloat("1.2345.678"), as3lib.Number(1.2345))
-      self.assertEqual(as3lib.parseFloat("1.2345.6e50"), as3lib.Number(1.2345))
+      self.assertEqual(as3lib.parseFloat("1.2345.678"), Number(1.2345))
+      self.assertEqual(as3lib.parseFloat("1.2345.6e50"), Number(1.2345))
 
       # infinity
-      self.assertEqual(as3lib.parseFloat('Infinity'), as3lib.Infinity)
-      self.assertEqual(as3lib.parseFloat('-Infinity'), as3lib.NInfinity)
-      self.assertEqual(as3lib.parseFloat('+Infinity'), as3lib.Infinity)
+      self.assertEqual(as3lib.parseFloat('Infinity'), Infinity)
+      self.assertEqual(as3lib.parseFloat('-Infinity'), -Infinity)
+      self.assertEqual(as3lib.parseFloat('+Infinity'), Infinity)
       self.assertNaN(as3lib.parseFloat('Infinitya'))
-      self.assertEqual(as3lib.parseFloat('Infinity   a'), as3lib.Infinity)
-      self.assertEqual(as3lib.parseFloat(".   Infinity"), as3lib.Infinity)
-      self.assertEqual(as3lib.parseFloat("e10   Infinity"), as3lib.Infinity)
-      self.assertEqual(as3lib.parseFloat(".e10   Infinity"), as3lib.Infinity)
-      self.assertEqual(as3lib.parseFloat("1   Infinity"), as3lib.Number(1))
+      self.assertEqual(as3lib.parseFloat('Infinity   a'), Infinity)
+      self.assertEqual(as3lib.parseFloat(".   Infinity"), Infinity)
+      self.assertEqual(as3lib.parseFloat("e10   Infinity"), Infinity)
+      self.assertEqual(as3lib.parseFloat(".e10   Infinity"), Infinity)
+      self.assertEqual(as3lib.parseFloat("1   Infinity"), Number(1))
 
       # invalid strings
       self.assertNaN(as3lib.parseFloat("BADBAD"))
       self.assertNaN(as3lib.parseFloat(''))
       self.assertNaN(as3lib.parseFloat('-'))
-      self.assertEqual(as3lib.parseFloat('0xff'), as3lib.Number(0))
-      self.assertNaN(as3lib.parseFloat(as3lib.String.fromCharCode(305)))
+      self.assertEqual(as3lib.parseFloat('0xff'), Number(0))
+      self.assertNaN(as3lib.parseFloat(String.fromCharCode(305)))
 
       # non-string inputs
       #  Booleans
       self.assertNaN(as3lib.parseFloat(true))
       #  Numbers
-      self.assertEqual(as3lib.parseFloat(1.2), as3lib.Number(1.2))
+      self.assertEqual(as3lib.parseFloat(1.2), Number(1.2))
       #  Infinity objects
-      self.assertEqual(as3lib.parseFloat(as3lib.Infinity), as3lib.Infinity)
+      self.assertEqual(as3lib.parseFloat(Infinity), Infinity)
       #  Function that returns a string
-      self.assertEqual(as3lib.parseFloat(lambda: '5'), as3lib.Number(5))
+      self.assertEqual(as3lib.parseFloat(lambda: '5'), Number(5))
       #  Class with toString method
 
       class C:
          def toString():
             return '6'
 
-      self.assertEqual(as3lib.parseFloat(C()), as3lib.Number(6))
+      self.assertEqual(as3lib.parseFloat(C()), Number(6))
 
    def test_parseInt(self):
       self.assertNaN(as3lib.parseInt())
       self.assertNaN(as3lib.parseInt(undefined))
       self.assertEqual(as3lib.parseInt(undefined, 32), as3lib.Int(785077))
-      self.assertEqual(as3lib.parseInt('undefined', 32), as3lib.Int(33790067563981))
+      self.assertEqual(as3lib.parseInt('undefined', 32), 33790067563981)
       self.assertNaN(as3lib.parseInt(''))
       self.assertEqual(as3lib.parseInt('123'), as3lib.Int(123))
       self.assertEqual(as3lib.parseInt('100', 10), as3lib.Int(100))
@@ -1485,10 +1488,10 @@ class FunctionTests(as3libTestCase):
       self.assertEqual(as3lib.parseInt('100', 36), as3lib.Int(1296))
       self.assertNaN(as3lib.parseInt('100', 37))
       self.assertNaN(as3lib.parseInt('100', -1))
-      self.assertEqual(as3lib.parseInt('100', as3lib.Object()), as3lib.Int(100))
+      self.assertEqual(as3lib.parseInt('100', Object()), as3lib.Int(100))
       self.assertNaN(as3lib.parseInt('100', true))
       self.assertEqual(as3lib.parseInt('100', false), as3lib.Int(100))
-      self.assertEqual(as3lib.parseInt('100', as3lib.NaN), as3lib.Int(100))
+      self.assertEqual(as3lib.parseInt('100', NaN), as3lib.Int(100))
       self.assertEqual(as3lib.parseInt('100', undefined), as3lib.Int(100))
       self.assertEqual(as3lib.parseInt('0x123'), as3lib.Int(291))
       self.assertEqual(as3lib.parseInt('0xabc'), as3lib.Int(2748))
@@ -1530,16 +1533,18 @@ class FunctionTests(as3libTestCase):
       self.assertEqual(as3lib.parseInt('0x12'), as3lib.Int(18))
       self.assertEqual(as3lib.parseInt('0x12', 16), as3lib.Int(18))
       self.assertEqual(as3lib.parseInt('0x12', 16.1), as3lib.Int(18))
-      self.assertEqual(as3lib.parseInt('0x12', as3lib.NaN), as3lib.Int(18))
+      self.assertEqual(as3lib.parseInt('0x12', NaN), as3lib.Int(18))
       self.assertNaN(as3lib.parseInt('0x  '))
       self.assertNaN(as3lib.parseInt('0x'))
       self.assertNaN(as3lib.parseInt('0x  ', 16))
       self.assertNaN(as3lib.parseInt('0x', 16))
       self.assertEqual(as3lib.parseInt('12aaa'), as3lib.Int(12))
-      self.assertEqual(as3lib.parseInt("100000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), as3lib.Infinity)
-      self.assertEqual(as3lib.parseInt("0x1000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), as3lib.Infinity)
-      self.assertNaN(as3lib.parseInt(as3lib.String.fromCharCode(305)))
-      self.assertEqual(as3lib.parseInt(as3lib.String.fromCharCode(0x2000) + "123"), as3lib.Int(123))
+      self.assertEqual(as3lib.parseInt("100000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
+      self.assertEqual(as3lib.parseInt("0x1000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
+      self.assertNaN(as3lib.parseInt(String.fromCharCode(305)))
+      self.assertEqual(as3lib.parseInt(String.fromCharCode(0x2000) + "123"), as3lib.Int(123))
+
+      #self.assertEqual(as3lib.parseInt('1.2315e2'), as3lib.Int(123))
 
    def test_trace(self):
       raise TestNotImplemented
@@ -1572,65 +1577,65 @@ class GlobalsTests(as3libTestCase):
       self.assertTrue(not false)
       self.assertTrue(not null)
       self.assertTrue(not undefined)
-      self.assertTrue(not as3lib.String(''))
-      self.assertFalse(not as3lib.String('str'))
-      self.assertFalse(not as3lib.String('true'))
-      self.assertFalse(not as3lib.String('false'))
-      self.assertTrue(not as3lib.Number(0.0))
-      self.assertTrue(not as3lib.NaN)
-      self.assertTrue(not as3lib.Number(-0.0))
-      self.assertFalse(not as3lib.Infinity)
-      self.assertFalse(not as3lib.Number(1.0))
-      self.assertFalse(not as3lib.Number(-1.0))
-      self.assertFalse(not as3lib.Object())
+      self.assertTrue(not String(''))
+      self.assertFalse(not String('str'))
+      self.assertFalse(not String('true'))
+      self.assertFalse(not String('false'))
+      self.assertTrue(not Number(0.0))
+      self.assertTrue(not NaN)
+      self.assertTrue(not Number(-0.0))
+      self.assertFalse(not Infinity)
+      self.assertFalse(not Number(1.0))
+      self.assertFalse(not Number(-1.0))
+      self.assertFalse(not Object())
 
    def test_undefined(self):
       # From https://github.com/ruffle-rs/ruffle/tree/master/tests/tests/swfs/from_shumway/avm1/undefined/undefined-swf7
       self.assertEqual(undefined.toString(), 'undefined')
       self.assertNaN(-undefined)  # TODO: Validate this one
       self.assertTrue(not undefined)
-      self.assertEqual(as3lib.String('s') + undefined, 'sundefined')
-      self.assertEqual(undefined + as3lib.String('s'), 'undefineds')
-      self.assertNaN(as3lib.Number(0) + undefined)
-      self.assertNaN(undefined + as3lib.Number(0))
-      self.assertNotEqual(as3lib.String('undefined'), undefined)
-      self.assertNotEqual(undefined, as3lib.String('undefined'))
-      self.assertFalse(as3lib.Number(0) == undefined)
-      self.assertFalse(undefined == as3lib.Number(0))
-      self.assertFalse(as3lib.Number(1) == undefined)
-      self.assertFalse(undefined == as3lib.Number(1))
+      self.assertEqual(String('s') + undefined, 'sundefined')
+      self.assertEqual(undefined + String('s'), 'undefineds')
+      self.assertNaN(Number(0) + undefined)
+      self.assertNaN(undefined + Number(0))
+      self.assertNotEqual(String('undefined'), undefined)
+      self.assertNotEqual(undefined, String('undefined'))
+      self.assertFalse(Number(0) == undefined)
+      self.assertFalse(undefined == Number(0))
+      self.assertFalse(Number(1) == undefined)
+      self.assertFalse(undefined == Number(1))
       # trace("\'undefined\' < undefined => " + ("undefined" < undefined));
       # trace("undefined < \'undefined\' => " + (undefined < "undefined"));
       # 'undefined' < undefined => undefined
       # undefined < 'undefined' => undefined
-      self.assertEqual(as3lib.Number(0) < undefined, undefined)
-      self.assertEqual(undefined < as3lib.Number(0), undefined)
-      self.assertEqual(as3lib.Number(1) < undefined, undefined)
-      self.assertEqual(undefined < as3lib.Number(1), undefined)
+      self.assertEqual(Number(0) < undefined, undefined)
+      self.assertEqual(undefined < Number(0), undefined)
+      self.assertEqual(Number(1) < undefined, undefined)
+      self.assertEqual(undefined < Number(1), undefined)
       # trace("\'undefined\' <= undefined => " + ("undefined" <= undefined));
       # trace("undefined <= \'undefined\' => " + (undefined <= "undefined"));
       # 'undefined' <= undefined => true
       # undefined <= 'undefined' => true
-      self.assertTrue(as3lib.Number(0) <= undefined)
-      self.assertTrue(undefined <= as3lib.Number(0))
-      self.assertTrue(as3lib.Number(1) <= undefined)
-      self.assertTrue(undefined <= as3lib.Number(1))
+      self.assertTrue(Number(0) <= undefined)
+      self.assertTrue(undefined <= Number(0))
+      self.assertTrue(Number(1) <= undefined)
+      self.assertTrue(undefined <= Number(1))
       # trace("\'undefined\' > undefined => " + ("undefined" > undefined));
       # trace("undefined > \'undefined\' => " + (undefined > "undefined"));
       # 'undefined' > undefined => undefined
       # undefined > 'undefined' => undefined
-      self.assertEqual(as3lib.Number(0) > undefined, undefined)
-      self.assertEqual(undefined > as3lib.Number(0), undefined)
-      self.assertEqual(as3lib.Number(1) > undefined, undefined)
-      self.assertEqual(undefined > as3lib.Number(1), undefined)
+      self.assertEqual(Number(0) > undefined, undefined)
+      self.assertEqual(undefined > Number(0), undefined)
+      self.assertEqual(Number(1) > undefined, undefined)
+      self.assertEqual(undefined > Number(1), undefined)
       # trace("\'undefined\' >= undefined => " + ("undefined" >= undefined));
       # trace("undefined >= \'undefined\' => " + (undefined >= "undefined"));
       # 'undefined' >= undefined => true
       # undefined >= 'undefined' => true
-      self.assertTrue(as3lib.Number(0) >= undefined)
-      self.assertTrue(undefined >= as3lib.Number(0))
-      self.assertTrue(as3lib.Number(1) >= undefined)
-      self.assertTrue(undefined >= as3lib.Number(1))
+      self.assertTrue(Number(0) >= undefined)
+      self.assertTrue(undefined >= Number(0))
+      self.assertTrue(Number(1) >= undefined)
+      self.assertTrue(undefined >= Number(1))
 
    def test_null(self):
       raise TestNotImplemented
@@ -1647,7 +1652,7 @@ class GlobalsTests(as3libTestCase):
       self.assertLength(Namespace, 2)
       self.assertLength(ReferenceError, 1)
       self.assertLength(DefinitionError, 1)
-      self.assertLength(ArumentError, 1)
+      self.assertLength(ArgumentError, 1)
       self.assertLength(SyntaxError, 1)
       self.assertLength(VerifyError, 1)
       self.assertLength(SecurityError, 1)
@@ -1731,24 +1736,24 @@ class intTests(NumberTestsBase):
       self.assertEqual(as3lib.Int(null), 0)
       self.assertEqual(as3lib.Int(undefined), 0)
 
-      self.assertEqual(as3lib.Int(as3lib.String('')), 0)
+      self.assertEqual(as3lib.Int(String('')), 0)
       self.assertEqual(as3lib.Int(''), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('str')), 0)
+      self.assertEqual(as3lib.Int(String('str')), 0)
       self.assertEqual(as3lib.Int('str'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('true')), 0)
+      self.assertEqual(as3lib.Int(String('true')), 0)
       self.assertEqual(as3lib.Int('true'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('false')), 0)
+      self.assertEqual(as3lib.Int(String('false')), 0)
       self.assertEqual(as3lib.Int('false'), 0)
 
-      self.assertEqual(as3lib.Int(as3lib.Number(0.0)), 0)
+      self.assertEqual(as3lib.Int(Number(0.0)), 0)
       self.assertEqual(as3lib.Int(0.0), 0)
-      self.assertEqual(as3lib.Int(as3lib.NaN), 0)
-      self.assertEqual(as3lib.Int(as3lib.Number(-0.0)), 0)
+      self.assertEqual(as3lib.Int(NaN), 0)
+      self.assertEqual(as3lib.Int(Number(-0.0)), 0)
       self.assertEqual(as3lib.Int(-0.0), 0)
-      self.assertEqual(as3lib.Int(as3lib.Infinity), 0)
-      self.assertEqual(as3lib.Int(as3lib.Number(1.0)), 1)
+      self.assertEqual(as3lib.Int(Infinity), 0)
+      self.assertEqual(as3lib.Int(Number(1.0)), 1)
       self.assertEqual(as3lib.Int(1.0), 1)
-      self.assertEqual(as3lib.Int(as3lib.Number(-1.0)), -1)
+      self.assertEqual(as3lib.Int(Number(-1.0)), -1)
       self.assertEqual(as3lib.Int(-1.0), -1)
 
       self.assertEqual(as3lib.Int(0xFF1306), 16716550)
@@ -1765,50 +1770,49 @@ class intTests(NumberTestsBase):
       self.assertEqual(as3lib.Int(-0x100000001), -1)
 
       # Parse Tests
-      self.assertEqual(as3lib.Int(as3lib.String('0.0')), 0)
+      self.assertEqual(as3lib.Int(String('0.0')), 0)
       self.assertEqual(as3lib.Int('0.0'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('NaN')), 0)
+      self.assertEqual(as3lib.Int(String('NaN')), 0)
       self.assertEqual(as3lib.Int('NaN'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('-0.0')), 0)
+      self.assertEqual(as3lib.Int(String('-0.0')), 0)
       self.assertEqual(as3lib.Int('-0.0'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('Infinity')), 0)
+      self.assertEqual(as3lib.Int(String('Infinity')), 0)
       self.assertEqual(as3lib.Int('Infinity'), 0)
-      self.assertEqual(as3lib.Int(as3lib.String('1.0')), 1)
+      self.assertEqual(as3lib.Int(String('1.0')), 1)
       self.assertEqual(as3lib.Int('1.0'), 1)
-      self.assertEqual(as3lib.Int(as3lib.String('-1.0')), -1)
+      self.assertEqual(as3lib.Int(String('-1.0')), -1)
       self.assertEqual(as3lib.Int('-1.0'), -1)
-      self.assertEqual(as3lib.Int(as3lib.String('0xFF1306')), 16716550)
+      self.assertEqual(as3lib.Int(String('0xFF1306')), 16716550)
       self.assertEqual(as3lib.Int('0xFF1306'), 16716550)
-      self.assertEqual(as3lib.Int(as3lib.String('1.2315e2')), 123)
+      self.assertEqual(as3lib.Int(String('1.2315e2')), 123)
       self.assertEqual(as3lib.Int('1.2315e2'), 123)
-      self.assertEqual(as3lib.Int(as3lib.String('0x7FFFFFFF')), 2147483647)
+      self.assertEqual(as3lib.Int(String('0x7FFFFFFF')), 2147483647)
       self.assertEqual(as3lib.Int('0x7FFFFFFF'), 2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('0x80000000')), -2147483648)
+      self.assertEqual(as3lib.Int(String('0x80000000')), -2147483648)
       self.assertEqual(as3lib.Int('0x80000000'), -2147483648)
-      self.assertEqual(as3lib.Int(as3lib.String('0x80000001')), -2147483647)
+      self.assertEqual(as3lib.Int(String('0x80000001')), -2147483647)
       self.assertEqual(as3lib.Int('0x80000001'), -2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('0x180000001')), -2147483647)
+      self.assertEqual(as3lib.Int(String('0x180000001')), -2147483647)
       self.assertEqual(as3lib.Int('0x180000001'), -2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('0x100000001')), 1)
+      self.assertEqual(as3lib.Int(String('0x100000001')), 1)
       self.assertEqual(as3lib.Int('0x100000001'), 1)
-      self.assertEqual(as3lib.Int(as3lib.String('-0x7FFFFFFF')), -2147483647)
+      self.assertEqual(as3lib.Int(String('-0x7FFFFFFF')), -2147483647)
       self.assertEqual(as3lib.Int('-0x7FFFFFFF'), -2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('-0x80000000')), -2147483648)
+      self.assertEqual(as3lib.Int(String('-0x80000000')), -2147483648)
       self.assertEqual(as3lib.Int('-0x80000000'), -2147483648)
-      self.assertEqual(as3lib.Int(as3lib.String('-0x80000001')), 2147483647)
+      self.assertEqual(as3lib.Int(String('-0x80000001')), 2147483647)
       self.assertEqual(as3lib.Int('-0x80000001'), 2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('-0x180000001')), 2147483647)
+      self.assertEqual(as3lib.Int(String('-0x180000001')), 2147483647)
       self.assertEqual(as3lib.Int('-0x180000001'), 2147483647)
-      self.assertEqual(as3lib.Int(as3lib.String('-0x100000001')), -1)
+      self.assertEqual(as3lib.Int(String('-0x100000001')), -1)
       self.assertEqual(as3lib.Int('-0x100000001'), -1)
 
-      self.assertEqual(as3lib.Int(as3lib.Object()), 0)
+      self.assertEqual(as3lib.Int(Object()), 0)
 
    def test_edge_cases(self):
       raise TestNotImplemented
       # uint doesn't exist
-      # trace(getQualifiedClassName(1 as uint));
-      # 2026-01-06T18:24:19.825440Z  INFO avm_trace: int
+      # self.assertEqual(getQualifiedClassName(uint(1)), 'int')
       # trace((1 as uint) is uint);
       # 2026-01-06T18:24:19.825443Z  INFO avm_trace: true
       # trace(getQualifiedClassName(new uint()));
@@ -1817,16 +1821,16 @@ class intTests(NumberTestsBase):
       # Int overflow => Number
       self.assertType(as3lib.Int(268435454), as3lib.Int)
       self.assertType(as3lib.Int(268435454 + 1), as3lib.Int)
-      self.assertType(as3lib.Int(268435454 + 2), as3lib.Number)
+      self.assertType(as3lib.Int(268435454 + 2), Number)
 
       # Int underflow => Number
       self.assertType(as3lib.Int(-268435454), as3lib.Int)
       self.assertType(as3lib.Int(-268435454 - 1), as3lib.Int)
       self.assertType(as3lib.Int(-268435454 - 2), as3lib.Int)
-      self.assertType(as3lib.Int(-268435454 - 3), as3lib.Number)
+      self.assertType(as3lib.Int(-268435454 - 3), Number)
 
       # properties declared 'uint' don't underflow at 0
-      self.assertEqual(as3lib.Array().length - 1, -1)
+      self.assertEqual(Array().length - 1, -1)
 
       # `as uint` also doesn't underflow, returns null"
       # var a = -1;
@@ -1894,108 +1898,108 @@ class intTests(NumberTestsBase):
       self.assertToExponential(null, asrt_0)
       self.assertToExponential(undefined, asrt_0)
 
-      self.assertToExponential(as3lib.String(''), asrt_0)
+      self.assertToExponential(String(''), asrt_0)
       self.assertToExponential('', asrt_0)
 
-      self.assertToExponential(as3lib.String('str'), asrt_0)
+      self.assertToExponential(String('str'), asrt_0)
       self.assertToExponential('str', asrt_0)
 
-      self.assertToExponential(as3lib.String('true'), asrt_0)
+      self.assertToExponential(String('true'), asrt_0)
       self.assertToExponential('true', asrt_0)
 
-      self.assertToExponential(as3lib.String('false'), asrt_0)
+      self.assertToExponential(String('false'), asrt_0)
       self.assertToExponential('false', asrt_0)
 
-      self.assertToExponential(as3lib.Number(0.0), asrt_0)
+      self.assertToExponential(Number(0.0), asrt_0)
       self.assertToExponential(0.0, asrt_0)
 
-      self.assertToExponential(as3lib.NaN, asrt_0)
+      self.assertToExponential(NaN, asrt_0)
 
-      self.assertToExponential(as3lib.Number(-0.0), asrt_0)
+      self.assertToExponential(Number(-0.0), asrt_0)
       self.assertToExponential(-0.0, asrt_0)
 
-      self.assertToExponential(as3lib.Infinity, asrt_0)
+      self.assertToExponential(Infinity, asrt_0)
 
-      self.assertToExponential(as3lib.Number(1.0), asrt_1)
+      self.assertToExponential(Number(1.0), asrt_1)
       self.assertToExponential(1.0, asrt_1)
 
-      self.assertToExponential(as3lib.Number(-1.0), asrt_n1)
+      self.assertToExponential(Number(-1.0), asrt_n1)
       self.assertToExponential(-1.0, asrt_n1)
 
-      self.assertToExponential(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToExponential(Number(0xFF1306), asrt_16716550)
       self.assertToExponential(0xFF1306, asrt_16716550)
 
-      self.assertToExponential(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToExponential(Number(1.2315e2), asrt_123)
       self.assertToExponential(1.2315e2, asrt_123)
 
-      self.assertToExponential(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(0x80000000), asrt_n2147483648)
+      self.assertToExponential(Number(0x80000000), asrt_n2147483648)
       self.assertToExponential(0x80000000, asrt_n2147483648)
 
-      self.assertToExponential(as3lib.Number(0x80000001), asrt_n2147483647)
+      self.assertToExponential(Number(0x80000001), asrt_n2147483647)
       self.assertToExponential(0x80000001, asrt_n2147483647)
 
-      self.assertToExponential(as3lib.Number(0x180000001), asrt_n2147483647)
+      self.assertToExponential(Number(0x180000001), asrt_n2147483647)
       self.assertToExponential(0x180000001, asrt_n2147483647)
 
-      self.assertToExponential(as3lib.Number(0x100000001), asrt_1)
+      self.assertToExponential(Number(0x100000001), asrt_1)
       self.assertToExponential(0x100000001, asrt_1)
 
-      self.assertToExponential(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
+      self.assertToExponential(Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToExponential(-0x7FFFFFFF, asrt_n2147483647)
 
-      self.assertToExponential(as3lib.Number(-0x80000000), asrt_n2147483648)
+      self.assertToExponential(Number(-0x80000000), asrt_n2147483648)
       self.assertToExponential(-0x80000000, asrt_n2147483648)
 
-      self.assertToExponential(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToExponential(Number(-0x80000001), asrt_2147483647)
       self.assertToExponential(-0x80000001, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToExponential(Number(-0x180000001), asrt_2147483647)
       self.assertToExponential(-0x180000001, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(-0x100000001), asrt_n1)
+      self.assertToExponential(Number(-0x100000001), asrt_n1)
       self.assertToExponential(-0x100000001, asrt_n1)
 
-      self.assertToExponential(as3lib.Object(), asrt_0)
+      self.assertToExponential(Object(), asrt_0)
 
       # Parse Tests
-      self.assertToExponential(as3lib.String('0.0'), asrt_0)
+      self.assertToExponential(String('0.0'), asrt_0)
       self.assertToExponential('0.0', asrt_0)
-      self.assertToExponential(as3lib.String('NaN'), asrt_0)
+      self.assertToExponential(String('NaN'), asrt_0)
       self.assertToExponential('NaN', asrt_0)
-      self.assertToExponential(as3lib.String('-0.0'), asrt_0)
+      self.assertToExponential(String('-0.0'), asrt_0)
       self.assertToExponential('-0.0', asrt_0)
-      self.assertToExponential(as3lib.String('Infinity'), asrt_0)
+      self.assertToExponential(String('Infinity'), asrt_0)
       self.assertToExponential('Infinity', asrt_0)
-      self.assertToExponential(as3lib.String('1.0'), asrt_1)
+      self.assertToExponential(String('1.0'), asrt_1)
       self.assertToExponential('1.0', asrt_1)
-      self.assertToExponential(as3lib.String('-1.0'), asrt_n1)
+      self.assertToExponential(String('-1.0'), asrt_n1)
       self.assertToExponential('-1.0', asrt_n1)
-      self.assertToExponential(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToExponential(String('0xFF1306'), asrt_16716550)
       self.assertToExponential('0xFF1306', asrt_16716550)
-      self.assertToExponential(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToExponential(String('1.2315e2'), asrt_123)
       self.assertToExponential('1.2315e2', asrt_123)
-      self.assertToExponential(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
-      self.assertToExponential(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToExponential(String('0x80000000'), asrt_n2147483648)
       self.assertToExponential('0x80000000', asrt_n2147483648)
-      self.assertToExponential(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToExponential(String('0x80000001'), asrt_n2147483647)
       self.assertToExponential('0x80000001', asrt_n2147483647)
-      self.assertToExponential(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToExponential(String('0x180000001'), asrt_n2147483647)
       self.assertToExponential('0x180000001', asrt_n2147483647)
-      self.assertToExponential(as3lib.String('0x100000001'), asrt_1)
+      self.assertToExponential(String('0x100000001'), asrt_1)
       self.assertToExponential('0x100000001', asrt_1)
-      self.assertToExponential(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToExponential(String('-0x7FFFFFFF'), asrt_n2147483647)
       self.assertToExponential('-0x7FFFFFFF', asrt_n2147483647)
-      self.assertToExponential(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToExponential(String('-0x80000000'), asrt_n2147483648)
       self.assertToExponential('-0x80000000', asrt_n2147483648)
-      self.assertToExponential(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToExponential(String('-0x80000001'), asrt_2147483647)
       self.assertToExponential('-0x80000001', asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToExponential(String('-0x180000001'), asrt_2147483647)
       self.assertToExponential('-0x180000001', asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToExponential(String('-0x100000001'), asrt_n1)
       self.assertToExponential('-0x100000001', asrt_n1)
 
    def assertToFixed(self, value, check):
@@ -2054,108 +2058,108 @@ class intTests(NumberTestsBase):
       self.assertToFixed(null, asrt_0)
       self.assertToFixed(undefined, asrt_0)
 
-      self.assertToFixed(as3lib.String(''), asrt_0)
+      self.assertToFixed(String(''), asrt_0)
       self.assertToFixed('', asrt_0)
 
-      self.assertToFixed(as3lib.String('str'), asrt_0)
+      self.assertToFixed(String('str'), asrt_0)
       self.assertToFixed('str', asrt_0)
 
-      self.assertToFixed(as3lib.String('true'), asrt_0)
+      self.assertToFixed(String('true'), asrt_0)
       self.assertToFixed('true', asrt_0)
 
-      self.assertToFixed(as3lib.String('false'), asrt_0)
+      self.assertToFixed(String('false'), asrt_0)
       self.assertToFixed('false', asrt_0)
 
-      self.assertToFixed(as3lib.Number(0.0), asrt_0)
+      self.assertToFixed(Number(0.0), asrt_0)
       self.assertToFixed(0.0, asrt_0)
 
-      self.assertToFixed(as3lib.NaN, asrt_0)
+      self.assertToFixed(NaN, asrt_0)
 
-      self.assertToFixed(as3lib.Number(-0.0), asrt_0)
+      self.assertToFixed(Number(-0.0), asrt_0)
       self.assertToFixed(-0.0, asrt_0)
 
-      self.assertToFixed(as3lib.Infinity, asrt_0)
+      self.assertToFixed(Infinity, asrt_0)
 
-      self.assertToFixed(as3lib.Number(1.0), asrt_1)
+      self.assertToFixed(Number(1.0), asrt_1)
       self.assertToFixed(1.0, asrt_1)
 
-      self.assertToFixed(as3lib.Number(-1.0), asrt_n1)
+      self.assertToFixed(Number(-1.0), asrt_n1)
       self.assertToFixed(-1.0, asrt_n1)
 
-      self.assertToFixed(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToFixed(Number(0xFF1306), asrt_16716550)
       self.assertToFixed(0xFF1306, asrt_16716550)
 
-      self.assertToFixed(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToFixed(Number(1.2315e2), asrt_123)
       self.assertToFixed(1.2315e2, asrt_123)
 
-      self.assertToFixed(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(0x80000000), asrt_n2147483648)
+      self.assertToFixed(Number(0x80000000), asrt_n2147483648)
       self.assertToFixed(0x80000000, asrt_n2147483648)
 
-      self.assertToFixed(as3lib.Number(0x80000001), asrt_n2147483647)
+      self.assertToFixed(Number(0x80000001), asrt_n2147483647)
       self.assertToFixed(0x80000001, asrt_n2147483647)
 
-      self.assertToFixed(as3lib.Number(0x180000001), asrt_n2147483647)
+      self.assertToFixed(Number(0x180000001), asrt_n2147483647)
       self.assertToFixed(0x180000001, asrt_n2147483647)
 
-      self.assertToFixed(as3lib.Number(0x100000001), asrt_1)
+      self.assertToFixed(Number(0x100000001), asrt_1)
       self.assertToFixed(0x100000001, asrt_1)
 
-      self.assertToFixed(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
+      self.assertToFixed(Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToFixed(-0x7FFFFFFF, asrt_n2147483647)
 
-      self.assertToFixed(as3lib.Number(-0x80000000), asrt_n2147483648)
+      self.assertToFixed(Number(-0x80000000), asrt_n2147483648)
       self.assertToFixed(-0x80000000, asrt_n2147483648)
 
-      self.assertToFixed(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToFixed(Number(-0x80000001), asrt_2147483647)
       self.assertToFixed(-0x80000001, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToFixed(Number(-0x180000001), asrt_2147483647)
       self.assertToFixed(-0x180000001, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(-0x100000001), asrt_n1)
+      self.assertToFixed(Number(-0x100000001), asrt_n1)
       self.assertToFixed(-0x100000001, asrt_n1)
 
-      self.assertToFixed(as3lib.Object(), asrt_0)
+      self.assertToFixed(Object(), asrt_0)
 
       # Parse Tests
-      self.assertToFixed(as3lib.String('0.0'), asrt_0)
+      self.assertToFixed(String('0.0'), asrt_0)
       self.assertToFixed('0.0', asrt_0)
-      self.assertToFixed(as3lib.String('NaN'), asrt_0)
+      self.assertToFixed(String('NaN'), asrt_0)
       self.assertToFixed('NaN', asrt_0)
-      self.assertToFixed(as3lib.String('-0.0'), asrt_0)
+      self.assertToFixed(String('-0.0'), asrt_0)
       self.assertToFixed('-0.0', asrt_0)
-      self.assertToFixed(as3lib.String('Infinity'), asrt_0)
+      self.assertToFixed(String('Infinity'), asrt_0)
       self.assertToFixed('Infinity', asrt_0)
-      self.assertToFixed(as3lib.String('1.0'), asrt_1)
+      self.assertToFixed(String('1.0'), asrt_1)
       self.assertToFixed('1.0', asrt_1)
-      self.assertToFixed(as3lib.String('-1.0'), asrt_n1)
+      self.assertToFixed(String('-1.0'), asrt_n1)
       self.assertToFixed('-1.0', asrt_n1)
-      self.assertToFixed(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToFixed(String('0xFF1306'), asrt_16716550)
       self.assertToFixed('0xFF1306', asrt_16716550)
-      self.assertToFixed(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToFixed(String('1.2315e2'), asrt_123)
       self.assertToFixed('1.2315e2', asrt_123)
-      self.assertToFixed(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
-      self.assertToFixed(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToFixed(String('0x80000000'), asrt_n2147483648)
       self.assertToFixed('0x80000000', asrt_n2147483648)
-      self.assertToFixed(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToFixed(String('0x80000001'), asrt_n2147483647)
       self.assertToFixed('0x80000001', asrt_n2147483647)
-      self.assertToFixed(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToFixed(String('0x180000001'), asrt_n2147483647)
       self.assertToFixed('0x180000001', asrt_n2147483647)
-      self.assertToFixed(as3lib.String('0x100000001'), asrt_1)
+      self.assertToFixed(String('0x100000001'), asrt_1)
       self.assertToFixed('0x100000001', asrt_1)
-      self.assertToFixed(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToFixed(String('-0x7FFFFFFF'), asrt_n2147483647)
       self.assertToFixed('-0x7FFFFFFF', asrt_n2147483647)
-      self.assertToFixed(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToFixed(String('-0x80000000'), asrt_n2147483648)
       self.assertToFixed('-0x80000000', asrt_n2147483648)
-      self.assertToFixed(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToFixed(String('-0x80000001'), asrt_2147483647)
       self.assertToFixed('-0x80000001', asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToFixed(String('-0x180000001'), asrt_2147483647)
       self.assertToFixed('-0x180000001', asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToFixed(String('-0x100000001'), asrt_n1)
       self.assertToFixed('-0x100000001', asrt_n1)
 
    def assertToPrecision(self, value, check):
@@ -2199,108 +2203,108 @@ class intTests(NumberTestsBase):
       self.assertToPrecision(null, asrt_0)
       self.assertToPrecision(undefined, asrt_0)
 
-      self.assertToPrecision(as3lib.String(''), asrt_0)
+      self.assertToPrecision(String(''), asrt_0)
       self.assertToPrecision('', asrt_0)
 
-      self.assertToPrecision(as3lib.String('str'), asrt_0)
+      self.assertToPrecision(String('str'), asrt_0)
       self.assertToPrecision('str', asrt_0)
 
-      self.assertToPrecision(as3lib.String('true'), asrt_0)
+      self.assertToPrecision(String('true'), asrt_0)
       self.assertToPrecision('true', asrt_0)
 
-      self.assertToPrecision(as3lib.String('false'), asrt_0)
+      self.assertToPrecision(String('false'), asrt_0)
       self.assertToPrecision('false', asrt_0)
 
-      self.assertToPrecision(as3lib.Number(0.0), asrt_0)
+      self.assertToPrecision(Number(0.0), asrt_0)
       self.assertToPrecision(0.0, asrt_0)
 
-      self.assertToPrecision(as3lib.NaN, asrt_0)
+      self.assertToPrecision(NaN, asrt_0)
 
-      self.assertToPrecision(as3lib.Number(-0.0), asrt_0)
+      self.assertToPrecision(Number(-0.0), asrt_0)
       self.assertToPrecision(-0.0, asrt_0)
 
-      self.assertToPrecision(as3lib.Infinity, asrt_0)
+      self.assertToPrecision(Infinity, asrt_0)
 
-      self.assertToPrecision(as3lib.Number(1.0), asrt_1)
+      self.assertToPrecision(Number(1.0), asrt_1)
       self.assertToPrecision(1.0, asrt_1)
 
-      self.assertToPrecision(as3lib.Number(-1.0), asrt_n1)
+      self.assertToPrecision(Number(-1.0), asrt_n1)
       self.assertToPrecision(-1.0, asrt_n1)
 
-      self.assertToPrecision(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToPrecision(Number(0xFF1306), asrt_16716550)
       self.assertToPrecision(0xFF1306, asrt_16716550)
 
-      self.assertToPrecision(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToPrecision(Number(1.2315e2), asrt_123)
       self.assertToPrecision(1.2315e2, asrt_123)
 
-      self.assertToPrecision(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(0x80000000), asrt_n2147483648)
+      self.assertToPrecision(Number(0x80000000), asrt_n2147483648)
       self.assertToPrecision(0x80000000, asrt_n2147483648)
 
-      self.assertToPrecision(as3lib.Number(0x80000001), asrt_n2147483647)
+      self.assertToPrecision(Number(0x80000001), asrt_n2147483647)
       self.assertToPrecision(0x80000001, asrt_n2147483647)
 
-      self.assertToPrecision(as3lib.Number(0x180000001), asrt_n2147483647)
+      self.assertToPrecision(Number(0x180000001), asrt_n2147483647)
       self.assertToPrecision(0x180000001, asrt_n2147483647)
 
-      self.assertToPrecision(as3lib.Number(0x100000001), asrt_1)
+      self.assertToPrecision(Number(0x100000001), asrt_1)
       self.assertToPrecision(0x100000001, asrt_1)
 
-      self.assertToPrecision(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
+      self.assertToPrecision(Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToPrecision(-0x7FFFFFFF, asrt_n2147483647)
 
-      self.assertToPrecision(as3lib.Number(-0x80000000), asrt_n2147483648)
+      self.assertToPrecision(Number(-0x80000000), asrt_n2147483648)
       self.assertToPrecision(-0x80000000, asrt_n2147483648)
 
-      self.assertToPrecision(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToPrecision(Number(-0x80000001), asrt_2147483647)
       self.assertToPrecision(-0x80000001, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToPrecision(Number(-0x180000001), asrt_2147483647)
       self.assertToPrecision(-0x180000001, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(-0x100000001), asrt_n1)
+      self.assertToPrecision(Number(-0x100000001), asrt_n1)
       self.assertToPrecision(-0x100000001, asrt_n1)
 
-      self.assertToPrecision(as3lib.Object(), asrt_0)
+      self.assertToPrecision(Object(), asrt_0)
 
       # Parse Tests
-      self.assertToPrecision(as3lib.String('0.0'), asrt_0)
+      self.assertToPrecision(String('0.0'), asrt_0)
       self.assertToPrecision('0.0', asrt_0)
-      self.assertToPrecision(as3lib.String('NaN'), asrt_0)
+      self.assertToPrecision(String('NaN'), asrt_0)
       self.assertToPrecision('NaN', asrt_0)
-      self.assertToPrecision(as3lib.String('-0.0'), asrt_0)
+      self.assertToPrecision(String('-0.0'), asrt_0)
       self.assertToPrecision('-0.0', asrt_0)
-      self.assertToPrecision(as3lib.String('Infinity'), asrt_0)
+      self.assertToPrecision(String('Infinity'), asrt_0)
       self.assertToPrecision('Infinity', asrt_0)
-      self.assertToPrecision(as3lib.String('1.0'), asrt_1)
+      self.assertToPrecision(String('1.0'), asrt_1)
       self.assertToPrecision('1.0', asrt_1)
-      self.assertToPrecision(as3lib.String('-1.0'), asrt_n1)
+      self.assertToPrecision(String('-1.0'), asrt_n1)
       self.assertToPrecision('-1.0', asrt_n1)
-      self.assertToPrecision(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToPrecision(String('0xFF1306'), asrt_16716550)
       self.assertToPrecision('0xFF1306', asrt_16716550)
-      self.assertToPrecision(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToPrecision(String('1.2315e2'), asrt_123)
       self.assertToPrecision('1.2315e2', asrt_123)
-      self.assertToPrecision(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToPrecision(String('0x80000000'), asrt_n2147483648)
       self.assertToPrecision('0x80000000', asrt_n2147483648)
-      self.assertToPrecision(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToPrecision(String('0x80000001'), asrt_n2147483647)
       self.assertToPrecision('0x80000001', asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToPrecision(String('0x180000001'), asrt_n2147483647)
       self.assertToPrecision('0x180000001', asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('0x100000001'), asrt_1)
+      self.assertToPrecision(String('0x100000001'), asrt_1)
       self.assertToPrecision('0x100000001', asrt_1)
-      self.assertToPrecision(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToPrecision(String('-0x7FFFFFFF'), asrt_n2147483647)
       self.assertToPrecision('-0x7FFFFFFF', asrt_n2147483647)
-      self.assertToPrecision(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToPrecision(String('-0x80000000'), asrt_n2147483648)
       self.assertToPrecision('-0x80000000', asrt_n2147483648)
-      self.assertToPrecision(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToPrecision(String('-0x80000001'), asrt_2147483647)
       self.assertToPrecision('-0x80000001', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToPrecision(String('-0x180000001'), asrt_2147483647)
       self.assertToPrecision('-0x180000001', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToPrecision(String('-0x100000001'), asrt_n1)
       self.assertToPrecision('-0x100000001', asrt_n1)
 
    def assertToString(self, value, check):
@@ -2378,177 +2382,157 @@ class intTests(NumberTestsBase):
       self.assertToString(null, asrt_0)
       self.assertToString(undefined, asrt_0)
 
-      self.assertToString(as3lib.String(''), asrt_0)
+      self.assertToString(String(''), asrt_0)
       self.assertToString('', asrt_0)
 
-      self.assertToString(as3lib.String('str'), asrt_0)
+      self.assertToString(String('str'), asrt_0)
       self.assertToString('str', asrt_0)
 
-      self.assertToString(as3lib.String('true'), asrt_0)
+      self.assertToString(String('true'), asrt_0)
       self.assertToString('true', asrt_0)
 
-      self.assertToString(as3lib.String('false'), asrt_0)
+      self.assertToString(String('false'), asrt_0)
       self.assertToString('false', asrt_0)
 
-      self.assertToString(as3lib.Number(0.0), asrt_0)
+      self.assertToString(Number(0.0), asrt_0)
       self.assertToString(0.0, asrt_0)
 
-      self.assertToString(as3lib.NaN, asrt_0)
+      self.assertToString(NaN, asrt_0)
 
-      self.assertToString(as3lib.Number(-0.0), asrt_0)
+      self.assertToString(Number(-0.0), asrt_0)
       self.assertToString(-0.0, asrt_0)
 
-      self.assertToString(as3lib.Infinity, asrt_0)
+      self.assertToString(Infinity, asrt_0)
 
-      self.assertToString(as3lib.Number(1.0), asrt_1)
+      self.assertToString(Number(1.0), asrt_1)
       self.assertToString(1.0, asrt_1)
 
-      self.assertToString(as3lib.Number(-1.0), asrt_n1)
+      self.assertToString(Number(-1.0), asrt_n1)
       self.assertToString(-1.0, asrt_n1)
 
-      self.assertToString(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToString(Number(0xFF1306), asrt_16716550)
       self.assertToString(0xFF1306, asrt_16716550)
 
-      self.assertToString(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToString(Number(1.2315e2), asrt_123)
       self.assertToString(1.2315e2, asrt_123)
 
-      self.assertToString(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToString(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToString(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(0x80000000), asrt_n2147483648)
+      self.assertToString(Number(0x80000000), asrt_n2147483648)
       self.assertToString(0x80000000, asrt_n2147483648)
 
-      self.assertToString(as3lib.Number(0x80000001), asrt_n2147483647)
+      self.assertToString(Number(0x80000001), asrt_n2147483647)
       self.assertToString(0x80000001, asrt_n2147483647)
 
-      self.assertToString(as3lib.Number(0x180000001), asrt_n2147483647)
+      self.assertToString(Number(0x180000001), asrt_n2147483647)
       self.assertToString(0x180000001, asrt_n2147483647)
 
-      self.assertToString(as3lib.Number(0x100000001), asrt_1)
+      self.assertToString(Number(0x100000001), asrt_1)
       self.assertToString(0x100000001, asrt_1)
 
-      self.assertToString(as3lib.Number(-0x7FFFFFFF), asrt_n2147483647)
+      self.assertToString(Number(-0x7FFFFFFF), asrt_n2147483647)
       self.assertToString(-0x7FFFFFFF, asrt_n2147483647)
 
-      self.assertToString(as3lib.Number(-0x80000000), asrt_n2147483648)
+      self.assertToString(Number(-0x80000000), asrt_n2147483648)
       self.assertToString(-0x80000000, asrt_n2147483648)
 
-      self.assertToString(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToString(Number(-0x80000001), asrt_2147483647)
       self.assertToString(-0x80000001, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToString(Number(-0x180000001), asrt_2147483647)
       self.assertToString(-0x180000001, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(-0x100000001), asrt_n1)
+      self.assertToString(Number(-0x100000001), asrt_n1)
       self.assertToString(-0x100000001, asrt_n1)
 
-      self.assertToString(as3lib.Object(), asrt_0)
+      self.assertToString(Object(), asrt_0)
 
       # Parse Tests
-      self.assertToString(as3lib.String('0.0'), asrt_0)
+      self.assertToString(String('0.0'), asrt_0)
       self.assertToString('0.0', asrt_0)
-      self.assertToString(as3lib.String('NaN'), asrt_0)
+      self.assertToString(String('NaN'), asrt_0)
       self.assertToString('NaN', asrt_0)
-      self.assertToString(as3lib.String('-0.0'), asrt_0)
+      self.assertToString(String('-0.0'), asrt_0)
       self.assertToString('-0.0', asrt_0)
-      self.assertToString(as3lib.String('Infinity'), asrt_0)
+      self.assertToString(String('Infinity'), asrt_0)
       self.assertToString('Infinity', asrt_0)
-      self.assertToString(as3lib.String('1.0'), asrt_1)
+      self.assertToString(String('1.0'), asrt_1)
       self.assertToString('1.0', asrt_1)
-      self.assertToString(as3lib.String('-1.0'), asrt_n1)
+      self.assertToString(String('-1.0'), asrt_n1)
       self.assertToString('-1.0', asrt_n1)
-      self.assertToString(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToString(String('0xFF1306'), asrt_16716550)
       self.assertToString('0xFF1306', asrt_16716550)
-      self.assertToString(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToString(String('1.2315e2'), asrt_123)
       self.assertToString('1.2315e2', asrt_123)
-      self.assertToString(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToString(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToString('0x7FFFFFFF', asrt_2147483647)
-      self.assertToString(as3lib.String('0x80000000'), asrt_n2147483648)
+      self.assertToString(String('0x80000000'), asrt_n2147483648)
       self.assertToString('0x80000000', asrt_n2147483648)
-      self.assertToString(as3lib.String('0x80000001'), asrt_n2147483647)
+      self.assertToString(String('0x80000001'), asrt_n2147483647)
       self.assertToString('0x80000001', asrt_n2147483647)
-      self.assertToString(as3lib.String('0x180000001'), asrt_n2147483647)
+      self.assertToString(String('0x180000001'), asrt_n2147483647)
       self.assertToString('0x180000001', asrt_n2147483647)
-      self.assertToString(as3lib.String('0x100000001'), asrt_1)
+      self.assertToString(String('0x100000001'), asrt_1)
       self.assertToString('0x100000001', asrt_1)
-      self.assertToString(as3lib.String('-0x7FFFFFFF'), asrt_n2147483647)
+      self.assertToString(String('-0x7FFFFFFF'), asrt_n2147483647)
       self.assertToString('-0x7FFFFFFF', asrt_n2147483647)
-      self.assertToString(as3lib.String('-0x80000000'), asrt_n2147483648)
+      self.assertToString(String('-0x80000000'), asrt_n2147483648)
       self.assertToString('-0x80000000', asrt_n2147483648)
-      self.assertToString(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToString(String('-0x80000001'), asrt_2147483647)
       self.assertToString('-0x80000001', asrt_2147483647)
-      self.assertToString(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToString(String('-0x180000001'), asrt_2147483647)
       self.assertToString('-0x180000001', asrt_2147483647)
-      self.assertToString(as3lib.String('-0x100000001'), asrt_n1)
+      self.assertToString(String('-0x100000001'), asrt_n1)
       self.assertToString('-0x100000001', asrt_n1)
 
 
 class JSONTests(as3libTestCase):
    def test_errors(self):
-      recursive = as3lib.Object()
+      recursive = Object()
       recursive.recursivekey = recursive
-      self.assertRaisesAS3(SyntaxError, 1132, None, as3lib.JSON.parse, '{a}')
-      self.assertRaisesAS3(TypeError, 1129, None, as3lib.JSON.stringify, recursive)
-      self.assertRaisesAS3(TypeError, 1131, None, as3lib.JSON.stringify, {'key': 'value'}, '---')
-      self.assertRaisesAS3(TypeError, 1131, None, as3lib.JSON.stringify, recursive, '---')
-      self.assertRaisesAS3(TypeError, 1131, None, as3lib.JSON.stringify, recursive, {'key':'---'})
-      as3lib.JSON.parse("{\"a\": 8}")  # Should work
-      self.assertEqual(as3lib.JSON.stringify(recursive, ['otherkey']), {})
-      self.assertRaisesAS3(TypeError, 1129, None, as3lib.JSON.stringify, recursive, null)
-      self.assertEqual(as3lib.JSON.stringify({"a":8}, null), '{"a":8}')
-      self.assertRaisesAS3(TypeError, 1131, None, as3lib.JSON.stringify, {"a":8}, undefined)
+      self.assertRaisesAS3(SyntaxError, 1132, None, JSON.parse, '{a}')
+      self.assertRaisesAS3(TypeError, 1129, None, JSON.stringify, recursive)
+      self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, {'key': 'value'}, '---')
+      self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, recursive, '---')
+      self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, recursive, {'key': '---'})
+      JSON.parse("{\"a\": 8}")  # Should work
+      self.assertEqual(JSON.stringify(recursive, ['otherkey']), {})
+      self.assertRaisesAS3(TypeError, 1129, None, JSON.stringify, recursive, null)
+      self.assertEqual(JSON.stringify({"a": 8}, null), '{"a":8}')
+      self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, {"a": 8}, undefined)
 
    def test_parse(self):
       INPUT = '{"test": "value", "another": [1, 2, 3], "example": {"recursive": "test"}}'
       parsed = JSON.parse(INPUT)
       self.assertEqual(parsed.test, 'value')
       self.assertEqual(parsed.another, [1, 2, 3])
-      self.assertTrue(isinstance(parsed.example, as3lib.Object))
+      self.assertTrue(isinstance(parsed.example, Object))
       self.assertEqual(parsed.example.recursive, 'test')
 
-      raise TestNotImplemented
-      # trace("// Parse with reviver")
-      # var parsed = JSON.parse(INPUT, function(k, v) {
-      #    trace(k, v);
-      #    return v;
-      # });
+      # Parse with reviver
+      def func(k, v):
+         return v
 
-      #trace(parsed.test, parsed.another, parsed.example, parsed.example.recursive);
-      '''
-      2026-01-21T19:56:20.476045Z  INFO avm_trace: // Parse with reviver
-      2026-01-21T19:56:20.476065Z  INFO avm_trace: test value
-      2026-01-21T19:56:20.476075Z  INFO avm_trace: 0 1
-      2026-01-21T19:56:20.476190Z  INFO avm_trace: 1 2
-      2026-01-21T19:56:20.476201Z  INFO avm_trace: 2 3
-      2026-01-21T19:56:20.476208Z  INFO avm_trace: another 1,2,3
-      2026-01-21T19:56:20.476213Z  INFO avm_trace: recursive test
-      2026-01-21T19:56:20.476220Z  INFO avm_trace: example [object Object]
-      2026-01-21T19:56:20.476225Z  INFO avm_trace:  [object Object]
-      2026-01-21T19:56:20.476234Z  INFO avm_trace: value 1,2,3 [object Object] test
-      '''
+      parsed = JSON.parse(INPUT, func)
 
-      # trace("// Parse with custom reviver")
-      # var parsed = JSON.parse(INPUT, function(k, v) {
-      #    trace(k, v);
-      #    if (v is int) {
-      #          return "custom";
-      #    }
-      #    return v;
-      # });
+      self.assertEqual(parsed.test, 'value')
+      self.assertArray(parsed.another, [1, 2, 3])
+      self.assertEqual(parsed.example, {'recursive': 'test'})
+      self.assertEqual(parsed.example.recursive, 'test')
 
-      # trace(parsed.test, parsed.another, parsed.example, parsed.example.recursive);
-      '''
-      2026-01-21T19:56:20.476238Z  INFO avm_trace: // Parse with custom reviver
-      2026-01-21T19:56:20.476267Z  INFO avm_trace: test value
-      2026-01-21T19:56:20.476281Z  INFO avm_trace: 0 1
-      2026-01-21T19:56:20.476286Z  INFO avm_trace: 1 2
-      2026-01-21T19:56:20.476290Z  INFO avm_trace: 2 3
-      2026-01-21T19:56:20.476296Z  INFO avm_trace: another custom,custom,custom
-      2026-01-21T19:56:20.476302Z  INFO avm_trace: recursive test
-      2026-01-21T19:56:20.476308Z  INFO avm_trace: example [object Object]
-      2026-01-21T19:56:20.476313Z  INFO avm_trace:  [object Object]
-      2026-01-21T19:56:20.476334Z  INFO avm_trace: value custom,custom,custom [object Object] test
-      '''
+      # Parse with custom reviver
+      def func(k, v):
+         if isinstance(v, (as3lib.Int, int)):
+            return as3lib.String('custom')
+         return v
+
+      parsed = JSON.parse(INPUT, func)
+
+      self.assertEqual(parsed.test, 'value')
+      self.assertArray(parsed.another, ['custom', 'custom', 'custom'])
+      self.assertEqual(parsed.example, {'recursive': 'test'})
+      self.assertEqual(parsed.example.recursive, 'test')
 
    def test_stringify(self):
       raise TestNotImplemented
@@ -2556,43 +2540,43 @@ class JSONTests(as3libTestCase):
 
 class MathTests(as3libTestCase):
    def assertFuncReturns(self, check, func, *args):
-      if check is as3lib.NaN:
+      if check is NaN:
          self.assertNaN(func(*args))
       else:
          self.assertEqual(func(*args), check)
 
    def assertFunc1(self, func, *values):
-      obj = as3lib.Object()
-      obj.valueOf = lambda: as3lib.Number(10.1)
+      obj = Object()
+      obj.valueOf = lambda: Number(10.1)
       self.assertFuncReturns(values[0], func, 0)
       self.assertFuncReturns(values[1], func, 1)
       self.assertFuncReturns(values[2], func, -1)
       self.assertFuncReturns(values[3], func, 1234.5)
       self.assertFuncReturns(values[4], func, -1234.5)
-      self.assertFuncReturns(values[5], func, as3lib.Infinity)
-      self.assertFuncReturns(values[6], func, -as3lib.Infinity)
-      self.assertFuncReturns(values[7], func, as3lib.NaN)
+      self.assertFuncReturns(values[5], func, Infinity)
+      self.assertFuncReturns(values[6], func, -Infinity)
+      self.assertFuncReturns(values[7], func, NaN)
       self.assertFuncReturns(values[8], func, true)
       self.assertFuncReturns(values[9], func, false)
       self.assertFuncReturns(values[10], func, undefined)
       self.assertFuncReturns(values[11], func, null)
-      self.assertFuncReturns(values[12], func, as3lib.String('55.5'))
+      self.assertFuncReturns(values[12], func, String('55.5'))
       self.assertFuncReturns(values[13], func, obj)
 
    def assertFunc2(self, func, *values):
-      obj = as3lib.Object()
-      obj.valueOf = lambda: as3lib.Number(10.1)
+      obj = Object()
+      obj.valueOf = lambda: Number(10.1)
       self.assertFuncReturns(values[0], func, 0, 0)
       self.assertFuncReturns(values[1], func, 1, 2)
       self.assertFuncReturns(values[2], func, 2, -4)
       self.assertFuncReturns(values[3], func, 4, -2)
       self.assertFuncReturns(values[4], func, -99, -100)
-      self.assertFuncReturns(values[5], func, as3lib.Infinity, -as3lib.Infinity)
-      self.assertFuncReturns(values[6], func, as3lib.NaN, 100)
-      self.assertFuncReturns(values[7], func, 999, as3lib.NaN)
+      self.assertFuncReturns(values[5], func, Infinity, -Infinity)
+      self.assertFuncReturns(values[6], func, NaN, 100)
+      self.assertFuncReturns(values[7], func, 999, NaN)
       self.assertFuncReturns(values[8], func, true, false)
       self.assertFuncReturns(values[9], func, undefined, null)
-      self.assertFuncReturns(values[10], func, as3lib.String('55.5'), as3lib.String('-1234'))
+      self.assertFuncReturns(values[10], func, String('55.5'), String('-1234'))
       self.assertFuncReturns(values[11], func, obj, obj)
 
    def test_constants(self):
@@ -2606,125 +2590,172 @@ class MathTests(as3libTestCase):
       self.assertEqual(Math.SQRT2, 1.4142135623730951)
 
    def test_abs(self):
-      self.assertFunc1(Math.abs, 0, 1, 1, 1234.5, 1234.5, as3lib.Infinity,
-                       as3lib.Infinity, as3lib.NaN, 1, 0, as3lib.NaN, 0, 55.5,
-                       10.1)
+      self.assertFunc1(Math.abs, 0, 1, 1, 1234.5, 1234.5, Infinity, Infinity,
+                       NaN, 1, 0, NaN, 0, 55.5, 10.1)
 
    def test_acos(self):
       self.assertFunc1(Math.acos, 1.5707963267948966, 0, 3.141592653589793,
-                       as3lib.NaN, as3lib.NaN, as3lib.NaN, as3lib.NaN,
-                       as3lib.NaN, 0, 1.5707963267948966, as3lib.NaN,
-                       1.5707963267948966, as3lib.NaN, as3lib.NaN)
+                       NaN, NaN, NaN, NaN, NaN, 0, 1.5707963267948966, NaN,
+                       1.5707963267948966, NaN, NaN)
 
    def test_asin(self):
       self.assertFunc1(Math.asin, 0, 1.5707963267948966, -1.5707963267948966,
-                       as3lib.NaN, as3lib.NaN, as3lib.NaN, as3lib.NaN,
-                       as3lib.NaN, 1.5707963267948966, 0, as3lib.NaN, 0,
-                       as3lib.NaN, as3lib.NaN)
+                       NaN, NaN, NaN, NaN, NaN, 1.5707963267948966, 0, NaN, 0,
+                       NaN, NaN)
 
    def test_atan(self):
       self.assertFunc1(Math.atan, 0, 0.7853981633974483, -0.7853981633974483,
                        1.5699862824196225, -1.5699862824196225,
-                       1.5707963267948966, -1.5707963267948966, as3lib.NaN,
-                       0.7853981633974483, 0, as3lib.NaN, 0,
-                       1.5527802582408412, 1.47210806614649)
+                       1.5707963267948966, -1.5707963267948966, NaN,
+                       0.7853981633974483, 0, NaN, 0, 1.5527802582408412,
+                       1.47210806614649)
 
    def test_atan2(self):
       self.assertFunc2(Math.atan2, 0, 0.4636476090008061, 2.677945044588987,
                        2.0344439357957027, -2.361219573523157,
-                       2.356194490192345, as3lib.NaN, as3lib.NaN,
-                       1.5707963267948966, as3lib.NaN, 3.096647253816438,
-                       0.7853981633974483)
+                       2.356194490192345, NaN, NaN, 1.5707963267948966, NaN,
+                       3.096647253816438, 0.7853981633974483)
 
    def test_ceil(self):
-      self.assertFunc1(Math.ceil, 0, 1, -1, 1235, -1234, as3lib.Infinity,
-                       -as3lib.Infinity, as3lib.NaN, 1, 0, as3lib.NaN, 0, 56,
-                       11)
+      self.assertFunc1(Math.ceil, 0, 1, -1, 1235, -1234, Infinity, -Infinity,
+                       NaN, 1, 0, NaN, 0, 56, 11)
 
    def test_cos(self):
       self.assertFunc1(Math.cos, 1, 0.5403023058681398, 0.5403023058681398,
-                       -0.989373592132422, -0.989373592132422, as3lib.NaN,
-                       as3lib.NaN, as3lib.NaN, 0.5403023058681398, 1,
-                       as3lib.NaN, 1, 0.49872621790648564,
+                       -0.989373592132422, -0.989373592132422, NaN, NaN, NaN,
+                       0.5403023058681398, 1, NaN, 1, 0.49872621790648564,
                        -0.7805681801691837)
 
    def test_exp(self):
       self.assertFunc1(Math.exp, 1, 2.718281828459045, 0.36787944117144233,
-                       as3lib.Infinity, 0, as3lib.Infinity, 0, as3lib.NaN,
-                       2.718281828459045, 1, as3lib.NaN, 1,
-                       1.268655614010956e+24, 24343.00942440838)
+                       Infinity, 0, Infinity, 0, NaN, 2.718281828459045, 1,
+                       NaN, 1, 1.268655614010956e+24, 24343.00942440838)
 
    def test_floor(self):
-      self.assertFunc1(Math.floor, 0, 1, -1, 1234, -1235, as3lib.Infinity,
-                       -as3lib.Infinity, as3lib.NaN, 1, 0, as3lib.NaN, 0, 55,
-                       10)
+      self.assertFunc1(Math.floor, 0, 1, -1, 1234, -1235, Infinity, -Infinity,
+                       NaN, 1, 0, NaN, 0, 55, 10)
 
    def test_log(self):
-      self.assertFunc1(Math.log, -as3lib.Infinity, 0, as3lib.NaN,
-                       7.118421308785234, as3lib.NaN, as3lib.Infinity,
-                       as3lib.NaN, as3lib.NaN, 0, -as3lib.Infinity,
-                       as3lib.NaN, -as3lib.Infinity, 4.0163830207523885,
-                       2.312535423847214)
+      self.assertFunc1(Math.log, -Infinity, 0, NaN, 7.118421308785234, NaN,
+                       Infinity, NaN, NaN, 0, -Infinity, NaN, -Infinity,
+                       4.0163830207523885, 2.312535423847214)
 
    def test_max(self):
-      self.assertFunc2(Math.max, 0, 2, 2, 4, -99, as3lib.Infinity, as3lib.NaN,
-                       as3lib.NaN, 1, as3lib.NaN, 55.5, 10.1)
+      self.assertFunc2(Math.max, 0, 2, 2, 4, -99, Infinity, NaN, NaN, 1, NaN,
+                       55.5, 10.1)
 
    def test_min(self):
-      self.assertFunc2(Math.min, 0, 1, -4, -2, -100, -as3lib.Infinity,
-                       as3lib.NaN, as3lib.NaN, 0, as3lib.NaN, -1234, 10.1)
+      self.assertFunc2(Math.min, 0, 1, -4, -2, -100, -Infinity, NaN, NaN, 0,
+                       NaN, -1234, 10.1)
 
    def test_pow(self):
       self.assertFunc2(Math.pow, 1, 1, 0.0625, 0.0625,
-                       2.7319990264290253e-200, 0, as3lib.NaN, as3lib.NaN, 1,
-                       1, 0, 13920212824.565023)
+                       2.7319990264290253e-200, 0, NaN, NaN, 1, 1, 0,
+                       13920212824.565023)
 
    def test_round(self):
-      self.assertFunc1(Math.round, 0, 1, -1, 1235, -1234, as3lib.Infinity,
-                       -as3lib.Infinity, as3lib.NaN, 1, 0, as3lib.NaN, 0, 56,
-                       10)
+      self.assertFunc1(Math.round, 0, 1, -1, 1235, -1234, Infinity, -Infinity,
+                       NaN, 1, 0, NaN, 0, 56, 10)
 
    def test_sin(self):
       self.assertFunc1(Math.sin, 0, 0.8414709848078965, -0.8414709848078965,
-                       0.14539565052293643, -0.14539565052293643, as3lib.NaN,
-                       as3lib.NaN, as3lib.NaN, 0.8414709848078965, 0,
-                       as3lib.NaN, 0, -0.8667595742607592,
-                       -0.6250706488928821)
+                       0.14539565052293643, -0.14539565052293643, NaN, NaN,
+                       NaN, 0.8414709848078965, 0, NaN, 0,
+                       -0.8667595742607592, -0.6250706488928821)
 
    def test_sqrt(self):
-      self.assertFunc1(Math.sqrt, 0, 1, as3lib.NaN, 35.13545218152173,
-                       as3lib.NaN, as3lib.Infinity, as3lib.NaN, as3lib.NaN, 1,
-                       0, as3lib.NaN, 0, 7.44983221287567, 3.1780497164141406)
+      self.assertFunc1(Math.sqrt, 0, 1, NaN, 35.13545218152173, NaN, Infinity,
+                       NaN, NaN, 1, 0, NaN, 0, 7.44983221287567,
+                       3.1780497164141406)
 
    def test_tan(self):
       self.assertFunc1(Math.tan, 0, 1.5574077246549023, -1.5574077246549023,
-                       -0.14695727850342305, 0.14695727850342305, as3lib.NaN,
-                       as3lib.NaN, as3lib.NaN, 1.5574077246549023, 0,
-                       as3lib.NaN, 0, -1.7379466792405172, 0.8007893029375109)
+                       -0.14695727850342305, 0.14695727850342305, NaN, NaN,
+                       NaN, 1.5574077246549023, 0, NaN, 0,
+                       -1.7379466792405172, 0.8007893029375109)
 
    def test_minmax_special_cases(self):
-      self.assertEqual(Math.min(), as3lib.Infinity)
+      self.assertEqual(Math.min(), Infinity)
       self.assertEqual(Math.min(0), 0)
       self.assertEqual(Math.min(1, 2, 3), 1)
       self.assertEqual(Math.min(-1.1, -2.2, -3.3), -3.3)
-      self.assertNaN(Math.min(9, as3lib.NaN, false, true, as3lib.Infinity, undefined))
-      self.assertEqual(Math.max(), -as3lib.Infinity)
+      self.assertNaN(Math.min(9, NaN, false, true, Infinity, undefined))
+      self.assertEqual(Math.max(), -Infinity)
       self.assertEqual(Math.max(0), 0)
       self.assertEqual(Math.max(1, 2, 3), 3)
       self.assertEqual(Math.max(-1.1, -2.2, -3.3), -1.1)
-      self.assertNaN(Math.max(9, as3lib.NaN, false, true, as3lib.Infinity, undefined))
+      self.assertNaN(Math.max(9, NaN, false, true, Infinity, undefined))
 
 
 class NamespaceTests(as3libTestCase):
+   def assertNamespace(self, ns, prefix, uri):
+      try:
+         assert ns.prefix == prefix and ns.uri == uri
+      except AssertionError as e:
+         raise AssertionError('Namespace(%r, %r) != (%r, %r)' % (ns.prefix, ns.uri, prefix, uri)) from e
+
    def test_constructor(self):
-      raise TestNotImplemented
-      # NOTE: Namespace("prefix","ns","extra") should work
-      #       Base on constr_args test
+      example = Namespace('value')
+      self.assertNamespace(example, undefined, 'value')
+
+      otherNS = Namespace('otherPrefix', 'otherUri')
+      qName = QName('namespace', 'name')
+      values = (null, undefined, 'test', '', 'NOT A VALID PREFIX', otherNS, qName)
+
+      ns = Namespace()
+      self.assertNamespace(ns, '', '')
+
+      ans = ((undefined, 'null'), (undefined, 'undefined'),
+             (undefined, 'test'), ('', ''), (undefined, 'NOT A VALID PREFIX'),
+             ('otherPrefix', 'otherUri'), (undefined, 'namespace'))
+      for i in range(len(values)):
+         self.assertNamespace(Namespace(values[i]), *ans[i])
+
+      def asrt_constr(a, check):
+         self.assertNamespace(Namespace(a, null), *check[0])
+         self.assertNamespace(Namespace(a, undefined), *check[1])
+         self.assertNamespace(Namespace(a, 'test'), *check[2])
+         if a == '':
+            self.assertEqual(Namespace(a, ''), '', '')
+         else:
+            self.assertRaisesAS3(TypeError, 1098, None, Namespace, a, '')
+         self.assertNamespace(Namespace(a, 'NOT A VALID PREFIX'), *check[3])
+         self.assertNamespace(Namespace(a, otherNS), *check[4])
+         self.assertNamespace(Namespace(a, qName), *check[5])
+
+      ans = (((undefined, 'null'), (undefined, 'undefined'),
+              (undefined, 'test'), (undefined, 'NOT A VALID PREFIX'),
+              (undefined, 'otherUri'), (undefined, 'namespace')),
+             ((undefined, 'null'), (undefined, 'undefined'),
+              (undefined, 'test'), (undefined, 'NOT A VALID PREFIX'),
+              (undefined, 'otherUri'), (undefined, 'namespace')),
+             (('test', 'null'), ('test', 'undefined'), ('test', 'test'),
+              ('test', 'NOT A VALID PREFIX'), ('test', 'otherUri'),
+              ('test', 'namespace')),
+             (('', 'null'), ('', 'undefined'), ('', 'test'), ('', ''),
+              ('', 'NOT A VALID PREFIX'), ('', 'otherUri'),
+              ('', 'namespace')),
+             ((undefined, 'null'), (undefined, 'undefined'),
+              (undefined, 'test'), (undefined, 'NOT A VALID PREFIX'),
+              (undefined, 'otherUri'), (undefined, 'namespace')),
+             (('otherUri', 'null'), ('otherUri', 'undefined'),
+              ('otherUri', 'test'), ('otherUri', 'NOT A VALID PREFIX'),
+              ('otherUri', 'otherUri'), ('otherUri', 'namespace')),
+             ((undefined, 'null'), (undefined, 'undefined'),
+              (undefined, 'test'), (undefined, 'NOT A VALID PREFIX'),
+              (undefined, 'otherUri'), (undefined, 'namespace')))
+      for i in range(len(values)):
+         asrt_constr(values[i], ans[i])
+
+   def test_multiargs(self):
+      # TODO: Make sure assert is accurate
+      ns = Namespace('prefix', 'ns', 'extra')
+      self.assertNamespace(ns, 'prefix', 'ns')
 
    def test_enumeration_order(self):
-      namespace = as3lib.Namespace('p', 'u')
+      namespace = Namespace('p', 'u')
 
-      test = [as3lib.String(name) for name in namespace]
+      test = [String(name) for name in namespace]
       asrt = ['uri', 'prefix']
       self.assertArray(test, asrt)
 
@@ -2734,65 +2765,65 @@ class NamespaceTests(as3libTestCase):
 
 class NumberTests(NumberTestsBase):
    def test_constructor(self):
-      self.assertEqual(as3lib.Number(), 0)
-      self.assertEqual(as3lib.Number(as3lib.Number()), 0)
-      self.assertEqual(as3lib.Number(true), 1)
-      self.assertEqual(as3lib.Number(false), 0)
-      self.assertEqual(as3lib.Number(null), 0)
-      self.assertNaN(as3lib.Number(undefined))
+      self.assertEqual(Number(), 0)
+      self.assertEqual(Number(Number()), 0)
+      self.assertEqual(Number(true), 1)
+      self.assertEqual(Number(false), 0)
+      self.assertEqual(Number(null), 0)
+      self.assertNaN(Number(undefined))
 
-      self.assertEqual(as3lib.Number(as3lib.String('')), 0)
-      self.assertEqual(as3lib.Number(''), 0)
-      self.assertNaN(as3lib.Number(as3lib.String('str')))
-      self.assertNaN(as3lib.Number('str'))
-      self.assertNaN(as3lib.Number(as3lib.String('true')))
-      self.assertNaN(as3lib.Number('true'))
-      self.assertNaN(as3lib.Number(as3lib.String('false')))
-      self.assertNaN(as3lib.Number('false'))
+      self.assertEqual(Number(String('')), 0)
+      self.assertEqual(Number(''), 0)
+      self.assertNaN(Number(String('str')))
+      self.assertNaN(Number('str'))
+      self.assertNaN(Number(String('true')))
+      self.assertNaN(Number('true'))
+      self.assertNaN(Number(String('false')))
+      self.assertNaN(Number('false'))
 
-      self.assertEqual(as3lib.Number(0.0), 0)
+      self.assertEqual(Number(0.0), 0)
 
-      self.assertNaN(as3lib.Number(as3lib.NaN))
+      self.assertNaN(Number(NaN))
 
-      self.assertEqual(as3lib.Number(-0.0), 0)
+      self.assertEqual(Number(-0.0), 0)
 
-      self.assertEqual(as3lib.Number(as3lib.Infinity), as3lib.Infinity)
+      self.assertEqual(Number(Infinity), Infinity)
 
-      self.assertEqual(as3lib.Number(1.0), 1)
-      self.assertEqual(as3lib.Number(-1.0), -1)
-      self.assertEqual(as3lib.Number(0xFF1306), 16716550)
-      self.assertEqual(as3lib.Number(1.2315e2), 123.15)
-      self.assertEqual(as3lib.Number(0.0), 0)
+      self.assertEqual(Number(1.0), 1)
+      self.assertEqual(Number(-1.0), -1)
+      self.assertEqual(Number(0xFF1306), 16716550)
+      self.assertEqual(Number(1.2315e2), 123.15)
+      self.assertEqual(Number(0.0), 0)
 
-      self.assertNaN(as3lib.Number(as3lib.Object()))
+      self.assertNaN(Number(Object()))
 
-      self.assertEqual(as3lib.Number(as3lib.String('0.0')), 0)
-      self.assertEqual(as3lib.Number('0.0'), 0)
-      self.assertNaN(as3lib.Number(as3lib.String('NaN')))
-      self.assertNaN(as3lib.Number('NaN'))
-      self.assertEqual(as3lib.Number(as3lib.String('-0.0')), 0)
-      self.assertEqual(as3lib.Number('-0.0'), 0)
-      self.assertEqual(as3lib.Number(as3lib.String('Infinity')), as3lib.Infinity)
-      self.assertEqual(as3lib.Number('Infinity'), as3lib.Infinity)
-      self.assertEqual(as3lib.Number(as3lib.String('-Infinity')), -as3lib.Infinity)
-      self.assertEqual(as3lib.Number('-Infinity'), -as3lib.Infinity)
+      self.assertEqual(Number(String('0.0')), 0)
+      self.assertEqual(Number('0.0'), 0)
+      self.assertNaN(Number(String('NaN')))
+      self.assertNaN(Number('NaN'))
+      self.assertEqual(Number(String('-0.0')), 0)
+      self.assertEqual(Number('-0.0'), 0)
+      self.assertEqual(Number(String('Infinity')), Infinity)
+      self.assertEqual(Number('Infinity'), Infinity)
+      self.assertEqual(Number(String('-Infinity')), -Infinity)
+      self.assertEqual(Number('-Infinity'), -Infinity)
 
-      self.assertNaN(as3lib.Number(as3lib.String('infinity')))
-      self.assertNaN(as3lib.Number('infinity'))
-      self.assertNaN(as3lib.Number(as3lib.String('inf')))
-      self.assertNaN(as3lib.Number('inf'))
+      self.assertNaN(Number(String('infinity')))
+      self.assertNaN(Number('infinity'))
+      self.assertNaN(Number(String('inf')))
+      self.assertNaN(Number('inf'))
 
-      self.assertEqual(as3lib.Number(as3lib.String('1.0')), 1)
-      self.assertEqual(as3lib.Number('1.0'), 1)
-      self.assertEqual(as3lib.Number(as3lib.String('-1.0')), -1)
-      self.assertEqual(as3lib.Number('-1.0'), -1)
-      self.assertEqual(as3lib.Number(as3lib.String('0xFF1306')), 16716550)
-      self.assertEqual(as3lib.Number('0xFF1306'), 16716550)
-      self.assertEqual(as3lib.Number(as3lib.String('1.2315e2')), 123.15)
-      self.assertEqual(as3lib.Number('1.2315e2'), 123.15)
+      self.assertEqual(Number(String('1.0')), 1)
+      self.assertEqual(Number('1.0'), 1)
+      self.assertEqual(Number(String('-1.0')), -1)
+      self.assertEqual(Number('-1.0'), -1)
+      self.assertEqual(Number(String('0xFF1306')), 16716550)
+      self.assertEqual(Number('0xFF1306'), 16716550)
+      self.assertEqual(Number(String('1.2315e2')), 123.15)
+      self.assertEqual(Number('1.2315e2'), 123.15)
 
    def assertToExponential(self, value, check):
-      val = as3lib.Number(value)
+      val = Number(value)
       self._assertToExponential(val, check)
 
    def test_toExponential(self):
@@ -2881,7 +2912,7 @@ class NumberTests(NumberTestsBase):
       self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
    def assertToExponential2(self, value, check):
-      val = as3lib.Number(value)
+      val = Number(value)
       self.assertEqual(val.toExponential(0), check[0])
       self.assertEqual(val.toExponential(1), check[1])
       self.assertEqual(val.toExponential(2), check[2])
@@ -2897,17 +2928,17 @@ class NumberTests(NumberTestsBase):
 
       asrt_inf = ('Infinity', 'Infinity', 'Infinity', 'Infinity', 'Infinity',
                   'Infinity')
-      self.assertToExponential2(as3lib.Number.POSITIVE_INFINITY, asrt_inf)
+      self.assertToExponential2(Number.POSITIVE_INFINITY, asrt_inf)
 
       asrt_ninf = ('-Infinity', '-Infinity', '-Infinity', '-Infinity',
-                   '-Infinity','-Infinity')
-      self.assertToExponential2(as3lib.Number.NEGATIVE_INFINITY, asrt_ninf)
+                   '-Infinity', '-Infinity')
+      self.assertToExponential2(Number.NEGATIVE_INFINITY, asrt_ninf)
 
       asrt_nan = ('NaN', 'NaN', 'NaN', 'NaN', 'NaN', 'NaN')
-      self.assertToExponential2(as3lib.Number.NaN, asrt_nan)
+      self.assertToExponential2(Number.NaN, asrt_nan)
 
    def assertToFixed(self, value, check):
-      val = as3lib.Number(value)
+      val = Number(value)
       self._assertToFixed(val, check)
 
    def test_toFixed(self):
@@ -3014,7 +3045,7 @@ class NumberTests(NumberTestsBase):
       self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
    def assertToPrecision(self, value, check):
-      val = as3lib.Number(value)
+      val = Number(value)
       self._assertToPrecision(val, check)
 
    def test_toPrecision(self):
@@ -3103,7 +3134,7 @@ class NumberTests(NumberTestsBase):
       self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
    def assertToString(self, value, check):
-      val = as3lib.Number(value)
+      val = Number(value)
       self._assertToString(val, check)
 
    def test_toString(self):
@@ -3268,7 +3299,7 @@ class NumberTests(NumberTestsBase):
 
 class ObjectTests(as3libTestCase):
    def assertEnumerate(self, obj1, check):
-      out = as3lib.Array()
+      out = Array()
       for name in obj1:
          out.push('%s = %s' % (name, obj1[name]))
 
@@ -3276,7 +3307,7 @@ class ObjectTests(as3libTestCase):
       self.assertEqual(out.toString(), check)
 
    def test_enumeration(self):
-      x = as3lib.Object()
+      x = Object()
       x.key = 'value'
       x.key2 = 'value2'
       self.assertEnumerate(x, 'key = value,key2 = value2')
@@ -3286,34 +3317,34 @@ class ObjectTests(as3libTestCase):
       self.assertEnumerate(x, 'key = value')
 
       # other objects
-      self.assertEnumerate(as3lib.Object(), '')
+      self.assertEnumerate(Object(), '')
       self.assertEnumerate(null, '')
       self.assertEnumerate(undefined, '')
 
    def test_prototype(self):
-      obj = as3lib.Object
+      obj = Object
 
       self.assertFalse(obj.hasOwnProperty('toString'))
       self.assertTrue(obj.prototype.hasOwnProperty('toString'))
 
-      temp = as3lib.Object.prototype.toString
+      temp = Object.prototype.toString
       o = obj()
       self.assertEqual(o.toString(), '[object Object]')
-      as3lib.Object.prototype.toString = lambda: 'Custom toString'
+      Object.prototype.toString = lambda: 'Custom toString'
       self.assertEqual(o.toString(), 'Custom toString')
 
-      as3lib.Object.prototype.toString = temp
+      Object.prototype.toString = temp
 
    def test_toLocaleString(self):
-      o = as3lib.Object()
+      o = Object()
       self.assertEqual(o.toLocaleString(), '[object Object]')
 
    def test_toString(self):
-      o = as3lib.Object()
+      o = Object()
       self.assertEqual(o.toString(), '[object Object]')
 
    def test_valueOf(self):
-      obj = as3lib.Object()
+      obj = Object()
       self.assertIs(obj.valueOf(), obj)
 
 
@@ -3336,41 +3367,41 @@ class OperationTests(as3libTestCase):
       self.assertDivide(false, true, 0)
       self.assertDivide(null, true, 0)
       self.assertDivideNaN(undefined, true)
-      self.assertDivide(as3lib.String(''), true, 0)
-      self.assertDivideNaN(as3lib.String('str'), true)
-      self.assertDivideNaN(as3lib.String('true'), true)
-      self.assertDivideNaN(as3lib.String('false'), true)
-      self.assertDivide(as3lib.Number(0.0), true, 0)
-      self.assertDivideNaN(as3lib.NaN, true)
-      self.assertDivide(as3lib.Number(-0.0), true, 0)
-      self.assertDivide(as3lib.Infinity, true, as3lib.Infinity)
-      self.assertDivide(as3lib.Number(1.0), true, 1)
-      self.assertDivide(as3lib.Number(-1.0), true, -1)
+      self.assertDivide(String(''), true, 0)
+      self.assertDivideNaN(String('str'), true)
+      self.assertDivideNaN(String('true'), true)
+      self.assertDivideNaN(String('false'), true)
+      self.assertDivide(Number(0.0), true, 0)
+      self.assertDivideNaN(NaN, true)
+      self.assertDivide(Number(-0.0), true, 0)
+      self.assertDivide(Infinity, true, Infinity)
+      self.assertDivide(Number(1.0), true, 1)
+      self.assertDivide(Number(-1.0), true, -1)
 
    def assertLShift(self, value, check):
       self.assertEqual(true << value, check[0])
       self.assertEqual(false << value, check[1])
       self.assertEqual(null << value, check[2])
       self.assertEqual(undefined << value, check[3])
-      self.assertEqual(as3lib.String('') << value, check[4])
-      self.assertEqual(as3lib.String('str') << value, check[5])
-      self.assertEqual(as3lib.String('true') << value, check[6])
-      self.assertEqual(as3lib.String('false') << value, check[7])
-      self.assertEqual(as3lib.Number(0.0) << value, check[8])
-      self.assertEqual(as3lib.NaN << value, check[9])
-      self.assertEqual(as3lib.Number(-0.0) << value, check[10])
-      self.assertEqual(as3lib.Infinity << value, check[11])
-      self.assertEqual(as3lib.Number(1.0) << value, check[12])
-      self.assertEqual(as3lib.Number(-1.0) << value, check[13])
-      self.assertEqual(as3lib.Number(0xFF1306) << value, check[14])
-      self.assertEqual(as3lib.Object() << value, check[15])
-      self.assertEqual(as3lib.String('0.0') << value, check[16])
-      self.assertEqual(as3lib.String('NaN') << value, check[17])
-      self.assertEqual(as3lib.String('-0.0') << value, check[18])
-      self.assertEqual(as3lib.String('Infinity') << value, check[19])
-      self.assertEqual(as3lib.String('1.0') << value, check[20])
-      self.assertEqual(as3lib.String('-1.0') << value, check[21])
-      self.assertEqual(as3lib.String('0xFF1306') << value, check[22])
+      self.assertEqual(String('') << value, check[4])
+      self.assertEqual(String('str') << value, check[5])
+      self.assertEqual(String('true') << value, check[6])
+      self.assertEqual(String('false') << value, check[7])
+      self.assertEqual(Number(0.0) << value, check[8])
+      self.assertEqual(NaN << value, check[9])
+      self.assertEqual(Number(-0.0) << value, check[10])
+      self.assertEqual(Infinity << value, check[11])
+      self.assertEqual(Number(1.0) << value, check[12])
+      self.assertEqual(Number(-1.0) << value, check[13])
+      self.assertEqual(Number(0xFF1306) << value, check[14])
+      self.assertEqual(Object() << value, check[15])
+      self.assertEqual(String('0.0') << value, check[16])
+      self.assertEqual(String('NaN') << value, check[17])
+      self.assertEqual(String('-0.0') << value, check[18])
+      self.assertEqual(String('Infinity') << value, check[19])
+      self.assertEqual(String('1.0') << value, check[20])
+      self.assertEqual(String('-1.0') << value, check[21])
+      self.assertEqual(String('0xFF1306') << value, check[22])
 
    def test_lshift(self):
       asrt_1 = (2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, -2, 33433100, 0, 0, 0,
@@ -3390,55 +3421,55 @@ class OperationTests(as3libTestCase):
       self.assertLShift(false, asrt_0)
       self.assertLShift(null, asrt_0)
       self.assertLShift(undefined, asrt_0)
-      self.assertLShift(as3lib.String(''), asrt_0)
-      self.assertLShift(as3lib.String('str'), asrt_0)
-      self.assertLShift(as3lib.String('true'), asrt_0)
-      self.assertLShift(as3lib.String('false'), asrt_0)
-      self.assertLShift(as3lib.Number(0.0), asrt_0)
-      self.assertLShift(as3lib.NaN, asrt_0)
-      self.assertLShift(as3lib.Number(-0.0), asrt_0)
-      self.assertLShift(as3lib.Infinity, asrt_0)
-      self.assertLShift(as3lib.Number(1.0), asrt_1)
+      self.assertLShift(String(''), asrt_0)
+      self.assertLShift(String('str'), asrt_0)
+      self.assertLShift(String('true'), asrt_0)
+      self.assertLShift(String('false'), asrt_0)
+      self.assertLShift(Number(0.0), asrt_0)
+      self.assertLShift(NaN, asrt_0)
+      self.assertLShift(Number(-0.0), asrt_0)
+      self.assertLShift(Infinity, asrt_0)
+      self.assertLShift(Number(1.0), asrt_1)
 
-      self.assertLShift(as3lib.Number(-1.0), asrt_n1)
+      self.assertLShift(Number(-1.0), asrt_n1)
 
-      self.assertLShift(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertLShift(Number(0xFF1306), asrt_16716550)
 
-      self.assertLShift(as3lib.Object(), asrt_0)
-      self.assertLShift(as3lib.String('0.0'), asrt_0)
-      self.assertLShift(as3lib.String('NaN'), asrt_0)
-      self.assertLShift(as3lib.String('-0.0'), asrt_0)
-      self.assertLShift(as3lib.String('Infinity'), asrt_0)
-      self.assertLShift(as3lib.String('1.0'), asrt_1)
+      self.assertLShift(Object(), asrt_0)
+      self.assertLShift(String('0.0'), asrt_0)
+      self.assertLShift(String('NaN'), asrt_0)
+      self.assertLShift(String('-0.0'), asrt_0)
+      self.assertLShift(String('Infinity'), asrt_0)
+      self.assertLShift(String('1.0'), asrt_1)
 
-      self.assertLShift(as3lib.String('-1.0'), asrt_n1)
+      self.assertLShift(String('-1.0'), asrt_n1)
 
-      self.assertLShift(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertLShift(String('0xFF1306'), asrt_16716550)
 
    def assertRShift(self, value, check):
       self.assertEqual(true >> value, check[0])
       self.assertEqual(false >> value, check[1])
       self.assertEqual(null >> value, check[2])
       self.assertEqual(undefined >> value, check[3])
-      self.assertEqual(as3lib.String('') >> value, check[4])
-      self.assertEqual(as3lib.String('str') >> value, check[5])
-      self.assertEqual(as3lib.String('true') >> value, check[6])
-      self.assertEqual(as3lib.String('false') >> value, check[7])
-      self.assertEqual(as3lib.Number(0.0) >> value, check[8])
-      self.assertEqual(as3lib.NaN >> value, check[9])
-      self.assertEqual(as3lib.Number(-0.0) >> value, check[10])
-      self.assertEqual(as3lib.Infinity >> value, check[11])
-      self.assertEqual(as3lib.Number(1.0) >> value, check[12])
-      self.assertEqual(as3lib.Number(-1.0) >> value, check[13])
-      self.assertEqual(as3lib.Number(0xFF1306) >> value, check[14])
-      self.assertEqual(as3lib.Object() >> value, check[15])
-      self.assertEqual(as3lib.String('0.0') >> value, check[16])
-      self.assertEqual(as3lib.String('NaN') >> value, check[17])
-      self.assertEqual(as3lib.String('-0.0') >> value, check[18])
-      self.assertEqual(as3lib.String('Infinity') >> value, check[19])
-      self.assertEqual(as3lib.String('1.0') >> value, check[20])
-      self.assertEqual(as3lib.String('-1.0') >> value, check[21])
-      self.assertEqual(as3lib.String('0xFF1306') >> value, check[22])
+      self.assertEqual(String('') >> value, check[4])
+      self.assertEqual(String('str') >> value, check[5])
+      self.assertEqual(String('true') >> value, check[6])
+      self.assertEqual(String('false') >> value, check[7])
+      self.assertEqual(Number(0.0) >> value, check[8])
+      self.assertEqual(NaN >> value, check[9])
+      self.assertEqual(Number(-0.0) >> value, check[10])
+      self.assertEqual(Infinity >> value, check[11])
+      self.assertEqual(Number(1.0) >> value, check[12])
+      self.assertEqual(Number(-1.0) >> value, check[13])
+      self.assertEqual(Number(0xFF1306) >> value, check[14])
+      self.assertEqual(Object() >> value, check[15])
+      self.assertEqual(String('0.0') >> value, check[16])
+      self.assertEqual(String('NaN') >> value, check[17])
+      self.assertEqual(String('-0.0') >> value, check[18])
+      self.assertEqual(String('Infinity') >> value, check[19])
+      self.assertEqual(String('1.0') >> value, check[20])
+      self.assertEqual(String('-1.0') >> value, check[21])
+      self.assertEqual(String('0xFF1306') >> value, check[22])
 
    def test_rshift(self):
       asrt_1 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 8358275, 0, 0, 0,
@@ -3458,47 +3489,47 @@ class OperationTests(as3libTestCase):
       self.assertRShift(false, asrt_0)
       self.assertRShift(null, asrt_0)
       self.assertRShift(undefined, asrt_0)
-      self.assertRShift(as3lib.String(''), asrt_0)
-      self.assertRShift(as3lib.String('str'), asrt_0)
-      self.assertRShift(as3lib.String('true'), asrt_0)
-      self.assertRShift(as3lib.String('false'), asrt_0)
-      self.assertRShift(as3lib.Number(0.0), asrt_0)
-      self.assertRShift(as3lib.NaN, asrt_0)
-      self.assertRShift(as3lib.Number(-0.0), asrt_0)
-      self.assertRShift(as3lib.Infinity, asrt_0)
-      self.assertRShift(as3lib.Number(1.0), asrt_1)
+      self.assertRShift(String(''), asrt_0)
+      self.assertRShift(String('str'), asrt_0)
+      self.assertRShift(String('true'), asrt_0)
+      self.assertRShift(String('false'), asrt_0)
+      self.assertRShift(Number(0.0), asrt_0)
+      self.assertRShift(NaN, asrt_0)
+      self.assertRShift(Number(-0.0), asrt_0)
+      self.assertRShift(Infinity, asrt_0)
+      self.assertRShift(Number(1.0), asrt_1)
 
-      self.assertRShift(as3lib.Number(-1.0), asrt_n1)
+      self.assertRShift(Number(-1.0), asrt_n1)
 
-      self.assertRShift(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertRShift(Number(0xFF1306), asrt_16716550)
 
-      self.assertRShift(as3lib.Object(), asrt_0)
-      self.assertRShift(as3lib.String('0.0'), asrt_0)
-      self.assertRShift(as3lib.String('NaN'), asrt_0)
-      self.assertRShift(as3lib.String('-0.0'), asrt_0)
-      self.assertRShift(as3lib.String('Infinity'), asrt_0)
-      self.assertRShift(as3lib.String('1.0'), asrt_1)
+      self.assertRShift(Object(), asrt_0)
+      self.assertRShift(String('0.0'), asrt_0)
+      self.assertRShift(String('NaN'), asrt_0)
+      self.assertRShift(String('-0.0'), asrt_0)
+      self.assertRShift(String('Infinity'), asrt_0)
+      self.assertRShift(String('1.0'), asrt_1)
 
-      self.assertRShift(as3lib.String('-1.0'), asrt_n1)
+      self.assertRShift(String('-1.0'), asrt_n1)
 
-      self.assertRShift(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertRShift(String('0xFF1306'), asrt_16716550)
 
    def test_negate(self):
       self.assertEqual(-true, -1)
       self.assertEqual(-false, 0)
       self.assertEqual(-null, 0)
       self.assertNaN(-undefined)
-      self.assertEqual(-as3lib.String(''), 0)
-      self.assertNaN(-as3lib.String('str'))
-      self.assertNaN(-as3lib.String('true'))
-      self.assertNaN(-as3lib.String('false'))
-      self.assertEqual(-as3lib.Number(0.0), 0)
-      self.assertNaN(-as3lib.NaN)
-      self.assertEqual(--as3lib.Number(0.0), 0)
-      self.assertEqual(-as3lib.Infinity, as3lib.NInfinity)
-      self.assertEqual(-as3lib.Number(1.0), as3lib.Int(-1))
-      self.assertEqual(--as3lib.Number(1.0), as3lib.Int(1))
-      self.assertNaN(-as3lib.Object())
+      self.assertEqual(-String(''), 0)
+      self.assertNaN(-String('str'))
+      self.assertNaN(-String('true'))
+      self.assertNaN(-String('false'))
+      self.assertEqual(-Number(0.0), 0)
+      self.assertNaN(-NaN)
+      self.assertEqual(--Number(0.0), 0)
+      self.assertEqual(-Infinity, as3lib.NInfinity)
+      self.assertEqual(-Number(1.0), as3lib.Int(-1))
+      self.assertEqual(--Number(1.0), as3lib.Int(1))
+      self.assertNaN(-Object())
 
    def test_equals(self):
       raise TestNotImplemented
@@ -3517,7 +3548,7 @@ class OperationTests(as3libTestCase):
 
    def test_ifeq(self):
       # TODO: Make these use if statements
-      self.assertEqual(as3lib.Int(2), as3lib.String('2'))
+      self.assertEqual(as3lib.Int(2), String('2'))
       self.assertEqual(as3lib.Int(2), as3lib.Int(2))
       self.assertNotEqual(as3lib.Int(2), as3lib.Int(5))
       self.assertEqual(true, true)
@@ -3525,15 +3556,15 @@ class OperationTests(as3libTestCase):
       self.assertEqual(true, false)
       self.assertEqual(as3lib.Int(1), true)
       self.assertEqual(as3lib.Int(0), false)
-      self.assertEqual(as3lib.String('abc'), as3lib.String('abc'))
+      self.assertEqual(String('abc'), String('abc'))
       self.assertNotEqual(as3lib.Int(0), undefined)
       self.assertEqual(undefined, undefined)
-      self.assertNotEqual(as3lib.NaN, as3lib.NaN)
-      self.assertNotEqual(undefined, as3lib.NaN)
+      self.assertNotEqual(NaN, NaN)
+      self.assertNotEqual(undefined, NaN)
       self.assertNotEqual(as3lib.Int(0), null)
       self.assertEqual(null, null)
       self.assertEqual(undefined, null)
-      self.assertNotEqual(as3lib.NaN, null)
+      self.assertNotEqual(NaN, null)
 
    def test_ifgt(self):
       raise TestNotImplemented
@@ -3552,7 +3583,7 @@ class OperationTests(as3libTestCase):
 
    def test_ifstricteq(self):
       # NOTE: These probably won't work
-      self.assertIsNot(as3lib.Int(2), as3lib.String('2'))
+      self.assertIsNot(as3lib.Int(2), String('2'))
       self.assertIs(as3lib.Int(2), as3lib.Int(2))
       self.assertIsNot(as3lib.Int(2), as3lib.Int(5))
       self.assertIs(true, true)
@@ -3560,15 +3591,15 @@ class OperationTests(as3libTestCase):
       self.assertIs(true, false)
       self.assertIsNot(as3lib.Int(1), true)
       self.assertIsNot(as3lib.Int(0), false)
-      self.assertIs(as3lib.String('abc'), as3lib.String('abc'))
+      self.assertIs(String('abc'), String('abc'))
       self.assertIsNot(as3lib.Int(0), undefined)
       self.assertIs(undefined, undefined)
-      self.assertIs(as3lib.NaN, as3lib.NaN)
-      self.assertIsNot(undefined, as3lib.NaN)
+      self.assertIs(NaN, NaN)
+      self.assertIsNot(undefined, NaN)
       self.assertIsNot(as3lib.Int(0), null)
       self.assertIs(null, null)
       self.assertIsNot(undefined, null)
-      self.assertIsNot(as3lib.NaN, null)
+      self.assertIsNot(NaN, null)
 
    def test_ifstrictne(self):
       raise TestNotImplemented
@@ -3580,35 +3611,50 @@ class OperationTests(as3libTestCase):
 class QNameTests(as3libTestCase):
    def test_constructor(self):
       # TODO: Verify what uri is supposed to be here
-      qname_public = as3lib.QName('name')
+      qname_public = QName('name')
       self.assertQName(qname_public, 'name', null)
 
-      qname_scoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname', 'name')
+      qname_scoped = QName('https://ruffle.rs/AS3/tests/qname', 'name')
       self.assertQName(qname_scoped, 'name', 'https://ruffle.rs/AS3/tests/qname')
 
-      qname_rescoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
+      qname_rescoped = QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
       self.assertQName(qname_rescoped, 'name', 'https://ruffle.rs/AS3/tests/qname/2')
 
-      qname_clone = as3lib.QName(qname_scoped)
+      qname_clone = QName(qname_scoped)
       self.assertQName(qname_clone, 'name', 'https://ruffle.rs/AS3/tests/qname')
 
       # TODO: Check if null is supposed to be a string in assert here
-      qname_null = as3lib.QName(null, 'name')
+      qname_null = QName(null, 'name')
       self.assertQName(qname_null, 'name', null)
 
-      qname_any = as3lib.QName('*')
+      qname_any = QName('*')
       self.assertQName(qname_any, '*', null)
       self.assertEqual(qname_any.toString(), '*::*')
 
    def test_constructor_namespace(self):
-      raise TestNotImplemented
+      ns_public = Namespace('')
+
+      qname_public = QName(ns_public, 'name')
+      self.assertQName(qname_public, 'name', '')
+
+      ns_ruffle = Namespace('https://ruffle.rs/AS3/tests/qname')
+
+      qname_scoped = QName(ns_ruffle, 'name')
+      self.assertQName(qname_scoped, 'name', 'https://ruffle.rs/AS3/tests/qname')
+
+      qname_rescoped = QName(ns_ruffle, qname_public)
+      self.assertQName(qname_rescoped, 'name', 'https://ruffle.rs/AS3/tests/qname')
+
+      qname_any_name = QName(ns_ruffle, '*')
+      self.assertQName(qname_any_name, '*', 'https://ruffle.rs/AS3/tests/qname')
+      self.assertEqual(qname_any_name.toString(), 'https://ruffle.rs/AS3/tests/qname::*')
 
    def test_enumeration(self):
-      q = as3lib.QName("http://someuri", "foo")
+      q = QName("http://someuri", "foo")
       self.assertIter(q, ['uri', 'localName'])
       self.assertEach(q, ['foo', 'http://someuri'])
 
-      q = as3lib.QName("bar")
+      q = QName("bar")
       self.assertIter(q, ['uri', 'localName'])
 
       # TODO: Verify actual return value here. '' is a placeholder
@@ -3623,42 +3669,42 @@ class QNameTests(as3libTestCase):
       # self.assertEqual(Object.prototype.toString.call(qname), '[object QName]')
 
    def test_toString(self):
-      qname_public = as3lib.QName('name')
+      qname_public = QName('name')
       self.assertQNameToString(qname_public, 'name')
 
-      qname_scoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname', 'name')
+      qname_scoped = QName('https://ruffle.rs/AS3/tests/qname', 'name')
       self.assertQNameToString(qname_scoped, 'https://ruffle.rs/AS3/tests/qname::name')
 
-      qname_rescoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
+      qname_rescoped = QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
       self.assertQNameToString(qname_rescoped, 'https://ruffle.rs/AS3/tests/qname/2::name')
 
-      qname_clone = as3lib.QName(qname_scoped)
+      qname_clone = QName(qname_scoped)
       self.assertQNameToString(qname_clone, 'https://ruffle.rs/AS3/tests/qname::name')
 
-      qname_null = as3lib.QName(null, 'name')
+      qname_null = QName(null, 'name')
       self.assertQNameToString(qname_null, '*::name')
 
    def assertQNameValueOf(self, qname, check):
       # TODO: Prototype
       self.assertEqual(str(qname.valueOf()), check)
-      # self.assertEqual(str(as3lib.Object.prototype.valueOf.call(qname)), check)
+      # self.assertEqual(str(Object.prototype.valueOf.call(qname)), check)
 
    def test_valueOf(self):
-      qname_public = as3lib.QName('name')
+      qname_public = QName('name')
       self.assertQNameValueOf(qname_public, 'name')
       self.assertEqual(qname_public.valueOf().localName, 'name')
-      self.assertEqual(as3lib.Object.prototype.valueOf.call(qname_public).localName, 'name')
+      self.assertEqual(Object.prototype.valueOf.call(qname_public).localName, 'name')
 
-      qname_scoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname', 'name')
+      qname_scoped = QName('https://ruffle.rs/AS3/tests/qname', 'name')
       self.assertQNameValueOf(qname_scoped, 'https://ruffle.rs/AS3/tests/qname::name')
 
-      qname_rescoped = as3lib.QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
+      qname_rescoped = QName('https://ruffle.rs/AS3/tests/qname/2', qname_scoped)
       self.assertQNameValueOf(qname_rescoped, 'https://ruffle.rs/AS3/tests/qname/2::name')
 
-      qname_clone = as3lib.QName(qname_scoped)
+      qname_clone = QName(qname_scoped)
       self.assertQNameValueOf(qname_clone, 'https://ruffle.rs/AS3/tests/qname::name')
 
-      qname_null = as3lib.QName(null, 'name')
+      qname_null = QName(null, 'name')
       self.assertQNameValueOf(qname_null, '*::name')
 
 
@@ -3677,12 +3723,11 @@ class RegExpTests(as3libTestCase):
       self.assertEqual(re.multiline, m)
 
    def test_constructor(self):
-      re = as3lib.RegExp()
+      re = RegExp()
       self.assertRegExp(re, '', '//')
 
       def test(source, flags, *args, **kwargs):
-         self.assertRegExp(as3lib.RegExp(source, flags), source, *args,
-                           **kwargs)
+         self.assertRegExp(RegExp(source, flags), source, *args, **kwargs)
 
       test('empty flags', '', '/empty flags/')
       test('dotall flag', 's', '/dotall flag/s', s=True)
@@ -3699,46 +3744,44 @@ class RegExpTests(as3libTestCase):
 
       test(undefined, undefined, '//', False)
       test(null, null, '/null/', False)
-      test(as3lib.RegExp('#((.*))$', 'm'), undefined, '/#((.*))$/m',
-           False, m=True)
-      test(as3lib.RegExp('empty flags'), undefined, '/empty flags/',
-           False)
-      test(as3lib.RegExp('dotall embedded flags', 's'), undefined,
+      test(RegExp('#((.*))$', 'm'), undefined, '/#((.*))$/m', False, m=True)
+      test(RegExp('empty flags'), undefined, '/empty flags/', False)
+      test(RegExp('dotall embedded flags', 's'), undefined,
            '/dotall embedded flags/s', False, s=True)
       self.assertRaisesAS3(TypeError,
                            1100,
                            'Cannot supply flags when constructing one RegExp from another',
                            test,
-                           as3lib.RegExp('/empty string separate flag/', 's'),
+                           RegExp('/empty string separate flag/', 's'),
                            '')
       self.assertRaisesAS3(TypeError,
                            1100,
                            'Cannot supply flags when constructing one RegExp from another',
                            test,
-                           as3lib.RegExp('/dotall separate flags/', 's'),
+                           RegExp('/dotall separate flags/', 's'),
                            's')
 
    def test_exec(self):
-      re = as3lib.RegExp('')
+      re = RegExp('')
       self.assertArray(re.exec(''), [])
 
       # TODO: Verify that this isn't supposed to be a string'
-      re = as3lib.RegExp(r'\d+')
+      re = RegExp(r'\d+')
       self.assertEqual(re.exec('abc'), null)
 
-      re = as3lib.RegExp(r'\d+')
+      re = RegExp(r'\d+')
       self.assertEqual(re.exec('abc123'), '123')
 
-      re = as3lib.RegExp('ABC', 'i')
+      re = RegExp('ABC', 'i')
       self.assertEqual(re.exec('abc'), 'abc')
 
-      re = as3lib.RegExp('.bar', 's')
+      re = RegExp('.bar', 's')
       self.assertEqual(re.exec('foo\nbar'), 'bar')
 
       # Test global and lastIndex
-      re = as3lib.RegExp(r'(\w*)sh(\w*)', 'ig')
-      result = re.exec(INPUT)
+      re = RegExp(r'(\w*)sh(\w*)', 'ig')
       INPUT = 'She sells seashells by the seashore'
+      result = re.exec(INPUT)
       self.assertArray(result.toString(), ['She', undefined, 'e'])
       self.assertEqual(result.input, INPUT)
       self.assertEqual(result.index, 0)
@@ -3751,7 +3794,7 @@ class RegExpTests(as3libTestCase):
       self.assertEqual(result.lastIndex, 19)
 
    def assertExtended(self, url, proto, host, port, path, query):
-      regexp = as3lib.RegExp('(?#comment) ((?P<protocol>[a-zA-Z]+: \/\/) (?P<host>[^:\/]*) (:(?P<port>\d+))?)? (?P<path>[^?]*)? ((?P<query>.*))? ', 'x')
+      regexp = RegExp(r'(?#comment) ((?P<protocol>[a-zA-Z]+: \/\/) (?P<host>[^:\/]*) (:(?P<port>\d+))?)? (?P<path>[^?]*)? ((?P<query>.*))? ', 'x')
       match = regexp.exec(url)
       #trace("match: " + match)
       self.assertEqual(match['protocol'], proto)
@@ -3773,36 +3816,37 @@ class RegExpTests(as3libTestCase):
                           'example.org', undefined, '/abc', '?hey')
 
    def test_multiargs(self):
-      raise TestNotImplemented
+      re = RegExp('multiar', 'gs', 'a78w', Object(), null, Number(6667))
+      self.assertEqual(re.toString(), '/multiar/gs')
 
    def test_test(self):
-      self.assertTrue(as3lib.RegExp('').test(''))
-      self.assertTrue(as3lib.RegExp('').test('abc'))
-      self.assertFalse(as3lib.RegExp('\d+').test('abc'))
+      self.assertTrue(RegExp('').test(''))
+      self.assertTrue(RegExp('').test('abc'))
+      self.assertFalse(RegExp(r'\d+').test('abc'))
 
-      self.assertTrue(as3lib.RegExp('\d+').test('abc 123'))
+      self.assertTrue(RegExp(r'\d+').test('abc 123'))
 
-      self.assertFalse(as3lib.RegExp('ABC').test('abc'))
+      self.assertFalse(RegExp('ABC').test('abc'))
 
-      self.assertTrue(as3lib.RegExp('ABC', 'i').test('abc'))
+      self.assertTrue(RegExp('ABC', 'i').test('abc'))
 
-      self.assertFalse(as3lib.RegExp('a.b').test('a\nb'))
+      self.assertFalse(RegExp('a.b').test('a\nb'))
 
-      self.assertTrue(as3lib.RegExp('a.b', 's').test('a\nb'))
+      self.assertTrue(RegExp('a.b', 's').test('a\nb'))
 
-      self.assertFalse(as3lib.RegExp('^bar').test('foo\nbar'))
+      self.assertFalse(RegExp('^bar').test('foo\nbar'))
 
-      self.assertTrue(as3lib.RegExp('^bar', 'm').test('foo\nbar'))
+      self.assertTrue(RegExp('^bar', 'm').test('foo\nbar'))
 
       # global flag
-      re = as3lib.RegExp('[0-9]{3}', 'g')
+      re = RegExp('[0-9]{3}', 'g')
       self.assertEqual(re.lastIndex, 0)
       self.assertTrue(re.test('0123456789'))
       self.assertEqual(re.lastIndex, 3)
 
    def test_toString(self):
       # TODO: Prototype
-      re = as3lib.RegExp('abc', 'xsmig')
+      re = RegExp('abc', 'xsmig')
       self.assertEqual(re.toString(), '/abc/gimsx')
       # self.assertEqual(RegExp.prototype.toString.call(re), '/abc/gimsx')
       # self.assertEqual(Object.prototype.toString.call(re), '[object, RegExp]')
@@ -3811,8 +3855,7 @@ class RegExpTests(as3libTestCase):
       #                     'Type Coercion failed: cannot convert Object@00000000000 to RegExp.',
       #                     test,
       #                     RegExp.prototype.toString.call,
-      #                     as3lib.Object())
-
+      #                     Object())
 
 
 class StringTests(as3libTestCase):
@@ -3826,104 +3869,103 @@ class StringTests(as3libTestCase):
       allLowerAns = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸĀĂĄĆĈĊČĎĐĒĔĖĘĚĜĞĠĢĤĦĨĪĬĮIĲĴĶĹĻĽĿŁŃŅŇŊŌŎŐŒŔŖŘŚŜŞŠŢŤŦŨŪŬŮŰŲŴŶŹŻŽSƂƄƇƋƑǶƘƠƢƤƧƬƯƳƵƸƼǷǄǄǇǇǊǊǍǏǑǓǕǗǙǛƎǞǠǢǤǦǨǪǬǮǱǱǴǸǺǼǾȀȂȄȆȈȊȌȎȐȒȔȖȘȚȜȞȢȤȦȨȪȬȮȰȲƁƆƉƊƏƐƓƔƗƖƜƝƟƦƩƮƱƲƷΙΆΈΉΊΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ΢ΣΤΥΦΧΨΩΪΫΌΎΏΒΘΦΠϘϚϜϞϠϢϤϦϨϪϬϮΚΡΣΕАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏѠѢѤѦѨѪѬѮѰѲѴѶѸѺѼѾҀҊҌҎҐҒҔҖҘҚҜҞҠҢҤҦҨҪҬҮҰҲҴҶҸҺҼҾӁӃӇӋӐӒӔӖӘӚӜӞӠӢӤӦӨӪӬӮӰӲӴӶӸԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕՖḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲḴḶḸḺḼḾṀṂṄṆṈṊṌṎṐṒṔṖṘṚṜṞṠṢṤṦṨṪṬṮṰṲṴṶṸṺṼṾẀẂẄẆẈẊẌẎẐẒẔṠẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸἈἉἊἋἌἍἎἏἘἙἚἛἜἝἨἩἪἫἬἭἮἯἸἹἺἻἼἽἾἿὈὉὊὋὌὍὙὛὝὟὨὩὪὫὬὭὮὯᾺΆῈΈῊΉῚΊῸΌῪΎῺΏᾈᾉᾊᾋᾌᾍᾎᾏᾘᾙᾚᾛᾜᾝᾞᾟᾨᾩᾪᾫᾬᾭᾮᾯᾸᾹᾼΙῌῘῙῨῩῬῼⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ'
 
       # toLowerCase
-      self.assertEqual(as3lib.String('teST😋').toLowerCase(), 'test😋')
-      self.assertEqual(as3lib.String(allUpper).toLowerCase(), allUpperAns)
+      self.assertEqual(String('teST😋').toLowerCase(), 'test😋')
+      self.assertEqual(String(allUpper).toLowerCase(), allUpperAns)
 
       # toUpperCase
-      self.assertEqual(as3lib.String('teST😋').toUpperCase(), 'TEST😋')
-      self.assertEqual(as3lib.String(allLower).toUpperCase(), allLowerAns)
+      self.assertEqual(String('teST😋').toUpperCase(), 'TEST😋')
+      self.assertEqual(String(allLower).toUpperCase(), allLowerAns)
 
       # toLocaleLowerCase
-      self.assertEqual(as3lib.String('teST😋').toLocaleLowerCase(), 'test😋')
-      self.assertEqual(as3lib.String(allUpper).toLocaleLowerCase(), allUpperAns)
+      self.assertEqual(String('teST😋').toLocaleLowerCase(), 'test😋')
+      self.assertEqual(String(allUpper).toLocaleLowerCase(), allUpperAns)
 
       # toLocaleUpperCase
-      self.assertEqual(as3lib.String('teST😋').toLocaleUpperCase(), 'TEST😋')
-      self.assertEqual(as3lib.String(allLower).toLocaleUpperCase(), allLowerAns)
+      self.assertEqual(String('teST😋').toLocaleUpperCase(), 'TEST😋')
+      self.assertEqual(String(allLower).toLocaleUpperCase(), allLowerAns)
 
    def test_charAt(self):
-      s = as3lib.String('abcdefg')
+      s = String('abcdefg')
       self.assertEqual(s.charAt(), 'a')
       self.assertEqual(s.charAt(1), 'b')
       self.assertEqual(s.charAt(1.1), 'b')
       self.assertEqual(s.charAt(1.5), 'b')
       self.assertEqual(s.charAt(7), '')
       self.assertEqual(s.charAt(-1), '')
-      self.assertEqual(s.charAt(as3lib.NaN), 'a')
-      self.assertEqual(s.charAt(as3lib.Number(1.79e+308)), '')
-      self.assertEqual(s.charAt(as3lib.Infinity), '')
-      self.assertEqual(s.charAt(-as3lib.Infinity), '')
-      self.assertEqual(as3lib.String('あいうえお').charAt(1), 'い')
+      self.assertEqual(s.charAt(NaN), 'a')
+      self.assertEqual(s.charAt(Number(1.79e+308)), '')
+      self.assertEqual(s.charAt(Infinity), '')
+      self.assertEqual(s.charAt(-Infinity), '')
+      self.assertEqual(String('あいうえお').charAt(1), 'い')
       # NOTE: There is a character here, it just doesn't render
-      self.assertEqual(as3lib.String('مَرحَبًا').charAt(1), 'َ')
+      self.assertEqual(String('مَرحَبًا').charAt(1), 'َ')
 
-      self.assertEqual(as3lib.String('👨‍👨‍👧‍👦').charAt(0), '�')
-      self.assertEqual(as3lib.String('').charAt(0), '')
+      self.assertEqual(String('👨‍👨‍👧‍👦').charAt(0), '�')
+      self.assertEqual(String('').charAt(0), '')
 
    def test_charCodeAt(self):
-      s = as3lib.String('abcdefg')
+      s = String('abcdefg')
       self.assertEqual(s.charCodeAt(), 97)
       self.assertEqual(s.charCodeAt(1), 98)
       self.assertEqual(s.charCodeAt(1.1), 98)
       self.assertEqual(s.charCodeAt(1.5), 98)
       self.assertNaN(s.charCodeAt(7))
       self.assertNaN(s.charCodeAt(-1))
-      self.assertEqual(s.charCodeAt(as3lib.NaN), 97)
-      self.assertNaN(s.charCodeAt(as3lib.Number(1.79e+308)))
-      self.assertNaN(s.charCodeAt(as3lib.Infinity))
-      self.assertNaN(s.charCodeAt(-as3lib.Infinity))
-      self.assertEqual(as3lib.String('あいうえお').charCodeAt(1), 12356)
-      self.assertEqual(as3lib.String('مَرحَبًا').charCodeAt(1), 1614)
-      self.assertEqual(as3lib.String('👨‍👨‍👧‍👦').charCodeAt(0), 55357)
-      self.assertNaN(as3lib.String('').charCodeAt(0))
+      self.assertEqual(s.charCodeAt(NaN), 97)
+      self.assertNaN(s.charCodeAt(Number(1.79e+308)))
+      self.assertNaN(s.charCodeAt(Infinity))
+      self.assertNaN(s.charCodeAt(-Infinity))
+      self.assertEqual(String('あいうえお').charCodeAt(1), 12356)
+      self.assertEqual(String('مَرحَبًا').charCodeAt(1), 1614)
+      self.assertEqual(String('👨‍👨‍👧‍👦').charCodeAt(0), 55357)
+      self.assertNaN(String('').charCodeAt(0))
 
    def test_concat(self):
-      ruffle_object = as3lib.Object()
+      ruffle_object = Object()
       ruffle_object.s = 'Ruffle Test Object'
       ruffle_object.toString = lambda: ruffle_object.s
 
-      s = as3lib.String('5')
+      s = String('5')
       self.assertEqual(s.concat(), '5')
       self.assertEqual(s.concat(1), '51')
       self.assertEqual(s.concat(s), '55')
       self.assertEqual(s.concat(s, 1), '551')
       self.assertEqual(s.concat('asdf'), '5asdf')
-      self.assertEqual(s.concat(null, s, undefined, 0, as3lib.Object(),
+      self.assertEqual(s.concat(null, s, undefined, 0, Object(),
                                 ruffle_object, true),
                        '5null5undefined0[object Object]Ruffle Test Objecttrue')
-
 
    def test_fromCharCode(self):
       # TODO
       # self.assertEqual(String.fromCharCode, 'function Function() {}')
-      self.assertEqual(as3lib.String.fromCharCode(80), 'P')
-      self.assertEqual(as3lib.String.fromCharCode(12345), '〹')
-      self.assertEqual(as3lib.String.fromCharCode(65616), 'P')
-      self.assertEqual(as3lib.String.fromCharCode(-65456), 'P')
-      self.assertEqual(as3lib.String.fromCharCode(0xd801), '�')
-      self.assertEqual(as3lib.String.fromCharCode('BAD'), '')
-      self.assertEqual(as3lib.String.fromCharCode(as3lib.NaN), '')
-      self.assertEqual(as3lib.String.fromCharCode(), '')
-      self.assertEqual(as3lib.String.fromCharCode(80, 81, 82), 'PQR')
-      self.assertEqual(as3lib.String.fromCharCode(80, 0, 82), 'PR')
+      self.assertEqual(String.fromCharCode(80), 'P')
+      self.assertEqual(String.fromCharCode(12345), '〹')
+      self.assertEqual(String.fromCharCode(65616), 'P')
+      self.assertEqual(String.fromCharCode(-65456), 'P')
+      self.assertEqual(String.fromCharCode(0xd801), '�')
+      self.assertEqual(String.fromCharCode('BAD'), '')
+      self.assertEqual(String.fromCharCode(NaN), '')
+      self.assertEqual(String.fromCharCode(), '')
+      self.assertEqual(String.fromCharCode(80, 81, 82), 'PQR')
+      self.assertEqual(String.fromCharCode(80, 0, 82), 'PR')
 
    def test_constructor(self):
-      self.assertEqual(as3lib.String(), '')
+      self.assertEqual(String(), '')
 
-      self.assertEqual(as3lib.String(undefined), 'undefined')
-      self.assertEqual(as3lib.String(null), 'null')
+      self.assertEqual(String(undefined), 'undefined')
+      self.assertEqual(String(null), 'null')
 
-      self.assertEqual(as3lib.String(false), 'false')
-      self.assertEqual(as3lib.String(true), 'true')
+      self.assertEqual(String(false), 'false')
+      self.assertEqual(String(true), 'true')
 
-      self.assertEqual(as3lib.String(as3lib.Number(0)), '0')
-      self.assertEqual(as3lib.String(as3lib.Number(123)), '123')
-      self.assertEqual(as3lib.String(as3lib.Number(-1.23)), '-1.23')
+      self.assertEqual(String(Number(0)), '0')
+      self.assertEqual(String(Number(123)), '123')
+      self.assertEqual(String(Number(-1.23)), '-1.23')
 
-      self.assertEqual(as3lib.String(''), '')
-      self.assertEqual(as3lib.String('abc012aáâ!?*你好こんにちはمَرحَبًا'), 'abc012aáâ!?*你好こんにちはمَرحَبًا')
+      self.assertEqual(String(''), '')
+      self.assertEqual(String('abc012aáâ!?*你好こんにちはمَرحَبًا'), 'abc012aáâ!?*你好こんにちはمَرحَبًا')
 
-      self.assertEqual(as3lib.String(as3lib.Object()), '[object Object]')
+      self.assertEqual(String(Object()), '[object Object]')
       # TODO: output: function Function() {}
       # trace("//function f():void {}");
       # trace("//new String(f);");
@@ -3934,70 +3976,70 @@ class StringTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_length(self):
-      self.assertEqual(as3lib.String('').length, 0)
-      self.assertEqual(as3lib.String('\n\r').length, 2)
-      self.assertEqual(as3lib.String('\t').length, 1)
-      self.assertEqual(as3lib.String('abc012aáâ').length, 9)
-      self.assertEqual(as3lib.String('你好こんにちは').length, 7)
-      self.assertEqual(as3lib.String('مَرحَبًا').length, 8)
-      self.assertEqual(as3lib.String('😀').length, 2)
-      self.assertEqual(as3lib.String('👨‍👨‍👧‍👦').length, 11)
+      self.assertEqual(String('').length, 0)
+      self.assertEqual(String('\n\r').length, 2)
+      self.assertEqual(String('\t').length, 1)
+      self.assertEqual(String('abc012aáâ').length, 9)
+      self.assertEqual(String('你好こんにちは').length, 7)
+      self.assertEqual(String('مَرحَبًا').length, 8)
+      self.assertEqual(String('😀').length, 2)
+      self.assertEqual(String('👨‍👨‍👧‍👦').length, 11)
 
    def assertLocaleCompare(self, str1, str2, check):
       self.assertEqual(str1.localeCompare(str2), check)
 
    def test_localeCompare(self):
       # basic string test
-      str1 = as3lib.String('abc')
-      str2 = as3lib.String('abc')
+      str1 = String('abc')
+      str2 = String('abc')
       self.assertLocaleCompare(str1, str2, 0)  # =
 
-      str1 = as3lib.String('abc')
-      str2 = as3lib.String('abd')
+      str1 = String('abc')
+      str2 = String('abd')
       self.assertLocaleCompare(str1, str2, -1)  # <
 
-      str1 = as3lib.String('abd')
-      str2 = as3lib.String('abc')
+      str1 = String('abd')
+      str2 = String('abc')
       self.assertLocaleCompare(str1, str2, 1)  # >
 
       # distance between strings
-      str1 = as3lib.String('aaaaaa')
-      str2 = as3lib.String('aaaazz')
+      str1 = String('aaaaaa')
+      str2 = String('aaaazz')
       self.assertLocaleCompare(str1, str2, -25)  # <
       self.assertLocaleCompare(str2, str1, 25)  # >
 
       # different length
-      str1 = as3lib.String('aaaaa')
-      str2 = as3lib.String('aaaaaa')
+      str1 = String('aaaaa')
+      str2 = String('aaaaaa')
       self.assertLocaleCompare(str1, str2, -1)  # <
 
-      str1 = as3lib.String('aaaaaaa')
-      str2 = as3lib.String('aaaaaz')
+      str1 = String('aaaaaaa')
+      str2 = String('aaaaaz')
       self.assertLocaleCompare(str1, str2, -25)  # <
 
       # unicode string test
-      str1 = as3lib.String('abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįiĳĵķĺļľŀłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷÿźżžɓƃƅɔƈɖɗƌǝəɛƒɠɣɩɨƙɯɲɵơƣƥʀƨʃƭʈưʊʋƴƶʒƹƽǆǆǉǉǌǌǎǐǒǔǖǘǚǜǟǡǣǥǧǩǫǭǯǳǳǵƕƿǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȣȥȧȩȫȭȯȱȳάέήίόύώαβγδεζηθικλμνξοπρςστυφχψωϊϋϙϛϝϟϡϣϥϧϩϫϭϯθѐёђѓєѕіїјљњћќѝўџабвгдежзийклмнопрстуфхцчшщъыьэюяѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӈӌӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӷӹաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰჱჲჳჴჵḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹἀἁἂἃἄἅἆἇἐἑἒἓἔἕἠἡἢἣἤἥἦἧἰἱἲἳἴἵἶἷὀὁὂὃὄὅὑὓὕὗὠὡὢὣὤὥὦὧᾀᾁᾂᾃᾄᾅᾆᾇᾐᾑᾒᾓᾔᾕᾖᾗᾠᾡᾢᾣᾤᾥᾦᾧᾰᾱὰάᾳὲέὴήῃῐῑὶίῠῡὺύῥὸόὼώῳωkåⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ')
-      str2 = as3lib.String('abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįiĳĵķĺļľŀłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷÿźżžɓƃƅɔƈɖɗƌǝəɛƒɠɣɩɨƙɯɲɵơƣƥʀƨʃƭʈưʊʋƴƶʒƹƽǆǆǉǉǌǌǎǐǒǔǖǘǚǜǟǡǣǥǧǩǫǭǯǳǳǵƕƿǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȣȥȧȩȫȭȯȱȳάέήίόύώαβγδεζηθικλμνξοπρςστυφχψωϊϋϙϛϝϟϡϣϥϧϩϫϭϯθѐёђѓєѕіїјљњћќѝўџабвгдежзийклмнопрстуфхцчшщъыьэюяѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӈӌӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӷӹաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰჱჲჳჴჵḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹἀἁἂἃἄἅἆἇἐἑἒἓἔἕἠἡἢἣἤἥἦἧἰἱἲἳἴἵἶἷὀὁὂὃὄὅὑὓὕὗὠὡὢὣὤὥὦὧᾀᾁᾂᾃᾄᾅᾆᾇᾐᾑᾒᾓᾔᾕᾖᾗᾠᾡᾢᾣᾤᾥᾦᾧᾰᾱὰάᾳὲέὴήῃῐῑὶίῠῡὺύῥὸόὼώῳωkåⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩａｂｃｃｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ')
+      str1 = String('abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįiĳĵķĺļľŀłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷÿźżžɓƃƅɔƈɖɗƌǝəɛƒɠɣɩɨƙɯɲɵơƣƥʀƨʃƭʈưʊʋƴƶʒƹƽǆǆǉǉǌǌǎǐǒǔǖǘǚǜǟǡǣǥǧǩǫǭǯǳǳǵƕƿǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȣȥȧȩȫȭȯȱȳάέήίόύώαβγδεζηθικλμνξοπρςστυφχψωϊϋϙϛϝϟϡϣϥϧϩϫϭϯθѐёђѓєѕіїјљњћќѝўџабвгдежзийклмнопрстуфхцчшщъыьэюяѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӈӌӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӷӹաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰჱჲჳჴჵḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹἀἁἂἃἄἅἆἇἐἑἒἓἔἕἠἡἢἣἤἥἦἧἰἱἲἳἴἵἶἷὀὁὂὃὄὅὑὓὕὗὠὡὢὣὤὥὦὧᾀᾁᾂᾃᾄᾅᾆᾇᾐᾑᾒᾓᾔᾕᾖᾗᾠᾡᾢᾣᾤᾥᾦᾧᾰᾱὰάᾳὲέὴήῃῐῑὶίῠῡὺύῥὸόὼώῳωkåⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ')
+      str2 = String('abcdefghijklmnopqrstuvwxyzàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįiĳĵķĺļľŀłńņňŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷÿźżžɓƃƅɔƈɖɗƌǝəɛƒɠɣɩɨƙɯɲɵơƣƥʀƨʃƭʈưʊʋƴƶʒƹƽǆǆǉǉǌǌǎǐǒǔǖǘǚǜǟǡǣǥǧǩǫǭǯǳǳǵƕƿǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȣȥȧȩȫȭȯȱȳάέήίόύώαβγδεζηθικλμνξοπρςστυφχψωϊϋϙϛϝϟϡϣϥϧϩϫϭϯθѐёђѓєѕіїјљњћќѝўџабвгдежзийклмнопрстуфхцчшщъыьэюяѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӈӌӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӷӹաբգդեզէըթժիլխծկհձղճմյնշոչպջռսվտրցւփքօֆაბგდევზთიკლმნოპჟრსტუფქღყშჩცძწჭხჯჰჱჲჳჴჵḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹἀἁἂἃἄἅἆἇἐἑἒἓἔἕἠἡἢἣἤἥἦἧἰἱἲἳἴἵἶἷὀὁὂὃὄὅὑὓὕὗὠὡὢὣὤὥὦὧᾀᾁᾂᾃᾄᾅᾆᾇᾐᾑᾒᾓᾔᾕᾖᾗᾠᾡᾢᾣᾤᾥᾦᾧᾰᾱὰάᾳὲέὴήῃῐῑὶίῠῡὺύῥὸόὼώῳωkåⅰⅱⅲⅳⅴⅵⅶⅷⅸⅹⅺⅻⅼⅽⅾⅿⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩａｂｃｃｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ')
       self.assertLocaleCompare(str1, str1, 0)  # =
       self.assertLocaleCompare(str2, str1, -1)  # <
       self.assertLocaleCompare(str1, str2, 1)  # >
 
       # distance between unicode strings
-      str1 = as3lib.String('aaaaａａ')
-      str2 = as3lib.String('aaaazz')
-      str3 = as3lib.String('aaaaｚｚ')
+      str1 = String('aaaaａａ')
+      str2 = String('aaaazz')
+      str3 = String('aaaaｚｚ')
       self.assertLocaleCompare(str1, str2, 65223)  # >
       self.assertLocaleCompare(str1, str3, -25)  # <
 
       # emoji strings
-      str1 = as3lib.String('😋')
-      str2 = as3lib.String('a')
+      str1 = String('😋')
+      str2 = String('a')
       self.assertLocaleCompare(str1, str2, 55260)  # >
       self.assertLocaleCompare(str1, str1, 0)  # =
 
       # empty other string
-      str1 = as3lib.String('abc')
-      str2 = as3lib.String('undefined')
+      str1 = String('abc')
+      str2 = String('undefined')
       self.assertLocaleCompare(str1, str2, -20)  # <
       self.assertLocaleCompare(str2, str2, 0)  # =
 
@@ -4008,15 +4050,15 @@ class StringTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_search(self):
-      ruffle_object = as3lib.Object()
+      ruffle_object = Object()
       ruffle_object.s = 'Ruffle Test Object'
       ruffle_object.toString = lambda: ruffle_object.s
 
-      str = as3lib.String('mtchablematmatmat')
+      str = String('mtchablematmatmat')
       ret = str.search('mat')
       self.assertEqual(ret, 8)
 
-      re = as3lib.RegExp('MA*T|a[a-z]*e', 'i')
+      re = RegExp('MA*T|a[a-z]*e', 'i')
       re.lastIndex = 3
       self.assertEqual(str.search(re), 0)
       self.assertEqual(re.lastIndex, 3)
@@ -4025,12 +4067,12 @@ class StringTests(as3libTestCase):
       self.assertEqual(str.search(re), 0)
       self.assertEqual(re.lastIndex, 3)
 
-      self.assertEqual(str.search(as3lib.RegExp('MA*T|a[a-z]*e', 'i')), 0)
-      self.assertEqual(str.search(as3lib.RegExp('ma*t|a[a-z]*e', '')), 0)
-      self.assertEqual(str.search(as3lib.RegExp('ma*t|a[a-z]*e','g')), 0)
-      self.assertEqual(str.search(as3lib.RegExp('notmatch', 'g')), -1)
+      self.assertEqual(str.search(RegExp('MA*T|a[a-z]*e', 'i')), 0)
+      self.assertEqual(str.search(RegExp('ma*t|a[a-z]*e', '')), 0)
+      self.assertEqual(str.search(RegExp('ma*t|a[a-z]*e','g')), 0)
+      self.assertEqual(str.search(RegExp('notmatch', 'g')), -1)
 
-      subject = as3lib.String('AAA')
+      subject = String('AAA')
       # TODO
       # self.assertEqual(subject.search(), 0)
       # self.assertEqual(subject.search(), 0)
@@ -4051,67 +4093,67 @@ class StringTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_split(self):
-      text = as3lib.String('a.b.c')
+      text = String('a.b.c')
       self.assertArray(text.split('a.b.c'), ['', ''])
       self.assertArray(text.split('.'), ['a', 'b', 'c'])
       self.assertArray(text.split(''), ['a', '.', 'b', '.', 'c'])
       self.assertArray(text.split(), ['a.b.c'])
 
       # text.split(regex)
-      text = as3lib.String('abbabc')
-      regex = as3lib.RegExp('b+')
+      text = String('abbabc')
+      regex = RegExp('b+')
       self.assertArray(text.split(regex), ['a', 'a', 'c'])
 
       # no match
-      text = as3lib.String('ccccc')
-      regex = as3lib.RegExp('b')
+      text = String('ccccc')
+      regex = RegExp('b')
       self.assertArray(text.split(regex), ['ccccc'])
 
       # match all
-      text = as3lib.String('cccc')
-      regex = as3lib.RegExp('.*')
+      text = String('cccc')
+      regex = RegExp('.*')
       self.assertArray(text.split(regex), ['', ''])
 
       # empty string, match all
       # TODO: Check if this is supposed to be an array or just an empty string
-      text = as3lib.String('')
-      regex = as3lib.RegExp('.*')
+      text = String('')
+      regex = RegExp('.*')
       self.assertArray(text.split(regex), [''])
 
       # multibyte chars
-      text = as3lib.String('ąąbąą')
-      regex = as3lib.RegExp('b')
+      text = String('ąąbąą')
+      regex = RegExp('b')
       self.assertArray(text.split(regex), ['ąą', 'ąą'])
 
       # Group expansion
-      text = as3lib.String('abba')
-      regex = as3lib.RegExp('(b(b))')
+      text = String('abba')
+      regex = RegExp('(b(b))')
       self.assertArray(text.split(regex), ['a', 'bb', 'a'])
 
       # Split on empty regex
-      text = as3lib.String('aął')
-      regex = as3lib.RegExp('(?:)')
+      text = String('aął')
+      regex = RegExp('(?:)')
       self.assertArray(text.split(regex), ['aął'])
 
       # Split on non-empty regex with zero-length match
-      text = as3lib.String('aąbcde')
-      regex = as3lib.RegExp('f*')
+      text = String('aąbcde')
+      regex = RegExp('f*')
       self.assertArray(text.split(regex), ['aąbcde'])
 
       # Limit
-      text = as3lib.String('aąbaababa')
-      regex = as3lib.RegExp('b')
+      text = String('aąbaababa')
+      regex = RegExp('b')
       self.assertArray(text.split(regex, 3), ['aą', 'aa', 'a'])
 
       # Limit on group captures - flash returns 6 parts instead of 5
-      text = as3lib.String('aąbbaabbabbabbabbabba')
-      regex = as3lib.RegExp('(b(b))')
+      text = String('aąbbaabbabbabbabbabba')
+      regex = RegExp('(b(b))')
       self.assertArray(text.split(regex, 5), ['aą', 'bb', 'b', 'aa', 'bb', 'a'])
 
    def test_substr_negative(self):
-      text = as3lib.String('abcdefg')
+      text = String('abcdefg')
       list1 = (3, 0, 1, 2, 1, 1, 2, 2, 0, 2, 5)
-      list2 = (5, -2, -2, -2, -4, -as3lib.Infinity, -1, 9, -3, -7, -10)
+      list2 = (5, -2, -2, -2, -4, -Infinity, -1, 9, -3, -7, -10)
       ans_list = ('defg', 'abcde', 'bcdef', '', 'bcd', '', '', 'cdefg',
                   'abcd', '', '')
       for i in range(len(list1)):
@@ -4119,7 +4161,8 @@ class StringTests(as3libTestCase):
 
    def test_substr_weird(self):
       raise TestNotImplemented
-      idxs = (0,-0.01,Infinity,-Infinity,NaN,-(NaN),1.001,-0.6,-0.3,4,1,-1,1e+21)
+      idxs = (0, -0.01, Infinity, -Infinity, NaN, -(NaN), 1.001, -0.6, -0.3,
+              4, 1, -1, 1e+21)
       for i in len(idxs):
          for j in len(idxs):
             trace("Substr of " + idxs[i] + "-" + idxs[j] + ": " + "123456789".substr(idxs[i],idxs[j]))
@@ -4312,69 +4355,69 @@ class StringTests(as3libTestCase):
 
 class uintTests(NumberTestsBase):
    def test_constructor(self):
-      self.assertEqual(as3lib.uint(), 0)
-      self.assertEqual(as3lib.uint(true), 1)
-      self.assertEqual(as3lib.uint(false), 0)
-      self.assertEqual(as3lib.uint(null), 0)
-      self.assertEqual(as3lib.uint(undefined), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('')), 0)
+      self.assertEqual(uint(), 0)
+      self.assertEqual(uint(true), 1)
+      self.assertEqual(uint(false), 0)
+      self.assertEqual(uint(null), 0)
+      self.assertEqual(uint(undefined), 0)
+      self.assertEqual(uint(String('')), 0)
 
-      self.assertEqual(as3lib.uint(''), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('str')), 0)
-      self.assertEqual(as3lib.uint('str'), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('true')), 0)
-      self.assertEqual(as3lib.uint('true'), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('false')), 0)
-      self.assertEqual(as3lib.uint('false'), 0)
+      self.assertEqual(uint(''), 0)
+      self.assertEqual(uint(String('str')), 0)
+      self.assertEqual(uint('str'), 0)
+      self.assertEqual(uint(String('true')), 0)
+      self.assertEqual(uint('true'), 0)
+      self.assertEqual(uint(String('false')), 0)
+      self.assertEqual(uint('false'), 0)
 
-      self.assertEqual(as3lib.uint(as3lib.Number(0.0)), 0)
-      self.assertEqual(as3lib.uint(0.0), 0)
-      self.assertEqual(as3lib.uint(as3lib.NaN), 0)
-      self.assertEqual(as3lib.uint(as3lib.Number(-0.0)), 0)
-      self.assertEqual(as3lib.uint(-0.0), 0)
-      self.assertEqual(as3lib.uint(as3lib.Infinity), 0)
-      self.assertEqual(as3lib.uint(as3lib.Number(1.0)), 1)
-      self.assertEqual(as3lib.uint(1.0), 1)
-      self.assertEqual(as3lib.uint(as3lib.Number(-1.0)), 4294967295)
-      self.assertEqual(as3lib.uint(-1.0), 4294967295)
+      self.assertEqual(uint(Number(0.0)), 0)
+      self.assertEqual(uint(0.0), 0)
+      self.assertEqual(uint(NaN), 0)
+      self.assertEqual(uint(Number(-0.0)), 0)
+      self.assertEqual(uint(-0.0), 0)
+      self.assertEqual(uint(Infinity), 0)
+      self.assertEqual(uint(Number(1.0)), 1)
+      self.assertEqual(uint(1.0), 1)
+      self.assertEqual(uint(Number(-1.0)), 4294967295)
+      self.assertEqual(uint(-1.0), 4294967295)
 
-      self.assertEqual(as3lib.uint(0xFF1306), 16716550)
-      self.assertEqual(as3lib.uint(1.2315e2), 123)
-      self.assertEqual(as3lib.uint(0x7FFFFFFF), 2147483647)
-      self.assertEqual(as3lib.uint(0x80000000), 2147483648)
-      self.assertEqual(as3lib.uint(0x80000001), 2147483649)
-      self.assertEqual(as3lib.uint(0x180000001), 2147483649)
-      self.assertEqual(as3lib.uint(0x100000001), 1)
-      self.assertEqual(as3lib.uint(-0x7FFFFFFF), 2147483649)
-      self.assertEqual(as3lib.uint(-0x80000000), 2147483648)
-      self.assertEqual(as3lib.uint(-0x80000001), 2147483647)
-      self.assertEqual(as3lib.uint(-0x180000001), 2147483647)
-      self.assertEqual(as3lib.uint(-0x100000001), 4294967295)
+      self.assertEqual(uint(0xFF1306), 16716550)
+      self.assertEqual(uint(1.2315e2), 123)
+      self.assertEqual(uint(0x7FFFFFFF), 2147483647)
+      self.assertEqual(uint(0x80000000), 2147483648)
+      self.assertEqual(uint(0x80000001), 2147483649)
+      self.assertEqual(uint(0x180000001), 2147483649)
+      self.assertEqual(uint(0x100000001), 1)
+      self.assertEqual(uint(-0x7FFFFFFF), 2147483649)
+      self.assertEqual(uint(-0x80000000), 2147483648)
+      self.assertEqual(uint(-0x80000001), 2147483647)
+      self.assertEqual(uint(-0x180000001), 2147483647)
+      self.assertEqual(uint(-0x100000001), 4294967295)
 
       # Parse Tests
-      self.assertEqual(as3lib.uint(as3lib.String('0.0')), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('NaN')), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('-0.0')), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('Infinity')), 0)
-      self.assertEqual(as3lib.uint(as3lib.String('1.0')), 1)
-      self.assertEqual(as3lib.uint(as3lib.String('-1.0')), 4294967295)
-      self.assertEqual(as3lib.uint(as3lib.String('0xFF1306')), 16716550)
-      self.assertEqual(as3lib.uint(as3lib.String('1.2315e2')), 123)
-      self.assertEqual(as3lib.uint(as3lib.String('0x7FFFFFFF')), 2147483647)
-      self.assertEqual(as3lib.uint(as3lib.String('0x80000000')), 2147483648)
-      self.assertEqual(as3lib.uint(as3lib.String('0x80000001')), 2147483649)
-      self.assertEqual(as3lib.uint(as3lib.String('0x180000001')), 2147483649)
-      self.assertEqual(as3lib.uint(as3lib.String('0x100000001')), 1)
-      self.assertEqual(as3lib.uint(as3lib.String('-0x7FFFFFFF')), 2147483649)
-      self.assertEqual(as3lib.uint(as3lib.String('-0x80000000')), 2147483648)
-      self.assertEqual(as3lib.uint(as3lib.String('-0x80000001')), 2147483647)
-      self.assertEqual(as3lib.uint(as3lib.String('-0x180000001')), 2147483647)
-      self.assertEqual(as3lib.uint(as3lib.String('-0x100000001')), 4294967295)
+      self.assertEqual(uint(String('0.0')), 0)
+      self.assertEqual(uint(String('NaN')), 0)
+      self.assertEqual(uint(String('-0.0')), 0)
+      self.assertEqual(uint(String('Infinity')), 0)
+      self.assertEqual(uint(String('1.0')), 1)
+      self.assertEqual(uint(String('-1.0')), 4294967295)
+      self.assertEqual(uint(String('0xFF1306')), 16716550)
+      self.assertEqual(uint(String('1.2315e2')), 123)
+      self.assertEqual(uint(String('0x7FFFFFFF')), 2147483647)
+      self.assertEqual(uint(String('0x80000000')), 2147483648)
+      self.assertEqual(uint(String('0x80000001')), 2147483649)
+      self.assertEqual(uint(String('0x180000001')), 2147483649)
+      self.assertEqual(uint(String('0x100000001')), 1)
+      self.assertEqual(uint(String('-0x7FFFFFFF')), 2147483649)
+      self.assertEqual(uint(String('-0x80000000')), 2147483648)
+      self.assertEqual(uint(String('-0x80000001')), 2147483647)
+      self.assertEqual(uint(String('-0x180000001')), 2147483647)
+      self.assertEqual(uint(String('-0x100000001')), 4294967295)
 
-      self.assertEqual(as3lib.uint(as3lib.Object()), 0)
+      self.assertEqual(uint(Object()), 0)
 
    def assertToExponential(self, value, check):
-      val = as3lib.uint(value)
+      val = uint(value)
       self._assertToExponential(val, check)
 
    def test_toExponential(self):
@@ -4423,112 +4466,112 @@ class uintTests(NumberTestsBase):
       self.assertToExponential(null, asrt_0)
       self.assertToExponential(undefined, asrt_0)
 
-      self.assertToExponential(as3lib.String(''), asrt_0)
+      self.assertToExponential(String(''), asrt_0)
       self.assertToExponential('', asrt_0)
 
-      self.assertToExponential(as3lib.String('str'), asrt_0)
+      self.assertToExponential(String('str'), asrt_0)
       self.assertToExponential('str', asrt_0)
 
-      self.assertToExponential(as3lib.String('true'), asrt_0)
+      self.assertToExponential(String('true'), asrt_0)
       self.assertToExponential('true', asrt_0)
 
-      self.assertToExponential(as3lib.String('false'), asrt_0)
+      self.assertToExponential(String('false'), asrt_0)
       self.assertToExponential('false', asrt_0)
 
-      self.assertToExponential(as3lib.Number(0.0), asrt_0)
+      self.assertToExponential(Number(0.0), asrt_0)
       self.assertToExponential(0.0, asrt_0)
 
-      self.assertToExponential(as3lib.NaN, asrt_0)
+      self.assertToExponential(NaN, asrt_0)
 
-      self.assertToExponential(as3lib.Number(-0.0), asrt_0)
+      self.assertToExponential(Number(-0.0), asrt_0)
       self.assertToExponential(-0.0, asrt_0)
 
-      self.assertToExponential(as3lib.Infinity, asrt_0)
+      self.assertToExponential(Infinity, asrt_0)
 
-      self.assertToExponential(as3lib.Number(1.0), asrt_1)
+      self.assertToExponential(Number(1.0), asrt_1)
       self.assertToExponential(1.0, asrt_1)
 
-      self.assertToExponential(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToExponential(Number(-1.0), asrt_4294967295)
       self.assertToExponential(-1.0, asrt_4294967295)
 
-      self.assertToExponential(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToExponential(Number(0xFF1306), asrt_16716550)
       self.assertToExponential(0xFF1306, asrt_16716550)
 
-      self.assertToExponential(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToExponential(Number(1.2315e2), asrt_123)
       self.assertToExponential(1.2315e2, asrt_123)
 
-      self.assertToExponential(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToExponential(Number(0x80000000), asrt_2147483648)
       self.assertToExponential(0x80000000, asrt_2147483648)
 
-      self.assertToExponential(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToExponential(Number(0x80000001), asrt_2147483649)
       self.assertToExponential(0x80000001, asrt_2147483649)
 
-      self.assertToExponential(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToExponential(Number(0x180000001), asrt_2147483649)
       self.assertToExponential(0x180000001, asrt_2147483649)
 
-      self.assertToExponential(as3lib.Number(0x100000001), asrt_1)
+      self.assertToExponential(Number(0x100000001), asrt_1)
       self.assertToExponential(0x100000001, asrt_1)
 
-      self.assertToExponential(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToExponential(Number(-0x7FFFFFFF), asrt_2147483649)
       self.assertToExponential(-0x7FFFFFFF, asrt_2147483649)
 
-      self.assertToExponential(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToExponential(Number(-0x80000000), asrt_2147483648)
       self.assertToExponential(-0x80000000, asrt_2147483648)
 
-      self.assertToExponential(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToExponential(Number(-0x80000001), asrt_2147483647)
       self.assertToExponential(-0x80000001, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToExponential(Number(-0x180000001), asrt_2147483647)
       self.assertToExponential(-0x180000001, asrt_2147483647)
 
-      self.assertToExponential(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToExponential(Number(-0x100000001), asrt_4294967295)
       self.assertToExponential(-0x100000001, asrt_4294967295)
 
-      self.assertToExponential(as3lib.Object(), asrt_0)
+      self.assertToExponential(Object(), asrt_0)
 
       # Parse tests
-      self.assertToExponential(as3lib.String('0.0'), asrt_0)
+      self.assertToExponential(String('0.0'), asrt_0)
       self.assertToExponential('0.0', asrt_0)
-      self.assertToExponential(as3lib.String('NaN'), asrt_0)
+      self.assertToExponential(String('NaN'), asrt_0)
       self.assertToExponential('NaN', asrt_0)
-      self.assertToExponential(as3lib.String('-0.0'), asrt_0)
+      self.assertToExponential(String('-0.0'), asrt_0)
       self.assertToExponential('-0.0', asrt_0)
-      self.assertToExponential(as3lib.String('Infinity'), asrt_0)
+      self.assertToExponential(String('Infinity'), asrt_0)
       self.assertToExponential('Infinity', asrt_0)
-      self.assertToExponential(as3lib.String('1.0'), asrt_1)
+      self.assertToExponential(String('1.0'), asrt_1)
       self.assertToExponential('1.0', asrt_1)
-      self.assertToExponential(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToExponential(String('-1.0'), asrt_4294967295)
       self.assertToExponential('-1.0', asrt_4294967295)
-      self.assertToExponential(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToExponential(String('0xFF1306'), asrt_16716550)
       self.assertToExponential('0xFF1306', asrt_16716550)
-      self.assertToExponential(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToExponential(String('1.2315e2'), asrt_123)
       self.assertToExponential('1.2315e2', asrt_123)
-      self.assertToExponential(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
-      self.assertToExponential(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToExponential(String('0x80000000'), asrt_2147483648)
       self.assertToExponential('0x80000000', asrt_2147483648)
-      self.assertToExponential(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToExponential(String('0x80000001'), asrt_2147483649)
       self.assertToExponential('0x80000001', asrt_2147483649)
-      self.assertToExponential(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToExponential(String('0x180000001'), asrt_2147483649)
       self.assertToExponential('0x180000001', asrt_2147483649)
-      self.assertToExponential(as3lib.String('0x100000001'), asrt_1)
+      self.assertToExponential(String('0x100000001'), asrt_1)
       self.assertToExponential('0x100000001', asrt_1)
-      self.assertToExponential(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToExponential(String('-0x7FFFFFFF'), asrt_2147483649)
       self.assertToExponential('-0x7FFFFFFF', asrt_2147483649)
-      self.assertToExponential(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToExponential(String('-0x80000000'), asrt_2147483648)
       self.assertToExponential('-0x80000000', asrt_2147483648)
-      self.assertToExponential(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToExponential(String('-0x80000001'), asrt_2147483647)
       self.assertToExponential('-0x80000001', asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToExponential(String('-0x180000001'), asrt_2147483647)
       self.assertToExponential('-0x180000001', asrt_2147483647)
-      self.assertToExponential(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToExponential(String('-0x100000001'), asrt_4294967295)
       self.assertToExponential('-0x100000001', asrt_4294967295)
 
    def assertToFixed(self, value, check):
-      val = as3lib.uint(value)
+      val = uint(value)
       self._assertToFixed(val, check)
 
    def test_toFixed(self):
@@ -4585,112 +4628,112 @@ class uintTests(NumberTestsBase):
       self.assertToFixed(null, asrt_0)
       self.assertToFixed(undefined, asrt_0)
 
-      self.assertToFixed(as3lib.String(''), asrt_0)
+      self.assertToFixed(String(''), asrt_0)
       self.assertToFixed('', asrt_0)
 
-      self.assertToFixed(as3lib.String('str'), asrt_0)
+      self.assertToFixed(String('str'), asrt_0)
       self.assertToFixed('str', asrt_0)
 
-      self.assertToFixed(as3lib.String('true'), asrt_0)
+      self.assertToFixed(String('true'), asrt_0)
       self.assertToFixed('true', asrt_0)
 
-      self.assertToFixed(as3lib.String('false'), asrt_0)
+      self.assertToFixed(String('false'), asrt_0)
       self.assertToFixed('false', asrt_0)
 
-      self.assertToFixed(as3lib.Number(0.0), asrt_0)
+      self.assertToFixed(Number(0.0), asrt_0)
       self.assertToFixed(0.0, asrt_0)
 
-      self.assertToFixed(as3lib.NaN, asrt_0)
+      self.assertToFixed(NaN, asrt_0)
 
-      self.assertToFixed(as3lib.Number(-0.0), asrt_0)
+      self.assertToFixed(Number(-0.0), asrt_0)
       self.assertToFixed(-0.0, asrt_0)
 
-      self.assertToFixed(as3lib.Infinity, asrt_0)
+      self.assertToFixed(Infinity, asrt_0)
 
-      self.assertToFixed(as3lib.Number(1.0), asrt_1)
+      self.assertToFixed(Number(1.0), asrt_1)
       self.assertToFixed(1.0, asrt_1)
 
-      self.assertToFixed(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToFixed(Number(-1.0), asrt_4294967295)
       self.assertToFixed(-1.0, asrt_4294967295)
 
-      self.assertToFixed(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToFixed(Number(0xFF1306), asrt_16716550)
       self.assertToFixed(0xFF1306, asrt_16716550)
 
-      self.assertToFixed(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToFixed(Number(1.2315e2), asrt_123)
       self.assertToFixed(1.2315e2, asrt_123)
 
-      self.assertToFixed(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToFixed(Number(0x80000000), asrt_2147483648)
       self.assertToFixed(0x80000000, asrt_2147483648)
 
-      self.assertToFixed(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToFixed(Number(0x80000001), asrt_2147483649)
       self.assertToFixed(0x80000001, asrt_2147483649)
 
-      self.assertToFixed(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToFixed(Number(0x180000001), asrt_2147483649)
       self.assertToFixed(0x180000001, asrt_2147483649)
 
-      self.assertToFixed(as3lib.Number(0x100000001), asrt_1)
+      self.assertToFixed(Number(0x100000001), asrt_1)
       self.assertToFixed(0x100000001, asrt_1)
 
-      self.assertToFixed(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToFixed(Number(-0x7FFFFFFF), asrt_2147483649)
       self.assertToFixed(-0x7FFFFFFF, asrt_2147483649)
 
-      self.assertToFixed(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToFixed(Number(-0x80000000), asrt_2147483648)
       self.assertToFixed(-0x80000000, asrt_2147483648)
 
-      self.assertToFixed(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToFixed(Number(-0x80000001), asrt_2147483647)
       self.assertToFixed(-0x80000001, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToFixed(Number(-0x180000001), asrt_2147483647)
       self.assertToFixed(-0x180000001, asrt_2147483647)
 
-      self.assertToFixed(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToFixed(Number(-0x100000001), asrt_4294967295)
       self.assertToFixed(-0x100000001, asrt_4294967295)
 
-      self.assertToFixed(as3lib.Object(), asrt_0)
+      self.assertToFixed(Object(), asrt_0)
 
       # Parse tests
-      self.assertToFixed(as3lib.String('0.0'), asrt_0)
+      self.assertToFixed(String('0.0'), asrt_0)
       self.assertToFixed('0.0', asrt_0)
-      self.assertToFixed(as3lib.String('NaN'), asrt_0)
+      self.assertToFixed(String('NaN'), asrt_0)
       self.assertToFixed('NaN', asrt_0)
-      self.assertToFixed(as3lib.String('-0.0'), asrt_0)
+      self.assertToFixed(String('-0.0'), asrt_0)
       self.assertToFixed('-0.0', asrt_0)
-      self.assertToFixed(as3lib.String('Infinity'), asrt_0)
+      self.assertToFixed(String('Infinity'), asrt_0)
       self.assertToFixed('Infinity', asrt_0)
-      self.assertToFixed(as3lib.String('1.0'), asrt_1)
+      self.assertToFixed(String('1.0'), asrt_1)
       self.assertToFixed('1.0', asrt_1)
-      self.assertToFixed(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToFixed(String('-1.0'), asrt_4294967295)
       self.assertToFixed('-1.0', asrt_4294967295)
-      self.assertToFixed(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToFixed(String('0xFF1306'), asrt_16716550)
       self.assertToFixed('0xFF1306', asrt_16716550)
-      self.assertToFixed(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToFixed(String('1.2315e2'), asrt_123)
       self.assertToFixed('1.2315e2', asrt_123)
-      self.assertToFixed(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
-      self.assertToFixed(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToFixed(String('0x80000000'), asrt_2147483648)
       self.assertToFixed('0x80000000', asrt_2147483648)
-      self.assertToFixed(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToFixed(String('0x80000001'), asrt_2147483649)
       self.assertToFixed('0x80000001', asrt_2147483649)
-      self.assertToFixed(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToFixed(String('0x180000001'), asrt_2147483649)
       self.assertToFixed('0x180000001', asrt_2147483649)
-      self.assertToFixed(as3lib.String('0x100000001'), asrt_1)
+      self.assertToFixed(String('0x100000001'), asrt_1)
       self.assertToFixed('0x100000001', asrt_1)
-      self.assertToFixed(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToFixed(String('-0x7FFFFFFF'), asrt_2147483649)
       self.assertToFixed('-0x7FFFFFFF', asrt_2147483649)
-      self.assertToFixed(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToFixed(String('-0x80000000'), asrt_2147483648)
       self.assertToFixed('-0x80000000', asrt_2147483648)
-      self.assertToFixed(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToFixed(String('-0x80000001'), asrt_2147483647)
       self.assertToFixed('-0x80000001', asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToFixed(String('-0x180000001'), asrt_2147483647)
       self.assertToFixed('-0x180000001', asrt_2147483647)
-      self.assertToFixed(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToFixed(String('-0x100000001'), asrt_4294967295)
       self.assertToFixed('-0x100000001', asrt_4294967295)
 
    def assertToPrecision(self, value, check):
-      val = as3lib.uint(value)
+      val = uint(value)
       self._assertToPrecision(val, check)
 
    def test_toPrecision(self):
@@ -4732,112 +4775,112 @@ class uintTests(NumberTestsBase):
       self.assertToPrecision(null, asrt_0)
       self.assertToPrecision(undefined, asrt_0)
 
-      self.assertToPrecision(as3lib.String(''), asrt_0)
+      self.assertToPrecision(String(''), asrt_0)
       self.assertToPrecision('', asrt_0)
 
-      self.assertToPrecision(as3lib.String('str'), asrt_0)
+      self.assertToPrecision(String('str'), asrt_0)
       self.assertToPrecision('str', asrt_0)
 
-      self.assertToPrecision(as3lib.String('true'), asrt_0)
+      self.assertToPrecision(String('true'), asrt_0)
       self.assertToPrecision('true', asrt_0)
 
-      self.assertToPrecision(as3lib.String('false'), asrt_0)
+      self.assertToPrecision(String('false'), asrt_0)
       self.assertToPrecision('false', asrt_0)
 
-      self.assertToPrecision(as3lib.Number(0.0), asrt_0)
+      self.assertToPrecision(Number(0.0), asrt_0)
       self.assertToPrecision(0.0, asrt_0)
 
-      self.assertToPrecision(as3lib.NaN, asrt_0)
+      self.assertToPrecision(NaN, asrt_0)
 
-      self.assertToPrecision(as3lib.Number(-0.0), asrt_0)
+      self.assertToPrecision(Number(-0.0), asrt_0)
       self.assertToPrecision(-0.0, asrt_0)
 
-      self.assertToPrecision(as3lib.Infinity, asrt_0)
+      self.assertToPrecision(Infinity, asrt_0)
 
-      self.assertToPrecision(as3lib.Number(1.0), asrt_1)
+      self.assertToPrecision(Number(1.0), asrt_1)
       self.assertToPrecision(1.0, asrt_1)
 
-      self.assertToPrecision(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToPrecision(Number(-1.0), asrt_4294967295)
       self.assertToPrecision(-1.0, asrt_4294967295)
 
-      self.assertToPrecision(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToPrecision(Number(0xFF1306), asrt_16716550)
       self.assertToPrecision(0xFF1306, asrt_16716550)
 
-      self.assertToPrecision(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToPrecision(Number(1.2315e2), asrt_123)
       self.assertToPrecision(1.2315e2, asrt_123)
 
-      self.assertToPrecision(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToPrecision(Number(0x80000000), asrt_2147483648)
       self.assertToPrecision(0x80000000, asrt_2147483648)
 
-      self.assertToPrecision(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToPrecision(Number(0x80000001), asrt_2147483649)
       self.assertToPrecision(0x80000001, asrt_2147483649)
 
-      self.assertToPrecision(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToPrecision(Number(0x180000001), asrt_2147483649)
       self.assertToPrecision(0x180000001, asrt_2147483649)
 
-      self.assertToPrecision(as3lib.Number(0x100000001), asrt_1)
+      self.assertToPrecision(Number(0x100000001), asrt_1)
       self.assertToPrecision(0x100000001, asrt_1)
 
-      self.assertToPrecision(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToPrecision(Number(-0x7FFFFFFF), asrt_2147483649)
       self.assertToPrecision(-0x7FFFFFFF, asrt_2147483649)
 
-      self.assertToPrecision(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToPrecision(Number(-0x80000000), asrt_2147483648)
       self.assertToPrecision(-0x80000000, asrt_2147483648)
 
-      self.assertToPrecision(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToPrecision(Number(-0x80000001), asrt_2147483647)
       self.assertToPrecision(-0x80000001, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToPrecision(Number(-0x180000001), asrt_2147483647)
       self.assertToPrecision(-0x180000001, asrt_2147483647)
 
-      self.assertToPrecision(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToPrecision(Number(-0x100000001), asrt_4294967295)
       self.assertToPrecision(-0x100000001, asrt_4294967295)
 
-      self.assertToPrecision(as3lib.Object(), asrt_0)
+      self.assertToPrecision(Object(), asrt_0)
 
       # Parse tests
-      self.assertToPrecision(as3lib.String('0.0'), asrt_0)
+      self.assertToPrecision(String('0.0'), asrt_0)
       self.assertToPrecision('0.0', asrt_0)
-      self.assertToPrecision(as3lib.String('NaN'), asrt_0)
+      self.assertToPrecision(String('NaN'), asrt_0)
       self.assertToPrecision('NaN', asrt_0)
-      self.assertToPrecision(as3lib.String('-0.0'), asrt_0)
+      self.assertToPrecision(String('-0.0'), asrt_0)
       self.assertToPrecision('-0.0', asrt_0)
-      self.assertToPrecision(as3lib.String('Infinity'), asrt_0)
+      self.assertToPrecision(String('Infinity'), asrt_0)
       self.assertToPrecision('Infinity', asrt_0)
-      self.assertToPrecision(as3lib.String('1.0'), asrt_1)
+      self.assertToPrecision(String('1.0'), asrt_1)
       self.assertToPrecision('1.0', asrt_1)
-      self.assertToPrecision(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToPrecision(String('-1.0'), asrt_4294967295)
       self.assertToPrecision('-1.0', asrt_4294967295)
-      self.assertToPrecision(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToPrecision(String('0xFF1306'), asrt_16716550)
       self.assertToPrecision('0xFF1306', asrt_16716550)
-      self.assertToPrecision(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToPrecision(String('1.2315e2'), asrt_123)
       self.assertToPrecision('1.2315e2', asrt_123)
-      self.assertToPrecision(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToPrecision(String('0x80000000'), asrt_2147483648)
       self.assertToPrecision('0x80000000', asrt_2147483648)
-      self.assertToPrecision(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToPrecision(String('0x80000001'), asrt_2147483649)
       self.assertToPrecision('0x80000001', asrt_2147483649)
-      self.assertToPrecision(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToPrecision(String('0x180000001'), asrt_2147483649)
       self.assertToPrecision('0x180000001', asrt_2147483649)
-      self.assertToPrecision(as3lib.String('0x100000001'), asrt_1)
+      self.assertToPrecision(String('0x100000001'), asrt_1)
       self.assertToPrecision('0x100000001', asrt_1)
-      self.assertToPrecision(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToPrecision(String('-0x7FFFFFFF'), asrt_2147483649)
       self.assertToPrecision('-0x7FFFFFFF', asrt_2147483649)
-      self.assertToPrecision(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToPrecision(String('-0x80000000'), asrt_2147483648)
       self.assertToPrecision('-0x80000000', asrt_2147483648)
-      self.assertToPrecision(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToPrecision(String('-0x80000001'), asrt_2147483647)
       self.assertToPrecision('-0x80000001', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToPrecision(String('-0x180000001'), asrt_2147483647)
       self.assertToPrecision('-0x180000001', asrt_2147483647)
-      self.assertToPrecision(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToPrecision(String('-0x100000001'), asrt_4294967295)
       self.assertToPrecision('-0x100000001', asrt_4294967295)
 
    def assertToString(self, value, check):
-      val = as3lib.uint(value)
+      val = uint(value)
       self._assertToString(val, check)
 
    def test_toString(self):
@@ -4917,108 +4960,108 @@ class uintTests(NumberTestsBase):
       self.assertToString(null, asrt_0)
       self.assertToString(undefined, asrt_0)
 
-      self.assertToString(as3lib.String(''), asrt_0)
+      self.assertToString(String(''), asrt_0)
       self.assertToString('', asrt_0)
 
-      self.assertToString(as3lib.String('str'), asrt_0)
+      self.assertToString(String('str'), asrt_0)
       self.assertToString('str', asrt_0)
 
-      self.assertToString(as3lib.String('true'), asrt_0)
+      self.assertToString(String('true'), asrt_0)
       self.assertToString('true', asrt_0)
 
-      self.assertToString(as3lib.String('false'), asrt_0)
+      self.assertToString(String('false'), asrt_0)
       self.assertToString('false', asrt_0)
 
-      self.assertToString(as3lib.Number(0.0), asrt_0)
+      self.assertToString(Number(0.0), asrt_0)
       self.assertToString(0.0, asrt_0)
 
-      self.assertToString(as3lib.NaN, asrt_0)
+      self.assertToString(NaN, asrt_0)
 
-      self.assertToString(as3lib.Number(-0.0), asrt_0)
+      self.assertToString(Number(-0.0), asrt_0)
       self.assertToString(-0.0, asrt_0)
 
-      self.assertToString(as3lib.Infinity, asrt_0)
+      self.assertToString(Infinity, asrt_0)
 
-      self.assertToString(as3lib.Number(1.0), asrt_1)
+      self.assertToString(Number(1.0), asrt_1)
       self.assertToString(1.0, asrt_1)
 
-      self.assertToString(as3lib.Number(-1.0), asrt_4294967295)
+      self.assertToString(Number(-1.0), asrt_4294967295)
       self.assertToString(-1.0, asrt_4294967295)
 
-      self.assertToString(as3lib.Number(0xFF1306), asrt_16716550)
+      self.assertToString(Number(0xFF1306), asrt_16716550)
       self.assertToString(0xFF1306, asrt_16716550)
 
-      self.assertToString(as3lib.Number(1.2315e2), asrt_123)
+      self.assertToString(Number(1.2315e2), asrt_123)
       self.assertToString(1.2315e2, asrt_123)
 
-      self.assertToString(as3lib.Number(0x7FFFFFFF), asrt_2147483647)
+      self.assertToString(Number(0x7FFFFFFF), asrt_2147483647)
       self.assertToString(0x7FFFFFFF, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(0x80000000), asrt_2147483648)
+      self.assertToString(Number(0x80000000), asrt_2147483648)
       self.assertToString(0x80000000, asrt_2147483648)
 
-      self.assertToString(as3lib.Number(0x80000001), asrt_2147483649)
+      self.assertToString(Number(0x80000001), asrt_2147483649)
       self.assertToString(0x80000001, asrt_2147483649)
 
-      self.assertToString(as3lib.Number(0x180000001), asrt_2147483649)
+      self.assertToString(Number(0x180000001), asrt_2147483649)
       self.assertToString(0x180000001, asrt_2147483649)
 
-      self.assertToString(as3lib.Number(0x100000001), asrt_1)
+      self.assertToString(Number(0x100000001), asrt_1)
       self.assertToString(0x100000001, asrt_1)
 
-      self.assertToString(as3lib.Number(-0x7FFFFFFF), asrt_2147483649)
+      self.assertToString(Number(-0x7FFFFFFF), asrt_2147483649)
       self.assertToString(-0x7FFFFFFF, asrt_2147483649)
 
-      self.assertToString(as3lib.Number(-0x80000000), asrt_2147483648)
+      self.assertToString(Number(-0x80000000), asrt_2147483648)
       self.assertToString(-0x80000000, asrt_2147483648)
 
-      self.assertToString(as3lib.Number(-0x80000001), asrt_2147483647)
+      self.assertToString(Number(-0x80000001), asrt_2147483647)
       self.assertToString(-0x80000001, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(-0x180000001), asrt_2147483647)
+      self.assertToString(Number(-0x180000001), asrt_2147483647)
       self.assertToString(-0x180000001, asrt_2147483647)
 
-      self.assertToString(as3lib.Number(-0x100000001), asrt_4294967295)
+      self.assertToString(Number(-0x100000001), asrt_4294967295)
       self.assertToString(-0x100000001, asrt_4294967295)
 
-      self.assertToString(as3lib.Object(), asrt_0)
+      self.assertToString(Object(), asrt_0)
 
       # Parse tests
-      self.assertToString(as3lib.String('0.0'), asrt_0)
+      self.assertToString(String('0.0'), asrt_0)
       self.assertToString('0.0', asrt_0)
-      self.assertToString(as3lib.String('NaN'), asrt_0)
+      self.assertToString(String('NaN'), asrt_0)
       self.assertToString('NaN', asrt_0)
-      self.assertToString(as3lib.String('-0.0'), asrt_0)
+      self.assertToString(String('-0.0'), asrt_0)
       self.assertToString('-0.0', asrt_0)
-      self.assertToString(as3lib.String('Infinity'), asrt_0)
+      self.assertToString(String('Infinity'), asrt_0)
       self.assertToString('Infinity', asrt_0)
-      self.assertToString(as3lib.String('1.0'), asrt_1)
+      self.assertToString(String('1.0'), asrt_1)
       self.assertToString('1.0', asrt_1)
-      self.assertToString(as3lib.String('-1.0'), asrt_4294967295)
+      self.assertToString(String('-1.0'), asrt_4294967295)
       self.assertToString('-1.0', asrt_4294967295)
-      self.assertToString(as3lib.String('0xFF1306'), asrt_16716550)
+      self.assertToString(String('0xFF1306'), asrt_16716550)
       self.assertToString('0xFF1306', asrt_16716550)
-      self.assertToString(as3lib.String('1.2315e2'), asrt_123)
+      self.assertToString(String('1.2315e2'), asrt_123)
       self.assertToString('1.2315e2', asrt_123)
-      self.assertToString(as3lib.String('0x7FFFFFFF'), asrt_2147483647)
+      self.assertToString(String('0x7FFFFFFF'), asrt_2147483647)
       self.assertToString('0x7FFFFFFF', asrt_2147483647)
-      self.assertToString(as3lib.String('0x80000000'), asrt_2147483648)
+      self.assertToString(String('0x80000000'), asrt_2147483648)
       self.assertToString('0x80000000', asrt_2147483648)
-      self.assertToString(as3lib.String('0x80000001'), asrt_2147483649)
+      self.assertToString(String('0x80000001'), asrt_2147483649)
       self.assertToString('0x80000001', asrt_2147483649)
-      self.assertToString(as3lib.String('0x180000001'), asrt_2147483649)
+      self.assertToString(String('0x180000001'), asrt_2147483649)
       self.assertToString('0x180000001', asrt_2147483649)
-      self.assertToString(as3lib.String('0x100000001'), asrt_1)
+      self.assertToString(String('0x100000001'), asrt_1)
       self.assertToString('0x100000001', asrt_1)
-      self.assertToString(as3lib.String('-0x7FFFFFFF'), asrt_2147483649)
+      self.assertToString(String('-0x7FFFFFFF'), asrt_2147483649)
       self.assertToString('-0x7FFFFFFF', asrt_2147483649)
-      self.assertToString(as3lib.String('-0x80000000'), asrt_2147483648)
+      self.assertToString(String('-0x80000000'), asrt_2147483648)
       self.assertToString('-0x80000000', asrt_2147483648)
-      self.assertToString(as3lib.String('-0x80000001'), asrt_2147483647)
+      self.assertToString(String('-0x80000001'), asrt_2147483647)
       self.assertToString('-0x80000001', asrt_2147483647)
-      self.assertToString(as3lib.String('-0x180000001'), asrt_2147483647)
+      self.assertToString(String('-0x180000001'), asrt_2147483647)
       self.assertToString('-0x180000001', asrt_2147483647)
-      self.assertToString(as3lib.String('-0x100000001'), asrt_4294967295)
+      self.assertToString(String('-0x100000001'), asrt_4294967295)
       self.assertToString('-0x100000001', asrt_4294967295)
 
 
@@ -5030,9 +5073,9 @@ class VectorTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_concat(self):
-      a_bool = as3lib.Vector.Boolean([True, False])
-      b_bool = as3lib.Vector.Boolean([False, True, False])
-      self.assertArray(a_bool.concat(b_bool), (True, False, False, True, False))
+      a_bool = Vector.Boolean([True, False])
+      b_bool = Vector.Boolean([False, True, False])
+      self.assertEach(a_bool.concat(b_bool), (True, False, False, True, False))
 
       class Superclass:
          ...
@@ -5040,12 +5083,12 @@ class VectorTests(as3libTestCase):
       class Subclass(Superclass):
          ...
 
-      a_class = as3lib.Vector([], type=Superclass)
+      a_class = Vector([], type=Superclass)
       a_class.length = 2
       a_class[0] = Superclass()
       a_class[1] = Subclass()
 
-      b_class = as3lib.Vector([], type=Subclass)
+      b_class = Vector([], type=Subclass)
       b_class.length = 1
       b_class[0] = Subclass()
 
@@ -5056,7 +5099,7 @@ class VectorTests(as3libTestCase):
       self.assertType(c_class[1], Subclass)
       self.assertType(c_class[2], Subclass)
 
-      c_class_flipped = b_class.concat(as3lib.Vector([Subclass()], type=Subclass))
+      c_class_flipped = b_class.concat(Vector([Subclass()], type=Subclass))
 
       self.assertEqual(c_class_flipped.length, 2)
       self.assertType(c_class_flipped[0], Subclass)
@@ -5064,6 +5107,7 @@ class VectorTests(as3libTestCase):
 
       class Interface:
          ...
+      raise TestNotImplemented
       '''
       class Implementer implements Interface {
 
@@ -5217,15 +5261,15 @@ class VectorTests(as3libTestCase):
       '''
 
    def test_constructor(self):
-      a_bool = as3lib.Vector.Boolean(2)
+      a_bool = Vector.Boolean(2)
       self.assertEqual(a_bool.length, 2)
       self.assertFalse(a_bool.fixed)
 
-      b_bool = as3lib.Vector.Boolean(3, True)
+      b_bool = Vector.Boolean(3, True)
       self.assertEqual(b_bool.length, 3)
       self.assertTrue(b_bool.fixed)
 
-      c_bool = as3lib.Vector.Boolean()
+      c_bool = Vector.Boolean()
       self.assertEqual(c_bool.length, 0)
       self.assertFalse(c_bool.fixed)
 
@@ -5238,76 +5282,76 @@ class VectorTests(as3libTestCase):
       a0_class = Superclass()
       a1_class = Subclass()
 
-      a_class = as3lib.Vector(2, type=Superclass)
+      a_class = Vector(2, type=Superclass)
       self.assertEqual(a_class.length, 2)
       self.assertFalse(a_class.fixed)
 
-      b_class = as3lib.Vector(3, True, type=Superclass)
+      b_class = Vector(3, True, type=Superclass)
       self.assertEqual(b_class.length, 3)
       self.assertTrue(b_class.fixed)
 
-      c_class = as3lib.Vector(type=Superclass)
+      c_class = Vector(type=Superclass)
       self.assertEqual(c_class.length, 0)
       self.assertFalse(c_class.fixed)
 
-      a_int = as3lib.Vector.int(2)
+      a_int = Vector.int(2)
       self.assertEqual(a_int.length, 2)
       self.assertFalse(a_int.fixed)
 
-      b_int = as3lib.Vector.int(3, True)
+      b_int = Vector.int(3, True)
       self.assertEqual(b_int.length, 3)
       self.assertTrue(b_int.fixed)
 
-      c_int = as3lib.Vector.int()
+      c_int = Vector.int()
       self.assertEqual(c_int.length, 0)
       self.assertFalse(c_int.fixed)
 
-      a_number = as3lib.Vector.Number(2)
+      a_number = Vector.Number(2)
       self.assertEqual(a_number.length, 2)
       self.assertFalse(a_number.fixed)
 
-      b_number = as3lib.Vector.Number(3, True)
+      b_number = Vector.Number(3, True)
       self.assertEqual(b_number.length, 3)
       self.assertTrue(b_number.fixed)
 
-      c_number = as3lib.Vector.Number()
+      c_number = Vector.Number()
       self.assertEqual(c_number.length, 0)
       self.assertFalse(c_number.fixed)
 
-      a_string = as3lib.Vector.String(2)
+      a_string = Vector.String(2)
       self.assertEqual(a_string.length, 2)
       self.assertFalse(a_string.fixed)
 
-      b_string = as3lib.Vector.String(3, True)
+      b_string = Vector.String(3, True)
       self.assertEqual(b_string.length, 3)
       self.assertTrue(b_string.fixed)
 
-      c_string = as3lib.Vector.String()
+      c_string = Vector.String()
       self.assertEqual(c_string.length, 0)
       self.assertFalse(c_string.fixed)
 
-      a_uint = as3lib.Vector.uint(2)
+      a_uint = Vector.uint(2)
       self.assertEqual(a_uint.length, 2)
       self.assertFalse(a_uint.fixed)
 
-      b_uint = as3lib.Vector.uint(3, True)
+      b_uint = Vector.uint(3, True)
       self.assertEqual(b_uint.length, 3)
       self.assertTrue(b_uint.fixed)
 
-      c_uint = as3lib.Vector.uint()
+      c_uint = Vector.uint()
       self.assertEqual(c_uint.length, 0)
       self.assertFalse(c_uint.fixed)
 
       raise MethodNotImplemented('Vector.<Vector>')
-      a_vector = as3lib.Vector(2, type=as3lib.Vector.int)
+      a_vector = Vector(2, type=Vector.int)
       self.assertEqual(a_vector.length, 2)
       self.assertFalse(a_vector.fixed)
 
-      b_vector = as3lib.Vector.uint(3, True, type=as3lib.Vector.int)
+      b_vector = Vector.uint(3, True, type=Vector.int)
       self.assertEqual(b_vector.length, 3)
       self.assertTrue(b_vector.fixed)
 
-      c_vector = as3lib.Vector.uint(type=as3lib.Vector.int)
+      c_vector = Vector.uint(type=Vector.int)
       self.assertEqual(c_vector.length, 0)
       self.assertFalse(c_vector.fixed)
 
@@ -5324,7 +5368,7 @@ class VectorTests(as3libTestCase):
 
    def test_null_callback(self):
       # TODO: Make sure this is correct
-      v = as3lib.Vector.int()
+      v = Vector.int()
       v.push(1)
       self.assertTrue(v.every(null))
       self.assertIs(v.filter(null), None)
@@ -5338,37 +5382,37 @@ class WTFJSTests(as3libTestCase):
    # don't make sense at first glance.
    # https://github.com/denysdovhan/wtfjs
    def test_banana(self):
-      self.assertEqual(as3lib.String('b') + as3lib.String('a') + + as3lib.String('a') + as3lib.String('a'), 'baNaNa')
+      self.assertEqual(String('b') + String('a') + + String('a') + String('a'), 'baNaNa')
 
    def test_not_array(self):
-      self.assertEqual(+as3lib.Array(), 0)
-      self.assertEqual(not as3lib.Array(), false)
-      self.assertTrue(as3lib.Array() == (not as3lib.Array()))
+      self.assertEqual(+Array(), 0)
+      self.assertEqual(not Array(), false)
+      self.assertTrue(Array() == (not Array()))
 
       # Booleans
-      self.assertFalse(true == as3lib.Array())
-      self.assertFalse(true == (not as3lib.Array()))
-      self.asserttrue(false == as3lib.Array())
-      self.assertTrue(false == (not as3lib.Array()))
+      self.assertFalse(true == Array())
+      self.assertFalse(true == (not Array()))
+      self.asserttrue(false == Array())
+      self.assertTrue(false == (not Array()))
 
    def test_string_bools(self):
-      self.assertEqual(not not as3lib.String('false'), not not as3lib.String('true'))
-      self.assertIs(not not as3lib.String('false'), not not as3lib.String('true'))
+      self.assertEqual(not not String('false'), not not String('true'))
+      self.assertIs(not not String('false'), not not String('true'))
 
    def test_fail(self):
       # Original (![] + [])[+[]] + (![] + [])[+!+[]] + ([![]] + [][[]])[+!+[] + [+[]]] + (![] + [])[!+[] + !+[]];
-      self.assertEqual((not as3lib.Array() + as3lib.Array())[+as3lib.Array()] + (not as3lib.Array() + as3lib.Array())[+(not+as3lib.Array())] + (as3lib.Array(not as3lib.Array()) + as3lib.Array()[as3lib.Array()])[+(not+as3lib.Array()) + as3lib.Array(+as3lib.Array)] + (not as3lib.Array() + as3lib.Array())[not+as3lib.Array() + (not+as3lib.Array())], 'fail')
+      self.assertEqual((not Array() + Array())[+Array()] + (not Array() + Array())[+(not+Array())] + (Array(not Array()) + Array()[Array()])[+(not+Array()) + Array(+Array)] + (not Array() + Array())[not+Array() + (not+Array())], 'fail')
 
    def test_truthy_arry(self):
-      self.assertTrue(not not as3lib.Array())
-      self.assertFalse(as3lib.Array())
+      self.assertTrue(not not Array())
+      self.assertFalse(Array())
 
    def test_falsy_null(self):
       self.assertFalse(not not null)
       self.assertFalse(null == false)
 
    def test_add_array(self):
-      self.assertEqual(as3lib.Array(1, 2, 3) + as3lib.Array(4, 5, 6), '1,2,34,5,6')
+      self.assertEqual(Array(1, 2, 3) + Array(4, 5, 6), '1,2,34,5,6')
 
    def test_array_equality(self):
       '''
@@ -5396,26 +5440,26 @@ class WTFJSTests(as3libTestCase):
       [[[[[[ undefined ]]]]]] == 0  // true
       [[[[[[ undefined ]]]]]] == '' // true
       '''
-      self.assertEqual(as3lib.Array(), as3lib.String())
-      self.assertEqual(as3lib.Array(), as3lib.Number(0))
-      self.assertEqual(as3lib.Array(['']), as3lib.String())
-      self.assertEqual(as3lib.Array([0]), as3lib.Number(0))
-      self.assertNotEqual(as3lib.Array([0]), as3lib.String())
-      self.assertEqual(as3lib.Array(['']), as3lib.Number(0))
+      self.assertEqual(Array(), String())
+      self.assertEqual(Array(), Number(0))
+      self.assertEqual(Array(['']), String())
+      self.assertEqual(Array([0]), Number(0))
+      self.assertNotEqual(Array([0]), String())
+      self.assertEqual(Array(['']), Number(0))
 
-      self.assertEqual(as3lib.Array([null]), as3lib.String())
-      self.assertEqual(as3lib.Array([null]), as3lib.Number(0))
-      self.assertEqual(as3lib.Array([undefined]), as3lib.String())
-      self.assertEqual(as3lib.Array([undefined]), as3lib.Number(0))
+      self.assertEqual(Array([null]), String())
+      self.assertEqual(Array([null]), Number(0))
+      self.assertEqual(Array([undefined]), String())
+      self.assertEqual(Array([undefined]), Number(0))
 
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array()))))), as3lib.String())
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array()))))), as3lib.Number(0))
+      self.assertEqual(Array(Array(Array(Array(Array(Array()))))), String())
+      self.assertEqual(Array(Array(Array(Array(Array(Array()))))), Number(0))
 
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(null)))))), as3lib.String())
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(null)))))), as3lib.Number(0))
+      self.assertEqual(Array(Array(Array(Array(Array(Array(null)))))), String())
+      self.assertEqual(Array(Array(Array(Array(Array(Array(null)))))), Number(0))
 
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(undefined)))))), as3lib.String())
-      self.assertEqual(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(as3lib.Array(undefined)))))), as3lib.Number(0))
+      self.assertEqual(Array(Array(Array(Array(Array(Array(undefined)))))), String())
+      self.assertEqual(Array(Array(Array(Array(Array(Array(undefined)))))), Number(0))
 
    def test_parseInt_quirks(self):
       self.assertNaN(as3lib.parseInt('f*ck'))
@@ -5456,22 +5500,22 @@ class WTFJSTests(as3libTestCase):
       [] * []         // -> 0
       [4, 4] * [4, 4] // NaN
       '''
-      self.assertEqual(as3lib.Number(3) - as3lib.Number(1), as3lib.Number(2))
-      self.assertEqual(as3lib.Number(3) + as3lib.Number(1), as3lib.Number(4))
-      self.assertEqual(as3lib.String('3') - as3lib.Number(1), as3lib.Number(2))
-      self.assertEqual(as3lib.String('3') + as3lib.Number(1), as3lib.String('31'))
+      self.assertEqual(Number(3) - Number(1), Number(2))
+      self.assertEqual(Number(3) + Number(1), Number(4))
+      self.assertEqual(String('3') - Number(1), Number(2))
+      self.assertEqual(String('3') + Number(1), String('31'))
 
-      self.assertEqual(as3lib.String('') + as3lib.String(''), as3lib.String(''))
-      self.assertEqual(as3lib.Array() + as3lib.Array(), as3lib.String(''))
-      self.assertEqual(as3lib.Object() + as3lib.Array(), as3lib.Number(0))
-      self.assertEqual(as3lib.Array() + as3lib.Object(), as3lib.String('[object Object]'))
-      self.assertEqual(as3lib.Object() + as3lib.Object(), as3lib.String('[object Object][object Object]'))
+      self.assertEqual(String('') + String(''), String(''))
+      self.assertEqual(Array() + Array(), String(''))
+      self.assertEqual(Object() + Array(), Number(0))
+      self.assertEqual(Array() + Object(), String('[object Object]'))
+      self.assertEqual(Object() + Object(), String('[object Object][object Object]'))
 
-      self.assertEqual(as3lib.String('222') - -as3lib.String('111'), as3lib.Number('333'))
+      self.assertEqual(String('222') - -String('111'), Number('333'))
 
-      self.assertEqual(as3lib.Array([4]) * as3lib.Array([4]), as3lib.Number(16))
-      self.assertEqual(as3lib.Array() * as3lib.Array(), as3lib.Number(0))
-      self.assertEqual(as3lib.Array([4, 4]) * as3lib.Array([4, 4]), as3lib.NaN)
+      self.assertEqual(Array([4]) * Array([4]), Number(16))
+      self.assertEqual(Array() * Array(), Number(0))
+      self.assertEqual(Array([4, 4]) * Array([4, 4]), NaN)
 
    def test_yield_self(self):
       # The syntax here is a little bit different but it still works
@@ -5481,8 +5525,8 @@ class WTFJSTests(as3libTestCase):
       self.assertIs(next(next(next(next(next(f())())())())()), f)
 
    def test_minmax(self):
-      self.assertIs(Math.min(), as3lib.Infinity)
-      self.assertIs(Math.max(), as3lib.NInfinity)
+      self.assertIs(Math.min(), Infinity)
+      self.assertIs(Math.max(), -Infinity)
       self.assertLess(Math.max(), Math.min())
 
    def test_infinite_timeout(self):
@@ -5491,7 +5535,7 @@ class WTFJSTests(as3libTestCase):
       # TODO: console.log
       # setTimeout(() => console.log("called"), Infinity)
       # TODO: Make this an assert
-      setTimeout(print, as3lib.Infinity, "called")
+      setTimeout(print, Infinity, "called")
 
 
 class XMLTests(as3libTestCase):
