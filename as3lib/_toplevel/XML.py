@@ -1,7 +1,7 @@
 from __future__ import annotations
 from as3lib._toplevel.Array import Array
 from as3lib._toplevel.Constants import undefined, null
-from as3lib._toplevel.Errors import ArgumentError
+from as3lib._toplevel.Errors import ArgumentError, TypeError
 from as3lib._toplevel.Functions import isXMLName
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.String import String
@@ -9,8 +9,6 @@ from multipledispatch import dispatch
 
 
 class Namespace(Object):
-   _mdspns = {}
-
    @property
    def prefix(self):
       return self._prefix
@@ -27,32 +25,39 @@ class Namespace(Object):
    def uri(self, value):
       self._uri = value
 
-   @dispatch(object, object, namespace=_mdspns)
-   def __init__(self, prefixValue, uriValue):
-      if prefixValue is None or prefixValue is undefined:
-         self._prefix = undefined
-      elif isXMLName(prefixValue):
-         self._prefix = str(prefixValue)
+   def __init__(self, *args):
+      if len(args) >= 2:
+         val1 = args[0]
+         val2 = args[1]
+         if val1 is null:
+            val1 = undefined
+         if isXMLName(val1):
+            self._prefix = String(val1)
+         else:
+            self._prefix = undefined
+         if isinstance(val2, QName):
+            self._uri = val2.uri
+         elif self.prefix != '' and isinstance(val2, str) and not len(val2):
+            raise TypeError('Illegal prefix %s for no namespace.' % self.prefix, 1098)
+         else:
+            self._uri = String(val2)
+      elif len(args):
+         val = args[0]
+         if isinstance(val, Namespace):
+            self._prefix = val.prefix
+            self._uri = val.uri
+         elif isinstance(val, QName):
+            self._prefix = undefined
+            self._uri = val.uri
+         elif isinstance(val, str) and val == '':
+            self._prefix = String()
+            self._uri = String()
+         else:
+            self._prefix = undefined
+            self._uri = String(val)
       else:
-         self._prefix = undefined
-      if isinstance(uriValue, QName):
-         self._uri = uriValue.uri
-      else:
-         self._uri = str(uriValue)
-
-   @dispatch(object, namespace=_mdspns)
-   def __init__(self, uriValue):
-      if isinstance(uriValue, Namespace):
-         self._prefix = uriValue.prefix
-         self._uri = uriValue.uri
-      elif isinstance(uriValue, QName):
-         self._prefix = None
-         self._uri = uriValue.uri
-
-   @dispatch(namespace=_mdspns)
-   def __init__(self):
-      self._prefix = String()
-      self._uri = String()
+         self._prefix = String()
+         self._uri = String()
 
    def toString(self):
       return self.uri
@@ -105,11 +110,12 @@ class QName(Object):
       if self.uri == '':
          return self.localName
       elif self.uri is null:
-         return f'*::{self.localName}'
+         return '*::%s' % self.localName
       else:
-         return f'{self.uri}::{self.localName}'
+         return '%s::%s' % (self.uri, self.localName)
 
-   def valueOf(self):...
+   def valueOf(self):
+      return self
 
 
 class XMLList(Object):
