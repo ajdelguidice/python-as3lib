@@ -14,17 +14,17 @@ def _parseFloat(str_):
    # TODO: Make stop at second period
    # TODO: '100a' should return NaN
    if str_ is None:
-      return _NaN_value
+      return Number.NaN
    str_ = str_.lstrip()
    if str_ == '':
-      return 0
+      return Number(0)
    if str_ == 'Infinity':
-      return _PosInf_value
+      return Number.POSITIVE_INFINITY
    if str_ == '-Infinity':
-      return _NegInf_value
+      return Number.NEGATIVE_INFINITY
    size = len(str_)
    if size == 0:
-      return _NaN_value
+      return Number.NaN
    if str_[0].isdigit() or str_[0] in '-+.':
       j = 0
       while str_[j] in '-+':
@@ -32,10 +32,10 @@ def _parseFloat(str_):
       if size > j + 1 and str_[j] == '0' and str_[j + 1] == 'x':
          j += 2
          if size == j:
-            return _NaN_value
+            return Number.NaN
          while j != size and str_[j] in '0123456789abcdefABCDEF':
             j += 1
-         return int(str_[:j], 16)
+         return Number(int(str_[:j], 16))
       while j != size and (str_[j].isdigit() or str_[j] == '.'):
          j += 1
       if j != size and str_[j] == 'e':
@@ -47,11 +47,12 @@ def _parseFloat(str_):
             j += 1
             while j != size and str_[j].isdigit():
                j += 1
-      return float(str_[:j])
-   return _NaN_value
+      return Number(float(str_[:j]))
+   return Number.NaN
 
 
 class Number(Object):
+   __slots__ = '_val'
    MAX_VALUE = 1.79e308
    MIN_VALUE = 5e-324
 
@@ -76,29 +77,14 @@ class Number(Object):
    def __repr__(self):
       return 'as3lib.Number(%s)' % self
 
-   def __getitem__(self):
-      return self._value
-
-   def __setitem__(self, value):
-      self._value = self._Number(value)
-
    def __add__(self, value):
-      try:
-         return Number(self._value + float(value))
-      except Exception:
-         raise TypeError(f'can not add {type(value)} to Number')
+      return Number(self._value + self._Number(value))
 
    def __sub__(self, value):
-      try:
-         return Number(self._value - float(value))
-      except Exception:
-         raise TypeError(f'can not subtract {type(value)} from Number')
+      return Number(self._value - self._Number(value))
 
    def __mul__(self, value):
-      try:
-         return Number(self._value * float(value))
-      except Exception:
-         raise TypeError(f'can not multiply Number by {type(value)}')
+      return Number(self._value * self._Number(value))
 
    def __truediv__(self, value):
       if value == 0:
@@ -114,7 +100,7 @@ class Number(Object):
          raise TypeError(f'Can not divide Number by {type(value)}')
 
    def __float__(self):
-      return float(self._value)
+      return self._value
 
    def __int__(self):
       return builtins.int(self._value)
@@ -129,35 +115,23 @@ class Number(Object):
       return self._value > value
 
    def __neg__(self):
-      if self._is_nan():
-         return Number.NaN
-      if self._value == _NegInf_value:
-         return Number.POSITIVE_INFINITY
-      if self._value == _PosInf_value:
-         return Number.NEGATIVE_INFINITY
       return Number(-self._value)
 
    def __bool__(self):
-      if self._is_nan():
-         return False
       return self._value != 0
 
    def __abs__(self):
-      if self._is_nan():
-         return Number.NaN
-      if self._value in {_NegInf_value, _PosInf_value}:
-         return Number.POSITIVE_INFINITY
-      return Number(self._value)
+      return Number(abs(self._value))
 
    def _Number(self, expression):
-      if hasattr(expression, '_is_nan') and expression._is_nan():
+      if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
          return _NaN_value
       if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
          expression = expression.valueOf()
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
          return expression
-      if expression is _NaN_value or expression is undefined or expression is None:
-         return _NaN_value
+      if expression is undefined or expression is None:
+         return Number.NaN
       if expression is null:
          return 0.0
       if hasattr(expression, '__float__'):
@@ -165,7 +139,7 @@ class Number(Object):
       if isinstance(expression, str):
          return _parseFloat(expression)
       if isinstance(expression, Object):
-         return _NaN_value
+         return Number.NaN
 
    def toExponential(self):
       raise NotImplementedError
