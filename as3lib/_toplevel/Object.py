@@ -9,7 +9,8 @@ class Object:
    def __str__(self):
       return self.toString()
 
-   def hasOwnProperty(self, name: str):...
+   def hasOwnProperty(self, name: str):
+         raise NotImplementedError
 
    def isPrototypeOf(self, theClass):
       warn('isPrototypeOf will not work properly because the prototype property is not implemented.')
@@ -21,9 +22,11 @@ class Object:
          p = p.prototype
       return False
 
-   def propertyIsEnumerable(self, name: str):...
+   def propertyIsEnumerable(self, name: str):
+         raise NotImplementedError
 
-   def setPropertyIsEnumerable(self, name: str, isEnum=True):...
+   def setPropertyIsEnumerable(self, name: str, isEnum=True):
+         raise NotImplementedError
 
    def toLocaleString(self):
       return '[object %s]' % type(self).__name__
