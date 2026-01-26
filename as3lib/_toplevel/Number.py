@@ -87,17 +87,14 @@ class Number(Object):
       return Number(self._value * self._Number(value))
 
    def __truediv__(self, value):
+      value = self._Number(value)
       if value == 0:
-         if self._value == 0:
-            return Number.NaN
          if self._value > 0:
             return Number.POSITIVE_INFINITY
          if self._value < 0:
             return Number.NEGATIVE_INFINITY
-      try:
-         return Number(self._value / float(value))
-      except Exception:
-         raise TypeError(f'Can not divide Number by {type(value)}')
+         return Number.NaN
+      return Number(self._value / value)
 
    def __float__(self):
       return self._value
