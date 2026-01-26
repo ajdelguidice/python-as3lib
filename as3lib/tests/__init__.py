@@ -1,6 +1,6 @@
 import as3lib
 from as3lib._toplevel.Keywords import each
-from as3lib._toplevel.Number import _NaN_value
+from as3lib._toplevel.Number import Number
 import unittest
 
 
@@ -15,9 +15,7 @@ class as3libTestCase(unittest.TestCase):
          self.fail('%r is not NaN' % obj)
 
    def assertNaN(self, obj):
-      # TODO: Remove extra checks once NaN is implemented properly
-      if not (obj is as3lib.NaN or isinstance(obj, as3lib.Object) and
-          hasattr(obj, 'valueOf') and obj.valueOf() is _NaN_value):
+      if not (hasattr(obj, '_is_nan') and obj._is_nan() or obj is as3lib.NaN or obj is Number.NaN):
          self.fail('%r is not NaN' % obj)
 
    def assertArray(self, array, check, length=None):
@@ -70,7 +68,7 @@ class as3libTestCase(unittest.TestCase):
          self.assertEqual(e.eventPhase, phase)
 
    def assertIter(self, obj, values, length=None):
-      self.assertArray([i for i in obj], values, lenth)
+      self.assertArray([i for i in obj], values, length)
 
    def assertEach(self, obj, values, length=None):
       self.assertArray([i for i in each(obj)], values, length)
@@ -89,8 +87,6 @@ class as3libTestCase(unittest.TestCase):
             self.assertEqual(e.message, message)
       else:
          self.fail('Function didn\'t raise an error.')
-
-
 
 
 class TestNotImplemented(NotImplementedError):
