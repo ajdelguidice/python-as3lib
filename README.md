@@ -1,10 +1,10 @@
 # python-as3lib
 
-A partial implementation of ActionScript 3 and the adobe flash api in python. This project is developed for the purpose of making game porting easier and is developed by one person.
+A partial implementation of ActionScript 3 and the adobe flash api in python. This project is developed for the purpose of making game porting easier and is currently developed by one person.
 
 ## Notes
 
-- If you need acuracy, use <a href="https://ruffle.rs">ruffle</a> instead.
+- If you want to run an swf files, use <a href="https://ruffle.rs">ruffle</a> instead.
 - Some stuff will be impossible to implement in python because <a href="https://docs.python.org/3/glossary.html#term-global-interpreter-lock">python is a fish</a>.
 - Undocumented things can not be implemented unless I am informed about them.
 - Versions of this library before 0.0.6 are broken on windows.
@@ -33,7 +33,7 @@ Unix specific<br>
 > <br> xwininfo
 > <br> xrandr
 
-This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, time, datetime, os, pwd (unix), pathlib, configparser, webbrowser, textwrap, typing, tomllib
+This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, datetime, os, pwd (unix), pathlib, configparser, webbrowser, typing, tomllib
 
 ## Config Files
 
@@ -48,4 +48,4 @@ This library also makes use of the following python builtin modules: tkinter, re
 ## License
 
 as3lib is licensed under the <a href="https://opensource.org/license/MIT">MIT License</a>, however some parts are under a different license. These are:
-- as3lib/tests. Most of these tests are based on tests from <a href="https://github.com/ruffle-rs/ruffle">ruffle</a> and are only modified to make them run in python. They are under Apache 2.0 or MIT, their original license is also included in [otherlicenses/LICENSE-ruffle.md](otherlicenses/LICENSE-ruffle.md)
+- as3lib/tests. Most of these tests are based on tests from <a href="https://github.com/ruffle-rs/ruffle">ruffle</a> and are only modified to make them run in python. They are under their original license (Apache 2.0 or MIT) which is located in [otherlicenses/LICENSE-ruffle.md](otherlicenses/LICENSE-ruffle.md)
