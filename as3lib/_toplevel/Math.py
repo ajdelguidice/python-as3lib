@@ -1,7 +1,7 @@
-import math
-import random
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
+import math
+import random
 
 
 class Math(Object):
@@ -16,6 +16,7 @@ class Math(Object):
 
    @staticmethod
    def abs(val):
+      val = Number(val)
       return abs(val)
 
    @staticmethod
@@ -28,11 +29,13 @@ class Math(Object):
 
    @staticmethod
    def atan(val):
-      return math.atan(val)
+      val = Number(val)
+      return Number(math.atan(val))
 
    @staticmethod
    def atan2(y, x):
-      return math.atan2(y, x)
+      x, y = Number(x), Number(y)
+      return Number(math.atan2(y, x))
 
    @staticmethod
    def ceil(val):
@@ -48,9 +51,7 @@ class Math(Object):
 
    @staticmethod
    def floor(val):
-      if val == Number.NEGATIVE_INFINITY or val == Number.POSITIVE_INFINITY or val is Number.NaN:
-         return val
-      return math.floor(val)
+      return math.floor(Number(val))
 
    @staticmethod
    def log(val):
@@ -70,7 +71,7 @@ class Math(Object):
 
    @staticmethod
    def random():
-      return random.random()
+      return Number(random.random())
 
    @staticmethod
    def round(val):
@@ -82,6 +83,9 @@ class Math(Object):
 
    @staticmethod
    def sqrt(val):
+      val = Number(val)
+      if val < 0 or val._is_nan():
+         return Number.NaN
       return math.sqrt(val)
 
    @staticmethod
