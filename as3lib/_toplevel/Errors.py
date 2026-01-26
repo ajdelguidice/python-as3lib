@@ -53,59 +53,59 @@ class Error(Exception, Object):
 
 
 class ArgumentError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'ArgumentError'
 
 
 class DefinitionError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'DefinitionError'
 
 
 class EvalError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'EvalError'
 
 class RangeError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'RangeError'
 
 
 class ReferenceError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'ReferenceError'
 
 
 class SecurityError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'SecurityError'
 
 
 class SyntaxError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'SyntaxError'
 
 
 class TypeError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'TypeError'
 
 
 class URIError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'URIError'
 
 
 class VerifyError(Error):
-   def __init__(self, message=''):
-      super().__init__(message)
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
       self.name = 'VerifyError'
