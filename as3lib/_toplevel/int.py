@@ -60,7 +60,6 @@ def _parseInt(str_: str = None, radix: int | uint = 0):
 
 class int(Object):
    # TODO: Make this return a Number if the result is a float
-   # TODO: Fix int conversion
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
 
@@ -73,8 +72,7 @@ class int(Object):
       self._val.value = value
 
    def __init__(self, value=0):
-      self._val = c_int32()
-      self._value = self._int(value)
+      self._val = c_int32(self._int(value))
 
    def __float__(self):
       return float(self._value)
@@ -86,13 +84,7 @@ class int(Object):
       return bool(self._value)
 
    def __repr__(self):
-      return f'as3lib.int({self._value})'
-
-   def __getitem__(self):
-      return self._value
-
-   def __setitem__(self, value):
-      self._value = self._int(value)
+      return 'as3lib.int(%s)' % self._value
 
    def __add__(self, value):
       return int(self._value + self._int(value))
@@ -106,16 +98,12 @@ class int(Object):
    def __truediv__(self, value):
       value = self._int(value)
       if value == 0:
-         if self._value == 0:
-            return Number.NaN
          if self._value > 0:
             return Number.POSITIVE_INFINITY
          if self._value < 0:
             return Number.NEGATIVE_INFINITY
-      try:
-         return int(self._value / value)
-      except Exception:
-         raise TypeError(f'Can not divide int by {type(value)}')
+         return Number.NaN
+      return int(self._value / value)
 
    def __eq__(self, value):
       return self._value == value
@@ -140,7 +128,7 @@ class int(Object):
 
    def _int(self, value):
       if isinstance(value, str):
-         value = Number(_parseFloat(value))
+         value = _parseFloat(value)
       if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
          return 0
       if isinstance(value, (int, uint, Number)):
@@ -218,29 +206,13 @@ class uint(Object):
       self._val.value = value
 
    def __init__(self, value=undefined):
-      self._val = c_uint32()
-      if isinstance(value, str):
-         value = Number(_parseFloat(value))
-      if hasattr(value, '_is_nan') and value._is_nan() or value is undefined or value is null or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
-         self._value = 0
-      elif isinstance(value, (Number, float)):
-         self._value = Math.floor(value)
-      elif isinstance(value, (uint, int)):
-         self._value = value._value
-      elif isinstance(value, builtins.int):
-         self._value = value
-      elif hasattr(value, '__int__'):
-         self._value = builtins.int(value)
-      elif isinstance(value, Object):
-         self._value = 0
-      else:
-         raise
+      self._val = c_uint32(self._uint(value))
 
    def __str__(self):
       return self.toString()
 
    def __repr__(self):
-      return f'as3lib.uint({self._value})'
+      return 'as3lib.uint(%s)' % self._value
 
    def __eq__(self, value):
       return self._value == value
@@ -252,16 +224,29 @@ class uint(Object):
       return self._value > value
 
    def __truediv__(self, value):
+      value = self._uint(value)
       if value == 0:
-         if self._value == 0:
-            return Number.NaN
          if self._value > 0:
             return Number.POSITIVE_INFINITY
-         raise  # Should not happen
-      try:
-         return uint(self._value / builtins.int(value))
-      except Exception:
-         raise TypeError(f'Can not divide uint by {type(value)}')
+         return Number.NaN
+      return uint(self._value / value)
+
+   def _uint(self, value):
+      if isinstance(value, str):
+         value = _parseFloat(value)
+      if hasattr(value, '_is_nan') and value._is_nan() or value is undefined or value is null or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         return 0
+      elif isinstance(value, (Number, float)):
+         return Math.floor(value)
+      elif isinstance(value, (uint, int)):
+         return value._value
+      elif isinstance(value, builtins.int):
+         return value
+      elif hasattr(value, '__int__'):
+         return builtins.int(value)
+      elif isinstance(value, Object):
+         return 0
+      raise
 
    def toExponential(self, fractionDigits = null):
       raise NotImplementedError
