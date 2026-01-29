@@ -13,6 +13,9 @@ class undefined:
    def __repr__(self):
       return self.toString()
 
+   def __bool__(self):
+      return False
+
    def toString(self):
       return 'undefined'
 
