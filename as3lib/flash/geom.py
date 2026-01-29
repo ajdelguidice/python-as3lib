@@ -112,7 +112,7 @@ class Matrix(Object):
 
    @a.setter
    def a(self, value):
-      self._a = value
+      self._a = Number(value)
 
    @property
    def b(self):
@@ -120,7 +120,7 @@ class Matrix(Object):
 
    @b.setter
    def b(self, value):
-      self._b = value
+      self._b = Number(value)
 
    @property
    def c(self):
@@ -128,7 +128,7 @@ class Matrix(Object):
 
    @c.setter
    def c(self, value):
-      self._c = value
+      self._c = Number(value)
 
    @property
    def d(self):
@@ -136,7 +136,7 @@ class Matrix(Object):
 
    @d.setter
    def d(self, value):
-      self._d = value
+      self._d = Number(value)
 
    @property
    def tx(self):
@@ -144,7 +144,7 @@ class Matrix(Object):
 
    @tx.setter
    def tx(self, value):
-      self._tx = value
+      self._tx = Number(value)
 
    @property
    def ty(self):
@@ -152,15 +152,15 @@ class Matrix(Object):
 
    @ty.setter
    def ty(self, value):
-      self._ty = value
+      self._ty = Number(value)
 
    def __init__(self, a=1, b=0, c=0, d=1, tx=0, ty=0):
-      self._a = a
-      self._b = b
-      self._c = c
-      self._d = d
-      self._tx = tx
-      self._ty = ty
+      self._a = Number(a)
+      self._b = Number(b)
+      self._c = Number(c)
+      self._d = Number(d)
+      self._tx = Number(tx)
+      self._ty = Number(ty)
 
    def clone(self):
       return Matrix(self.a, self.b, self.c, self.d, self.tx, self.ty)
@@ -259,12 +259,12 @@ class Matrix(Object):
       self.ty *= sy
 
    def setTo(self, aa, ba, ca, da, txa, tya):
-      self.a = aa
-      self.b = ba
-      self.c = ca
-      self.d = da
-      self.tx = txa
-      self.ty = tya
+      self.a = Number(aa)
+      self.b = Number(ba)
+      self.c = Number(ca)
+      self.d = Number(da)
+      self.tx = Number(txa)
+      self.ty = Number(tya)
 
    def toString(self):
       return f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})'
@@ -475,7 +475,7 @@ class Point(Object):
 
    @x.setter
    def x(self, value):
-      self._x = value
+      self._x = Number(value)
 
    @property
    def y(self):
@@ -483,11 +483,11 @@ class Point(Object):
 
    @y.setter
    def y(self, value):
-      self._y = value
+      self._y = Number(value)
 
    def __init__(self, x=0, y=0):
-      self._x = x
-      self._y = y
+      self._x = Number(x)
+      self._y = Number(y)
 
    def add(self, v: Point):
       return Point(self.x + v.x, self.y + v.y)
@@ -521,14 +521,14 @@ class Point(Object):
       return Point(len * math.cos(angle), len * math.sin(angle))
 
    def setTo(self, xa, ya):
-      self.x = xa
-      self.y = ya
+      self.x = Number(xa)
+      self.y = Number(ya)
 
    def subtract(self, v: Point):
       return Point(self.x - v.x, self.y - v.y)
 
    def toString(self):
-      return f'(x={self.x}, y={self.y})'
+      return '(x=%s, y=%s)' % (self.x, self.y)
 
 
 class Rectangle(Object):
@@ -769,7 +769,7 @@ class Vector3D(Object):
 
    @w.setter
    def w(self, value):
-      self._w = value
+      self._w = Number(value)
 
    @property
    def x(self):
@@ -777,7 +777,7 @@ class Vector3D(Object):
 
    @x.setter
    def x(self, value):
-      self._x = value
+      self._x = Number(value)
 
    @property
    def y(self):
@@ -785,7 +785,7 @@ class Vector3D(Object):
 
    @y.setter
    def y(self, value):
-      self._y = value
+      self._y = Number(value)
 
    @property
    def z(self):
@@ -793,13 +793,13 @@ class Vector3D(Object):
 
    @z.setter
    def z(self, value):
-      self._z = value
+      self._z = Number(value)
 
    def __init__(self, x=0, y=0, z=0, w=0):
-      self._w = w
-      self._x = x
-      self._y = y
-      self._z = z
+      self._w = Number(w)
+      self._x = Number(x)
+      self._y = Number(y)
+      self._z = Number(z)
 
    def add(self, a: Vector3D):
       # The documentation does not mention w
