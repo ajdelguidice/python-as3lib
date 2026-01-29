@@ -115,7 +115,7 @@ class Number(Object):
       return Number(-self._value)
 
    def __bool__(self):
-      return self._value != 0
+      return self._value != 0 and not self._is_nan()
 
    def __abs__(self):
       return Number(abs(self._value))
