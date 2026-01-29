@@ -120,6 +120,14 @@ class Number(Object):
    def __abs__(self):
       return Number(abs(self._value))
 
+   def __pow__(self, value):
+      return self._value ** value
+
+   def __round__(self, places=null):
+      if places is null:
+         return Number(round(self._value))
+      return Number(round(self._value, places))
+
    def _Number(self, expression):
       if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
          return _NaN_value
