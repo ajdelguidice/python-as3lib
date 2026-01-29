@@ -1,4 +1,4 @@
-class _undefined:
+class undefined:
    __slots__ = ("value")
 
    def __init__(self):
@@ -17,7 +17,7 @@ class _undefined:
       return 'undefined'
 
 
-class _null:
+class null:
    __slots__ = ("value")
 
    def __init__(self):
@@ -38,5 +38,5 @@ class _null:
    def toString(self):
       return 'null'
 
-undefined = _undefined()
-null = _null()
+undefined = undefined()
+null = null()
