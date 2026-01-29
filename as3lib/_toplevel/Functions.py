@@ -1,29 +1,29 @@
 from as3lib import as3state
+from as3lib._toplevel.Constants import undefined
+from as3lib._toplevel.Errors import Error
+from as3lib._toplevel.int import int, uint
+from as3lib._toplevel.Number import _parseFloat, Number
 import builtins
 from pathlib import Path, PurePath
-from as3lib._toplevel.Constants import undefined
-from as3lib._toplevel.int import int, uint, _parseInt
-from as3lib._toplevel.Number import _NaN_value, _parseFloat, Number
-from as3lib._toplevel.Errors import Error
 
 
-def decodeURI():
+def decodeURI(uri):
    raise NotImplementedError
 
 
-def decodeURIComponent():
+def decodeURIComponent(uri):
    raise NotImplementedError
 
 
-def encodeURI():
+def encodeURI(uri):
    raise NotImplementedError
 
 
-def encodeURIComponent():
+def encodeURIComponent(uri):
    raise NotImplementedError
 
 
-def escape():
+def escape(str):
    '''
    Converts the parameter to a string and encodes it in a URL-encoded format, where most nonalphanumeric characters are replaced with % hexadecimal sequences. When used in a URL-encoded string, the percentage symbol (%) is used to introduce escape characters, and is not equivalent to the modulo operator (%).
    The following characters are not converted to escape sequences by the escape() function.
@@ -38,8 +38,7 @@ def isFinite(num):
 
 
 def isNaN(num):
-   num = Number(num)
-   return num._is_nan()
+   return Number(num)._is_nan()
 
 
 def isXMLName(str_: str):
@@ -54,14 +53,45 @@ def isXMLName(str_: str):
 
 
 def parseFloat(str_: str = None):
-   return Number(_parseFloat(str_))
+   return _parseFloat(str_)
 
 
 def parseInt(str_: str = None, radix: int | uint = 0):
-   return Number(_parseInt(str_, radix))
+   # TODO: Find a better way of doing the sign detection
+   if str_ is undefined:
+      if radix == 32:
+         return Number(785077)
+      return Number.NaN
+   if str_ is None:
+      return Number.NaN
+   str_ = str_.lstrip()
+   zero = False
+   minus = 0
+   j1 = 0
+   while j1 < len(str_) and str_[j1] in '-+':
+      if str_[j1] == '-':
+         minus += 1
+      j1 += 1
+   str_ = str_[j1:]
+   if len(str_) >= 2 and str_.startswith('0x'):
+      radix = 16
+      str_ = str_[2:]
+   elif radix < 2 or radix > 36:
+      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
+   if str_.startswith('0'):
+      zero = True
+      str_.lstrip("0")
+   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
+   str_ = str_.upper()
+   j = 0
+   while j < len(str_) and str_[j] in radixchars:
+      j += 1
+   if j == 0:
+      return Number(0) if zero else Number.NaN
+   return Number(builtins.int(str_[:j], radix) * (-1 if minus % 2 else 1))
 
 
-def unescape():
+def unescape(str):
    raise NotImplementedError
 
 
@@ -79,20 +109,22 @@ def DisableDebug():
    as3state.as3DebugEnable = False
 
 
-def isEven(Num: builtins.int | float | int | Number | uint):
-   if Num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY:
+def isEven(num: builtins.int | float | int | Number | uint):
+   num = Number(num)
+   if not isFinite(num):
       return False
-   if isinstance(Num, (builtins.int, int, uint)):
-      return Num % 2 == 0
-   if isinstance(Num, (float, Number)):...
+   if num.valueOf().is_integer():
+      return num % 2 == 0
+   ...
 
 
-def isOdd(Num: builtins.int | float | int | Number | uint):
-   if Num is Number.NaN or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY:
+def isOdd(num: builtins.int | float | int | Number | uint):
+   num = Number(num)
+   if not isFinite(num):
       return False
-   if isinstance(Num, (builtins.int, int, uint)):
-      return Num % 2 != 0
-   if isinstance(Num, (float, Number)):...
+   if num.valueOf().is_integer():
+      return num % 2 != 0
+   ...
 
 
 def objIsChildClass(obj, cls):
