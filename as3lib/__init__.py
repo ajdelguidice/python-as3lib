@@ -161,13 +161,14 @@ from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encod
 from ._toplevel.int import int as Int
 from ._toplevel.int import uint
 from ._toplevel.JSON import JSON
+from ._toplevel.Keywords import delete, each
 from ._toplevel.Math import Math
 from ._toplevel.Number import Number
 from ._toplevel.Object import Object
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
 from ._toplevel.trace import trace
-from ._toplevel.Types import allArray, allBoolean, allInt, allNumber, allNone, allString
+from ._toplevel.Types import allArray, allBoolean, allInt
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
@@ -184,21 +185,24 @@ try:
    def adapter(func, obj, encoder):
       return func(obj)
 
+   def arrayAdapter(obj, encoder):
+      return list(each(obj))
+
    def vectorAdapter(obj, encoder):
       if obj._type is int:
-         out = IntVector(obj)
+         out = IntVector(each(obj))
       elif obj._type is uint:
-         out = UintVector(obj)
+         out = UintVector(each(obj))
       elif obj._type is Number:
-         out = DoubleVector(obj)
+         out = DoubleVector(each(obj))
       else:
-         out = ObjectVector(obj)
+         out = ObjectVector(each(obj))
          # TODO
          # out.classname =
       out.fixed = obj.fixed
       return out
 
-   add_type(Array, partial(adapter, list))
+   add_type(Array, arrayAdapter)
    add_type(Boolean, partial(adapter, bool))
    add_type(Int, partial(adapter, builtins.int))
    add_type(Number, partial(adapter, float))
@@ -221,12 +225,8 @@ __all__ = (
    'undefined',
    'null',
 
-   'allArray',
-   'allBoolean',
-   'allInt',
-   'allNumber',
-   'allNone',
-   'allString',
+   'delete',
+   'each',
 
    'ArgumentError',
    'Array',
