@@ -46,7 +46,7 @@ class RegExp(Object):
    def source(self):
       return self._source
 
-   def __init__(self, re=undefined, flags=undefined):
+   def __init__(self, re=undefined, flags=undefined, *args):
       if re is undefined:
          re = ''
       if re is null:
@@ -87,9 +87,7 @@ class RegExp(Object):
          flags |= regex.VERBOSE
       self._re = regex.compile(self.source, flags)
 
-   def _doRE(self, str):
-      # Implementation of exec and test. They both seem to do the same thing
-      # behind the scenes.
+   def exec(self, str):
       # TODO: output.index
       # TODO: global flag
       match = self._re.match(str)
@@ -112,11 +110,8 @@ class RegExp(Object):
          raise NotImplementedError
       return output
 
-   def exec(self, str):
-      return self._doRE(str)
-
    def test(self, str):
-      if self._doRE(str) is null:
+      if self.exec(str) is null:
          return Boolean(False)
       return Boolean(True)
 
