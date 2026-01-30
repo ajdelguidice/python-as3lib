@@ -57,3 +57,7 @@ class Boolean(Object):
 
    def valueOf(self):
       return self._value
+
+
+false = Boolean(False)
+true = Boolean(True)

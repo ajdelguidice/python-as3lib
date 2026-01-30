@@ -152,7 +152,7 @@ if not as3state.initdone:
 
 # Export toplevel and set up miniamf adapters
 from ._toplevel.Array import Array
-from ._toplevel.Boolean import Boolean
+from ._toplevel.Boolean import Boolean, false, true
 from ._toplevel.Class import Class
 from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
@@ -174,9 +174,6 @@ from ._toplevel.Vector import Vector
 NaN = Number.NaN
 Infinity = Number.POSITIVE_INFINITY
 NInfinity = Number.NEGATIVE_INFINITY
-
-false = Boolean(False)
-true = Boolean(True)
 
 try:
    from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
