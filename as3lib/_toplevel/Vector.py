@@ -2,12 +2,12 @@ from as3lib._toplevel.Boolean import Boolean
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import RangeError, TypeError
 from as3lib._toplevel.int import int, uint
+from as3lib._toplevel.Keywords import each
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.String import String
 import builtins
 from functools import partial
-from multipledispatch import dispatch
 from io import StringIO
 
 
@@ -22,8 +22,6 @@ class Vector(list, Object):
    currently have to declare it like Vector(..., type=T). The way this is
    currently handled also does not allow you to use Vector.<T> as a type.
    '''
-   _mdspns = {}
-
    @staticmethod
    def coercePythonToAs3Object(obj, type_):
       # bool must go above int because bool isinstance of int
@@ -46,7 +44,7 @@ class Vector(list, Object):
    @staticmethod
    def _checkTypeAll(arr, type_, superclass):
       # TODO: Implements/Implementer
-      for i in arr:
+      for i in each(arr):
          Vector._checkType(i, type_, superclass)
 
    @staticmethod
@@ -60,42 +58,34 @@ class Vector(list, Object):
             if type(value) is not type_:
                raise TypeError('%s is not %s' % (type(value), type_))
 
-   @dispatch(list, namespace=_mdspns)
-   def __init__(self, sourceArray, **kwargs):
-      # TODO: Make sure this works properly
-      self._type = kwargs['type']
-      self._fixed = False
-      self._superclass = True
-      if isinstance(sourceArray, Vector):
-         self = sourceArray
-      else:
-         sourceArray = [Vector.coercePythonToAs3Object(i, self._type) for i in sourceArray]
-         Vector._checkTypeAll(sourceArray, self._type, self._superclass)
-         super().__init__(sourceArray)
-
-   def _number_init(self, length, fixed, **kwargs):
-      self._type = kwargs['type']
-      self._superclass = False
-      super().__init__((null for i in range(length)))
-      self._fixed = fixed
-
-   @dispatch(object, object, namespace=_mdspns)
    def __init__(self, length=0, fixed=False, **kwargs):
-      self._number_init(length, fixed, **kwargs)
-
-   @dispatch(object, namespace=_mdspns)
-   def __init__(self, length=0, **kwargs):
-      self._number_init(length, False, **kwargs)
-
-   @dispatch(namespace=_mdspns)
-   def __init__(self, **kwargs):
-      self._number_init(0, False, **kwargs)
+      if isinstance(length, list):  # Function behaviour
+         # TODO: Make sure this works properly
+         if isinstance(length, Vector):
+            self._fixed = length.fixed
+            self._superclass = length._superclass
+         self._type = kwargs['type']
+         self._fixed = False
+         self._superclass = True
+         length = [Vector.coercePythonToAs3Object(i, self._type) for i in each(length)]
+         Vector._checkTypeAll(length, self._type, self._superclass)
+         super().__init__(length)
+      else:  # Constructor behaviour
+         self._type = kwargs['type']
+         self._superclass = False
+         self._fixed = fixed
+         super().__init__((null for i in range(length)))
 
    def __iter__(self):
       return (i for i in range(len(self)))
 
    def __each__(self):
       return (self[i] for i in range(len(self)))
+
+   def extend(self, iterable):
+      if self.fixed:
+         raise RangeError('Can not change vector length while fixed is set to true.')
+      super().extend(each(iterable))
 
    @property
    def fixed(self):
@@ -131,12 +121,11 @@ class Vector(list, Object):
       else:
          s = str(sep)
       with StringIO() as out:
-         n = o.length
-         for i in range(n):
+         for i in o:
             x = o[i]
             if x != None:
                out.write(str(x))
-            if i + 1 < n:
+            if i + 1 < o.length:
                out.write(s)
          return out.getvalue()
 
@@ -144,9 +133,7 @@ class Vector(list, Object):
       return 'as3lib.Vector.<%s>(%s)' % (self._type.__name__, self)
 
    def __getitem__(self, item):
-      if isinstance(item, slice):...
-      else:
-         return super().__getitem__(item)
+      return super().__getitem__(item)
 
    def __setitem__(self, item, value):
       value = Vector.coercePythonToAs3Object(value, self._type)
@@ -154,8 +141,7 @@ class Vector(list, Object):
       super().__setitem__(item, value)
 
    def concat(self, *args):
-      temp = Vector([], type=self._type)
-      temp.extend(self)
+      temp = Vector(self, type=self._type)
       if len(args) > 0:
          for i in args:
             if isinstance(i, Vector) and issubclass(i._type, self._type):
@@ -170,8 +156,8 @@ class Vector(list, Object):
    def every(self, callback, thisObject=null):
       if callback is null:
          return True
-      for i, item in enumerate(self):
-         if callback(item, i, self) is False:
+      for i in self:
+         if not callback(self[i], i, self):
             return False
       return True
 
@@ -179,16 +165,16 @@ class Vector(list, Object):
       # TODO: Handle null callback
       tempVector = Vector(type=self._type)
       tempVector._superclass = self._superclass
-      for i, item in enumerate(self):
-         if callback(item, i, self) is True:
+      for i in self:
+         if callback(self[i], i, self):
             tempVector.push(item)
       return tempVector
 
    def forEach(self, callback, thisObject=null):
       if callback is null:
          return undefined
-      for i, item in enumerate(self):
-         callback(item, i, self)
+      for i in self:
+         callback(self[i], i, self)
 
    def indexOf(self, searchElement, fromIndex=0):
       if fromIndex < 0:
@@ -202,8 +188,10 @@ class Vector(list, Object):
       if self.fixed:
          raise RangeError('insertAt can not be called on a Vector with fixed set to true.')
       elif self._superclass:
-         if element is null or isinstance(element, self._type):...
-      else:...
+         if element is null or isinstance(element, self._type):
+            raise NotImplementedError
+      else:
+         raise NotImplementedError
 
    def join(self, sep: str = ','):
       return Vector._join(self, sep)
@@ -213,7 +201,7 @@ class Vector(list, Object):
          fromIndex = len(self)
       elif fromIndex < 0:
          fromIndex = len(self) - fromIndex
-      ...
+      raise NotImplementedError
       # index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
       # return index if index == -1 else len(self)-1-index
 
@@ -221,8 +209,8 @@ class Vector(list, Object):
       # TODO: Handle null callback
       tempVect = Vector(self.length, type=self._type)
       tempVect._superclass = self._superclass
-      for i, item in enumerate(self):
-         tempVect[i] = callback(item, i, self)
+      for i in self:
+         tempVect[i] = callback(self[i], i, self)
       return tempVect
 
    def pop(self):
@@ -259,8 +247,8 @@ class Vector(list, Object):
    def some(self, callback, thisObject=null):
       if callback is null:
          return False
-      for i, item in enumerate(self):
-         if callback(item, i, self) is True:
+      for i in self:
+         if callback(self[i], i, self):
             return True
       return False
 
@@ -279,20 +267,11 @@ class Vector(list, Object):
    def unshift(self, *args):
       if self.fixed:
          raise RangeError('unshift can not be called on a Vector with fixed set to true.')
-      argsOK = True
-      if self._superclass:
-         for i in args:
-            if i is not null or not isinstance(i, self._type):
-               argsOK = False
-               break
-      else:
-         for i in args:
-            if i is not null or type(i) is not self._type:
-               argsOK = False
-               break
-      if not argsOK:
-         raise TypeError('One or more args is not of the Vector\'s base type.')
-      tempVect = (*args, *self)
+      l = []
+      for i in args:
+         l.append(Vector.coercePythonToAs3Object(i, self._type))
+         Vector._checkType(l[-1], self._type, self._superclass)
+      tempVect = (*l, *each(self))
       self.clear()
       self.extend(tempVect)
       return len(self)
