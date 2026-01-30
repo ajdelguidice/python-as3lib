@@ -1,5 +1,5 @@
 import as3lib as as3
-from as3lib import metaclasses
+from as3lib import Boolean, Int, metaclasses
 from copy import copy
 
 
@@ -153,7 +153,7 @@ class EventDispatcher:
       self._events = {}
       self._eventsCapture = {}
 
-   def addEventListener(self, type: str, listener, useCapture: as3.allBoolean = False, priority: as3.allInt = 0, useWeakReference: as3.allBoolean = False):
+   def addEventListener(self, type: str, listener, useCapture: Boolean = False, priority: Int = 0, useWeakReference: Boolean = False):
       # TODO: Add error
       # TODO: Implement priority
       if useCapture is False:
@@ -181,7 +181,7 @@ class EventDispatcher:
    def hasEventListener(self, type):
       return self._events.get(type) is not None or self._eventsCapture.get(type) is not None
 
-   def removeEventListener(self, type: str, listener, useCapture: as3.allBoolean = False):
+   def removeEventListener(self, type: str, listener, useCapture: Boolean = False):
       if useCapture is False:
          if self._events.get(type) is not None:
             try:

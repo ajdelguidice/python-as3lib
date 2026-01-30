@@ -1,6 +1,6 @@
 from __future__ import annotations
 import as3lib as as3
-from as3lib import as3state, Error, metaclasses
+from as3lib import as3state, Boolean, Error, Int, metaclasses, Number
 from as3lib.flash.events import EventDispatcher, TimerEvent
 from datetime import datetime
 from threading import Timer as timedExec
@@ -227,7 +227,7 @@ class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 class Dictionary(as3.Object):
    # TODO: weak keys
-   def __init__(self, weakKeys: as3.allBoolean = False):
+   def __init__(self, weakKeys: Boolean = False):
       if weakKeys:
          raise NotImplementedError
       self._useWeakKeys = weakKeys
@@ -283,7 +283,7 @@ class Timer(EventDispatcher):
       return self._delay
 
    @delay.setter
-   def delay(self, number_ms: as3.allNumber):
+   def delay(self, number_ms: Number):
       if self.running:
          self.stop()
          self._delay = number_ms
@@ -296,7 +296,7 @@ class Timer(EventDispatcher):
       return self._repeatCount
 
    @repeatCount.setter
-   def repeatCount(self, number: as3.allInt):
+   def repeatCount(self, number: Int):
       # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
       if number <= self._currentCount:
          self.stop()
@@ -317,7 +317,7 @@ class Timer(EventDispatcher):
          self._timer.start()
          self.dispatchEvent(TimerEvent('timer'))
 
-   def __init__(self, delay: as3.allNumber, repeatCount: as3.allInt = 0):
+   def __init__(self, delay: Number, repeatCount: Int = 0):
       super().__init__()
       self._currentCount = 0
       if delay < 0:
