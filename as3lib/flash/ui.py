@@ -1,6 +1,5 @@
 from __future__ import annotations
-import as3lib as as3
-from as3lib import keyConversions, metaclasses
+from as3lib import keyConversions, metaclasses, Object
 from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
 from as3lib.flash.events import ContextMenuEvent
 import tkinter
@@ -8,46 +7,60 @@ import tkinter
 
 class ContextMenu(NativeMenu):
    @property
-   def builtInItems(self):...
+   def builtInItems(self):
+      raise NotImplementedError
 
    @builtInItems.setter
-   def builtInItems(self, value: ContextMenuBuiltInItems):...
+   def builtInItems(self, value: ContextMenuBuiltInItems):
+      raise NotImplementedError
 
    @property
-   def clipboardItems(self):...
+   def clipboardItems(self):
+      raise NotImplementedError
 
    @clipboardItems.setter
-   def clipboardItems(self, value: ContextMenuClipboardItems):...
+   def clipboardItems(self, value: ContextMenuClipboardItems):
+      raise NotImplementedError
 
    @property
-   def clipboardMenu(self):...
+   def clipboardMenu(self):
+      raise NotImplementedError
 
    @clipboardMenu.setter
-   def clipboardMenu(self, value):...
+   def clipboardMenu(self, value):
+      raise NotImplementedError
 
    @property
-   def customItems(self):...
+   def customItems(self):
+      raise NotImplementedError
 
    @customItems.setter
-   def customItems(self, value):...
+   def customItems(self, value):
+      raise NotImplementedError
 
    @property
-   def isSupported(self):...
+   def isSupported(self):
+      raise NotImplementedError
 
    @property
-   def items(self):...
+   def items(self):
+      raise NotImplementedError
 
    @items.setter
-   def items(self, value):...
+   def items(self, value):
+      raise NotImplementedError
 
    @property
-   def link(self):...
+   def link(self):
+      raise NotImplementedError
 
    @link.setter
-   def link(self, value):...
+   def link(self, value):
+      raise NotImplementedError
 
    @property
-   def numItems(self):...
+   def numItems(self):
+      raise NotImplementedError
 
    def __init__(self):
       # TODO: Restrict number of custom items to 15
@@ -55,18 +68,35 @@ class ContextMenu(NativeMenu):
       self.menuSelect = ContextMenuEvent('menuSelect')
       ...
 
-   def addItemAt(self, item: NativeMenuItem, index):...
-   def clone(self):...
-   def containsItem(self, item: NativeMenuItem):...
-   def display(self, stage: Stage, stageX, stageY):...
-   def getItemAt(self, index):...
-   def getItemIndex(self, item: NativeMenuItem):...
-   def hideBuiltInItems(self):...
-   def removeAllItems(self):...
-   def removeItemsAt(self, index):...
+   def addItemAt(self, item: NativeMenuItem, index):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def containsItem(self, item: NativeMenuItem):
+      raise NotImplementedError
+
+   def display(self, stage: Stage, stageX, stageY):
+      raise NotImplementedError
+
+   def getItemAt(self, index):
+      raise NotImplementedError
+
+   def getItemIndex(self, item: NativeMenuItem):
+      raise NotImplementedError
+
+   def hideBuiltInItems(self):
+      raise NotImplementedError
+
+   def removeAllItems(self):
+      raise NotImplementedError
+
+   def removeItemsAt(self, index):
+      raise NotImplementedError
 
 
-class ContextMenuBuiltInItems(as3.Object):
+class ContextMenuBuiltInItems(Object):
    @property
    def forwardAndBack(self):
       return self._forwardAndBack
@@ -142,7 +172,7 @@ class ContextMenuBuiltInItems(as3.Object):
       self._zoom = True
 
 
-class ContextMenuClipboardItems(as3.Object):
+class ContextMenuClipboardItems(Object):
    @property
    def clear(self):
       return self._clear
@@ -240,28 +270,36 @@ class ContextMenuItem(NativeMenuItem):
       self._enabled = enabled
       self._visible = visible
 
-   def clone(self):...
+   def clone(self):
+      raise NotImplementedError
 
    @staticmethod
-   def systemClearMenuItem():...
+   def systemClearMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemCopyLinkMenuItem():...
+   def systemCopyLinkMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemCopyMenuItem():...
+   def systemCopyMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemCutMenuItem():...
+   def systemCutMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemOpenLinkMenuItem():...
+   def systemOpenLinkMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemPasteMenuItem():...
+   def systemPasteMenuItem():
+      raise NotImplementedError
 
    @staticmethod
-   def systemSelectAllMenuItem():...
+   def systemSelectAllMenuItem():
+      raise NotImplementedError
 
 
 class GameInput:...

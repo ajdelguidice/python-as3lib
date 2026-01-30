@@ -1,6 +1,6 @@
 from __future__ import annotations
 import as3lib as as3
-from as3lib import ArgumentError, as3state, metaclasses
+from as3lib import Array, ArgumentError, as3state, metaclasses, Object
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
@@ -48,40 +48,52 @@ class DisplayObject(EventDispatcher):
       self._accessProps = value
 
    @property
-   def alpha(self):...
+   def alpha(self):
+      raise NotImplementedError
 
    @alpha.setter
-   def alpha(self, value):...
+   def alpha(self, value):
+      raise NotImplementedError
 
    @property
-   def blendMode(self):...
+   def blendMode(self):
+      raise NotImplementedError
 
    @blendMode.setter
-   def blendMode(self, value):...
+   def blendMode(self, value):
+      raise NotImplementedError
 
    @property
-   def blendShader(self):...  # Write only
+   def blendShader(self):  # Write only
+      raise
 
    @blendShader.setter
-   def blendShader(self, value):...
+   def blendShader(self, value):
+      raise NotImplementedError
 
    @property
-   def cacheAsBitmap(self):...
+   def cacheAsBitmap(self):
+      raise NotImplementedError
 
    @cacheAsBitmap.setter
-   def cacheAsBitmap(self, value):...
+   def cacheAsBitmap(self, value):
+      raise NotImplementedError
 
    @property
-   def cacheAsBitmapMatrix(self):...
+   def cacheAsBitmapMatrix(self):
+      raise NotImplementedError
 
    @cacheAsBitmapMatrix.setter
-   def cacheAsBitmapMatrix(self, value):...
+   def cacheAsBitmapMatrix(self, value):
+      raise NotImplementedError
 
    @property
-   def filters(self):...
+   def filters(self):
+      raise NotImplementedError
 
    @filters.setter
-   def filters(self, value):...
+   def filters(self, value):
+      raise NotImplementedError
 
    @property
    def height(self):
@@ -92,109 +104,144 @@ class DisplayObject(EventDispatcher):
       self._height = value
 
    @property
-   def loaderInfo(self):...
+   def loaderInfo(self):
+      raise NotImplementedError
 
    @property
-   def mask(self):...
+   def mask(self):
+      raise NotImplementedError
 
    @mask.setter
-   def mask(self, value):...
+   def mask(self, value):
+      raise NotImplementedError
 
    @property
-   def metaData(self):...
+   def metaData(self):
+      raise NotImplementedError
 
    @metaData.setter
-   def metaData(self, value):...
+   def metaData(self, value):
+      raise NotImplementedError
 
    @property
-   def mouseX(self):...
+   def mouseX(self):
+      raise NotImplementedError
 
    @property
-   def mouseY(self):...
+   def mouseY(self):
+      raise NotImplementedError
 
    @property
-   def name(self):...
+   def name(self):
+      raise NotImplementedError
 
    @name.setter
-   def name(self, value):...
+   def name(self, value):
+      raise NotImplementedError
 
    @property
-   def opaqueBackground(self):...
+   def opaqueBackground(self):
+      raise NotImplementedError
 
    @opaqueBackground.setter
-   def opaqueBackground(self, value):...
+   def opaqueBackground(self, value):
+      raise NotImplementedError
 
    @property
-   def parent(self):...
+   def parent(self):
+      raise NotImplementedError
 
    @property
-   def root(self):...
+   def root(self):
+      raise NotImplementedError
 
    @property
-   def rotation(self):...
+   def rotation(self):
+      raise NotImplementedError
 
    @rotation.setter
-   def rotation(self, value):...
+   def rotation(self, value):
+      raise NotImplementedError
 
    @property
-   def rotationX(self):...
+   def rotationX(self):
+      raise NotImplementedError
 
    @rotationX.setter
-   def rotationX(self, value):...
+   def rotationX(self, value):
+      raise NotImplementedError
 
    @property
-   def rotationY(self):...
+   def rotationY(self):
+      raise NotImplementedError
 
    @rotationY.setter
-   def rotationY(self, value):...
+   def rotationY(self, value):
+      raise NotImplementedError
 
    @property
-   def rotationZ(self):...
+   def rotationZ(self):
+      raise NotImplementedError
 
    @rotationZ.setter
-   def rotationZ(self, value):...
+   def rotationZ(self, value):
+      raise NotImplementedError
 
    @property
-   def scale9Grid(self):...
+   def scale9Grid(self):
+      raise NotImplementedError
 
    @scale9Grid.setter
-   def scale9Grid(self, value):...
+   def scale9Grid(self, value):
+      raise NotImplementedError
 
    @property
-   def scaleX(self):...
+   def scaleX(self):
+      raise NotImplementedError
 
    @scaleX.setter
-   def scaleX(self, value):...
+   def scaleX(self, value):
+      raise NotImplementedError
 
    @property
-   def scaleY(self):...
+   def scaleY(self):
+      raise NotImplementedError
 
    @scaleY.setter
-   def scaleY(self, value):...
+   def scaleY(self, value):
+      raise NotImplementedError
 
    @property
-   def scaleZ(self):...
+   def scaleZ(self):
+      raise NotImplementedError
 
    @scaleZ.setter
-   def scaleZ(self, value):...
+   def scaleZ(self, value):
+      raise NotImplementedError
 
    @property
-   def scrollRect(self):...
+   def scrollRect(self):
+      raise NotImplementedError
 
    @scrollRect.setter
-   def scrollRect(self, value):...
+   def scrollRect(self, value):
+      raise NotImplementedError
 
    @property
-   def stage(self):...
+   def stage(self):
+      raise NotImplementedError
 
    @stage.setter
-   def stage(self, value):...
+   def stage(self, value):
+      raise NotImplementedError
 
    @property
-   def transform(self):...
+   def transform(self):
+      raise NotImplementedError
 
    @transform.setter
-   def transform(self, value):...
+   def transform(self, value):
+      raise NotImplementedError
 
    @property
    def visible(self):
@@ -248,14 +295,29 @@ class DisplayObject(EventDispatcher):
       self._y = 0
       self._z = 0
 
-   def getBounds(self, targetCoordinateSpace: DisplayObject) -> Rectangle:...
-   def getRect(self, targetCoordinateSpace: DisplayObject) -> Rectangle:...
-   def globalToLocal(self, point: Point) -> Point:...
-   def globalToLocal3D(self, point: Point) -> Vector3D:...
-   def hitTestObject(self, obj: DisplayObject):...
-   def hitTestPoint(self, x, y, shapeFlag=False):...
-   def local3DToGlobal(self, point3d: Vector3D) -> Point:...
-   def localToGlobal(self, point: Point) -> Point:...
+   def getBounds(self, targetCoordinateSpace: DisplayObject) -> Rectangle:
+      raise NotImplementedError
+
+   def getRect(self, targetCoordinateSpace: DisplayObject) -> Rectangle:
+      raise NotImplementedError
+
+   def globalToLocal(self, point: Point) -> Point:
+      raise NotImplementedError
+
+   def globalToLocal3D(self, point: Point) -> Vector3D:
+      raise NotImplementedError
+
+   def hitTestObject(self, obj: DisplayObject):
+      raise NotImplementedError
+
+   def hitTestPoint(self, x, y, shapeFlag=False):
+      raise NotImplementedError
+
+   def local3DToGlobal(self, point3d: Vector3D) -> Point:
+      raise NotImplementedError
+
+   def localToGlobal(self, point: Point) -> Point:
+      raise NotImplementedError
 
 
 class InteractiveObject(DisplayObject):
@@ -358,10 +420,12 @@ class InteractiveObject(DisplayObject):
 
 class DisplayObjectContainer(InteractiveObject):
    @property
-   def mouseChildren(self):...
+   def mouseChildren(self):
+      raise NotImplementedError
 
    @mouseChildren.setter
-   def mouseChildren(self, value):...
+   def mouseChildren(self, value):
+      raise NotImplementedError
 
    @property
    def numChildren(self):
@@ -374,32 +438,63 @@ class DisplayObjectContainer(InteractiveObject):
    @tabChildren.setter
    def tabChildren(self, value):
       if value != self._tabChilren:
+         raise NotImplementedError
          for i in self._children:...  # TODO: Set tabbing behavior
       self._tabChilren = value
 
    @property
-   def textSnapshot(self):...
+   def textSnapshot(self):
+      raise NotImplementedError
 
    def __init__(self):
       super().__init__()
-      self._children = as3.Array()
+      self._children = Array()
       self._tabChilren = True
 
-   def addChild(self, child: DisplayObject):...
-   def addChildAt(self, child: DisplayObject, index):...
-   def areInaccessibleObjectsUnderPoint(self, point: Point):...
-   def contains(self, child: DisplayObject):...
-   def getChildAt(self, index):...
-   def getChildByName(self, name):...
-   def getChildIndex(self, child: DisplayObject):...
-   def getObjectsUnderPoint(self, point: Point):...
-   def removeChild(self, child: DisplayObject):...
-   def removeChildAt(self, index):...
-   def removeChildren(self, beginIndex, endIndex):...
-   def setChildIndex(self, child: DisplayObject, index):...
-   def stopAllMovieClips(self):...
-   def swapChildren(self, child1: DisplayObject, child2: DisplayObject):...
-   def swapChildrenAt(self, index1, index2):...
+   def addChild(self, child: DisplayObject):
+      raise NotImplementedError
+
+   def addChildAt(self, child: DisplayObject, index):
+      raise NotImplementedError
+
+   def areInaccessibleObjectsUnderPoint(self, point: Point):
+      raise NotImplementedError
+
+   def contains(self, child: DisplayObject):
+      raise NotImplementedError
+
+   def getChildAt(self, index):
+      raise NotImplementedError
+
+   def getChildByName(self, name):
+      raise NotImplementedError
+
+   def getChildIndex(self, child: DisplayObject):
+      raise NotImplementedError
+
+   def getObjectsUnderPoint(self, point: Point):
+      raise NotImplementedError
+
+   def removeChild(self, child: DisplayObject):
+      raise NotImplementedError
+
+   def removeChildAt(self, index):
+      raise NotImplementedError
+
+   def removeChildren(self, beginIndex, endIndex):
+      raise NotImplementedError
+
+   def setChildIndex(self, child: DisplayObject, index):
+      raise NotImplementedError
+
+   def stopAllMovieClips(self):
+      raise NotImplementedError
+
+   def swapChildren(self, child1: DisplayObject, child2: DisplayObject):
+      raise NotImplementedError
+
+   def swapChildrenAt(self, index1, index2):
+      raise NotImplementedError
 
 
 class Sprite(DisplayObjectContainer):
@@ -412,7 +507,8 @@ class Sprite(DisplayObjectContainer):
       self._buttonMode = value
 
    @property
-   def dropTarget(self):...
+   def dropTarget(self):
+      raise NotImplementedError
 
    @property
    def graphics(self):
@@ -427,10 +523,12 @@ class Sprite(DisplayObjectContainer):
       self._hitArea = value
 
    @property
-   def soundTransform(self):...
+   def soundTransform(self):
+      raise NotImplementedError
 
    @soundTransform.setter
-   def soundTransform(self, value):...
+   def soundTransform(self, value):
+      raise NotImplementedError
 
    @property
    def useHandCursor(self):
@@ -447,10 +545,17 @@ class Sprite(DisplayObjectContainer):
       self._hitArea = None  # self is used as hit area if this is not set
       self._useHandCursor = True
 
-   def startDrag(self, lockCenter=False, bounds: Rectangle=None):...
-   def startTouchDrag(self, touchPointID, lockCenter=False, bounds: Rectangle=None):...
-   def stopDrag(self):...
-   def stopTouchDrag(self, touchPointID):...
+   def startDrag(self, lockCenter=False, bounds: Rectangle=None):
+      raise NotImplementedError
+
+   def startTouchDrag(self, touchPointID, lockCenter=False, bounds: Rectangle=None):
+      raise NotImplementedError
+
+   def stopDrag(self):
+      raise NotImplementedError
+
+   def stopTouchDrag(self, touchPointID):
+      raise NotImplementedError
 
 
 class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -543,7 +648,82 @@ class GradientType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    RADIAL = 'radial'
 
 
-class Graphics:...
+class Graphics(Object):
+   # TODO: Make class 'final'
+   def __init__(self, **kwargs):
+      # Only internal things are supposed to be able to instantiate this but
+      # there is no way to implement access restrictions like that in python
+      # so an argument will have to do.
+      noerr = kwargs.pop('__as3Internal_constructorErrorOverride')
+      if not noerr:
+         raise
+      ...
+
+   def beginBitmapFill(self, bitmap: BitmapData, matrix: Matrix = None, repeat=True, smooth=False):
+      raise NotImplementedError
+
+   def beginFill(self, color, alpha=1.0):
+      raise NotImplementedError
+
+   def beginGradientFill(self, type, colors, alphas, ratios, matrix: Matrix = None, spreadMethod='pad', interpolationMethod='rgb', focalPointRatio=0):
+      raise NotImplementedError
+
+   def beginShaderFill(self, shader: Shager, matrix: Matrix = None):
+      raise NotImplementedError
+
+   def clear(self):
+      raise NotImplementedError
+
+   def copyFrom(self, sourceGraphics: Graphics):
+      raise NotImplementedError
+
+   def cubicCurveTo(self, controlX1, controlY1, controlX2, controlY2, anchorX, anchorY):
+      raise NotImplementedError
+
+   def drawCircle(self, x, y, radius):
+      raise NotImplementedError
+
+   def drawEllipse(self, x, y, width, height):
+      raise NotImplementedError
+
+   def drawGraphicsData(self, graphicsData):
+      raise NotImplementedError
+
+   def drawPath(self, commands, data, winding='evenOdd'):
+      raise NotImplementedError
+
+   def drawRect(self, x, y, width, height):
+      raise NotImplementedError
+
+   def drawRoundRect(self, x, y, width, height, ellipseWidth, ellipseHeight):
+      raise NotImplementedError
+
+   def drawTriangles(self, vertices, indicies=None, uvtData=None, culling='none'):
+      raise NotImplementedError
+
+   def endFill(self):
+      raise NotImplementedError
+
+   def lineBitmapStyle(self, bitmap: BitmapData, matrix: Matrix = None, repeat=True, smooth=False):
+      raise NotImplementedError
+
+   def lineGradientStyle(self, type, colors, alphas, ratios, matrix: Matrix = None, spreadMethod='pad', interpolationMethod='rgb', focalPointRatio=0):
+      raise NotImplementedError
+
+   def lineShaderStyle(self, shader: Shager, matrix: Matrix = None):
+      raise NotImplementedError
+
+   def lineStyle(self, thickness, color=0, alpha=1.0, pixelHinting=False, scaleMode='normal', caps=None, joints=None, miterLimit=3):
+      raise NotImplementedError
+
+   def lineTo(self, x, y):
+      raise NotImplementedError
+
+   def moveTo(self, x, y):
+      raise NotImplementedError
+
+   def readGraphicsData(self, recurse=True):
+      raise NotImplementedError
 
 
 class GraphicsBitmapFill:...
@@ -558,7 +738,14 @@ class GraphicsGradientFill:...
 class GraphicsPath:...
 
 
-class GraphicsPathCommand:...
+class GraphicsPathCommand(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+   NO_OP = 0
+   MOVE_TO = 1
+   LINE_TO = 2
+   CURVE_TO = 3
+   WIDE_MOVE_TO = 4
+   WIDE_LINE_TO = 5
+   CUBIC_CURVE_TO = 6
 
 
 class GraphicsPathWinding:...
@@ -574,9 +761,6 @@ class GraphicsStroke:...
 
 
 class GraphicsTrianglePath:...
-
-
-class GraphicsObject:...
 
 
 class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -671,28 +855,44 @@ class MovieClip(Sprite):
       self._currentFrame = 0
       self._currentFrameLabel = None
       self._currentLabel = None
-      self._currentLabels = as3.Array()
+      self._currentLabels = Array()
       self._currentScene = 0
       self._enabled = True
       self._framesLoaded = None
       self._isPlaying = False
-      self._scenes = as3.Array()
+      self._scenes = Array()
       self._totalFrames = None
       self._trackAsMenu = False
 
-   def gotoAndPlay(self, frame, scene=None):...
-   def gotoAndStop(self, frame, scene):...
-   def nextFrame(self):...
-   def nextScene(self):...
-   def play(self):...
-   def prevFrame(self):...
-   def prevScene(self):...
-   def stop(self):...
+   def gotoAndPlay(self, frame, scene=None):
+      raise NotImplementedError
+
+   def gotoAndStop(self, frame, scene):
+      raise NotImplementedError
+
+   def nextFrame(self):
+      raise NotImplementedError
+
+   def nextScene(self):
+      raise NotImplementedError
+
+   def play(self):
+      raise NotImplementedError
+
+   def prevFrame(self):
+      raise NotImplementedError
+
+   def prevScene(self):
+      raise NotImplementedError
+
+   def stop(self):
+      raise NotImplementedError
 
 
 class NativeMenu(EventDispatcher):
    @property
-   def isSupported(self):...
+   def isSupported(self):
+      raise NotImplementedError
 
    @property
    def items(self):
@@ -712,7 +912,7 @@ class NativeMenu(EventDispatcher):
 
    def __init__(self):
       super().__init__()
-      self._items = as3.Array()
+      self._items = Array()
       self._parent
 
    def addItem(self, item: NativeMenuItem):
@@ -738,7 +938,8 @@ class NativeMenu(EventDispatcher):
       self.addItemAt(item, index)
       return item
 
-   def clone(self):...
+   def clone(self):
+      raise NotImplementedError
 
    def containsItem(self, item: NativeMenuItem):
       for i in self._items:
@@ -746,7 +947,8 @@ class NativeMenu(EventDispatcher):
             return True
       return False
 
-   def display(self, stage: Stage, stageX, stageY):...
+   def display(self, stage: Stage, stageX, stageY):
+      raise NotImplementedError
 
    def getItemAt(self, index):
       # TODO: Add RangeError when index is out of bounds
@@ -785,10 +987,12 @@ class NativeMenu(EventDispatcher):
 
 class NativeMenuItem(EventDispatcher):
    @property
-   def checked(self):...
+   def checked(self):
+      raise NotImplementedError
 
    @checked.setter
-   def checked(self, value):...
+   def checked(self, value):
+      raise NotImplementedError
 
    @property
    def data(self):
@@ -811,16 +1015,20 @@ class NativeMenuItem(EventDispatcher):
       return self._isSep
 
    @property
-   def keyEquivalent(self):...
+   def keyEquivalent(self):
+      raise NotImplementedError
 
    @keyEquivalent.setter
-   def keyEquivalent(self, value):...
+   def keyEquivalent(self, value):
+      raise NotImplementedError
 
    @property
-   def keyEquivalentModifiers(self):...
+   def keyEquivalentModifiers(self):
+      raise NotImplementedError
 
    @keyEquivalentModifiers.setter
-   def keyEquivalentModifiers(self, value):...
+   def keyEquivalentModifiers(self, value):
+      raise NotImplementedError
 
    @property
    def label(self):
@@ -835,10 +1043,12 @@ class NativeMenuItem(EventDispatcher):
       return self._menu
 
    @property
-   def mnemonicIndex(self):...
+   def mnemonicIndex(self):
+      raise NotImplementedError
 
    @mnemonicIndex.setter
-   def mnemonicIndex(self, value):...
+   def mnemonicIndex(self, value):
+      raise NotImplementedError
 
    @property
    def name(self):
@@ -866,11 +1076,14 @@ class NativeMenuItem(EventDispatcher):
       self._name = None
       self._subMenu = None
 
-   def clone(self):...
-   def toString(self):...
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NativeWindow:
+class NativeWindow(EventDispatcher):
    '''
    Due to limitations in tkinter, windows will not be able to start out inactive. They will instead start out minimized.
    '''
@@ -889,7 +1102,8 @@ class NativeWindow:
          self._alwaysInFront = value
 
    @property
-   def bounds(self):...
+   def bounds(self):
+      raise NotImplementedError
 
    @property
    def closed(self):
@@ -899,60 +1113,75 @@ class NativeWindow:
    def displayState(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    @property
-   def height(self):...
+   def height(self):
+      raise NotImplementedError
 
    @property
    def isSupported(self):
       return True
 
    @property
-   def maximizable(self):...
+   def maximizable(self):
+      raise NotImplementedError
 
    @property
-   def maxSize(self):...
+   def maxSize(self):
+      raise NotImplementedError
 
    @property
-   def menu(self):...
+   def menu(self):
+      raise NotImplementedError
 
    @property
-   def minimizable(self):...
+   def minimizable(self):
+      raise NotImplementedError
 
    @property
-   def minSize(self):...
+   def minSize(self):
+      raise NotImplementedError
 
    @property
    def owner(self):
       return self._owner
 
    @property
-   def renderMode(self):...
+   def renderMode(self):
+      raise NotImplementedError
 
    @property
-   def resizable(self):...
+   def resizable(self):
+      raise NotImplementedError
 
    @property
-   def stage(self):...
+   def stage(self):
+      raise NotImplementedError
 
    @property
-   def supportsMenu(self):...
+   def supportsMenu(self):
+      raise NotImplementedError
 
    @property
-   def supportsNotification(self):...
+   def supportsNotification(self):
+      raise NotImplementedError
 
    @property
-   def supportsTransparency(self):...
+   def supportsTransparency(self):
+      raise NotImplementedError
 
    @property
-   def systemChrome(self):...
+   def systemChrome(self):
+      raise NotImplementedError
 
    @property
-   def systemMaxSize(self):...
+   def systemMaxSize(self):
+      raise NotImplementedError
 
    @property
-   def systemMinSize(self):...
+   def systemMinSize(self):
+      raise NotImplementedError
 
    @property
    def title(self):
@@ -968,31 +1197,36 @@ class NativeWindow:
       self._title = value
 
    @property
-   def transparent(self):...
+   def transparent(self):
+      raise NotImplementedError
 
    @property
-   def type(self):...
+   def type(self):
+      raise NotImplementedError
 
    @property
    def visible(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    @visible.setter
    def visible(self, value):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    @property
-   def width(self):...
+   def width(self):
+      raise NotImplementedError
 
    @property
-   def x(self):...
+   def x(self):
+      raise NotImplementedError
 
    @property
-   def y(self):...
+   def y(self):
+      raise NotImplementedError
 
    def __init__(self, initOptions: NativeWindowInitOptions = None):
       self._closed = False
@@ -1023,44 +1257,51 @@ class NativeWindow:
       self._windowObject.destroy()
       self._closed = True
 
-   def globalToScreen(self, globalPoint: Point):...
+   def globalToScreen(self, globalPoint: Point):
+      raise NotImplementedError
 
-   def listOwnedWindows(self):...
+   def listOwnedWindows(self):
+      raise NotImplementedError
 
    def maximize(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    def minimize(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
-   def notifyUser(self, type):...
+   def notifyUser(self, type):
+      raise NotImplementedError
 
-   def orderInBackOf(self, window: NativeWindow):...
+   def orderInBackOf(self, window: NativeWindow):
+      raise NotImplementedError
 
-   def orderInFrontOf(self, window: NativeWindow):...
+   def orderInFrontOf(self, window: NativeWindow):
+      raise NotImplementedError
 
-   def orderToBack(self):...
+   def orderToBack(self):
+      raise NotImplementedError
 
-   def orderToFront(self):...
+   def orderToFront(self):
+      raise NotImplementedError
 
    def restore(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    def startMove(self):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
    def startResize(self, edgeOrCorner):
       if self.closed:
          raise IllegalOperationError()
-      ...
+      raise NotImplementedError
 
 
 class NativeWindowDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -1175,7 +1416,15 @@ class ShaderPrecision(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    FULL = 'full'
 
 
-class Shape:...
+class Shape(DisplayObject):
+   @property
+   def graphics(self):
+      return self._graphics
+
+   def __init__(self):
+      super().__init__(self)
+      self._graphics = Graphics(__as3Internal_constructorErrorOverride=True)
+      raise NotImplementedError
 
 
 class SimpleButtom:...

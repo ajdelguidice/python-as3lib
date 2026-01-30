@@ -1,5 +1,4 @@
-import as3lib as as3
-from as3lib import metaclasses, as3state
+from as3lib import Array, as3state, metaclasses
 from subprocess import CalledProcessError, check_output
 
 
@@ -34,49 +33,68 @@ class File:
    def __str__(self):
       return self.toString()
 
-   def browseForDirectory():...
+   def browseForDirectory():
+      raise NotImplementedError
 
-   def browseForOpen():...
+   def browseForOpen():
+      raise NotImplementedError
 
-   def browseForOpenMultiple():...
+   def browseForOpenMultiple():
+      raise NotImplementedError
 
-   def browseForSave():...
+   def browseForSave():
+      raise NotImplementedError
 
-   def cancel():...
+   def cancel():
+      raise NotImplementedError
 
-   def canonicalize():...
+   def canonicalize():
+      raise NotImplementedError
 
-   def clone():...
+   def clone():
+      raise NotImplementedError
 
-   def copyTo():...
+   def copyTo():
+      raise NotImplementedError
 
-   def copyToAsync():...
+   def copyToAsync():
+      raise NotImplementedError
 
-   def createDirectory():...
+   def createDirectory():
+      raise NotImplementedError
 
-   def createTempDirectory():...
+   def createTempDirectory():
+      raise NotImplementedError
 
-   def createTempFile():...
+   def createTempFile():
+      raise NotImplementedError
 
-   def deleteDirectory():...
+   def deleteDirectory():
+      raise NotImplementedError
 
-   def deleteDirectoryAsync():...
+   def deleteDirectoryAsync():
+      raise NotImplementedError
 
-   def deleteFile():...
+   def deleteFile():
+      raise NotImplementedError
 
-   def deleteFileAsync():...
+   def deleteFileAsync():
+      raise NotImplementedError
 
-   def getDirectoryListing():...
+   def getDirectoryListing():
+      raise NotImplementedError
 
-   def getDirectoryListingAsync():...
+   def getDirectoryListingAsync():
+      raise NotImplementedError
 
-   def getRelativePath():...
+   def getRelativePath():
+      raise NotImplementedError
 
    @staticmethod
    def getRootDirectories():
       # TODO: Make windows function better
       if as3state.platform == 'Windows':
-         tempDrives = as3.Array()
+         tempDrives = Array()
          for i in check_output(('fsutil', 'fsinfo', 'drives')).decode('utf-8').strip('\r\n').split(' ')[1:]:
             i = i.strip('\\')
             if i == '':
@@ -90,23 +108,31 @@ class File:
                tempDrives.push(File(i))
          return tempDrives
       elif as3state.platform in {'Linux', 'Darwin'}:
-         return as3.Array(File('/'))
+         return Array(File('/'))
 
-   def moveTo():...
+   def moveTo():
+      raise NotImplementedError
 
-   def moveToAsync():...
+   def moveToAsync():
+      raise NotImplementedError
 
-   def moveToTrash():...
+   def moveToTrash():
+      raise NotImplementedError
 
-   def moveToTrashAsync():...
+   def moveToTrashAsync():
+      raise NotImplementedError
 
-   def openWithDefaultApplication():...
+   def openWithDefaultApplication():
+      raise NotImplementedError
 
-   def requestPermission():...
+   def requestPermission():
+      raise NotImplementedError
 
-   def resolvePath():...
+   def resolvePath():
+      raise NotImplementedError
 
-   def toString():...
+   def toString():
+      raise NotImplementedError
 
 
 class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):

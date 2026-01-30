@@ -1,5 +1,4 @@
-import as3lib as as3
-from as3lib import as3state, metaclasses
+from as3lib import as3state, int, metaclasses, Number
 from functools import cache
 import platform
 import sys
@@ -22,7 +21,7 @@ class Capabilities:
    @property
    @cache
    def cpuAddressSize():  # returns 32 (32bit system) or 64 (64bit system)
-      return as3.Number(platform.architecture()[0][:-3])
+      return Number(platform.architecture()[0][:-3])
 
    @property
    @cache
@@ -184,7 +183,7 @@ class System:
 
    def disposeXML():...
 
-   def exit(code: int | as3.Int | as3.uint = 0):
+   def exit(code: int = 0):
       sys.exit(int(code))
 
    def gc():...

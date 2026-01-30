@@ -1,5 +1,4 @@
-import as3lib as as3
-from as3lib import Boolean, Int, metaclasses
+from as3lib import Array, Boolean, int, metaclasses
 from copy import copy
 
 
@@ -59,9 +58,11 @@ class _AS3_BASEEVENT:
       if self.cancelable:
          self._preventDefault = True
 
-   def stopImmediatePropagation(self):...
+   def stopImmediatePropagation(self):
+      raise NotImplementedError
 
-   def stopPropagation(self):...
+   def stopPropagation(self):
+      raise NotImplementedError
 
    def toString(self):
       return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
@@ -72,15 +73,20 @@ class IEventDispatcher:
    def __init__(self):
       self.eventobjects = {}
 
-   def addEventListener(self, type, listener, useCapture=False, priority=0, useWeakReference=False):...
+   def addEventListener(self, type, listener, useCapture=False, priority=0, useWeakReference=False):
+      raise NotImplementedError
 
-   def dispatchEvent(self, event):...
+   def dispatchEvent(self, event):
+      raise NotImplementedError
 
-   def hasEventListener(self, type):...
+   def hasEventListener(self, type):
+      raise NotImplementedError
 
-   def removeEventListener(self, type, listener, useCapture=False):...
+   def removeEventListener(self, type, listener, useCapture=False):
+      raise NotImplementedError
 
-   def willTrigger(self, type):...
+   def willTrigger(self, type):
+      raise NotImplementedError
 
 
 # Classes
@@ -153,7 +159,7 @@ class EventDispatcher:
       self._events = {}
       self._eventsCapture = {}
 
-   def addEventListener(self, type: str, listener, useCapture: Boolean = False, priority: Int = 0, useWeakReference: Boolean = False):
+   def addEventListener(self, type: str, listener, useCapture: Boolean = False, priority: int = 0, useWeakReference: Boolean = False):
       # TODO: Add error
       # TODO: Implement priority
       if useCapture is False:
@@ -195,7 +201,8 @@ class EventDispatcher:
             except Exception:
                pass
 
-   def willTrigger(self, type: str):...
+   def willTrigger(self, type: str):
+      raise NotImplementedError
 
 
 class TextEvent(_AS3_BASEEVENT):
@@ -537,7 +544,7 @@ class FileListEvent(_AS3_BASEEVENT):
       self._files = value
 
    def __init__(self, type, bubbles=False, cancelable=False, files=None):
-      self._files = as3.Array() if files is None else files
+      self._files = Array() if files is None else files
       super().__init__(type, bubbles, cancelable)
 
 
@@ -558,10 +565,12 @@ class FocusEvent(_AS3_BASEEVENT):
       self._direction = value
 
    @property
-   def isRelatedObjectInaccessible(self):...
+   def isRelatedObjectInaccessible(self):
+      raise NotImplementedError
 
    @isRelatedObjectInaccessible.setter
-   def isRelatedObjectInaccessible(self, value):...
+   def isRelatedObjectInaccessible(self, value):
+      raise NotImplementedError
 
    @property
    def keyCode(self):
@@ -675,7 +684,7 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
    def __init__(self, type, bubbles=False, cancelable=False, status=0, redirected=False):
       self._status = status
       self._redirected = redirected
-      self._responseHeaders = as3.Array()
+      self._responseHeaders = Array()
       self._responseURL = ''
       super().__init__(type, bubbles, cancelable)
 
@@ -738,10 +747,12 @@ class KeyboardEvent(_AS3_BASEEVENT):
       self._controlKey = value
 
    @property
-   def ctrlKey(self):...  # TODO
+   def ctrlKey(self):  # TODO
+      raise NotImplementedError
 
    @ctrlKey.setter
-   def ctrlKey(self, value):...
+   def ctrlKey(self, value):
+      raise NotImplementedError
 
    @property
    def keyCode(self):
@@ -925,7 +936,8 @@ class StageOrientationEvent(_AS3_BASEEVENT):
       self._beforeOrientation = beforeOrientation
       super().__init__(type, bubbles, cancelable)
       
-   def toString(self):...
+   def toString(self):
+      raise NotImplementedError
 
 
 class StageVideoAvailabilityEvent:...
@@ -981,7 +993,8 @@ class TimerEvent(_AS3_BASEEVENT):
    def toString(self):
       return self.formatToString('TimerEvent', 'type', 'bubbles', 'cancelable')
 
-   def updateAfterEvent(self):...
+   def updateAfterEvent(self):
+      raise NotImplementedError
 
 
 class TouchEvent:...

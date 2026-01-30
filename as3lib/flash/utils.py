@@ -1,11 +1,12 @@
 from __future__ import annotations
-import as3lib as as3
-from as3lib import as3state, Boolean, Error, Int, metaclasses, Number
+from as3lib import (ArgumentError, as3state, Boolean, Error, int, metaclasses,
+                    null, Number, Object, uint, undefined)
 from as3lib.flash.events import EventDispatcher, TimerEvent
-from datetime import datetime
-from threading import Timer as timedExec
+import builtins
 from miniamf import util
 from miniamf.amf3 import ByteArray as _ByteArray
+from threading import Timer as timedExec
+
 
 
 def _INTERVAL_ID_GEN():
@@ -26,19 +27,24 @@ def clearTimeout(id):
    as3state.intervals[id].stop()
 
 
-def describeType():...
+def describeType(value):
+   raise NotImplementedError
 
 
-def escapeMultiByte():...
+def escapeMultiByte(value):
+   raise NotImplementedError
 
 
-def getDefinitionByName():...
+def getDefinitionByName(name):
+   raise NotImplementedError
 
 
-def getQualifiedClassName():...
+def getQualifiedClassName(value):
+   raise NotImplementedError
 
 
-def getQualifiedSuperclassName():...
+def getQualifiedSuperclassName(value):
+   raise NotImplementedError
 
 
 def getTimer():
@@ -71,7 +77,7 @@ class _INTERVAL_TIMER:
 def setInterval(closure: callable, delay, *arguements):
    # Can't use the python id here because it can be over the limit of a uint
    id = next(_NEW_INTERVAL_ID)
-   _INTERVAL_TIMER(as3.uint(delay), closure, arguements, id)
+   _INTERVAL_TIMER(uint(delay), closure, arguements, id)
    return id
 
 
@@ -83,11 +89,12 @@ class _TIMEOUT_TIMER(_INTERVAL_TIMER):
 
 def setTimeout(closure: callable, delay, *arguements):
    id = next(_NEW_INTERVAL_ID)
-   _TIMEOUT_TIMER(as3.uint(delay), closure, arguements, id)
+   _TIMEOUT_TIMER(uint(delay), closure, arguements, id)
    return id
 
 
-def unescapeMultiByte():...
+def unescapeMultiByte(value):
+   raise NotImplementedError
 
 
 class IDataInput:...
@@ -116,7 +123,8 @@ class ByteArray(_ByteArray):
       return len(self)
 
    @length.setter
-   def length(self, value: int):...
+   def length(self, value: int):
+      raise NotImplementedError
 
    @property
    def position(self):
@@ -143,8 +151,8 @@ class ByteArray(_ByteArray):
 
    def atomicCompareAndSwapIntAt(self, byteIndex: int, expectedValue: int, newValue: int):
       if byteIndex % 4 != 0 or byteIndex < 0:
-         raise as3.ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
-      ...
+         raise ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
+      raise NotImplementedError
 
    def atomicCompareAndSwapLength(self, expectedLength: int, newLength: int):
       '''
@@ -179,9 +187,11 @@ class ByteArray(_ByteArray):
          raise NotImplementedError('The underlying stream currently only supports zlib compression.')
       self.compressed = True
 
-   def deflate():...
+   def deflate():
+      raise NotImplementedError
 
-   def inflate():...
+   def inflate():
+      raise NotImplementedError
 
    def readBytes(self, bytes: ByteArray, offset=0, length=0):
       bytes.seek(offset)
@@ -205,7 +215,8 @@ class ByteArray(_ByteArray):
       '''
       return 'ByteArray'
 
-   def toString(self):...
+   def toString(self):
+      raise NotImplementedError
 
    def uncompress(self, algorithm: str):
       if algorithm != 'zlib':
@@ -225,7 +236,7 @@ class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    ZLIB = 'zlib'
 
 
-class Dictionary(as3.Object):
+class Dictionary(Object):
    # TODO: weak keys
    def __init__(self, weakKeys: Boolean = False):
       if weakKeys:
@@ -237,7 +248,7 @@ class Dictionary(as3.Object):
       self._weakDict = None  # TODO
 
    def _canCoerce(self, obj):
-      if isinstance(obj, (as3.Int, as3.uint, as3.Number, as3.Boolean, str, bool, int, float)) or obj is as3.undefined or obj is as3.null:
+      if isinstance(obj, (int, uint, Number, Boolean, str, bool, builtins.int, float)) or obj is undefined or obj is null:
          return True
       return False
 

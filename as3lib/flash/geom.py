@@ -734,7 +734,8 @@ class Transform(Object):
    def pixelBounds(self):
       raise NotImplementedError
 
-   def __init__(self):...
+   def __init__(self):
+      raise NotImplementedError
 
    def getRelativeMatrix3D(relativeTo):
       raise NotImplementedError
@@ -856,6 +857,7 @@ class Vector3D(Object):
       self.x /= len
       self.y /= len
       self.z /= len
+      return len
 
    def project(self):
       self.x /= self.w

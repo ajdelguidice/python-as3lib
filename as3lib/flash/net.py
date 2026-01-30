@@ -1,5 +1,5 @@
-import as3lib as as3
-from as3lib import as3state, metaclasses
+from as3lib import (ArgumentError, Array, as3state, Error, metaclasses,
+                    ReferenceError, TypeError)
 from as3lib.flash import utils
 from as3lib.flash.events import Event, EventDispatcher
 import miniamf
@@ -11,19 +11,21 @@ def getClassByAlias(aliasName: str):
    try:
       return miniamf.get_class_alias(aliasName)
    except miniamf.UnknownClassAlias:
-      raise as3.ReferenceError(f'Alias {aliasName} was not registered.')
+      raise ReferenceError(f'Alias {aliasName} was not registered.')
 
 
-def navigateToURL(request, window: str = None):...
+def navigateToURL(request, window: str = None):
+      raise NotImplementedError
 
 
 def registerClassAlias(aliasName: str, classObject):
    if aliasName is None or classObject is None:
-      raise as3.TypeError('Arguements to registerClassAlias can not be null.')
+      raise TypeError('Arguements to registerClassAlias can not be null.')
    miniamf.register_class(classObject, aliasName)
 
 
-def sendToURL(request):...
+def sendToURL(request):
+   raise NotImplementedError
 
 
 class DatagramSocket:...
@@ -36,11 +38,11 @@ class FileFilter:
       self.macType = macType
 
    def extensionsToArray(self):
-      return as3.Array(*self.extension.split(';'))
+      return Array(*self.extension.split(';'))
 
    def macTypeToArray(self):
       if self.macType is not None:
-         return as3.Array(*self.macType.split(';'))
+         return Array(*self.macType.split(';'))
 
    def toTkTuple(self):
       return (self.description, self.extension.split(';'))
@@ -90,7 +92,7 @@ class FileReference(EventDispatcher):
 
    def _setFile(self, file):
       # Sets the file and all of its details
-      ...
+      raise NotImplementedError
 
    def browse(self, typeFilter: list | tuple = None):
       # typeFilter is an Array/list/tuple of FileFilter objects
@@ -106,13 +108,17 @@ class FileReference(EventDispatcher):
          self.dispatchEvent(Event('select'))
       return True
 
-   def cancel(self):...  # Cancels the 'download' without calling the cancel event
+   def cancel(self):  # Cancels the 'download' without calling the cancel event
+      raise NotImplementedError
 
-   def dowload(self, request, defaultFileName=None):...
+   def dowload(self, request, defaultFileName=None):
+      raise NotImplementedError
 
-   def load(self):...
+   def load(self):
+      raise NotImplementedError
 
-   def requestPermission(self):...
+   def requestPermission(self):
+      raise NotImplementedError
 
    def save(self, data, defaultFileName=None):
       # TODO: add check for blacklisted characters  / \ : * ? " < > | %
@@ -120,7 +126,7 @@ class FileReference(EventDispatcher):
       file = defaultFileName.split('.')
       savetype = 0  # 1=UTF-8 2=XML 3=ByteArray
       if data is None:
-         raise as3.ArguementError('Invalid Data')
+         raise ArgumentError('Invalid Data')
       elif isinstance(data, str):
          # write a UTF-8 text file
          savetype = 1
@@ -135,7 +141,7 @@ class FileReference(EventDispatcher):
          try:
             data = str(data)
          except Exception:
-            raise as3.ArguementError('Invalid Data')
+            raise ArgumentError('Invalid Data')
       if len(file) == 1:
          # no extension
          filename = filedialog.asksaveasfilename(title='Select location for download')
@@ -151,9 +157,11 @@ class FileReference(EventDispatcher):
          self._location = filename
          self.dispatchEvent(Event('complete'))
 
-   def upload(self, request, uploadDataFieldName, testUpload=False):...
+   def upload(self, request, uploadDataFieldName, testUpload=False):
+      raise NotImplementedError
 
-   def uploadUnencoded(self, request):...
+   def uploadUnencoded(self, request):
+      raise NotImplementedError
 
 
 class FileReferenceList:...
@@ -262,9 +270,11 @@ class SharedObject(dict):
       self._path.unlink(missing_ok=True)
       self['data'].clear()
 
-   def close(self):...
+   def close(self):
+      raise NotImplementedError
 
-   def connect(self):...
+   def connect(self):
+      raise NotImplementedError
 
    def flush(self, minDiskSpace=0):
       with self._path.open('wb+') as f:
@@ -277,7 +287,7 @@ class SharedObject(dict):
       # gets local shared object; if object exists, set path and load it. if not, just set path
       # localPath is relative to as3state.appdatadirectory
       if as3state.appdatadirectory is None:
-         raise as3.Error('Application specific data directory was not set. Can not safely determine location.')
+         raise Error('Application specific data directory was not set. Can not safely determine location.')
       obj = SharedObject()
       path = as3state.appdatadirectory / localPath.strip('/\\')  # Path separator at the start causes issues but doesn't matter at the end
       obj._name = name
@@ -288,13 +298,17 @@ class SharedObject(dict):
       return obj
 
    @staticmethod
-   def getRemote(name, remotePath=None, persistance=False, secure=False):...
+   def getRemote(name, remotePath=None, persistance=False, secure=False):
+      raise NotImplementedError
 
-   def send(self, *arguments):...
+   def send(self, *arguments):
+      raise NotImplementedError
 
-   def setDirty(self, propertyName):...
+   def setDirty(self, propertyName):
+      raise NotImplementedError
 
-   def setProperty(self, propertyName, value=None):...
+   def setProperty(self, propertyName, value=None):
+      raise NotImplementedError
 
 
 class SharedObjectFlushStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
