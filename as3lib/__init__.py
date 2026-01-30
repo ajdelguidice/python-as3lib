@@ -168,7 +168,6 @@ from ._toplevel.Object import Object
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
 from ._toplevel.trace import trace
-from ._toplevel.Types import allArray, allBoolean, allInt
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
