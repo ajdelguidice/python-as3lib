@@ -1,8 +1,9 @@
-import builtins
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
+import builtins
 from ctypes import c_double
+import math
 
 
 _NaN_value = 1e300000 / -1e300000
@@ -125,7 +126,9 @@ class Number(Object):
 
    def __round__(self, places=null):
       if places is null:
-         return Number(round(self._value))
+         if self._value % 1 >= 0.5:
+            return Number(math.ceil(self._value))
+         return Number(math.floor(self._value))
       return Number(round(self._value, places))
 
    def _Number(self, expression):
