@@ -158,7 +158,8 @@ from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
 from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, EnableDebug, DisableDebug, isValidDirectory, setDataDirectory
-from ._toplevel.int import int as Int
+from ._toplevel.int import int
+Int = int  # Backwards compatibility
 from ._toplevel.int import uint
 from ._toplevel.JSON import JSON
 from ._toplevel.Keywords import delete, each
@@ -200,7 +201,7 @@ try:
 
    add_type(Array, arrayAdapter)
    add_type(Boolean, partial(adapter, bool))
-   add_type(Int, partial(adapter, builtins.int))
+   add_type(int, partial(adapter, builtins.int))
    add_type(Number, partial(adapter, float))
    add_type(String, partial(adapter, str))
    add_type(uint, partial(adapter, int))
@@ -237,7 +238,7 @@ __all__ = (
    'Error',
    'escape',
    'EvalError',
-   'Int',
+   'int',
    'isFinite',
    'isNaN',
    'isXMLName',
