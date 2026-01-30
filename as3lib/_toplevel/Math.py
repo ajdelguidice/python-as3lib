@@ -5,14 +5,14 @@ import random
 
 
 class Math(Object):
-   E = 2.718281828459045
-   LN10 = 2.302585092994046
-   LN2 = 0.6931471805599453
-   LOG10E = 0.4342944819032518
-   LOG2E = 1.442695040888963387
-   PI = 3.141592653589793
-   SQRT1_2 = 0.7071067811865476
-   SQRT2 = 1.4142135623730951
+   E = Number(2.718281828459045)
+   LN10 = Number(2.302585092994046)
+   LN2 = Number(0.6931471805599453)
+   LOG10E = Number(0.4342944819032518)
+   LOG2E = Number(1.442695040888963387)
+   PI = Number(3.141592653589793)
+   SQRT1_2 = Number(0.7071067811865476)
+   SQRT2 = Number(1.4142135623730951)
 
    @staticmethod
    def abs(val):
@@ -39,11 +39,17 @@ class Math(Object):
 
    @staticmethod
    def ceil(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
       return math.ceil(val)
 
    @staticmethod
    def cos(angleRadians):
-      return math.cos(angleRadians)
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.cos(a))
 
    @staticmethod
    def exp(val):
@@ -51,7 +57,10 @@ class Math(Object):
 
    @staticmethod
    def floor(val):
-      return math.floor(Number(val))
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return math.floor(val)
 
    @staticmethod
    def log(val):
@@ -59,11 +68,23 @@ class Math(Object):
 
    @staticmethod
    def max(*values):
-      return max(values + (Number.NEGATIVE_INFINITY,))
+      v = [Number.NEGATIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return max(v)
 
    @staticmethod
    def min(*values):
-      return min(values + (Number.POSITIVE_INFINITY,))
+      v = [Number.POSITIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return min(v)
 
    @staticmethod
    def pow(base, power):
@@ -75,11 +96,17 @@ class Math(Object):
 
    @staticmethod
    def round(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
       return round(val)
 
    @staticmethod
    def sin(angleRadians):
-      return math.sin(angleRadians)
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.sin(a))
 
    @staticmethod
    def sqrt(val):
@@ -90,4 +117,7 @@ class Math(Object):
 
    @staticmethod
    def tan(angleRadians):
-      return math.tan(angleRadians)
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return math.tan(a)
