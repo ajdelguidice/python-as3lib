@@ -1,4 +1,4 @@
-from as3lib import as3state, ArgumentError, Array, false, Int, null, true
+from as3lib import as3state, ArgumentError, Array, false, int, null, true
 from as3lib.flash.events import EventDispatcher
 
 
@@ -147,9 +147,9 @@ class NativeApplication(EventDispatcher):
       super().__init__()
       self._autoExit = true
       self._execInBackground = false
-      self._idleThreshold = Int(300)
+      self._idleThreshold = int(300)
       self._openedWindows = Array()
-      self._timeSinceUserInput = Int(0)
+      self._timeSinceUserInput = int(0)
 
    def activate(self, window=null):
       raise NotImplementedError
