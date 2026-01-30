@@ -35,6 +35,12 @@ class Boolean(Object):
    def __abs__(self):
       return Number(self._value)
 
+   def __neg__(self):
+      return -Number(self)
+
+   def __pos__(self):
+      return Number(self)
+
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
          return expression
