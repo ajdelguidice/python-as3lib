@@ -1,4 +1,5 @@
 # This file defines the actionscript keywords as python decorators/functions
+from as3lib._toplevel.Boolean import Boolean
 from dataclasses import dataclass
 from miniamf import register_package
 
@@ -52,7 +53,14 @@ class namespace:
       register_package(cls, self.ns)
       return cls
 
+
 # Other keywords
+def delete(obj):
+   # TODO: Other functionality of delete
+   del obj
+   return Boolean(True)
+
+
 def each(iterable):
    '''
    Replacement for 'for each ...'
