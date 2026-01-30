@@ -56,8 +56,7 @@ class TOML:
          for k in nontables:
             text.write(f'{k} = {TOML.Value(valDict[k])}\n')
          for k in tables:
-            text.write('\n')  # This doesn't work when combined with next line for some reason
-            text.write(f'["{k}"]\n' if str(k).find('.') != -1 else f'[{k}]\n')
+            text.write(f'\n["{k}"]\n' if str(k).find('.') != -1 else f'\n[{k}]\n')
             for k2, v2 in valDict[k].items():
                text.write(f'{k2} = {TOML.Value(v2)}\n')
          return text.getvalue()
