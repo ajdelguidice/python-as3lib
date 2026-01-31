@@ -1,6 +1,6 @@
 from __future__ import annotations
 from as3lib._toplevel.Array import Array
-from as3lib._toplevel.Boolean import Boolean
+from as3lib._toplevel.Boolean import false, true
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
 from as3lib._toplevel.Object import Object
@@ -90,9 +90,10 @@ class RegExp(Object):
    def exec(self, str):
       # TODO: output.index
       # TODO: global flag
-      match = self._re.match(str)
-      if match is None:
+      match = list(self._re.finditer(str))
+      if not match:
          return null
+      match = match[0]
       output = Array()
       output.input = str
       group = match.group()
@@ -112,8 +113,8 @@ class RegExp(Object):
 
    def test(self, str):
       if self.exec(str) is null:
-         return Boolean(False)
-      return Boolean(True)
+         return false
+      return true
 
    def toString(self):
       with StringIO() as s:
