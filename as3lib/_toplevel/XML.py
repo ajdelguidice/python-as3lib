@@ -5,7 +5,6 @@ from as3lib._toplevel.Errors import ArgumentError, TypeError
 from as3lib._toplevel.Functions import isXMLName
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.String import String
-from multipledispatch import dispatch
 
 
 class Namespace(Object):
@@ -62,12 +61,11 @@ class Namespace(Object):
    def toString(self):
       return self.uri
 
-   def valueOf(self):...
+   def valueOf(self):
+      return self.uri
 
 
 class QName(Object):
-   _mdspns = {}
-
    @property
    def localName(self):
       return self._localName
@@ -76,35 +74,30 @@ class QName(Object):
    def uri(self):
       return self._uri
 
-   @dispatch(object, namespace=_mdspns)
-   def __init__(self, qname):
-      if isinstance(qname, QName):
-         self._localName = qname.localName
-         self._uri = qname.uri
-      elif qname is undefined:
-         self._localName = ''
-         self._uri = null
-      else:
-         self._localName = str(qname)
-         self._uri = null
-
-   @dispatch(object, object, namespace=_mdspns)
-   def __init__(self, uri, localName):
-      if isinstance(uri, Namespace):
-         self._uri = uri.uri
-      elif uri is null:
-         self._uri = null
-      else:
-         self._uri = str(uri)
-      if isinstance(localName, QName):
-         self._localName = localName.localName
-      else:
-         self._localName = str(localName)
-
-   @dispatch(namespace=_mdspns)
-   def __init__(self):
-      self._localName = ''
+   def __init__(self, *args):
       self._uri = null
+      if len(args) >= 2:
+         uri = args[0]
+         localName = args[1]
+         if isinstance(uri, Namespace):
+            self._uri = uri.uri
+         elif uri is not null:
+            self._uri = String(uri)
+         if isinstance(localName, QName):
+            self._localName = localName.localName
+         else:
+            self._localName = String(localName)
+      elif len(args):
+         qname = args[0]
+         if isinstance(qname, QName):
+            self._localName = qname.localName
+            self._uri = qname.uri
+         elif qname is undefined or qname is null:
+            self._localName = String()
+         else:
+            self._localName = String(qname)
+      else:
+         self._localName = String()
 
    def toString(self):
       if self.uri == '':
