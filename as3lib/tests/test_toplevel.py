@@ -3,12 +3,12 @@
 
 import as3lib
 from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
-                    encodeURI, encodeURIComponent, Error, escape, EvalError,
-                    false, Infinity, JSON, Math, Namespace, NaN, null, Number,
-                    Object, QName, RangeError, ReferenceError, RegExp,
-                    SecurityError, String, SyntaxError, true, TypeError, uint,
-                    undefined, unescape, URIError, Vector, VerifyError, XML,
-                    XMLList)
+                    delete, encodeURI, encodeURIComponent, Error, escape,
+                    EvalError, false, Infinity, JSON, Math, Namespace, NaN,
+                    null, Number, Object, QName, RangeError, ReferenceError,
+                    RegExp, SecurityError, String, SyntaxError, true,
+                    TypeError, uint, undefined, unescape, URIError, Vector,
+                    VerifyError, XML, XMLList)
 from as3lib.flash.errors import (EOFError, IllegalOperationError,
                                  InvalidSWFError, IOError, MemoryError,
                                  ScriptTimeoutError, StackOverflowError)
@@ -63,30 +63,28 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(Array(5, 'abc').length, 2)
 
    def test_delete(self):
-      raise MethodNotImplemented('delete')
-      # TODO: Add a delete function that returns True if successful
       a = Array('a', 'b', 'c')
 
       # Delete a[1]
-      self.assertTrue(as3lib.delete(a[1]))
+      self.assertTrue(delete(a[1]))
       self.assertEqual(a.length, 3)
       self.assertArray(a, ['a', undefined, 'c', undefined])
       self.assertFalse(a.hasOwnProperty(1))
 
       # Delete a[2]
-      self.assertTrue(as3lib.delete(a[2]))
+      self.assertTrue(delete(a[2]))
       self.assertEqual(a.length, 3)
       self.assertArray(a, ['a', undefined, undefined, undefined])
       self.assertFalse(a.hasOwnProperty(2))
 
       # Delete a[3]
-      self.assertTrue(as3lib.delete(a[3]))
+      self.assertTrue(delete(a[3]))
       self.assertEqual(a.length, 3)
       self.assertArray(a, ['a', undefined, undefined, undefined])
       self.assertFalse(a.hasOwnProperty(3))
 
       # Delete a[4]
-      self.assertTrue(as3lib.delete(a[4]))
+      self.assertTrue(delete(a[4]))
       self.assertEqual(a.length, 3)
       self.assertArray(a, ['a', undefined, undefined, undefined])
       self.assertFalse(a.hasOwnProperty(4))
@@ -140,7 +138,7 @@ class ArrayTests(as3libTestCase):
       def test(val, index, array):
          self.assertTrue(val in a)
          self.assertLess(index, len(a))
-         self.assertIdentical(array, a)
+         self.assertIs(array, a)
 
       a.forEach(test)
 
@@ -420,10 +418,10 @@ class ArrayTests(as3libTestCase):
 
          self.assertArray(a, check)
 
-         # Clean up (used delete)
-         del Array.prototype[10]
-         del Array.prototype[11]
-         del Array.prototype[12]
+         # Clean up
+         delete(Array.prototype[10])
+         delete(Array.prototype[11])
+         delete(Array.prototype[12])
 
          Array.prototype[9] = undefined
          Array.prototype[10] = 'hole in slot 10'
@@ -598,7 +596,7 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(arr.length, 501)
 
       # Delete
-      del arr[50]
+      delete(arr[50])
       self.assertEqual(arr.length, 501)
       self.assertEqual(arr[50], undefined)
       self.assertEqual(arr[100], 10)
@@ -1206,18 +1204,43 @@ class DateTests(as3libTestCase):
       self.assertEqual(date.milliseconds, 24)
 
    def test_get_and_set_methods(self):
-      raise TestNotImplemented
+      # TODO: Test extra arguements
+      # TODO: getDay, {set/get}Time, UTC
+      date = Date(2021, 7, 29, 4, 22, 55, 11)
+
+      date.setFullYear(2020)
+      self.assertEqual(date.getFullYear(), 2020)
+
+      date.setMonth(4)
+      self.assertEqual(date.getMonth(), 4)
+
+      date.setDate(22)
+      self.assertEqual(date.getDate(), 22)
+
+      date.setHours(12)
+      self.assertEqual(date.getHours(), 12)
+
+      date.setMinutes(42)
+      self.assertEqual(date.getMinutes(), 42)
+
+      date.setSeconds(33)
+      self.assertEqual(date.getSeconds(), 33)
+
+      date.milliseconds = 209
+      self.assertEqual(date.milliseconds, 209)
+
+      self.assertEqual(date.valueOf(), 1587559353209)
 
    def test_properties_with_NaN(self):
       date = Date(NaN)
 
-      self.assertisNaN(date.fullYear)
-      self.assertisNaN(date.month)
-      self.assertisNaN(date.date)
-      self.assertisNaN(date.day)
-      self.assertisNaN(date.hours)
-      self.assertisNaN(date.minutes)
-      self.assertisNaN(date.seconds)
+      self.assertNaN(date.fullYear)
+      self.assertNaN(date.month)
+      self.assertNaN(date.date)
+      self.assertNaN(date.day)
+      self.assertNaN(date.hours)
+      self.assertNaN(date.minutes)
+      self.assertNaN(date.seconds)
 
       date.date = 9
       date.fullYear = 1999
@@ -3313,7 +3336,7 @@ class ObjectTests(as3libTestCase):
       self.assertEnumerate(x, 'key = value,key2 = value2')
 
       # delete key2
-      del x['key2']
+      delete(x['key2'])
       self.assertEnumerate(x, 'key = value')
 
       # other objects
@@ -3765,30 +3788,30 @@ class RegExpTests(as3libTestCase):
       re = RegExp('')
       self.assertArray(re.exec(''), [])
 
-      # TODO: Verify that this isn't supposed to be a string'
       re = RegExp(r'\d+')
       self.assertEqual(re.exec('abc'), null)
 
+      # TODO: For some reason /\d+/ and RegExp('\d+') work differently
       re = RegExp(r'\d+')
-      self.assertEqual(re.exec('abc123'), '123')
+      self.assertArray(re.exec('abc123'), ['123'])
 
       re = RegExp('ABC', 'i')
-      self.assertEqual(re.exec('abc'), 'abc')
+      self.assertArray(re.exec('abc'), ['abc'])
 
       re = RegExp('.bar', 's')
-      self.assertEqual(re.exec('foo\nbar'), 'bar')
+      self.assertArray(re.exec('foo\nbar'), ['bar'])
 
       # Test global and lastIndex
       re = RegExp(r'(\w*)sh(\w*)', 'ig')
       INPUT = 'She sells seashells by the seashore'
       result = re.exec(INPUT)
-      self.assertArray(result.toString(), ['She', undefined, 'e'])
+      self.assertArray(result, ['She', '', 'e'])
       self.assertEqual(result.input, INPUT)
       self.assertEqual(result.index, 0)
       self.assertEqual(result.lastIndex, 3)
 
       result = re.exec(INPUT)
-      self.assertArray(result.toString(), ['seashells', 'sea', 'ells'])
+      self.assertArray(result, ['seashells', 'sea', 'ells'])
       self.assertEqual(result.input, INPUT)
       self.assertEqual(result.index, 10)
       self.assertEqual(result.lastIndex, 19)
@@ -5525,8 +5548,8 @@ class WTFJSTests(as3libTestCase):
       self.assertIs(next(next(next(next(next(f())())())())()), f)
 
    def test_minmax(self):
-      self.assertIs(Math.min(), Infinity)
-      self.assertIs(Math.max(), -Infinity)
+      self.assertEqual(Math.min(), Infinity)
+      self.assertEqual(Math.max(), -Infinity)
       self.assertLess(Math.max(), Math.min())
 
    def test_infinite_timeout(self):

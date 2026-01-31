@@ -1,28 +1,18 @@
-import as3lib
-from as3lib._toplevel.Keywords import each
-from as3lib._toplevel.Number import Number
+from as3lib import each, isNaN, NaN, Number
 import unittest
 
 
 class as3libTestCase(unittest.TestCase):
-   def assertIdentical(self, obj1, obj2):
-      if obj1 is not obj2:
-         self.fail('%r is not %r' % (obj1, obj2))
-
-   def assertisNaN(self, obj):
-      # NOTE: Relies on NaN being properly set up
-      if not as3lib.isNaN(obj):
-         self.fail('%r is not NaN' % obj)
-
    def assertNaN(self, obj):
-      if not (hasattr(obj, '_is_nan') and obj._is_nan() or obj is as3lib.NaN or obj is Number.NaN):
+      if not (hasattr(obj, '_is_nan') and obj._is_nan() or obj is NaN or obj is Number.NaN):
          self.fail('%r is not NaN' % obj)
 
    def assertArray(self, array, check, length=None):
       if length is not None:
          self.assertEqual(len(array), length)
       for i, item in enumerate(check):
-         self.assertEqual(array[i], item)
+         if array[i] != item:
+            self.fail('Index %i; Expected "%r", got "%r"' % (i, item, array[i]))
 
    def assertType(self, obj, type_):
       self.assertEqual(type(obj), type_)
@@ -51,7 +41,7 @@ class as3libTestCase(unittest.TestCase):
       self.assertNaN(vector.y)
       self.assertNaN(vector.z)
       if w is not None:
-         if w is as3lib.NaN:
+         if w is NaN:
             self.assertNaN(vector.w)
          else:
             self.assertEqual(vector.w, w)
