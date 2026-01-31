@@ -19,7 +19,6 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 > <br><a href="https://pypi.org/project/tkhtmlview">tkhtmlview</a>
 > <br><a href="https://pypi.org/project/tomli/">tomli</a> (python < 3.11)
 > <br><a href="https://pypi.org/project/as3lib-miniAMF/">as3lib-miniAMF</a>
-> <br><a href="https://pypi.org/project/multipledispatch/">multipledispatch</a>
 
 Windows specific<br>
 > PyLaucher
