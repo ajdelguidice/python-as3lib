@@ -742,8 +742,61 @@ class Matrix3DTests(as3libTestCase):
    def test_compose(self):
       raise TestNotImplemented
 
+   def assertInvertedMat3D(self, mat, determinant, check):
+      self.assertEqual(mat.determinant, determinant)
+
+      invmat = mat.clone()
+      invmat.invert()
+      self.assertMatrix3D(invmat, check)
+
    def test_invert(self):
-      raise TestNotImplemented
+      # Identity
+      check = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      self.assertInvertedMat3D(Matrix3D(), 1, check)
+
+      # Translation
+      matrix = Matrix3D()
+      matrix.appendTranslation(10, 20, 30)
+      check = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -10, -20, -30, 1]
+      self.assertInvertedMat3D(matrix, 1, check)
+
+      # Scale
+      matrix = Matrix3D()
+      matrix.appendScale(2, 2, 2)
+      check = [0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1]
+      self.assertInvertedMat3D(matrix, 8, check)
+
+      # Rotation
+      matrix = Matrix3D()
+      matrix.appendRotation(0.3, Vector3D.X_AXIS)
+      matrix.appendRotation(0.5, Vector3D.Y_AXIS)
+      matrix.appendRotation(0.7, Vector3D.Z_AXIS)
+      check = [0.9998872955663178, -0.012171144953375805,
+               0.008789732396306326, 0, 0.012216535649290344,
+               0.999912221147948, -0.005128962439600703, 0,
+               -0.008726535498373933, 0.005235764461960769,
+               0.9999482158335472, 0, 0, 0, 0, 0.9999999999999999]
+      self.assertInvertedMat3D(matrix, 1, check)
+
+      # Rotation and scaling
+      matrix = Matrix3D()
+      matrix.appendRotation(0.3, Vector3D.X_AXIS)
+      matrix.appendRotation(0.5, Vector3D.Y_AXIS)
+      matrix.appendRotation(0.7, Vector3D.Z_AXIS)
+      matrix.appendScale(2, 2, 2)
+      check = [0.4999436477831589, -0.006085572476687903,
+               0.004394866198153163, 0, 0.006108267824645172,
+               0.499956110573974, -0.0025644812198003515, 0,
+               -0.0043632677491869665, 0.0026178822309803843,
+               0.4999741079167736, 0, 0, 0, 0, 0.9999999999999999]
+      self.assertInvertedMat3D(matrix, 8, check)
+
+      # Non-uniform scaling
+      matrix = Matrix3D()
+      matrix.appendScale(2, 3, 4)
+      check = [0.5, 0, 0, 0, 0, 0.3333333333333333, 0, 0, 0, 0, 0.25, 0, 0, 0,
+               0, 1]
+      self.assertInvertedMat3D(matrix, 24, check)
 
 
 class PerspectiveProjectionTests(as3libTestCase):...
