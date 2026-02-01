@@ -40,6 +40,8 @@ class int(Object):
    MAX_VALUE = 2147483647
    MIN_VALUE = -2147483648
 
+   _buffertype = c_int32
+
    @property
    def _value(self):
       return self._val.value
@@ -49,7 +51,7 @@ class int(Object):
       self._val.value = value
 
    def __init__(self, value=0):
-      self._val = c_int32(self._int(value))
+      self._val = self._buffertype(self._int(value))
 
    def __float__(self):
       return float(self._value)
@@ -136,9 +138,9 @@ class int(Object):
          raise RangeError('fractionDigits is outside of acceptable range')
       return ('{:.%sf}' % fractionDigits).format(self._value)
 
-   def toPrecision(self, precision: builtins.int | int | uint):
+   def toPrecision(self, precision: uint):
       if precision < 1 or precision > 21:
-         raise RangeError('fractionDigits is outside of acceptable range')
+         raise RangeError('precision is outside of acceptable range')
       temp = str(self._value)
       length = len(temp)
       if precision < length:
@@ -147,7 +149,7 @@ class int(Object):
          return temp
       return '%s.%s' % (temp, '0' * (precision - length))
 
-   def toString(self, radix: builtins.int | int | uint = 10):
+   def toString(self, radix: uint = 10):
       if radix <= 36 and radix >= 2:
          return _as_base(self._value, radix)
 
@@ -155,47 +157,9 @@ class int(Object):
       return self._value
 
 
-class uint(Object):
+class uint(int):
+   # NOTE: The tests from ruffle show that uint doesn't really exist
    MAX_VALUE = 4294967295
    MIN_VALUE = 0
 
-   @property
-   def _value(self):
-      return self._val.value
-
-   @_value.setter
-   def _value(self, value):
-      self._val.value = value
-
-   def __init__(self, value=undefined):
-      self._val = c_uint32(self._uint(value))
-
-   def __str__(self):
-      return self.toString()
-
-   def __repr__(self):
-      return 'as3lib.uint(%s)' % self._value
-
-   def __eq__(self, value):
-      return self._value == value
-
-   def __lt__(self, value):
-      return self._value < value
-
-   def __gt__(self, value):
-      return self._value > value
-
-   def __truediv__(self, value):
-      value = self._uint(value)
-      if value == 0:
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         return Number.NaN
-      return uint(self._value / value)
-
-   _uint = int._int
-   toExponential = int.toExponential
-   toFixed = int.toFixed
-   toPrecision = int.toPrecision
-   toString = int.toString
-   valueOf = int.valueOf
+   _buffertype = c_uint32
