@@ -1,5 +1,5 @@
-from as3lib import (ArgumentError, Array, false, null, Object, true, String,
-                    TypeError, undefined)
+from as3lib import (ArgumentError, Array, delete, false, null, Object, true,
+                    String, TypeError, undefined)
 from as3lib._toplevel.Keywords import each
 from as3lib.flash.errors import EOFError, IOError
 from as3lib.flash.events import TimerEvent
@@ -72,53 +72,40 @@ class ByteArrayTests(as3libTestCase):
       self.assertEqual(ba.readUnsignedByte(), 120)
       self.assertEqual(ba.readUnsignedByte(), 218)
 
-   def assertRaisesAS3(self, error, id, func, *args, **kwargs):
-      try:
-         func(*args, **kwargs)
-         self.fail('Funcion did not raise an error')
-      except AssertionError as e:
-         # Don't catch failure condition
-         raise e
-      except Exception as e:
-         if type(e) is not error:
-            self.fail('Wrong error type')
-         elif e.errorID != id:
-            self.fail('Wrong error id')
-
    def test_errors(self):
       ba = ByteArray()
-      self.assertRaisesAS3(TypeError, 2007, ba.compress, null)
-      self.assertRaisesAS3(IOError, 2058, ba.compress, 'abcdef')
+      self.assertRaisesAS3(TypeError, 2007, None, ba.compress, null)
+      self.assertRaisesAS3(IOError, 2058, None, ba.compress, 'abcdef')
 
-      self.assertRaisesAS3(TypeError, 2007, ba.uncompress, null)
-      self.assertRaisesAS3(IOError, 2058, ba.uncompress, 'abcdef')
+      self.assertRaisesAS3(TypeError, 2007, None, ba.uncompress, null)
+      self.assertRaisesAS3(IOError, 2058, None, ba.uncompress, 'abcdef')
       ba.uncompress('zlib')  # Doesn't raise an error
 
       def setEndian(barr, endian):
          barr.endian = endian
 
-      self.assertRaisesAS3(TypeError, 2007, setEndian, ba, null)
-      self.assertRaisesAS3(ArgumentError, 2008, setEndian, ba, 'abcdef')
+      self.assertRaisesAS3(TypeError, 2007, None, setEndian, ba, null)
+      self.assertRaisesAS3(ArgumentError, 2008, None, setEndian, ba, 'abcdef')
 
-      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
-      self.assertRaisesAS3(TypeError, 2007, ba.writeUTFBytes, null)
-      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
-      self.assertRaisesAS3(TypeError, 2007, ba.writeUTF, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTFBytes, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
 
       ba.writeMultiByte('abcd', 'utf-8')
       ba.writeMultiByte('abcd', 'aisjdasd')
-      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, 'utf-8')
-      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, 'aisjdasd')
-      self.assertRaisesAS3(TypeError, 2007, ba.writeMultiByte, null, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, 'utf-8')
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, 'aisjdasd')
+      self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, null)
 
       ba.readMultiByte(0, '')
-      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, '')
-      self.assertRaisesAS3(TypeError, 2007, ba.readMultiByte, 0, null)
-      self.assertRaisesAS3(TypeError, 2007, ba.readMultiByte, 20, null)
+      self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, '')
+      self.assertRaisesAS3(TypeError, 2007, None, ba.readMultiByte, 0, null)
+      self.assertRaisesAS3(TypeError, 2007, None, ba.readMultiByte, 20, null)
       ba.readMultiByte(0, 'aisjdasd')
-      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, 'aisjdasd')
+      self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, 'aisjdasd')
       ba.readMultiByte(0, 'utf-8')
-      self.assertRaisesAS3(EOFError, 2030, ba.readMultiByte, 20, 'utf-8')
+      self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, 'utf-8')
 
    def test_oom(self):
       # This is not supposed to fail
@@ -256,7 +243,99 @@ class DictionaryTests(as3libTestCase):
       self.assertEqual(a[a], a)
 
    def test_delete(self):
-      raise TestNotImplemented
+      a = Dictionary()
+      a['key'] = 5
+      self.assertEqual(a['key'], 5)
+
+      a['key'] = 6
+
+      class Test:
+         ...
+
+      key2 = Test()
+      a[key2] = 23
+
+      key3 = Test()
+      a[key3] = 'Key3 True Value'
+      a['key3'] = 'Key3 False Value'
+
+      key4 = Object()
+      key4.toString = lambda: 'key4'
+      a[key4] = 'Key4 True Value'
+      a['key4'] = 'Key4 False Value'
+
+      a[13] = "i've been found!"
+      a['13'] = "no I haven't"
+
+      a[1.123] = 'this violates Rust!'
+      a['1.123'] = 'this is perfectly acceptable'
+
+      a[undefined] = 'oh no'
+      a['undefined'] = 'uh huh...'
+
+      a[null] = 'oh YES!'
+      a['null'] = 'yeah sure'
+
+      a[true] = 'true'
+      a['true'] = 'stringy true'
+
+      a[false] = 'false'
+
+      self.assertTrue(delete(a['key']))
+      self.assertEqual(a['key'], undefined)
+
+      self.assertTrue(delete(a[key2]))
+      self.assertEqual(a[key2], undefined)
+
+      self.assertTrue(delete(a[key3]))
+      self.assertEqual(a[key3], undefined)
+      self.assertEqual(a['key3'], 'Key3 False Value')
+
+      self.assertTrue(delete(a['key3']))
+      self.assertEqual(a[key3], undefined)
+      self.assertEqual(a['key3'], undefined)
+
+      self.assertTrue(delete(a[key4]))
+      self.assertEqual(a[key4], undefined)
+      self.assertEqual(a['key4'], 'Key4 False Value')
+
+      self.assertTrue(delete(a['key4']))
+      self.assertEqual(a[key4], undefined)
+      self.assertEqual(a['key4'], undefined)
+
+      self.assertTrue(delete(a[13]))
+      self.assertEqual(a[13], undefined)
+
+      self.assertTrue(delete(a[1.123]))
+      self.assertEqual(a[1.123], undefined)
+      self.assertEqual(a['1.123'], undefined)
+
+      self.assertTrue(delete(a[undefined]))
+      self.assertEqual(a[undefined], undefined)
+      self.assertEqual(a['undefined'], undefined)
+
+      self.assertTrue(delete(a[null]))
+      self.assertEqual(a[null], undefined)
+      self.assertEqual(a['null'], undefined)
+
+      self.assertTrue(delete(a[true]))
+      self.assertEqual(a[true], undefined)
+      self.assertEqual(a[true], undefined)
+
+      self.assertTrue(delete(a[false]))
+      self.assertEqual(a[false], undefined)
+      self.assertEqual(a[false], undefined)
+
+      a[a] = a
+      self.assertEqual(a[a], a)
+
+      self.assertTrue(delete(a[a]))
+      self.assertEqual(a[a], undefined)
+
+      key5 = Object()
+      key5.toString = lambda: 'key5'
+
+      self.assertTrue(delete(a[key5]))
 
    def test_forEach(self):
       a = Dictionary()
@@ -330,14 +409,72 @@ class DictionaryTests(as3libTestCase):
       self.assertEachSorted(a, ['23','6','Key3 False Value','Key3 True Value','Key4 False Value','Key4 True Value','Testing','The value',a,"no I haven't",'stringy false','stringy true','this is perfectly acceptable',true,'uh huh...','yeah sure'])
 
    def test_hasOwnProperty(self):
-      raise TestNotImplemented
+      a = Dictionary()
+      a['key'] = 5
+      self.assertEqual(a['key'], 5)
+
+      a['key'] = 6
+
+      class Test:
+         ...
+
+      key2 = Test()
+      a[key2] = 23
+
+      key3 = Test()
+      a[key3] = 'Key3 True Value'
+      a['key3'] = 'Key3 False Value'
+
+      key4 = Object()
+      key4.toString = lambda: 'key4'
+      a[key4] = 'Key4 True Value'
+      a['key4'] = 'Key4 False Value'
+
+      a[13] = "i've been found!"
+      a['13'] = "no I haven't"
+
+      a[1.123] = 'this violates Rust!'
+      a['1.123'] = 'this is perfectly acceptable'
+
+      a[undefined] = 'oh no'
+      a['undefined'] = 'uh huh...'
+
+      a[null] = 'oh YES!'
+      a['null'] = 'yeah sure'
+
+      a[true] = 'true'
+      a['true'] = 'stringy true'
+
+      a[false] = 'false'
+
+      self.assertTrue(a.hasOwnProperty("key"))
+      self.assertFalse(a.hasOwnProperty(key2))
+      self.assertFalse(a.hasOwnProperty(key3))
+      self.assertTrue(a.hasOwnProperty("key3"))
+      self.assertTrue(a.hasOwnProperty(key4))
+      self.assertTrue(a.hasOwnProperty("key4"))
+      self.assertTrue(a.hasOwnProperty(13))
+      self.assertTrue(a.hasOwnProperty(1.123))
+      self.assertTrue(a.hasOwnProperty("1.123"))
+      self.assertTrue(a.hasOwnProperty(undefined))
+      self.assertTrue(a.hasOwnProperty("undefined"))
+      self.assertTrue(a.hasOwnProperty(null))
+      self.assertTrue(a.hasOwnProperty("null"))
+      self.assertTrue(a.hasOwnProperty(true))
+      self.assertTrue(a.hasOwnProperty("true"))
+      self.assertTrue(a.hasOwnProperty(false))
+      self.assertTrue(a.hasOwnProperty("false"))
+      self.assertFalse(a.hasOwnProperty(Test()))
+      a[a] = a
+      self.assertTrue(a.hasOwnProperty(a))
 
    def test_in(self):
       a = Dictionary()
       a['key'] = 5
       a['key'] = 6
 
-      class Test:...
+      class Test:
+         ...
 
       key2 = Test()
       a[key2] = 23
@@ -413,7 +550,7 @@ class DictionaryTests(as3libTestCase):
                for j in range(len(toDelete)):
                   newKey = toDelete[j]
                   if (j % 2 == 0):
-                     #delete obj[newKey]
+                     # delete obj[newKey]
                      del obj[newKey]
                   else:
                      # obj.setPropertyIsEnumerable(newKey, false)
