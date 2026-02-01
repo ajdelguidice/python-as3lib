@@ -1,5 +1,4 @@
 from __future__ import annotations
-from as3lib._toplevel.Array import Array
 from as3lib._toplevel.Boolean import false, true
 from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import TypeError
@@ -90,23 +89,28 @@ class RegExp(Object):
    def exec(self, str):
       # TODO: output.index
       # TODO: global flag
-      match = list(self._re.finditer(str))
-      if not match:
+      matches = list(self._re.finditer(str))
+      if not matches:
          return null
-      match = match[0]
-      output = Array()
+      match = matches[0]
+      output = Object()
+      for k, v in match.groupdict().items():
+         if v is None or v == '':
+            v = undefined
+         setattr(output, k, v)
       output.input = str
       group = match.group()
-      if group is not None:
-         output.push(group)
+      if group is None:
+         output[0] = undefined
       else:
-         output.push(undefined)
+         output[0] = group
       output.index = match.start()
       groups = match.groups()
       if groups is not None:
-         output.push(*groups)
-      if not len(output):
-         return null
+         i = 1
+         for item in groups:
+            output[i] = item
+            i += 1
       if self.global_:
          raise NotImplementedError
       return output
