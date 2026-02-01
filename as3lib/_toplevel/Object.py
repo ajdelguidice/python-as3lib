@@ -1,5 +1,8 @@
 from warnings import warn
 
+
+# TODO: Make item assignment work with non-string values.
+# TODO: Prototypes
 class Object:
    # ActionScript3 Base object
    prototype = None
@@ -9,8 +12,14 @@ class Object:
    def __str__(self):
       return self.toString()
 
+   def __getitem__(self, item):
+      return getattr(self, str(item))
+
+   def __setitem__(self, item, value):
+      setattr(self, str(item), value)
+
    def hasOwnProperty(self, name: str):
-         raise NotImplementedError
+      raise NotImplementedError
 
    def isPrototypeOf(self, theClass):
       warn('isPrototypeOf will not work properly because the prototype property is not implemented.')
@@ -23,10 +32,10 @@ class Object:
       return False
 
    def propertyIsEnumerable(self, name: str):
-         raise NotImplementedError
+      raise NotImplementedError
 
    def setPropertyIsEnumerable(self, name: str, isEnum=True):
-         raise NotImplementedError
+      raise NotImplementedError
 
    def toLocaleString(self):
       return '[object %s]' % type(self).__name__
