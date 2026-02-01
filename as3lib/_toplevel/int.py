@@ -23,6 +23,18 @@ def _as_base(num, radix):
    return ''.join(l)
 
 
+def _exponentFix(value):
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      bi = int(b)
+      if bi == 0:
+         return a
+      if b.startswith('+'):
+         return '%se+%i' % (a, bi)
+      return '%se%i' % (a, bi)
+   return value
+
+
 class int(Object):
    # TODO: Make this return a Number if the result is a float
    MAX_VALUE = 2147483647
@@ -108,36 +120,21 @@ class int(Object):
          return 0
       raise TypeError(f'Can not convert type {type(value)} to integer')
 
-   def toExponential(self, fractionDigits: builtins.int | int = null):
-      if fractionDigits is null:
-         fractionDigits = 0
-      if fractionDigits < 0 and fractionDigits > 20:
+   def toExponential(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
          raise RangeError('fractionDigits is outside of acceptable range')
-      temp = str(self._value)
-      if temp[0] == '-':
-         whole = temp[:2]
-         temp = temp[2:]
-      else:
-         whole = temp[:1]
-         temp = temp[1:]
-      decpos = temp.find('.')
-      if decpos == -1:
-         exponent = len(temp)
-      else:
-         exponent = len(temp[:decpos])
-      temp = temp.replace('.', '') + '0'*20
-      if fractionDigits > 0:
-         return f'{whole}.{"".join([temp[i] for i in range(fractionDigits)])}e+{exponent}'
-      return f'{whole}e+{exponent}'
+      if self == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return _exponentFix(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16'
+      return _exponentFix(('{:.%se}' % fractionDigits).format(self._value))
 
-   def toFixed(self, fractionDigits: builtins.int | int = null):
-      if fractionDigits is null:
-         fractionDigits = 0
-      if fractionDigits < 0 or fractionDigits > 20:
+   def toFixed(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
          raise RangeError('fractionDigits is outside of acceptable range')
-      if fractionDigits == 0:
-         return '%s' % self._value
-      return '%s.%s' % (self._value, '0' * fractionDigits)
+      return ('{:.%sf}' % fractionDigits).format(self._value)
 
    def toPrecision(self, precision: builtins.int | int | uint):
       if precision < 1 or precision > 21:
@@ -196,41 +193,9 @@ class uint(Object):
          return Number.NaN
       return uint(self._value / value)
 
-   def _uint(self, value):
-      if isinstance(value, str):
-         value = _parseFloat(value)
-      if hasattr(value, '_is_nan') and value._is_nan() or value is undefined or value is null or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
-         return 0
-      elif isinstance(value, (Number, float)):
-         return Math.floor(value)
-      elif isinstance(value, (uint, int)):
-         return value._value
-      elif isinstance(value, builtins.int):
-         return value
-      elif hasattr(value, '__int__'):
-         return builtins.int(value)
-      elif isinstance(value, Object):
-         return 0
-      raise
-
-   def toExponential(self, fractionDigits = null):
-      raise NotImplementedError
-
-   def toFixed(self, fractionDigits = null):
-      if fractionDigits is null:
-         fractionDigits = 0
-      if fractionDigits < 0 or fractionDigits > 20:
-         raise RangeError('fractionDigits is outside of acceptable range')
-      if fractionDigits == 0:
-         return '%s' % self._value
-      return '%s.%s' % (self._value, '0' * fractionDigits)
-
-   def toPrecision(self, precision):
-      raise NotImplementedError
-
-   def toString(self, radix=10):
-      if radix <= 36 and radix >= 2:
-         return _as_base(self._value, radix)
-
-   def valueOf(self):
-      return self._value
+   _uint = int._int
+   toExponential = int.toExponential
+   toFixed = int.toFixed
+   toPrecision = int.toPrecision
+   toString = int.toString
+   valueOf = int.valueOf
