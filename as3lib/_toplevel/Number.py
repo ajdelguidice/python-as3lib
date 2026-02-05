@@ -1,6 +1,6 @@
-from as3lib._toplevel.Object import Object
 from as3lib._toplevel.Constants import null, undefined
-from as3lib._toplevel.Errors import TypeError
+from as3lib._toplevel.Errors import RangeError, TypeError
+from as3lib._toplevel.Object import Object
 import builtins
 from ctypes import c_double
 import math
@@ -14,7 +14,7 @@ _PosInf_value = 1e300000
 def _parseFloat(str_):
    # TODO: Make stop at second period
    # TODO: '100a' should return NaN
-   if str_ is None:
+   if str_ is undefined:
       return Number.NaN
    str_ = str_.lstrip()
    if str_ == '':
@@ -52,6 +52,13 @@ def _parseFloat(str_):
    return Number.NaN
 
 
+def _exponentFix(value):
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      return ('%se{:+d}' % a).format(int(b))
+   return value
+
+
 class Number(Object):
    __slots__ = '_val'
    MAX_VALUE = 1.79e308
@@ -69,8 +76,7 @@ class Number(Object):
       return self._value.hex() == 'nan'
 
    def __init__(self, num=null):
-      self._val = c_double()
-      self._value = self._Number(num)
+      self._val = c_double(self._Number(num))
 
    def __str__(self):
       return self.toString()
@@ -149,13 +155,26 @@ class Number(Object):
       if isinstance(expression, Object):
          return Number.NaN
 
-   def toExponential(self):
-      raise NotImplementedError
+   def toExponential(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      if self._value == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return ('{:.%if}e-16' % fractionDigits).format(0)
+      if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
+         return self.toString()
+      return _exponentFix(('{:.%ie}' % fractionDigits).format(self._value))
 
-   def toFixed(self):
-      raise NotImplementedError
+   def toFixed(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      return ('{:.%if}' % fractionDigits).format(self._value)
 
-   def toPrecision(self):
+   def toPrecision(self, precision):
+      # TODO: Cast precision to uint
       raise NotImplementedError
 
    def toLocaleString(self):
@@ -170,10 +189,10 @@ class Number(Object):
       if self._value == _PosInf_value:
          return "Infinity"
       if radix != 10:
-         raise NotImplementedError
+         return str(math.floor(self._value))
       if self._value.is_integer():
-         return '%i' % self._value
-      return '%s' % self._value
+         return _exponentFix('%i' % self._value)
+      return _exponentFix('%s' % self._value)
 
    def valueOf(self):
       return self._value
