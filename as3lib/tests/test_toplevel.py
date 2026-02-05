@@ -704,8 +704,42 @@ class ArrayTests(as3libTestCase):
    def test_splice2(self):
       raise TestNotImplemented
 
+   def _spliceTypes_arrToString(self, array):
+      if array is null:
+         return 'null'
+      if not isinstance(array, Array):
+         return String() + array
+      if array.length > 1000:
+         return '<len(%i)>' % array.length
+      if array.length == 0:
+         return '<empty>'
+      return f'[{array.map(lambda el, *args: self._spliceTypes_arrToString(el))}]'
+
+   def assertSpliceTypes(self, array, func, retcheck, acheck):
+      a = array.concat()  # clone
+      ret = func(a)
+      self.assertEqual(self._spliceTypes_arrToString(ret), retcheck)
+      self.assertEqual(self._spliceTypes_arrToString(a), acheck)
+
    def test_splice_types(self):
-      raise TestNotImplemented
+      array = Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+
+      self.assertSpliceTypes(array, lambda a: a.splice(), 'null', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice('0'), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+      self.assertSpliceTypes(array, lambda a: a.splice('5'), '[5,6,7,8,9,10,11,12,13,14,15]', '[0,1,2,3,4]')
+      self.assertSpliceTypes(array, lambda a: a.splice(true), '[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '[0]')
+      self.assertSpliceTypes(array, lambda a: a.splice(false), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+      self.assertSpliceTypes(array, lambda a: a.splice(Object()), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, '2'), '[1,2]', '[0,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(-1, 2), '[15]', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]')
+      self.assertSpliceTypes(array, lambda a: a.splice('-5', 3), '[11,12,13]', '[0,1,2,3,4,5,6,7,8,9,10,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, -2), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, true), '[1]', '[0,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, false), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, 'true'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, 'false'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, Object()), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+      self.assertSpliceTypes(array, lambda a: a.splice(1, '5'), '[1,2,3,4,5]', '[0,6,7,8,9,10,11,12,13,14,15]')
 
    def test_storage(self):
       a = Array('a', 'b', 'c')
@@ -3372,17 +3406,97 @@ class ObjectTests(as3libTestCase):
 
 
 class OperationTests(as3libTestCase):
+   def assertAdd(self, value, equals):
+      self.assertEqual(true + value, check[0])
+      self.assertEqual(false + value, check[1])
+      self.assertEqual(null + value, check[2])
+      self.assertEqual(undefined + value, check[3])
+      self.assertEqual(String('') + value, check[4])
+      self.assertEqual(String('str') + value, check[5])
+      self.assertEqual(String('true') + value, check[6])
+      self.assertEqual(String('false') + value, check[7])
+      self.assertEqual(Number(0.0) + value, check[8])
+      self.assertEqual(NaN + value, check[9])
+      self.assertEqual(Number(-0.0) + value, check[10])
+      self.assertEqual(Infinity + value, check[11])
+      self.assertEqual(Number(1.0) + value, check[12])
+      self.assertEqual(Number(-1.0) + value, check[13])
+      self.assertEqual(Number(0xFF1306) + value, check[14])
+      self.assertEqual(Object() + value, check[15])
+      self.assertEqual(String('0.0') + value, check[16])
+      self.assertEqual(String('NaN') + value, check[17])
+      self.assertEqual(String('-0.0') + value, check[18])
+      self.assertEqual(String('Infinity') + value, check[19])
+      self.assertEqual(String('1.0') + value, check[20])
+      self.assertEqual(String('-1.0') + value, check[21])
+      self.assertEqual(String('0xFF1306') + value, check[22])
+
+   def test_add(self):
+      asrt_true = (2, 1, 1, NaN, 'true', 'strtrue', 'truetrue', 'falsetrue',
+                   1, NaN, 1, Infinity, 2, 0, 16716551, '[object Object]true',
+                   '0.0true', 'NaNtrue', '-0.0true', 'Infinitytrue',
+                   '1.0true', '-1.0true', '0xFF1306true')
+      self.assertAdd(true, asrt_true)
+
+      asrt_false = (1, 0, 0, NaN, 'false', 'strfalse', 'truefalse',
+                    'falsefalse', 0, NaN, 0, Infinity, 1, -1, 16716550,
+                    '[object Object]false', '0.0false', 'NaNfalse',
+                    '-0.0false', 'Infinityfalse', '1.0false', '-1.0false',
+                    '0xFF1306false')
+      self.assertAdd(false, asrt_false)
+
+      asrt_null = (1, 0, 0, NaN, 'null', 'strnull', 'truenull', 'falsenull',
+                   0, NaN, 0, Infinity, 1, -1, 16716550,
+                   '[object Object]null', '0.0null', 'NaNnull', '-0.0null',
+                   'Infinitynull', '1.0null', '-1.0null', '0xFF1306null')
+      self.assertAdd(null, asrt_null)
+
+      asrt_undefined = (NaN, NaN, NaN, NaN, 'undefined', 'strundefined',
+                        'trueundefined', 'falseundefined', NaN, NaN, NaN, NaN,
+                        NaN, NaN, NaN, '[object Object]undefined',
+                        '0.0undefined', 'NaNundefined', '-0.0undefined',
+                        'Infinityundefined', '1.0undefined', '-1.0undefined',
+                        '0xFF1306undefined')
+      self.assertAdd(undefined, asrt_undefined)
+
+      raise TestNotImplemented
+
+      self.assertAdd(String(''), asrt_0)
+      self.assertAdd(String('str'), asrt_0)
+      self.assertAdd(String('true'), asrt_0)
+      self.assertAdd(String('false'), asrt_0)
+      self.assertAdd(Number(0.0), asrt_0)
+      self.assertAdd(NaN, asrt_0)
+      self.assertAdd(Number(-0.0), asrt_0)
+      self.assertAdd(Infinity, asrt_0)
+      self.assertAdd(Number(1.0), asrt_1)
+
+      self.assertAdd(Number(-1.0), asrt_n1)
+
+      self.assertAdd(Number(0xFF1306), asrt_16716550)
+
+      self.assertAdd(Object(), asrt_0)
+      self.assertAdd(String('0.0'), asrt_0)
+      self.assertAdd(String('NaN'), asrt_0)
+      self.assertAdd(String('-0.0'), asrt_0)
+      self.assertAdd(String('Infinity'), asrt_0)
+      self.assertAdd(String('1.0'), asrt_1)
+
+      self.assertAdd(String('-1.0'), asrt_n1)
+
+      self.assertAdd(String('0xFF1306'), asrt_16716550)
+
+   def assertSubtract(self, value1, value2, equals):
+      self.assertEquals(value1 + value2, equals)
+
+   def test_subtract(self):
+      raise TestNotImplemented
+
    def assertDivide(self, value1, value2, equals):
       self.assertEqual(value1 / value2, equals)
 
    def assertDivideNaN(self, value1, value2):
       self.assertNaN(value1 / value2)
-
-   def test_add(self):
-      raise TestNotImplemented
-
-   def test_subtract(self):
-      raise TestNotImplemented
 
    def test_divide(self):
       # TODO: Add more of this test
@@ -3799,7 +3913,7 @@ class RegExpTests(as3libTestCase):
       self.assertArray(re.exec('abc'), ['abc'])
 
       re = RegExp('.bar', 's')
-      self.assertArray(re.exec('foo\nbar'), ['bar'])
+      self.assertArray(re.exec('foo\nbar'), ['\nbar'])
 
       # Test global and lastIndex
       re = RegExp(r'(\w*)sh(\w*)', 'ig')
@@ -3871,6 +3985,7 @@ class RegExpTests(as3libTestCase):
       # TODO: Prototype
       re = RegExp('abc', 'xsmig')
       self.assertEqual(re.toString(), '/abc/gimsx')
+      raise MethodNotImplemented('prototype')
       # self.assertEqual(RegExp.prototype.toString.call(re), '/abc/gimsx')
       # self.assertEqual(Object.prototype.toString.call(re), '[object, RegExp]')
       # self.assertRaisesAS3(TypeError,
@@ -3882,8 +3997,26 @@ class RegExpTests(as3libTestCase):
 
 
 class StringTests(as3libTestCase):
+   def assertCall(self, str, add, check):
+      self.assertEqual(String(str) + add, check)
+
    def test_call(self):
-      raise TestNotImplemented
+      cls = String
+      self.assertCall('cls(): ', cls(), 'cls(): ')
+
+      self.assertCall('String(undefined): ', String(undefined), 'String(undefined): undefined')
+      self.assertCall('String(null): ', String(null), 'String(null): null')
+      self.assertCall('String(42): ', String(42), 'String(42): 42')
+      self.assertCall('String(false): ', String(false), 'String(false): false')
+      self.assertCall('String("abc"): ', String('abc'), 'String("abc"): abc')
+      self.assertCall('String({}): ', String(Object()), 'String({}): [object Object]')
+
+      self.assertCall('String(undefined).split(""): ', String(undefined).split(''), 'String(undefined).split(""): u,n,d,e,f,i,n,e,d')
+      self.assertCall('String(null).split(""): ', String(null).split(''), 'String(null).split(""): n,u,l,l')
+      self.assertCall('String(42).split(""): ', String(42).split(''), 'String(42).split(""): 4,2')
+      self.assertCall('String(false).split(""): ', String(false).split(''), 'String(false).split(""): f,a,l,s,e')
+      self.assertCall('String("abc").split(""): ', String('abc').split(''), 'String("abc").split(""): a,b,c')
+      self.assertCall('String({}).split(""): ', String(Object()).split(''), 'String({}).split(""): [,o,b,j,e,c,t, ,O,b,j,e,c,t,]')
 
    def test_case(self):
       allUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞĀĂĄĆĈĊČĎĐĒĔĖĘĚĜĞĠĢĤĦĨĪĬĮİĲĴĶĹĻĽĿŁŃŅŇŊŌŎŐŒŔŖŘŚŜŞŠŢŤŦŨŪŬŮŰŲŴŶŸŹŻŽƁƂƄƆƇƉƊƋƎƏƐƑƓƔƖƗƘƜƝƟƠƢƤƦƧƩƬƮƯƱƲƳƵƷƸƼǄǅǇǈǊǋǍǏǑǓǕǗǙǛǞǠǢǤǦǨǪǬǮǱǲǴǶǷǸǺǼǾȀȂȄȆȈȊȌȎȐȒȔȖȘȚȜȞȢȤȦȨȪȬȮȰȲΆΈΉΊΌΎΏΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡ΢ΣΤΥΦΧΨΩΪΫϘϚϜϞϠϢϤϦϨϪϬϮϴЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯѠѢѤѦѨѪѬѮѰѲѴѶѸѺѼѾҀҊҌҎҐҒҔҖҘҚҜҞҠҢҤҦҨҪҬҮҰҲҴҶҸҺҼҾӁӃӇӋӐӒӔӖӘӚӜӞӠӢӤӦӨӪӬӮӰӲӴӶӸԱԲԳԴԵԶԷԸԹԺԻԼԽԾԿՀՁՂՃՄՅՆՇՈՉՊՋՌՍՎՏՐՑՒՓՔՕՖႠႡႢႣႤႥႦႧႨႩႪႫႬႭႮႯႰႱႲႳႴႵႶႷႸႹႺႻႼႽႾႿჀჁჂჃჄჅḀḂḄḆḈḊḌḎḐḒḔḖḘḚḜḞḠḢḤḦḨḪḬḮḰḲḴḶḸḺḼḾṀṂṄṆṈṊṌṎṐṒṔṖṘṚṜṞṠṢṤṦṨṪṬṮṰṲṴṶṸṺṼṾẀẂẄẆẈẊẌẎẐẒẔẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸἈἉἊἋἌἍἎἏἘἙἚἛἜἝἨἩἪἫἬἭἮἯἸἹἺἻἼἽἾἿὈὉὊὋὌὍὙὛὝὟὨὩὪὫὬὭὮὯᾈᾉᾊᾋᾌᾍᾎᾏᾘᾙᾚᾛᾜᾝᾞᾟᾨᾩᾪᾫᾬᾭᾮᾯᾸᾹᾺΆᾼῈΈῊΉῌῘῙῚΊῨῩῪΎῬῸΌῺΏῼΩKÅⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫⅬⅭⅮⅯⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ'
@@ -3995,7 +4128,10 @@ class StringTests(as3libTestCase):
       # function f():void {}
       # self.assertEqual(new String(f));
 
-   def test_indexOf_lastIndexOf(self):
+   def test_indexOf(self):
+      raise TestNotImplemented
+
+   def test_lastIndexOf(self):
       raise TestNotImplemented
 
    def test_length(self):
@@ -4067,10 +4203,163 @@ class StringTests(as3libTestCase):
       self.assertLocaleCompare(str2, str2, 0)  # =
 
    def test_match(self):
-      raise TestNotImplemented
+      ruffle_object = Object()
+      ruffle_object.s = 'Ruffle Test Object'
+      def fn(obj):
+         return obj.s
+      ruffle_object.toString = fn
+
+      # Match tests
+      str = String('matchablematmatmat')
+      ret = str.match('mat')
+      self.assertArray(ret, ['mat'])
+
+      re = RegExp('MA*T|a[a-z]*e', 'i')
+      re.lastIndex = 3
+      self.assertArray(str.match(re), ['mat'])
+      self.assertEqual(re.lastIndex, 3)
+      self.assertArray(str.match(re), ['mat'])
+      self.assertEqual(re.lastIndex, 3)
+      self.assertArray(str.match(re), ['mat'])
+      self.assertEqual(re.lastIndex, 3)
+
+      self.assertArray(str.match(RegExp('MA*T|a[a-z]*e', 'i')), ['mat'])
+      self.assertArray(str.match(RegExp('ma*t|a[a-z]*e', '')), ['mat'])
+      self.assertArray(str.match(RegExp('ma*t|a[a-z]*e', 'g')), ['mat', 'able', 'mat', 'mat', 'mat'])
+      # TODO: Make sure this returns an empty array and not an empty string or
+      #       array with empty string in it
+      self.assertEqual(str.match(RegExp('notmatch', 'g')).length, 0)
+
+      subject = String('AAA')
+      re = RegExp('(((((((((((((((((((a*)(abc|b))))))))))))))))))*.)*(...)*', 'g')
+      self.assertArray(subject.match(re), ['AAA'])
+
+      re = RegExp('((((((((((((((((((d|.*)))))))))))))))))*.)*(...)*', 'g')
+      self.assertArray(subject.match(re), ['AAA'])
+
+      re = RegExp('((((((((((((((((((a+)*))))))))))))))))*.)*(...)*', 'g')
+      self.assertArray(subject.match(re), ['AAA'])
+
+      re = RegExp('((((((((((((((((((a+)*))))))))))))))))*.)*(...)*')
+      self.assertEqual(subject.match(re).toString, 'AAA,A,,,,,,,,,,,,,,,,,,')
+
+      pattern = '((((((((((((((((((a+)*))))))))))))))))*.)*(...)*'
+      self.assertEqual(subject.match(pattern).toString, 'AAA,A,,,,,,,,,,,,,,,,,,')
+      pattern = '(A)(A)'
+      self.assertArray(subject.match(pattern), ['AA', 'A', 'A'])
+      pattern = 'AAA'
+      self.assertArray(subject.match(pattern), ['AAA'])
+      pattern = 'AA'
+      self.assertArray(subject.match(pattern), ['AA'])
+      pattern = 'A'
+      self.assertArray(subject.match(pattern), ['A'])
+
+      self.assertEqual(str.match(ruffle_object).toString, 'null')
+
+      regexTest = String('v1')
+      regex = RegExp(r'^\b[A-Za-z]{1,2}', 'ig')
+      self.assertArray(regexTest.match(regex), ['v'])
+      self.assertEqual(regex.lastIndex, 1)
+      self.assertArray(regexTest.match(regex), ['v'])
+      self.assertEqual(regex.lastIndex, 0)
+
+   def assertReplace(self, string, pattern, repl, check):
+      self.assertEqual(String(string).replace(pattern, repl), check)
 
    def test_replace(self):
-      raise TestNotImplemented
+      # string replacements
+      self.assertReplace('a a a', 'a', '', ' a a')
+      self.assertReplace('a a a', 'a', 'b', 'b a a')
+      self.assertReplace('aaaa', 'aa', 'a', 'aaa')
+      self.assertReplace('a a a', '', 'x', 'xa a a')
+
+      # regex
+      self.assertReplace('  123', RegExp('123', 'g'), 'x', '  x')
+      self.assertReplace('123  ', RegExp('123', 'g'), 'x', 'x  ')
+      self.assertReplace('  123  ', RegExp('123', 'g'), 'x', '  x  ')
+
+      self.assertReplace('123  123', RegExp(' +', 'g'), 'x', '123x123')
+      self.assertReplace('123  123', RegExp(r'\d+', 'g'), 'x', 'x  x')
+      self.assertReplace('123  123', RegExp('.*', 'g'), 'x', 'xx')
+
+      # empty regex
+      self.assertReplace('aaa', RegExp('', 'g'), 'x', 'xaxaxax')
+
+      # lastIndex should not be modified
+      regex = RegExp('a', 'g')
+      regex.lastIndex = 1
+      self.assertReplace('aaaa', regex, 'x', 'xxxx')
+      self.assertEqual(regex.lastIndex, 1)
+
+      # $ with non-special successor char
+      self.assertReplace('abaa', RegExp('b'), '$k', 'a$kaa')  # $k
+      self.assertReplace('abaa', RegExp('b'), '|$&|', 'a|b|aa')  # $&
+      self.assertReplace('axbfg', RegExp('b'), '$`', 'axaxfg')  # $`
+      self.assertReplace('axbfg', RegExp('b'), "$'", 'axfgfg')  # $'
+      self.assertReplace('abc', RegExp('(b)'), '<$1>', 'a<b>c')  # $1
+
+      # capture group 0 not recognized
+      self.assertReplace('abc', RegExp('(b)'), '<$0>', 'a<$0>c')
+
+      # capture group 00 not recognized
+      self.assertReplace('abc', RegExp('(b)'), '<$00>', 'a<$00>c')
+
+      # leading 0 capture group number
+      self.assertReplace('abc', RegExp('(b)'), '<$01>', 'a<b1>c')
+
+      # not enough groups
+      self.assertReplace('abc', RegExp('(b)'), '<$2>', 'a<$2>c')
+
+      # two-digit capture group number, but not enough groups
+      self.assertReplace('abc', RegExp('(b)'), '<$20>', 'a<$20>c')
+
+      # two-digit capture group number, but not enough groups with prefix as a
+      # valid group
+      self.assertReplace('abc', RegExp('(b)'), '<$10>', 'a<b0>c')
+
+      # Two-digit capture group number
+      r = RegExp('(.)(.)(.)(.)(.)(.)(.)(.)(.)(.)')
+      self.assertReplace('abbbbbbbbb#bbc', r, '<$10>', '<b>#bbc')
+
+      # replace function
+      def replFn() -> String:
+         return String('foo')
+
+      self.assertReplace('abbbb', RegExp('a'), replFn, 'foobbbb')
+
+      # replace with functions returning non-string values
+
+      def replFn2():
+         return 2
+
+      def replFn3():
+         # NOTE: This was originally an empty function
+         return undefined
+
+      self.assertReplace('abbbb', RegExp('a'), replFn2, '2bbbb')
+      self.assertReplace('abbbb', RegExp('a'), replFn3, 'undefinedbbbb')
+
+      # replace a regex with function, check arguments
+
+      # relies on implicit coercion to string
+      def rFN(*args):
+         return Array(*args)
+
+      # The (b) and (c) groups have no matches.
+      self.assertReplace('<<a>>', RexExp('(a)(b)?|(c)'), rFN,
+                         '<<a,a,,,2,<<a>>>>')
+
+      # The pattern is string and the replacement is a function
+      self.assertReplace('<<a>>', 'a', rFN, '<<a,2,<<a>>>>')
+
+      # regex calling into itself
+      pattern = RegExp('simple', 'g')
+
+      def fn(match):
+         return match.replace(pattern, 'complicated')
+
+      self.assertReplace('this is simple, really simple.', pattern, fn,
+                         'this is complicated, really complicated.')
 
    def test_search(self):
       ruffle_object = Object()
@@ -4096,13 +4385,9 @@ class StringTests(as3libTestCase):
       self.assertEqual(str.search(RegExp('notmatch', 'g')), -1)
 
       subject = String('AAA')
-      # TODO
-      # self.assertEqual(subject.search(), 0)
-      # self.assertEqual(subject.search(), 0)
-      # self.assertEqual(subject.search(), 0)
-      # trace(subject.search(/(((((((((((((((((((a*)(abc|b))))))))))))))))))*.)*(...)*/g))
-      # trace(subject.search(/((((((((((((((((((d|.*)))))))))))))))))*.)*(...)*/g))
-      # trace(subject.search(/((((((((((((((((((a+)*))))))))))))))))*.)*(...)*/g))
+      self.assertEqual(subject.search(RegExp('(((((((((((((((((((a*)(abc|b))))))))))))))))))*.)*(...)*', 'g')), 0)
+      self.assertEqual(subject.search(RegExp('((((((((((((((((((d|.*)))))))))))))))))*.)*(...)*', 'g')), 0)
+      self.assertEqual(subject.search(RegExp('((((((((((((((((((a+)*))))))))))))))))*.)*(...)*', 'g')), 0)
 
       self.assertEqual(subject.search('((((((((((((((((((a+)*))))))))))))))))*.)*(...)*'), 0)
       self.assertEqual(subject.search('(A)(A)'), 0)
@@ -4112,8 +4397,46 @@ class StringTests(as3libTestCase):
 
       self.assertEqual(str.search(ruffle_object), -1)
 
-   def test_slice_substr_substring(self):
-      raise TestNotImplemented
+   def assertSlice(self, string, sidx, eidx, check):
+      self.assertEqual(string.slice(sidx, eidx), check)
+
+   def test_slice(self):
+      s = String('')
+      self.assertEqual(s.slice(), '')
+      # trace( typeof s2.slice()) -> string
+      self.assertSlice(s, false, true, '')
+      self.assertSlice(s, 0, 9, '')
+      self.assertSlice(s, 25, 29, '')
+
+      s = String('123456789')
+      self.assertEqual(s.slice(), '123456789')
+      # trace(typeof s.slice()) -> string
+      self.assertSlice(s, 0, 9, '123456789')
+      self.assertSlice(s, 0, 0, '')
+      self.assertSlice(s, 9, 0, '')
+      self.assertSlice(s, 0, -1, '12345678')
+      self.assertSlice(s, -6, -1, '45678')
+      self.assertSlice(s, false, true, '1')
+      self.assertSlice(s, 4, -3, '56')
+      self.assertSlice(s, 25, 29, '')
+      self.assertSlice(s, -5, 9, '56789')
+      self.assertSlice(s, 2, NaN, '')
+      self.assertSlice(s, NaN, 2, '12')
+      self.assertSlice(s, 2, undefined, '')
+      self.assertSlice(s, undefined, 2, '12')
+      self.assertSlice(s, -0.01, 0, '')
+      self.assertSlice(s, s.length, s.length, '')
+      self.assertSlice(s, s.length + 1, 0, '')
+      self.assertSlice(s, Infinity, 5, '')
+      self.assertSlice(s, 5, Infinity, '6789')
+      self.assertSlice(s, Infinity, Infinity, '')
+      self.assertSlice(s, -Infinity, -Infinity, '')
+      self.assertSlice(s, -Infinity, Infinity, '123456789')
+      self.assertSlice(s, Infinity, -Infinity, '')
+      self.assertSlice(s, NaN, Infinity, '123456789')
+      self.assertSlice(s, Infinity, NaN, '')
+      self.assertSlice(s, NaN, -Infinity, '')
+      self.assertSlice(s, -Infinity, NaN, '')
 
    def test_split(self):
       text = String('a.b.c')
@@ -4173,6 +4496,41 @@ class StringTests(as3libTestCase):
       regex = RegExp('(b(b))')
       self.assertArray(text.split(regex, 5), ['aą', 'bb', 'b', 'aa', 'bb', 'a'])
 
+   def assertSubstr(self, string, sidx, len, check):
+      self.assertEqual(string.substr(sidx, len), check)
+
+   def test_substr(self):
+      s = String('')
+      self.assertEqual(s.substr(), '')
+      # trace( typeof s.substr()) -> string
+      self.assertSubstr(s, false, true, '')
+      self.assertSubstr(s, 25, 29, '')
+
+      s = String('123456789')
+      self.assertEqual(s.substr(), '123456789')
+      # trace(typeof s.slice()) -> string
+      self.assertSubstr(s, false, true, '1')
+      self.assertSubstr(s, 4, -3, '')
+      self.assertSubstr(s, 25, 29, '')
+      self.assertSubstr(s, -5, 9, '56789')
+      self.assertSubstr(s, 2, NaN, '')
+      self.assertSubstr(s, NaN, 2, '12')
+      self.assertSubstr(s, 2, undefined, '')
+      self.assertSubstr(s, undefined, 2, '12')
+      self.assertSubstr(s, -0.01, 0, '')
+      self.assertSubstr(s, s.length, s.length, '')
+      self.assertSubstr(s, s.length + 1, 0, '')
+      self.assertSubstr(s, Infinity, 5, '')
+      self.assertSubstr(s, 5, Infinity, '6789')
+      self.assertSubstr(s, Infinity, Infinity, '')
+      self.assertSubstr(s, -Infinity, -Infinity, '')
+      self.assertSubstr(s, -Infinity, Infinity, '123456789')
+      self.assertSubstr(s, Infinity, -Infinity, '')
+      self.assertSubstr(s, NaN, Infinity, '123456789')
+      self.assertSubstr(s, Infinity, NaN, '')
+      self.assertSubstr(s, NaN, -Infinity, '')
+      self.assertSubstr(s, -Infinity, NaN, '')
+
    def test_substr_negative(self):
       text = String('abcdefg')
       list1 = (3, 0, 1, 2, 1, 1, 2, 2, 0, 2, 5)
@@ -4180,7 +4538,10 @@ class StringTests(as3libTestCase):
       ans_list = ('defg', 'abcde', 'bcdef', '', 'bcd', '', '', 'cdefg',
                   'abcd', '', '')
       for i in range(len(list1)):
-         self.assertEqual(text.substr(list1[i], list2[i]), ans_list[i])
+         ans = text.substr(list1[i], list2[i])
+         if ans != ans_list[i]:
+            self.fail('substr(%s, %s); "%s" != "%s"' % (list1[i], list2[i], ans,
+                                                    ans_list[i]))
 
    def test_substr_weird(self):
       raise TestNotImplemented
@@ -4374,6 +4735,41 @@ class StringTests(as3libTestCase):
       2026-01-22T19:05:52.248886Z  INFO avm_trace: Substr of 1e+21-1e+21:
       2026-01-22T19:05:52.248891Z  INFO avm_trace: Substr of 1e+21:
       '''
+
+   def assertSubstring(self, string, sidx, eidx, check):
+      self.assertEqual(string.substring(sidx, eidx), check)
+
+   def test_substring(self):
+      s = String('')
+      self.assertEqual(s.substring(), '')
+      # trace( typeof s.substr()) -> string
+      self.assertSubstring(s, false, true, '')
+      self.assertSubstring(s, 25, 29, '')
+
+      s = String('123456789')
+      self.assertEqual(s.substring(), '123456789')
+      # trace(typeof s.slice()) -> string
+      self.assertSubstring(s, false, true, '1')
+      self.assertSubstring(s, 4, -3, '1234')
+      self.assertSubstring(s, 25, 29, '')
+      self.assertSubstring(s, -5, 9, '123456789')
+      self.assertSubstring(s, 2, NaN, '12')
+      self.assertSubstring(s, NaN, 2, '12')
+      self.assertSubstring(s, 2, undefined, '12')
+      self.assertSubstring(s, undefined, 2, '12')
+      self.assertSubstring(s, -0.01, 0, '')
+      self.assertSubstring(s, s.length, s.length, '')
+      self.assertSubstring(s, s.length + 1, 0, '123456789')
+      self.assertSubstring(s, Infinity, 5, '6789')
+      self.assertSubstring(s, 5, Infinity, '6789')
+      self.assertSubstring(s, Infinity, Infinity, '')
+      self.assertSubstring(s, -Infinity, -Infinity, '')
+      self.assertSubstring(s, -Infinity, Infinity, '123456789')
+      self.assertSubstring(s, Infinity, -Infinity, '123456789')
+      self.assertSubstring(s, NaN, Infinity, '123456789')
+      self.assertSubstring(s, Infinity, NaN, '123456789')
+      self.assertSubstring(s, NaN, -Infinity, '')
+      self.assertSubstring(s, -Infinity, NaN, '')
 
 
 class uintTests(NumberTestsBase):
