@@ -19,6 +19,21 @@ from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemente
 
 class ArrayTests(as3libTestCase):
    # NOTE: prototype is required for some tests
+   def tearDown(self):
+      # TODO: Remove return once prototype is implemented
+      return
+      delete(Array.prototype[0])
+      delete(Array.prototype[1])
+      delete(Array.prototype[2])
+      delete(Array.prototype[3])
+      delete(Array.prototype[4])
+      delete(Array.prototype[5])
+      delete(Array.prototype[7])
+      delete(Array.prototype[9])
+      delete(Array.prototype[10])
+      delete(Array.prototype[11])
+      delete(Array.prototype[12])
+
    def assertIndex(self, index, length, hasprop):
       arr = Array()
       arr[index] = 0
@@ -580,7 +595,205 @@ class ArrayTests(as3libTestCase):
                                46])
 
    def test_sortOn(self):
-      raise TestNotImplemented
+      item1 = Object()
+      item1.numprop = Number(5)
+      item1.strprop = String('Abc')
+      item1.numprop2 = Number(3)
+      item2 = Object()
+      item2.numprop = Number(3)
+      item2.strprop = String('Azc')
+      item2.numprop2 = Number(2)
+      item3 = Object()
+      item3.numprop = Number(7)
+      item3.strprop = String('aXc')
+      item3.numprop2 = Number(1)
+      item4 = Object()
+      item4.numprop = Number(9)
+      item4.strprop = String('boo')
+      item4.numprop2 = Number(4)
+      item5 = Object()
+      item5.numprop = Number(11)
+      item5.strprop = String('bool')
+      item5.numprop2 = String('5')
+
+      def newArray():  # fresh_array_a
+         a = Array(item1, item2, item3)
+         a[4] = item5
+         return a
+
+      def assertArrayProps(a, check):  # assert_array_props
+         for i in range(a.length):
+            if not (a[i] is undefined or a[i] is null):
+               self.assertEqual(a[i].numprop, check[i][0])
+               self.assertEqual(a[i].strprop, check[i][1])
+
+      def assertHoles(a, check):  # test_holes
+         Array.prototype[2] = 'hole10'
+         Array.prototype[3] = 'hole11'
+         Array.prototype[4] = 'hole12'
+
+         assert_array_props(a, check)
+
+         # Clean up
+         delete(Array.prototype[2])
+         delete(Array.prototype[4])
+         Array.prototype[3] = item4
+
+      a = newArray()
+      Array.prototype[3] = item4
+      self.assertFalse(a.sortOn('numprop', Array.UNIQUESORT) == 0)
+
+      a = newArray()
+      out = a.sortOn(['numprop', 'strprop'], Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(['numprop', 'strprop'])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(a, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(['numprop', 'strprop'], Array.CASEINSENSITIVE | Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], Array.CASEINSENSITIVE)
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(['numprop', 'strprop'], Array.DESCENDING | Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [3, 2, 0, 1, 4])
+
+      out = a.sortOn(["numprop", "strprop"], Array.DESCENDING)
+      check = ((9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(['numprop', 'strprop'], Array.CASEINSENSITIVE | Array.DESCENDING | Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [3, 2, 0, 1, 4])
+
+      out = a.sortOn(['numprop', 'strprop'], Array.CASEINSENSITIVE | Array.DESCENDING)
+      check = ((9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], Array.NUMERIC | Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [1, 0, 2, 3, 4])
+
+      out = a.sortOn(['numprop', 'strprop'], Array.NUMERIC)
+      check = ((3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], Array.DESCENDING | Array.NUMERIC | Array.RETURNINDEXEDARRAY)
+      self.assertArray(out, [4, 3, 2, 0, 1])
+
+      out = a.sortOn(["numprop", "strprop"], Array.DESCENDING | Array.NUMERIC)
+      check = ((11, 'bool'), (9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY, 0])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [0, 0])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY, Array.DESCENDING])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [0, Array.DESCENDING])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY | Array.DESCENDING, 0])
+      self.assertArray(out, [3, 2, 0, 1, 4])
+
+      out = a.sortOn(["numprop", "strprop"], [Array.DESCENDING, 0])
+      check = ((9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY, Array.CASEINSENSITIVE])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [0, Array.CASEINSENSITIVE])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY | Array.CASEINSENSITIVE, 0])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [Array.CASEINSENSITIVE, 0])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY, Array.CASEINSENSITIVE | Array.DESCENDING])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [0, Array.CASEINSENSITIVE | Array.DESCENDING])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY | Array.CASEINSENSITIVE | Array.DESCENDING, 0])
+      self.assertArray(out, [3, 2, 0, 1, 4])
+
+      out = a.sortOn(["numprop", "strprop"], [Array.CASEINSENSITIVE | Array.DESCENDING, 0])
+      check = ((9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY | Array.DESCENDING, Array.CASEINSENSITIVE])
+      self.assertArray(out, [3, 2, 0, 1, 4])
+
+      out = a.sortOn(["numprop", "strprop"], [Array.DESCENDING, Array.CASEINSENSITIVE])
+      check = ((9, 'boo'), (7, 'aXc'), (5, 'Abc'), (3, 'Azc'), (11, 'bool'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      out = a.sortOn(["numprop", "strprop"], [Array.RETURNINDEXEDARRAY | Array.CASEINSENSITIVE, Array.DESCENDING])
+      self.assertArray(out, [4, 1, 0, 2, 3])
+
+      out = a.sortOn(["numprop", "strprop"], [Array.CASEINSENSITIVE, Array.DESCENDING])
+      check = ((11, 'bool'), (3, 'Azc'), (5, 'Abc'), (7, 'aXc'), (9, 'boo'))
+      assertArrayProps(out, check)
+      assertHoles(a, check)
+
+      a = newArray()
+      self.assertFalse(a.sortOn(['strprop', 'numprop'], [Array.NUMERIC, Array.UNIQUESORT]) == 0)
+
+      # test_bad_args
+      # RUFFLE: NOTE: for these tests, we currently don't reproduce exact
+      # results. The test only ensures that the calls don't fail.
+      a = Array(1, 2, 3, 4, 5)
+      self.assertEqual(a.sortOn([]).length, 5)
+
+      a = Array(1, 2, 3, 4, 5)
+      # NOTE: On ruffle, it appears that the print statement is not called.
+      def func():
+         print('called')
+      self.assertEqual(a.sortOn(func).length, 5)
+
+      delete(Array.prototype[3])
 
    def test_sparse_ops(self):
       arr = Array(1, 2)
