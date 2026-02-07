@@ -1,3 +1,4 @@
+from as3lib._toplevel.Constants import null
 from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
@@ -20,8 +21,7 @@ import datetime, time
 # Date.parse
 # Date constructor with string argument.
 # Date constructor with Number arguement sometimes has the wrong date. (possibly related to DST)
-# Rewrite Date to not have to store the date twice. The original implementation
-# likely only store the utc timestamp
+# Rewrite Date to not have to store the date twice. valueOf returns a utc timestamp
 
 
 def _getTimezone():
@@ -274,24 +274,24 @@ class Date(Object):
    def setDate(self, day):
       self.date = day
       self._sync()
-      return self.milliseconds
+      return self.time
 
-   def setFullYear(self, year, month, day):
+   def setFullYear(self, year, month=null, day=null):
       raise NotImplementedError
 
-   def setHours(self, hour, minute, second, millisecond):
+   def setHours(self, hour, minute=null, second=null, millisecond=null):
       raise NotImplementedError
 
    def setMilliseconds(self, millisecond):
       raise NotImplementedError
 
-   def setMinutes(self, minutes, seconds, milliseconds):
+   def setMinutes(self, minutes, seconds=null, milliseconds=null):
       raise NotImplementedError
 
-   def setMonth(self, month, day):
+   def setMonth(self, month, day=null):
       raise NotImplementedError
 
-   def setSeconds(self, second, millisecond):
+   def setSeconds(self, second, millisecond=null):
       raise NotImplementedError
 
    def setTime(self, millisecond):
@@ -300,24 +300,24 @@ class Date(Object):
    def setUTCDate(self, day):
       self.dateUTC = day
       self._syncUTC()
-      return self.milliseconds
+      return self.time
 
-   def setUTCFullYear(self, year, month, day):
+   def setUTCFullYear(self, year, month=null, day=null):
       raise NotImplementedError
 
-   def setUTCHours(self, hour, minute, second, millisecond):
+   def setUTCHours(self, hour, minute=null, second=null, millisecond=null):
       raise NotImplementedError
 
    def setUTCMilliseconds(self, millisecond):
       raise NotImplementedError
 
-   def setUTCMinutes(self, minutes, seconds, milliseconds):
+   def setUTCMinutes(self, minutes, seconds=null, milliseconds=null):
       raise NotImplementedError
 
-   def setUTCMonth(self, month, day):
+   def setUTCMonth(self, month, day=null):
       raise NotImplementedError
 
-   def setUTCSeconds(self, second, millisecond):
+   def setUTCSeconds(self, second, millisecond=null):
       raise NotImplementedError
 
    def _monthName(self, mon):
