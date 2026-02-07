@@ -15,7 +15,6 @@ from types import NoneType
 class Array(list, Object):
    # TODO: Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
    # NOTE: Actionscript arrays seem to function like a python dictionary which can only uses ints as keys
-   __slots__ = ('filler')
    CASEINSENSITIVE = 1
    DESCENDING = 2
    UNIQUESORT = 4
@@ -51,7 +50,7 @@ class Array(list, Object):
       return len(self)
 
    @length.setter
-   def length(self, value: builtins.int | int):
+   def length(self, value: uint):
       if value < 0:
          raise RangeError(f'Array.length can not be negative. got {value}')
       elif value == 0:
@@ -311,13 +310,10 @@ class Array(list, Object):
          super().sort(key=Number)
 
    def sort(self, *args):
-      '''
-      Warning: Maximum element length is 100000
-      '''
       # NOTE: Only returns when 4 or 8 is specified
       if len(args) == 0:  # Default sorting
          # TODO: Ensure that this is correct
-         super().sort(key=str)
+         super().sort(key=str)  # TODO: Should be String
       elif len(args) == 1:  # Comparison function or flags
          if callable(args[0]):
             super().sort(key=cmp_to_key(args[0]))
@@ -329,9 +325,16 @@ class Array(list, Object):
          raise NotImplementedError
 
    def sortOn(self, fieldName, options=null):
+      if isinstance(fieldName, (list, tuple, Array)):
+         if isinstance(options, (list, tuple, Array)):
+            # TODO: Ignore flags if fieldName.length != options.length
+            # TODO: Ignore UNIQUESORT and RETURNINDEXEDARRAY if not in the
+            #       first element
+            ...
+         ...
       raise NotImplementedError
 
-   def splice(self, startIndex: builtins.int | int, deleteCount: builtins.int | int, *values):
+   def splice(self, startIndex: int = null, deleteCount: uint = null, *values):
       '''
       Adds elements to and removes elements from an array. This method modifies the array without making a copy.
       Parameters:
@@ -341,10 +344,13 @@ class Array(list, Object):
       Returns:
          Array — An array containing the elements that were removed from the original array.
       '''
-      if startIndex < 0:
-         startIndex = len(self) + startIndex
+      if startIndex is null:
+         return null
+      if deleteCount is null:
+         deleteCount = self.length
+      startIndex, deleteCount = int(startIndex), int(deleteCount)
       if deleteCount < 0:
-         raise RangeError(f'Array.splice; deleteCount can not negative. got {deleteCount}')
+         return Array()
       removedValues = self[startIndex: startIndex+deleteCount]
       self[startIndex: startIndex+deleteCount] = values
       return removedValues
