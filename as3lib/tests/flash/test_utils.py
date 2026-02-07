@@ -1,12 +1,9 @@
-from as3lib import (ArgumentError, Array, delete, false, null, Object, true,
-                    String, TypeError, undefined)
-from as3lib._toplevel.Keywords import each
+from as3lib import (ArgumentError, Array, delete, each, false, null, Object,
+                    true, String, TypeError, undefined)
 from as3lib.flash.errors import EOFError, IOError
 from as3lib.flash.events import TimerEvent
-from as3lib.flash.utils import (ByteArray, CompressionAlgorithm, Dictionary,
-                                Endian, Timer)
-from as3lib.tests import (as3libTestCase, MethodNotImplemented,
-                          TestNotImplemented)
+from as3lib.flash.utils import ByteArray, Dictionary, Timer
+from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
 class ByteArrayTests(as3libTestCase):
@@ -35,7 +32,14 @@ class ByteArrayTests(as3libTestCase):
 
       ba.uncompress()
       self.assertAtStart(ba)
-      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+      asrt = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+              18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,
+              34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+              50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+              66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81,
+              82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97,
+              98, 99)
+      self.assertArray(readByteArray(ba), asrt)
 
       # ba.compress("lzma")
       # print("compressed (lzma)", ba, false)
@@ -48,21 +52,21 @@ class ByteArrayTests(as3libTestCase):
 
       ba.uncompress("deflate")
       self.assertAtStart(ba)
-      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+      self.assertArray(readByteArray(ba), asrt)
 
       ba.deflate()
       self.assertAtEnd(ba)
 
       ba.inflate()
       self.assertAtStart(ba)
-      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+      self.assertArray(readByteArray(ba), asrt)
 
       ba.compress("zlib")
       self.assertAtEnd(ba)
 
       ba.uncompress("zlib")
       self.assertAtStart(ba)
-      self.assertArray(readByteArray(ba), [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99])
+      self.assertArray(readByteArray(ba), asrt)
 
       # Check zlib header
       ba = createByteArray()
@@ -119,7 +123,7 @@ class ByteArrayTests(as3libTestCase):
       ba.writeByte(0xBF)
       ba.writeUTFBytes('Text')
       ba.position = 0
-      text = ba.readUTFBytes(ba.length);
+      text = ba.readUTFBytes(ba.length)
       self.assertEqual(text, 'Text')
       self.assertEqual(len(text), 4)
 
@@ -170,7 +174,7 @@ class DictionaryTests(as3libTestCase):
       self.assertEqual(count, amount)
 
    def assertIterSorted(self, obj, values, length=None):
-      self.assertArray([i for i in obj].sort(), values, lenth)
+      self.assertArray([i for i in obj].sort(), values, length)
 
    def assertEachSorted(self, obj, values, length=None):
       self.assertArray([i for i in each(obj)].sort(), values, length)
@@ -182,7 +186,8 @@ class DictionaryTests(as3libTestCase):
 
       a['key'] = 6
 
-      class Test:...
+      class Test:
+         ...
 
       key2 = Test()
       a[key2] = 23
@@ -351,14 +356,15 @@ class DictionaryTests(as3libTestCase):
       self.assertFalse(a.propertyIsEnumerable(Object()))
 
       a.setPropertyIsEnumerable(firstKey, false)
-      self.assertIterSorted(a, ['1234567',firstKey,'foo'], 3)
+      self.assertIterSorted(a, ['1234567', firstKey, 'foo'], 3)
 
       a['key'] = 5
       self.assertEqual(a['key'], 5)
 
       a['key'] = 6
 
-      class Test:...
+      class Test:
+         ...
 
       key2 = Test()
       a[key2] = 23
@@ -397,16 +403,23 @@ class DictionaryTests(as3libTestCase):
 
       a[a] = a
 
-      self.assertIterSorted(a,['1.123','1234567','13',a,firstKey,key2,key3,'false','foo','key','key3',key4,'key4','null','true','undefined'])
+      asrt1 = ('1.123', '1234567', '13', a, firstKey, key2, key3, 'false',
+               'foo', 'key', 'key3', key4, 'key4', 'null', 'true',
+               'undefined')
+      asrt2 = ('23', '6', 'Key3 False Value', 'Key3 True Value',
+               'Key4 False Value', 'Key4 True Value', 'Testing', 'The value',
+               a, "no I haven't", 'stringy false', 'stringy true',
+               'this is perfectly acceptable', true, 'uh huh...', 'yeah sure')
 
-      self.assertEachSorted(a, ['23','6','Key3 False Value','Key3 True Value','Key4 False Value','Key4 True Value','Testing','The value',a,"no I haven't",'stringy false','stringy true','this is perfectly acceptable',true,'uh huh...','yeah sure'])
+      self.assertIterSorted(a, asrt1)
+      self.assertEachSorted(a, asrt2)
 
       a.setPropertyIsEnumerable(key2, false)
       a.setPropertyIsEnumerable(key3, false)
       a.setPropertyIsEnumerable(key4, false)
 
-      self.assertIterSorted(a, ['1.123','1234567','13',a,firstKey,key2,key3,'false','foo','key','key3',key4,'key4','null','true','undefined'])
-      self.assertEachSorted(a, ['23','6','Key3 False Value','Key3 True Value','Key4 False Value','Key4 True Value','Testing','The value',a,"no I haven't",'stringy false','stringy true','this is perfectly acceptable',true,'uh huh...','yeah sure'])
+      self.assertIterSorted(a, asrt1)
+      self.assertEachSorted(a, asrt2)
 
    def test_hasOwnProperty(self):
       a = Dictionary()
@@ -550,11 +563,9 @@ class DictionaryTests(as3libTestCase):
                for j in range(len(toDelete)):
                   newKey = toDelete[j]
                   if (j % 2 == 0):
-                     # delete obj[newKey]
-                     del obj[newKey]
+                     delete(obj[newKey])
                   else:
-                     # obj.setPropertyIsEnumerable(newKey, false)
-                     ...
+                     obj.setPropertyIsEnumerable(newKey, false)
 
          seen.sort()
          self.assertEqual(seen, check_during)
@@ -566,19 +577,19 @@ class DictionaryTests(as3libTestCase):
          seenAfter.sort()
          self.assertEqual(len(seenAfter), check_after)
 
+      check = ["Key: 'Key 0' Value: 0", "Key: 'Key 1' Value: 1", "Key: 'Key 10' Value: 10", "Key: 'Key 11' Value: 11", "Key: 'Key 12' Value: 12", "Key: 'Key 13' Value: 13", "Key: 'Key 14' Value: 14", "Key: 'Key 15' Value: 15", "Key: 'Key 16' Value: 16", "Key: 'Key 17' Value: 17", "Key: 'Key 18' Value: 18", "Key: 'Key 19' Value: 19", "Key: 'Key 2' Value: 2", "Key: 'Key 20' Value: 20", "Key: 'Key 21' Value: 21", "Key: 'Key 22' Value: 22", "Key: 'Key 23' Value: 23", "Key: 'Key 24' Value: 24", "Key: 'Key 25' Value: 25", "Key: 'Key 26' Value: 26", "Key: 'Key 27' Value: 27", "Key: 'Key 28' Value: 28", "Key: 'Key 29' Value: 29", "Key: 'Key 3' Value: 3", "Key: 'Key 30' Value: 30", "Key: 'Key 31' Value: 31", "Key: 'Key 32' Value: 32", "Key: 'Key 33' Value: 33", "Key: 'Key 34' Value: 34", "Key: 'Key 35' Value: 35", "Key: 'Key 36' Value: 36", "Key: 'Key 37' Value: 37", "Key: 'Key 38' Value: 38", "Key: 'Key 39' Value: 39", "Key: 'Key 4' Value: 4", "Key: 'Key 40' Value: 40", "Key: 'Key 41' Value: 41", "Key: 'Key 42' Value: 42", "Key: 'Key 43' Value: 43", "Key: 'Key 44' Value: 44", "Key: 'Key 45' Value: 45", "Key: 'Key 46' Value: 46", "Key: 'Key 47' Value: 47", "Key: 'Key 48' Value: 48", "Key: 'Key 49' Value: 49", "Key: 'Key 5' Value: 5", "Key: 'Key 50' Value: 50", "Key: 'Key 51' Value: 51", "Key: 'Key 52' Value: 52", "Key: 'Key 53' Value: 53", "Key: 'Key 54' Value: 54", "Key: 'Key 55' Value: 55", "Key: 'Key 56' Value: 56", "Key: 'Key 57' Value: 57", "Key: 'Key 58' Value: 58", "Key: 'Key 59' Value: 59", "Key: 'Key 6' Value: 6", "Key: 'Key 60' Value: 60", "Key: 'Key 61' Value: 61", "Key: 'Key 62' Value: 62", "Key: 'Key 63' Value: 63", "Key: 'Key 64' Value: 64", "Key: 'Key 65' Value: 65", "Key: 'Key 66' Value: 66", "Key: 'Key 67' Value: 67", "Key: 'Key 68' Value: 68", "Key: 'Key 69' Value: 69", "Key: 'Key 7' Value: 7", "Key: 'Key 70' Value: 70", "Key: 'Key 71' Value: 71", "Key: 'Key 72' Value: 72", "Key: 'Key 73' Value: 73", "Key: 'Key 74' Value: 74", "Key: 'Key 75' Value: 75", "Key: 'Key 76' Value: 76", "Key: 'Key 77' Value: 77", "Key: 'Key 78' Value: 78", "Key: 'Key 79' Value: 79", "Key: 'Key 8' Value: 8", "Key: 'Key 80' Value: 80", "Key: 'Key 81' Value: 81", "Key: 'Key 82' Value: 82", "Key: 'Key 83' Value: 83", "Key: 'Key 84' Value: 84", "Key: 'Key 85' Value: 85", "Key: 'Key 86' Value: 86", "Key: 'Key 87' Value: 87", "Key: 'Key 88' Value: 88", "Key: 'Key 89' Value: 89", "Key: 'Key 9' Value: 9", "Key: 'Key 90' Value: 90", "Key: 'Key 91' Value: 91", "Key: 'Key 92' Value: 92", "Key: 'Key 93' Value: 93", "Key: 'Key 94' Value: 94", "Key: 'Key 95' Value: 95", "Key: 'Key 96' Value: 96", "Key: 'Key 97' Value: 97", "Key: 'Key 98' Value: 98", "Key: 'Key 99' Value: 99"]
+
       array = Array()
       array.push("First normal entry")
       array.push("Second normal entry")
       # runTest(array)
 
       d = Dictionary()
-      # dict[new Object()] = "First distinct object key"
-      # dict[new Object()] = "Second distinct object key"
-      runTest(d, ["Key: 'Key 0' Value: 0","Key: 'Key 1' Value: 1","Key: 'Key 10' Value: 10","Key: 'Key 11' Value: 11","Key: 'Key 12' Value: 12","Key: 'Key 13' Value: 13","Key: 'Key 14' Value: 14","Key: 'Key 15' Value: 15","Key: 'Key 16' Value: 16","Key: 'Key 17' Value: 17","Key: 'Key 18' Value: 18","Key: 'Key 19' Value: 19","Key: 'Key 2' Value: 2","Key: 'Key 20' Value: 20","Key: 'Key 21' Value: 21","Key: 'Key 22' Value: 22","Key: 'Key 23' Value: 23","Key: 'Key 24' Value: 24","Key: 'Key 25' Value: 25","Key: 'Key 26' Value: 26","Key: 'Key 27' Value: 27","Key: 'Key 28' Value: 28","Key: 'Key 29' Value: 29","Key: 'Key 3' Value: 3","Key: 'Key 30' Value: 30","Key: 'Key 31' Value: 31","Key: 'Key 32' Value: 32","Key: 'Key 33' Value: 33","Key: 'Key 34' Value: 34","Key: 'Key 35' Value: 35","Key: 'Key 36' Value: 36","Key: 'Key 37' Value: 37","Key: 'Key 38' Value: 38","Key: 'Key 39' Value: 39","Key: 'Key 4' Value: 4","Key: 'Key 40' Value: 40","Key: 'Key 41' Value: 41","Key: 'Key 42' Value: 42","Key: 'Key 43' Value: 43","Key: 'Key 44' Value: 44","Key: 'Key 45' Value: 45","Key: 'Key 46' Value: 46","Key: 'Key 47' Value: 47","Key: 'Key 48' Value: 48","Key: 'Key 49' Value: 49","Key: 'Key 5' Value: 5","Key: 'Key 50' Value: 50","Key: 'Key 51' Value: 51","Key: 'Key 52' Value: 52","Key: 'Key 53' Value: 53","Key: 'Key 54' Value: 54","Key: 'Key 55' Value: 55","Key: 'Key 56' Value: 56","Key: 'Key 57' Value: 57","Key: 'Key 58' Value: 58","Key: 'Key 59' Value: 59","Key: 'Key 6' Value: 6","Key: 'Key 60' Value: 60","Key: 'Key 61' Value: 61","Key: 'Key 62' Value: 62","Key: 'Key 63' Value: 63","Key: 'Key 64' Value: 64","Key: 'Key 65' Value: 65","Key: 'Key 66' Value: 66","Key: 'Key 67' Value: 67","Key: 'Key 68' Value: 68","Key: 'Key 69' Value: 69","Key: 'Key 7' Value: 7","Key: 'Key 70' Value: 70","Key: 'Key 71' Value: 71","Key: 'Key 72' Value: 72","Key: 'Key 73' Value: 73","Key: 'Key 74' Value: 74","Key: 'Key 75' Value: 75","Key: 'Key 76' Value: 76","Key: 'Key 77' Value: 77","Key: 'Key 78' Value: 78","Key: 'Key 79' Value: 79","Key: 'Key 8' Value: 8","Key: 'Key 80' Value: 80","Key: 'Key 81' Value: 81","Key: 'Key 82' Value: 82","Key: 'Key 83' Value: 83","Key: 'Key 84' Value: 84","Key: 'Key 85' Value: 85","Key: 'Key 86' Value: 86","Key: 'Key 87' Value: 87","Key: 'Key 88' Value: 88","Key: 'Key 89' Value: 89","Key: 'Key 9' Value: 9","Key: 'Key 90' Value: 90","Key: 'Key 91' Value: 91","Key: 'Key 92' Value: 92","Key: 'Key 93' Value: 93","Key: 'Key 94' Value: 94","Key: 'Key 95' Value: 95","Key: 'Key 96' Value: 96","Key: 'Key 97' Value: 97","Key: 'Key 98' Value: 98","Key: 'Key 99' Value: 99"], 53)
+      # d[Object()] = "First distinct object key"
+      # d[Object()] = "Second distinct object key"
+      runTest(d, check, 53)
 
-      raise MethodNotImplemented('Object item assignment')
-
-      runTest(Object(), ["Key: 'Key 0' Value: 0","Key: 'Key 1' Value: 1","Key: 'Key 10' Value: 10","Key: 'Key 11' Value: 11","Key: 'Key 12' Value: 12","Key: 'Key 13' Value: 13","Key: 'Key 14' Value: 14","Key: 'Key 15' Value: 15","Key: 'Key 16' Value: 16","Key: 'Key 17' Value: 17","Key: 'Key 18' Value: 18","Key: 'Key 19' Value: 19","Key: 'Key 2' Value: 2","Key: 'Key 20' Value: 20","Key: 'Key 21' Value: 21","Key: 'Key 22' Value: 22","Key: 'Key 23' Value: 23","Key: 'Key 24' Value: 24","Key: 'Key 25' Value: 25","Key: 'Key 26' Value: 26","Key: 'Key 27' Value: 27","Key: 'Key 28' Value: 28","Key: 'Key 29' Value: 29","Key: 'Key 3' Value: 3","Key: 'Key 30' Value: 30","Key: 'Key 31' Value: 31","Key: 'Key 32' Value: 32","Key: 'Key 33' Value: 33","Key: 'Key 34' Value: 34","Key: 'Key 35' Value: 35","Key: 'Key 36' Value: 36","Key: 'Key 37' Value: 37","Key: 'Key 38' Value: 38","Key: 'Key 39' Value: 39","Key: 'Key 4' Value: 4","Key: 'Key 40' Value: 40","Key: 'Key 41' Value: 41","Key: 'Key 42' Value: 42","Key: 'Key 43' Value: 43","Key: 'Key 44' Value: 44","Key: 'Key 45' Value: 45","Key: 'Key 46' Value: 46","Key: 'Key 47' Value: 47","Key: 'Key 48' Value: 48","Key: 'Key 49' Value: 49","Key: 'Key 5' Value: 5","Key: 'Key 50' Value: 50","Key: 'Key 51' Value: 51","Key: 'Key 52' Value: 52","Key: 'Key 53' Value: 53","Key: 'Key 54' Value: 54","Key: 'Key 55' Value: 55","Key: 'Key 56' Value: 56","Key: 'Key 57' Value: 57","Key: 'Key 58' Value: 58","Key: 'Key 59' Value: 59","Key: 'Key 6' Value: 6","Key: 'Key 60' Value: 60","Key: 'Key 61' Value: 61","Key: 'Key 62' Value: 62","Key: 'Key 63' Value: 63","Key: 'Key 64' Value: 64","Key: 'Key 65' Value: 65","Key: 'Key 66' Value: 66","Key: 'Key 67' Value: 67","Key: 'Key 68' Value: 68","Key: 'Key 69' Value: 69","Key: 'Key 7' Value: 7","Key: 'Key 70' Value: 70","Key: 'Key 71' Value: 71","Key: 'Key 72' Value: 72","Key: 'Key 73' Value: 73","Key: 'Key 74' Value: 74","Key: 'Key 75' Value: 75","Key: 'Key 76' Value: 76","Key: 'Key 77' Value: 77","Key: 'Key 78' Value: 78","Key: 'Key 79' Value: 79","Key: 'Key 8' Value: 8","Key: 'Key 80' Value: 80","Key: 'Key 81' Value: 81","Key: 'Key 82' Value: 82","Key: 'Key 83' Value: 83","Key: 'Key 84' Value: 84","Key: 'Key 85' Value: 85","Key: 'Key 86' Value: 86","Key: 'Key 87' Value: 87","Key: 'Key 88' Value: 88","Key: 'Key 89' Value: 89","Key: 'Key 9' Value: 9","Key: 'Key 90' Value: 90","Key: 'Key 91' Value: 91","Key: 'Key 92' Value: 92","Key: 'Key 93' Value: 93","Key: 'Key 94' Value: 94","Key: 'Key 95' Value: 95","Key: 'Key 96' Value: 96","Key: 'Key 97' Value: 97","Key: 'Key 98' Value: 98","Key: 'Key 99' Value: 99"], 53)
+      runTest(Object(), check, 53)
 
    def test_namespace(self):
       raise TestNotImplemented

@@ -1,7 +1,9 @@
-import as3lib
-from as3lib import ArgumentError, Math, RangeError, TypeError, Vector
+from as3lib import (ArgumentError, false, Infinity, Math, NaN, null, Object,
+                    RangeError, true, TypeError, undefined, Vector)
 from as3lib.flash.display import Sprite, MovieClip
-from as3lib.flash.geom import Matrix, Matrix3D, PerspectiveProjection, Point, Utils3D, Vector3D
+from as3lib.flash.geom import (ColorTransform, Matrix, Matrix3D,
+                               PerspectiveProjection, Point, Utils3D,
+                               Vector3D)
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
@@ -47,7 +49,8 @@ class MatrixTests(as3libTestCase):
 
       matrix = Matrix()
       matrix.rotate(0.5)
-      self.assertMatrix(matrix, 0.8775825618903728, 0.479425538604203, -0.479425538604203, 0.8775825618903728, 0, 0)
+      self.assertMatrix(matrix, 0.8775825618903728, 0.479425538604203,
+                        -0.479425538604203, 0.8775825618903728, 0, 0)
 
       matrix = Matrix(1, 2, 3, 4, 5, 6)
       matrix.rotate(0)
@@ -55,7 +58,8 @@ class MatrixTests(as3libTestCase):
 
       matrix = Matrix(1, 2, 3, 4, 5, 6)
       matrix.rotate((90/180)*Math.PI)
-      self.assertMatrix(matrix, -2, 1.0000000000000002, -4, 3.0000000000000004, -6, 5)
+      self.assertMatrix(matrix, -2, 1.0000000000000002, -4,
+                        3.0000000000000004, -6, 5)
 
    def test_translate(self):
       matrix = Matrix()
@@ -84,13 +88,16 @@ class MatrixTests(as3libTestCase):
       self.assertMatrix(matrix, 2, 0, 0, 3, 0, 0)
 
       matrix.createBox(2, 3, 5)
-      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153, 1.917848549326277, 0.8509865563896788, 0, 0)
+      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153,
+                        1.917848549326277, 0.8509865563896788, 0, 0)
 
       matrix.createBox(2, 3, 5, 7)
-      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153, 1.917848549326277, 0.8509865563896788, 7, 0)
+      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153,
+                        1.917848549326277, 0.8509865563896788, 7, 0)
 
       matrix.createBox(2, 3, 5, 7, 9)
-      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153, 1.917848549326277, 0.8509865563896788, 7, 9)
+      self.assertMatrix(matrix, 0.5673243709264525, -2.8767728239894153,
+                        1.917848549326277, 0.8509865563896788, 7, 9)
 
    def test_createGradientBox(self):
       matrix = Matrix()
@@ -101,13 +108,16 @@ class MatrixTests(as3libTestCase):
       self.assertMatrix(matrix, 0.1220703125, 0, 0, 0.18310546875, 100, 150)
 
       matrix.createGradientBox(200, 300, 500)
-      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574, 0.05710105045440383, -0.1618376355160177, 100, 150)
+      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574,
+                        0.05710105045440383, -0.1618376355160177, 100, 150)
 
       matrix.createGradientBox(200, 300, 500, 700)
-      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574, 0.05710105045440383, -0.1618376355160177, 800, 150)
+      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574,
+                        0.05710105045440383, -0.1618376355160177, 800, 150)
 
       matrix.createGradientBox(200, 300, 500, 700, 900)
-      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574, 0.05710105045440383, -0.1618376355160177, 800, 1050)
+      self.assertMatrix(matrix, -0.10789175701067846, -0.08565157568160574,
+                        0.05710105045440383, -0.1618376355160177, 800, 1050)
 
    def test_transformPoint(self):
       matrix = Matrix(2, 3, 5, 7, 11, 13)
@@ -231,59 +241,69 @@ class MatrixConcatTests(as3libTestCase):
       # Scale + Rotate
       result = self.scale.clone()
       result.concat(self.rotate)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 0, 0)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5,
+                             3.0616169978683834e-16, 0, 0)
 
       # Rotate + Scale
       result = self.rotate.clone()
       result.concat(self.scale)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 0, 0)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3,
+                             3.0616169978683834e-16, 0, 0)
 
       # Translate + Rotate
       result = self.translate.clone()
       result.concat(self.rotate)
-      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, -9, 7.000000000000001)
+      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1,
+                             6.123233995736766e-17, -9, 7.000000000000001)
 
       # Rotate + Translate
       result = self.rotate.clone()
       result.concat(self.translate)
-      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1, 6.123233995736766e-17, 7, 9)
+      self.assertMatrixClose(result, 6.123233995736766e-17, 1, -1,
+                             6.123233995736766e-17, 7, 9)
 
    def test_triple(self):
       # Scale + Translate + Rotate
       result = self.scale.clone()
       result.concat(self.translate)
       result.concat(self.rotate)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -9, 7.000000000000001)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5,
+                             3.0616169978683834e-16, -9, 7.000000000000001)
 
       # Scale + Rotate + Translate
       result = self.scale.clone()
       result.concat(self.rotate)
       result.concat(self.translate)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, 7, 9)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5,
+                             3.0616169978683834e-16, 7, 9)
 
       # Translate + Scale + Rotate
       result = self.translate.clone()
       result.concat(self.scale)
       result.concat(self.rotate)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5, 3.0616169978683834e-16, -45, 21.000000000000004)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 3, -5,
+                             3.0616169978683834e-16, -45, 21.000000000000004)
 
       # Translate + Rotate + Scale
       result = self.translate.clone()
       result.concat(self.rotate)
       result.concat(self.scale)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, -27, 35.00000000000001)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3,
+                             3.0616169978683834e-16, -27, 35.00000000000001)
 
       # Rotate + Translate + Scale
       result = self.rotate.clone()
       result.concat(self.translate)
       result.concat(self.scale)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 21, 45)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3,
+                             3.0616169978683834e-16, 21, 45)
 
       # Rotate + Scale + Translate
       result = self.rotate.clone()
       result.concat(self.scale)
       result.concat(self.translate)
-      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3, 3.0616169978683834e-16, 7, 9)
+      self.assertMatrixClose(result, 1.836970198721029e-16, 5, -3,
+                             3.0616169978683834e-16, 7, 9)
 
    def test_right_single(self):
       # Matrix + Scale
@@ -318,7 +338,8 @@ class MatrixConcatTests(as3libTestCase):
       result = self.matrix.clone()
       result.concat(self.scale)
       result.concat(self.rotate)
-      self.assertMatrix(result, -65, 33.00000000000001, -95, 51.00000000000001, -145, 69.00000000000001)
+      self.assertMatrix(result, -65, 33.00000000000001, -95,
+                        51.00000000000001, -145, 69.00000000000001)
 
       # Matrix + Rotate + Scale
       result = self.matrix.clone()
@@ -344,21 +365,24 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.scale)
       result.concat(self.translate)
       result.concat(self.rotate)
-      self.assertMatrix(result, -65, 33.00000000000001, -95, 51.00000000000001, -154, 76.00000000000001)
+      self.assertMatrix(result, -65, 33.00000000000001, -95,
+                        51.00000000000001, -154, 76.00000000000001)
 
       # Matrix + Scale + Rotate + Translate
       result = self.matrix.clone()
       result.concat(self.scale)
       result.concat(self.rotate)
       result.concat(self.translate)
-      self.assertMatrix(result, -65, 33.00000000000001, -95, 51.00000000000001, -138, 78.00000000000001)
+      self.assertMatrix(result, -65, 33.00000000000001, -95,
+                        51.00000000000001, -138, 78.00000000000001)
 
       # Matrix + Translate + Scale + Rotate
       result = self.matrix.clone()
       result.concat(self.translate)
       result.concat(self.scale)
       result.concat(self.rotate)
-      self.assertMatrix(result, -65, 33.00000000000001, -95, 51.00000000000001, -190, 90.00000000000001)
+      self.assertMatrix(result, -65, 33.00000000000001, -95,
+                        51.00000000000001, -190, 90.00000000000001)
 
       # Matrix + Translate + Rotate + Scale
       result = self.matrix.clone()
@@ -395,7 +419,8 @@ class MatrixConcatTests(as3libTestCase):
       # Rotate + Matrix
       result = self.rotate.clone()
       result.concat(self.matrix)
-      self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 23, 29)
+      self.assertMatrix(result, 17, 19, -10.999999999999998,
+                        -12.999999999999998, 23, 29)
 
    def test_left_double(self):
       # Scale + Translate + Matrix
@@ -420,19 +445,23 @@ class MatrixConcatTests(as3libTestCase):
       result = self.rotate.clone()
       result.concat(self.scale)
       result.concat(self.matrix)
-      self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 23, 29)
+      self.assertMatrix(result, 85, 95, -32.99999999999999,
+                        -38.99999999999999, 23, 29)
 
       # Translate + Rotate + Matrix
       result = self.translate.clone()
       result.concat(self.rotate)
       result.concat(self.matrix)
-      self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 43.000000000000014, 45.00000000000003)
+      self.assertMatrix(result, 17, 19, -10.999999999999998,
+                        -12.999999999999998, 43.000000000000014,
+                        45.00000000000003)
 
       # Rotate + Translate + Matrix
       result = self.rotate.clone()
       result.concat(self.translate)
       result.concat(self.matrix)
-      self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 253, 291)
+      self.assertMatrix(result, 17, 19, -10.999999999999998,
+                        -12.999999999999998, 253, 291)
 
    def test_left_triple(self):
       # scale + translate + rotate + matrix
@@ -440,7 +469,8 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.translate)
       result.concat(self.rotate)
       result.concat(self.matrix)
-      self.assertMatrix(result, 51, 57, -54.99999999999999, -65, 43.000000000000014, 45.00000000000003)
+      self.assertMatrix(result, 51, 57, -54.99999999999999, -65,
+                        43.000000000000014, 45.00000000000003)
 
       # scale + rotate + translate + matrix
       result = self.scale.clone()
@@ -454,28 +484,33 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.scale)
       result.concat(self.rotate)
       result.concat(self.matrix)
-      self.assertMatrix(result, 51, 57, -54.99999999999999, -65, -114.99999999999994, -156.99999999999994)
+      self.assertMatrix(result, 51, 57, -54.99999999999999, -65,
+                        -114.99999999999994, -156.99999999999994)
 
       # translate + rotate + scale + matrix
       result = self.translate.clone()
       result.concat(self.rotate)
       result.concat(self.scale)
       result.concat(self.matrix)
-      self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 321.0000000000001, 343.0000000000001)
+      self.assertMatrix(result, 85, 95, -32.99999999999999,
+                        -38.99999999999999, 321.0000000000001,
+                        343.0000000000001)
 
       # rotate + translate + scale + matrix
       result = self.rotate.clone()
       result.concat(self.translate)
       result.concat(self.scale)
       result.concat(self.matrix)
-      self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 1019, 1157)
+      self.assertMatrix(result, 85, 95, -32.99999999999999,
+                        -38.99999999999999, 1019, 1157)
 
       # rotate + scale + translate + matrix
       result = self.rotate.clone()
       result.concat(self.scale)
       result.concat(self.translate)
       result.concat(self.matrix)
-      self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 253, 291)
+      self.assertMatrix(result, 85, 95, -32.99999999999999,
+                        -38.99999999999999, 253, 291)
 
    def test_middle_double(self):
       # scale + matrix + translate
@@ -500,7 +535,8 @@ class MatrixConcatTests(as3libTestCase):
       result = self.rotate.clone()
       result.concat(self.matrix)
       result.concat(self.scale)
-      self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 69, 145)
+      self.assertMatrix(result, 51, 95, -32.99999999999999,
+                        -64.99999999999999, 69, 145)
 
       # translate + matrix + rotate
       result = self.translate.clone()
@@ -512,7 +548,8 @@ class MatrixConcatTests(as3libTestCase):
       result = self.rotate.clone()
       result.concat(self.matrix)
       result.concat(self.translate)
-      self.assertMatrix(result, 17, 19, -10.999999999999998, -12.999999999999998, 30, 38)
+      self.assertMatrix(result, 17, 19, -10.999999999999998,
+                        -12.999999999999998, 30, 38)
 
    def test_middle_triple1(self):
       # scale + matrix + translate + rotate
@@ -534,7 +571,8 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.matrix)
       result.concat(self.scale)
       result.concat(self.rotate)
-      self.assertMatrix(result, -65, 33.00000000000001, -95, 51.00000000000001, -1455, 759.0000000000001)
+      self.assertMatrix(result, -65, 33.00000000000001, -95,
+                        51.00000000000001, -1455, 759.0000000000001)
 
       # translate + matrix + rotate + scale
       result = self.translate.clone()
@@ -548,14 +586,16 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.matrix)
       result.concat(self.translate)
       result.concat(self.scale)
-      self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 90, 190)
+      self.assertMatrix(result, 51, 95, -32.99999999999999,
+                        -64.99999999999999, 90, 190)
 
       # rotate + matrix + scale + translate
       result = self.rotate.clone()
       result.concat(self.matrix)
       result.concat(self.scale)
       result.concat(self.translate)
-      self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 76, 154)
+      self.assertMatrix(result, 51, 95, -32.99999999999999,
+                        -64.99999999999999, 76, 154)
 
    def test_middle_triple2(self):
       # scale + translate + matrix + rotate
@@ -584,57 +624,80 @@ class MatrixConcatTests(as3libTestCase):
       result.concat(self.rotate)
       result.concat(self.matrix)
       result.concat(self.scale)
-      self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 129.00000000000006, 225.00000000000014)
+      self.assertMatrix(result, 51, 95, -32.99999999999999,
+                        -64.99999999999999, 129.00000000000006,
+                        225.00000000000014)
 
       # rotate + translate + matrix + scale
       result = self.rotate.clone()
       result.concat(self.translate)
       result.concat(self.matrix)
       result.concat(self.scale)
-      self.assertMatrix(result, 51, 95, -32.99999999999999, -64.99999999999999, 759, 1455)
+      self.assertMatrix(result, 51, 95, -32.99999999999999,
+                        -64.99999999999999, 759, 1455)
 
       # rotate + scale + matrix + translate
       result = self.rotate.clone()
       result.concat(self.scale)
       result.concat(self.matrix)
       result.concat(self.translate)
-      self.assertMatrix(result, 85, 95, -32.99999999999999, -38.99999999999999, 30, 38)
+      self.assertMatrix(result, 85, 95, -32.99999999999999,
+                        -38.99999999999999, 30, 38)
 
 
 class Matrix3DTests(as3libTestCase):
    def test_constructor(self):
       m = Matrix3D()
-      self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+      asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+      self.assertMatrix3D(m, asrt)
 
    def test_appendScale(self):
       m = Matrix3D()
       m.appendScale(1, 2, 3)
-      self.assertMatrix3D(m, (1,0,0,0,0,2,0,0,0,0,3,0,0,0,0,1))
+      asrt = (1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1)
+      self.assertMatrix3D(m, asrt)
 
    def test_identity(self):
-      m = Matrix3D(Vector.Number([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]))
-      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16])
+      m = Matrix3D(v)
+
+      asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+      self.assertMatrix3D(m, asrt)
+
       m.identity()
-      self.assertMatrix3D(m, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+
+      asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+      self.assertMatrix3D(m, asrt)
 
    def test_determinant(self):
       # Zero
-      m = Matrix3D(Vector.Number([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]))
+      v = Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+      m = Matrix3D(v)
       self.assertEqual(m.determinant, 0)
 
-      m = Matrix3D(Vector.Number([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]))
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16])
+      m = Matrix3D(v)
       self.assertEqual(m.determinant, 0)
 
       # Non-zero, randomly generated input
-      m = Matrix3D(Vector.Number([37,48,70,38,17,33,70,52,94,89,11,4,2,43,90,50]))
+      v = Vector.Number([37, 48, 70, 38, 17, 33, 70, 52, 94, 89, 11, 4, 2, 43,
+                         90, 50])
+      m = Matrix3D(v)
       self.assertEqual(m.determinant, 1953360)
 
-      m = Matrix3D(Vector.Number([30,76,67,56,69,61,99,11,95,92,84,24,14,35,96,71]))
+      v = Vector.Number([30, 76, 67, 56, 69, 61, 99, 11, 95, 92, 84, 24, 14,
+                         35, 96, 71])
+      m = Matrix3D(v)
       self.assertEqual(m.determinant, 8822702)
 
    def test_2(self):
-      m = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]))
-      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16])
+      m = Matrix3D(v)
+      asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+      self.assertMatrix3D(m, asrt)
 
       self.assertVector3D(m.position, 13, 14, 15)
       m.position = Vector3D(12, 13, 14)
@@ -642,21 +705,28 @@ class Matrix3DTests(as3libTestCase):
 
       m.prependTranslation(-1, 0, 2)
       self.assertVector3D(m.position, 29, 31, 33)
-      self.assertMatrix3D(m, (1,2,3,4,5,6,7,8,9,10,11,12,29,31,33,36))
+      asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 29, 31, 33, 36)
+      self.assertMatrix3D(m, asrt)
 
       m.prepend(m)
-      self.assertMatrix3D(m, (154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056))
+      asrt = (154, 168, 182, 200, 330, 364, 398, 440, 506, 560, 614, 680,
+              1525, 1690, 1855, 2056)
+      self.assertMatrix3D(m, asrt)
 
       other = Matrix3D()
       other.copyFrom(m)
-      self.assertMatrix3D(other, (154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056))
+      self.assertMatrix3D(other, asrt)
 
       out = Vector.Number()
       out.length = 20
       m.copyRawDataTo(out, 1, True)
-      self.assertArray(out, (0,154,168,182,200,330,364,398,440,506,560,614,680,1525,1690,1855,2056,0,0,0))
+      asrt = (0, 154, 168, 182, 200, 330, 364, 398, 440, 506, 560, 614, 680,
+              1525, 1690, 1855, 2056, 0, 0, 0)
+      self.assertArray(out, asrt)
       m.copyRawDataTo(out, 2, True)
-      self.assertArray(out, (0,154,154,330,506,1525,168,364,560,1690,182,398,614,1855,200,440,680,2056,0,0))
+      asrt = (0, 154, 154, 330, 506, 1525, 168, 364, 560, 1690, 182, 398, 614,
+              1855, 200, 440, 680, 2056, 0, 0)
+      self.assertArray(out, asrt)
 
       v = Vector3D(1, 2, 3, 4)
       vOut = m.transformVector(v)
@@ -665,38 +735,48 @@ class Matrix3DTests(as3libTestCase):
       vecs = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
       vecsOut = Vector.Number()
       m.transformVectors(vecs, vecsOut)
-      self.assertArray(vecsOut, (3857,4266,4675,6827,7542,8257,9797,10818,11839))
+      asrt = (3857, 4266, 4675, 6827, 7542, 8257, 9797, 10818, 11839)
+      self.assertArray(vecsOut, asrt)
 
       vecsOutFixed = Vector.Number(vecs.length, True)
       m.transformVectors(vecs, vecsOutFixed)
-      self.assertArray(vecsOutFixed, (3857,4266,4675,6827,7542,8257,9797,10818,11839,0))
+      asrt = (3857, 4266, 4675, 6827, 7542, 8257, 9797, 10818, 11839, 0)
+      self.assertArray(vecsOutFixed, asrt)
 
       vecsOutFixedTooSmall = Vector.Number(4, True)
-      self.assertRaises(RangeError, m.transformVector, vecs, vecsOutFixedTooSmall)
+      self.assertRaises(RangeError, m.transformVector, vecs,
+                        vecsOutFixedTooSmall)
 
-      self.assertRaises(TypeError, m.transformVectors, as3lib.null, vecsOut)
-      self.assertRaises(TypeError, m.transformVectors, vecs, as3lib.null)
+      self.assertRaises(TypeError, m.transformVectors, null, vecsOut)
+      self.assertRaises(TypeError, m.transformVectors, vecs, null)
 
       vOut = m.deltaTransformVector(v)
       self.assertVector3D(vOut, 2332, 2576, 2820, 3120)
 
       tooShort = Matrix3D(Vector.Number([1, 2]))
-      self.assertMatrix3D(tooShort, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+      asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+      self.assertMatrix3D(tooShort, asrt)
 
-      tooLong = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]))
-      self.assertMatrix3D(tooLong, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16, 17])
+      tooLong = Matrix3D(v)
+      self.assertMatrix3D(tooLong, asrt)
 
-      modified = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+      modified = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                                15, 16])
       newMat = Matrix3D(modified)
-      self.assertMatrix3D(newMat, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+      self.assertMatrix3D(newMat, asrt)
       modified[0] = 9999
-      self.assertMatrix3D(newMat, (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16))
+      self.assertMatrix3D(newMat, asrt)
 
-      newMat = Matrix3D(Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]))
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16])
+      newMat = Matrix3D(v)
       col = Vector3D()
       check = ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16))
       for i in range(4):
-         newMat.copyColumnTo(i, row)
+         newMat.copyColumnTo(i, col)
          self.assertVector3D(col, *check[i])
 
       self.assertRaises(ArgumentError, newMat.copyColumnTo, 4, col)
@@ -705,7 +785,7 @@ class Matrix3DTests(as3libTestCase):
       check = ((1, 5, 9, 13), (2, 6, 10, 14), (3, 7, 11, 15), (3, 8, 12, 16))
       for i in range(4):
          newMat.copyRowTo(i, row)
-         self.assertVector3D(col, *check[i])
+         self.assertVector3D(row, *check[i])
 
       self.assertRaises(ArgumentError, newMat.copyRowTo, 4, row)
 
@@ -721,18 +801,28 @@ class Matrix3DTests(as3libTestCase):
 
       self.assertRaises(ArgumentError, newMat.copyRowFrom, 4, row3)
 
-      self.assertMatrix3D(newMat, (100,500,900,1300,200,600,1000,1400,300,700,1100,1500,400,800,1200,1600))
+      asrt = (100, 500, 900, 1300, 200, 600, 1000, 1400, 300, 700, 1100, 1500,
+              400, 800, 1200, 1600)
+      self.assertMatrix3D(newMat, asrt)
 
       newMat.prependRotation(90, Vector3D.X_AXIS)
-      self.assertMatrix3D(newMat, (100,500,900,1300,300,700,1100,1500,-199.99999999999997,-600,-999.9999999999999,-1400,400,800,1200,1600))
+      asrt = (100, 500, 900, 1300, 300, 700, 1100, 1500, -199.99999999999997,
+              -600, -999.9999999999999, -1400, 400, 800, 1200, 1600)
+      self.assertMatrix3D(newMat, asrt)
 
       newMat.prependScale(1, 2, 3)
-      self.assertMatrix(newMat, (100,500,900,1300,600,1400,2200,3000,-599.9999999999999,-1800,-2999.9999999999995,-4200,400,800,1200,1600))
+      asrt = (100, 500, 900, 1300, 600, 1400, 2200, 3000, -599.9999999999999,
+              -1800, -2999.9999999999995, -4200, 400, 800, 1200, 1600)
+      self.assertMatrix(newMat, asrt)
 
    def test_copyColumnFrom(self):
-      mat = Matrix3D(Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
+      v = Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+      mat = Matrix3D(v)
       col = Vector3D(3, 4, 5, 6)
-      check = ((3,4,5,6,0,0,0,0,0,0,0,0,0,0,0,0),(3,4,5,6,3,4,5,6,0,0,0,0,0,0,0,0),(3,4,5,6,3,4,5,6,3,4,5,6,0,0,0,0),(3,4,5,6,3,4,5,6,3,4,5,6,3,4,5,6))
+      check = ((3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+               (3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0),
+               (3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 0, 0, 0, 0),
+               (3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6))
       for i in range(4):
          mat.copyColumnFrom(i, col)
          self.assertMatrix3D(mat, check[i])
@@ -751,19 +841,19 @@ class Matrix3DTests(as3libTestCase):
 
    def test_invert(self):
       # Identity
-      check = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      check = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
       self.assertInvertedMat3D(Matrix3D(), 1, check)
 
       # Translation
       matrix = Matrix3D()
       matrix.appendTranslation(10, 20, 30)
-      check = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -10, -20, -30, 1]
+      check = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -10, -20, -30, 1)
       self.assertInvertedMat3D(matrix, 1, check)
 
       # Scale
       matrix = Matrix3D()
       matrix.appendScale(2, 2, 2)
-      check = [0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1]
+      check = (0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1)
       self.assertInvertedMat3D(matrix, 8, check)
 
       # Rotation
@@ -771,11 +861,11 @@ class Matrix3DTests(as3libTestCase):
       matrix.appendRotation(0.3, Vector3D.X_AXIS)
       matrix.appendRotation(0.5, Vector3D.Y_AXIS)
       matrix.appendRotation(0.7, Vector3D.Z_AXIS)
-      check = [0.9998872955663178, -0.012171144953375805,
+      check = (0.9998872955663178, -0.012171144953375805,
                0.008789732396306326, 0, 0.012216535649290344,
                0.999912221147948, -0.005128962439600703, 0,
                -0.008726535498373933, 0.005235764461960769,
-               0.9999482158335472, 0, 0, 0, 0, 0.9999999999999999]
+               0.9999482158335472, 0, 0, 0, 0, 0.9999999999999999)
       self.assertInvertedMat3D(matrix, 1, check)
 
       # Rotation and scaling
@@ -784,22 +874,23 @@ class Matrix3DTests(as3libTestCase):
       matrix.appendRotation(0.5, Vector3D.Y_AXIS)
       matrix.appendRotation(0.7, Vector3D.Z_AXIS)
       matrix.appendScale(2, 2, 2)
-      check = [0.4999436477831589, -0.006085572476687903,
+      check = (0.4999436477831589, -0.006085572476687903,
                0.004394866198153163, 0, 0.006108267824645172,
                0.499956110573974, -0.0025644812198003515, 0,
                -0.0043632677491869665, 0.0026178822309803843,
-               0.4999741079167736, 0, 0, 0, 0, 0.9999999999999999]
+               0.4999741079167736, 0, 0, 0, 0, 0.9999999999999999)
       self.assertInvertedMat3D(matrix, 8, check)
 
       # Non-uniform scaling
       matrix = Matrix3D()
       matrix.appendScale(2, 3, 4)
-      check = [0.5, 0, 0, 0, 0, 0.3333333333333333, 0, 0, 0, 0, 0.25, 0, 0, 0,
-               0, 1]
+      check = (0.5, 0, 0, 0, 0, 0.3333333333333333, 0, 0, 0, 0, 0.25, 0, 0, 0,
+               0, 1)
       self.assertInvertedMat3D(matrix, 24, check)
 
 
-class PerspectiveProjectionTests(as3libTestCase):...
+class PerspectiveProjectionTests(as3libTestCase):
+   ...
 
 
 class PointTests(as3libTestCase):
@@ -814,7 +905,7 @@ class PointTests(as3libTestCase):
       self.assertPoint(p, 1, 2)
 
       # TODO: Find a way to handle this
-      p = Point(as3lib.Object(), 2)
+      p = Point(Object(), 2)
       self.assertNaN(p.x)
       self.assertEqual(p.y, 2)
 
@@ -890,11 +981,11 @@ class PointTests(as3libTestCase):
       p.normalize(-5)
       self.assertPoint(p, 4.47213595499958, -2.23606797749979)
 
-      p = Point(as3lib.undefined, 100)
+      p = Point(undefined, 100)
       p.normalize(1)
-      self.assertPoint(p, as3lib.NaN, 100)
+      self.assertPoint(p, NaN, 100)
 
-      p = Point(100, as3lib.null)
+      p = Point(100, null)
       p.normalize(1)
       self.assertPoint(p, 1, 0)
 
@@ -917,7 +1008,8 @@ class PointTests(as3libTestCase):
       self.assertEqual(p.toString(), '(x=0, y=0)')
 
 
-class RectangleTests(as3libTestCase):...
+class RectangleTests(as3libTestCase):
+   ...
 
 
 class TransformTests(as3libTestCase):
@@ -954,45 +1046,46 @@ class TransformTests(as3libTestCase):
 
          # sprite2D: new Sprite has null matrix3D and valid matrix
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
 
          # sprite2D: set identity matrix
          mat2D = Matrix()
          mat2D.identity()
          sprite2D.transform.matrix = mat2D
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          self.c.assertMatrix(mat2D, 1, 0, 0, 1, 0, 0)
 
          #  sprite2D: update mat2D"
-         mat2D.setTo(2,3,4,5,6,7)
+         mat2D.setTo(2, 3, 4, 5, 6, 7)
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
          # sprite2D: .matrix = mat2D
-         sprite2D.transform.matrix = mat2D;
+         sprite2D.transform.matrix = mat2D
          self.c.assertMatrix(sprite2D.transform.matrix, 2, 3, 4, 5, 6, 7)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
          # sprite2D: .matrix = null
-         sprite2D.transform.matrix = as3lib.null
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         sprite2D.transform.matrix = null
+         self.c.assertEqual(sprite2D.transform.matrix, null)
+         asrt = (2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
          # sprite2D: .matrix3D = null
-         sprite2D.transform.matrix3D = as3lib.null
+         sprite2D.transform.matrix3D = null
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
          # sprite2D: set x = 30, y = 50
          sprite2D.x = 30
          sprite2D.y = 50
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 30, 50)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
       def test3D(self):
@@ -1002,41 +1095,45 @@ class TransformTests(as3libTestCase):
          mat3D = Matrix3D()
          mat3D.identity()
          sprite3D.transform.matrix3D = mat3D
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
-         self.c.assertMatrix3D(mat3D, (1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1))
+         self.c.assertEqual(sprite2D.transform.matrix, null)
+         asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+         self.c.assertMatrix3D(mat3D, asrt)
 
          # sprite3D: update mat3D
          # RUFFLE: FIXME: values shouldn't be zero (0) for test coverage. Unsupported now.
-         mat3D.copyFrom(Matrix3D(Vector.Number([2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1])))
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
+         v = Vector.Number([2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1])
+         mat3D.copyFrom(Matrix3D(v))
+         self.c.assertEqual(sprite2D.transform.matrix, null)
          # RUFFLE: FIXME: mat3D update should be applied to transform.matrix3D immediately
          # trace("sprite3D.transform.matrix3D.rawData", sprite3D.transform.matrix3D.rawData);
-         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         asrt = (2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1)
+         self.c.assertMatrix3D(mat3D, asrt)
 
          # sprite3D: .matrix3D = mat3D
          sprite3D.transform.matrix3D = mat3D
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
-         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         self.c.assertEqual(sprite2D.transform.matrix, null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+         self.c.assertMatrix3D(mat3D, asrt)
 
          # sprite3D: .matrix = null
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
-         self.c.assertMatrix3D(mat3D, (2,3,0,0,4,5,0,0,0,0,1,0,6,7,0,1))
+         self.c.assertEqual(sprite2D.transform.matrix, null)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+         self.c.assertMatrix3D(mat3D, asrt)
 
          # sprite3D: set x = 30, y = 50
          sprite3D.x = 30
          sprite3D.y = 50
-         self.c.assertEqual(sprite2D.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2D.transform.matrix3D, (2,3,0,0,4,5,0,0,0,0,1,0,30,50,0,1))
+         self.c.assertEqual(sprite2D.transform.matrix, null)
+         asrt = (2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 30, 50, 0, 1)
+         self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
          # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
          # trace("mat3D.rawData", mat3D.rawData);
 
          # sprite3D: .matrix3D = null
          sprite3D.transform.matrix3D = null
          self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-         self.c.assertEqual(sprite2D.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2D.transform.matrix3D, null)
          # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
          # trace("mat3D.rawData", mat3D.rawData)
 
@@ -1048,9 +1145,9 @@ class TransformTests(as3libTestCase):
          sprite1.transform.matrix = mat2D
          sprite2.transform = sprite1.transform
          self.c.assertMatrix(sprite1.transform.matrix, 1, 2, 3, 4, 5, 6)
-         self.c.assertEqual(sprite1.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite1.transform.matrix3D, null)
          self.c.assertMatrix(sprite2.transform.matrix, 1, 2, 3, 4, 5, 6)
-         self.c.assertEqual(sprite2.transform.matrix3D, as3lib.null)
+         self.c.assertEqual(sprite2.transform.matrix3D, null)
 
       def testCopy3D(self):
          sprite1 = Sprite()
@@ -1064,10 +1161,15 @@ class TransformTests(as3libTestCase):
          mat3D.appendTranslation(5, 6, 0)
          sprite1.transform.matrix3D = mat3D
          sprite2.transform = sprite1.transform
-         self.c.assertEqual(sprite1.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite1.transform.matrix3D, (1.9996954202651978,0.05235721915960312,0,0,-0.03490481153130531,2.9995431900024414,0,0,0,0,1,0,5,6,0,1))
-         self.c.assertEqual(sprite2.transform.matrix, as3lib.null)
-         self.c.assertMatrix3D(sprite2.transform.matrix3D, (1.9996954202651978,0.05235721915960312,0,0,-0.03490481153130531,2.9995431900024414,0,0,0,0,1,0,5,6,0,1))
+
+         asrt = (1.9996954202651978, 0.05235721915960312, 0, 0,
+                 -0.03490481153130531, 2.9995431900024414, 0, 0, 0, 0, 1, 0,
+                 5, 6, 0, 1)
+
+         self.c.assertEqual(sprite1.transform.matrix, null)
+         self.c.assertMatrix3D(sprite1.transform.matrix3D, asrt)
+         self.c.assertEqual(sprite2.transform.matrix, null)
+         self.c.assertMatrix3D(sprite2.transform.matrix3D, asrt)
 
       '''
       def testImageComparison(self):
@@ -1077,7 +1179,7 @@ class TransformTests(as3libTestCase):
          s1 = Sprite()
          s1.x = 10
          s1.y = 10
-         bd1 = BitmapData(50, 50, as3lib.false, 0xFF0000)
+         bd1 = BitmapData(50, 50, false, 0xFF0000)
          b1 = Bitmap(bd1)
          m.identity()
          b1.transform.matrix3D = m.clone()
@@ -1159,26 +1261,33 @@ class Utils3DTests(as3libTestCase):
 
       # Bad project
       Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
-      self.assertArray(projectedVerts, (0.6789529914529915, 0.7859686609686609, 0.6486423220973783, 0.7657615480649188), 4)
-      self.assertArray(uvts, (0, 0, 0.0000017806267806267806, 0, 0, 7.802746566791511e-7), 6)
+
+      asrt = (0.6789529914529915, 0.7859686609686609, 0.6486423220973783,
+              0.7657615480649188)
+      self.assertArray(projectedVerts, asrt, 4)
+      asrt = (0, 0, 0.0000017806267806267806, 0, 0, 7.802746566791511e-7)
+      self.assertArray(uvts, asrt, 6)
 
       # Good project
       # Deliberately missing a final z coord
       uvts = uvts = Vector.Number([1000, 2000, 3000, 4000, 5000, 6000, 5, 6])
 
       Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
-      self.assertArray(projectedVerts, (0.6789529914529915, 0.7859686609686609, 0.6486423220973783, 0.7657615480649188), 4)
-      self.assertArray(uvts, (1000, 2000, 0.0000017806267806267806, 4000, 5000, 7.802746566791511e-7, 5, 6), 8)
+      asrt = (0.6789529914529915, 0.7859686609686609, 0.6486423220973783,
+              0.7657615480649188)
+      self.assertArray(projectedVerts, asrt, 4)
+      asrt = (1000, 2000, 0.0000017806267806267806, 4000, 5000,
+              7.802746566791511e-7, 5, 6)
+      self.assertArray(uvts, asrt, 8)
 
 
 class Vector3DTests(as3libTestCase):
-   mp = Math.pow(10, 12)
-
    def roundNumber(self, x):  # Originally called r
-      return Math.round(x * self.mp) / self.mp
+      return Math.round(x * 1000000000000) / 1000000000000
 
    def roundVector(self, v):  # Originally called rv
-      return Vector3D(self.roundNumber(v.x), self.roundNumber(v.y), self.roundNumber(v.z), self.roundNumber(v.w))
+      return Vector3D(self.roundNumber(v.x), self.roundNumber(v.y),
+                      self.roundNumber(v.z), self.roundNumber(v.w))
 
    def test_constructor(self):
       v = Vector3D()
@@ -1196,7 +1305,7 @@ class Vector3DTests(as3libTestCase):
       v = Vector3D(1, 2, 3, 4)
       self.assertVector3D(v, 1, 2, 3, 4)
 
-      v = Vector3D(as3lib.Object(), 2)
+      v = Vector3D(Object(), 2)
       self.assertNaN(v.x)
       self.assertEqual(v.y, 2)
       self.assertEqual(v.z, 0)
@@ -1337,10 +1446,11 @@ class Vector3DTests(as3libTestCase):
       d = Vector3D.distance(Vector3D(), Vector3D())
       self.assertEqual(d, 0)
 
-      d = Vector3D.distance(Vector3D(-100, 200, 300, -400), Vector3D(100, 200, 300, -400))
+      v = Vector3D(-100, 200, 300, -400)
+      d = Vector3D.distance(v, Vector3D(100, 200, 300, -400))
       self.assertEqual(d, 200)
 
-      d = Vector3D.distance(Vector3D(-100, 200, 300, -400), Vector3D(-102, 210, 311, -420))
+      d = Vector3D.distance(v, Vector3D(-102, 210, 311, -420))
       self.assertEqual(d, 15)
 
    def test_equals(self):
@@ -1456,12 +1566,12 @@ class Vector3DTests(as3libTestCase):
       self.assertEqual(n, 25)
       self.assertVector3D(v, -0.36, 0.48, 0.8, -100)
 
-      v = Vector3D(as3lib.undefined, 100, 100, 100)
+      v = Vector3D(undefined, 100, 100, 100)
       n = v.normalize()
       self.assertNaN(n)
       self.assertVector3DNaN(v, 100)
 
-      v = Vector3D(7, as3lib.null, 24, 365)
+      v = Vector3D(7, null, 24, 365)
       n = v.normalize()
       self.assertEqual(n, 25)
       self.assertVector3D(v, 0.28, 0, 0.96, 365)
@@ -1473,7 +1583,7 @@ class Vector3DTests(as3libTestCase):
 
       v = Vector3D(1, 2, 3)
       v.project()
-      self.assertVector3D(v, as3lib.Infinity, as3lib.Infinity, as3lib.Infinity, 0)
+      self.assertVector3D(v, Infinity, Infinity, Infinity, 0)
 
       v = Vector3D(1, 2, 3, 1)
       v.project()
