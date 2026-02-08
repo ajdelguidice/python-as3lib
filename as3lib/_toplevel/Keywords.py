@@ -1,5 +1,5 @@
 # This file defines the actionscript keywords as python decorators/functions
-from as3lib._toplevel.Boolean import Boolean
+from as3lib._toplevel.Boolean import true
 from dataclasses import dataclass
 from miniamf import register_package
 
@@ -54,11 +54,20 @@ class namespace:
       return cls
 
 
+# Operations
+def stricteq(obj1, obj2):
+   return type(obj1) == type(obj2) and obj1 == obj2
+
+
+def strictne(obj1, obj2):
+   return type(obj1) != type(obj2) or obj1 != obj2
+
+
 # Other keywords
 def delete(obj):
    # TODO: Other functionality of delete
    del obj
-   return Boolean(True)
+   return true
 
 
 def each(iterable):
@@ -74,3 +83,12 @@ def each(iterable):
    # Do it a bit jank because python and actionscript differ in the way that
    # iterating is done.
    return (iterable[i] for i in range(len(iterable)))
+
+
+# Helpers
+def as3_enumerate(iterable):
+   '''
+   Python enumerate function for AS3 objects. AS3 objects use a custom
+   implementation of __iter__ which breaks the builtin enumerate function.
+   '''
+   return ((i, iterable[i]) for i in iterable)
