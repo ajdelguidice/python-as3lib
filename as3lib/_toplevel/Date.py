@@ -3,6 +3,7 @@ from as3lib._toplevel.Math import Math
 from as3lib._toplevel.Number import Number
 from as3lib._toplevel.Object import Object
 import datetime, time
+from warnings import warn
 
 
 # Notes:
@@ -37,8 +38,7 @@ class Date(Object):
 
    @date.setter
    def date(self, value):
-      self._value = self._value.replace(day=value)
-      self._sync()
+      self.setDate(value)
 
    @property
    def dateUTC(self):
@@ -46,8 +46,7 @@ class Date(Object):
 
    @dateUTC.setter
    def dateUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(day=value)
-      self._syncUTC()
+      self.setUTCDate(value)
 
    @property
    def day(self):
@@ -63,8 +62,7 @@ class Date(Object):
 
    @fullYear.setter
    def fullYear(self, value):
-      self._value = self._value.replace(year=value)
-      self._sync()
+      self.setFullYear(value)
 
    @property
    def fullYearUTC(self):
@@ -72,8 +70,7 @@ class Date(Object):
 
    @fullYearUTC.setter
    def fullYearUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(year=value)
-      self._syncUTC()
+      self.setUTCFullYear(value)
 
    @property
    def hours(self):
@@ -81,8 +78,7 @@ class Date(Object):
 
    @hours.setter
    def hours(self, value):
-      self._value = self._value.replace(hour=value)
-      self._sync()
+      self.setHours(value)
 
    @property
    def hoursUTC(self):
@@ -90,8 +86,7 @@ class Date(Object):
 
    @hoursUTC.setter
    def hoursUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(hour=value)
-      self._syncUTC()
+      self.setUTCHours(value)
 
    @property
    def milliseconds(self):
@@ -99,8 +94,7 @@ class Date(Object):
 
    @milliseconds.setter
    def milliseconds(self, value):
-      self._value = self._value.replace(microsecond=value*1000)
-      self._sync()
+      self.setMilliseconds(value)
 
    @property
    def millisecondsUTC(self):
@@ -108,8 +102,7 @@ class Date(Object):
 
    @millisecondsUTC.setter
    def millisecondsUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(microsecond=value*1000)
-      self._syncUTC()
+      self.setUTCMilliseconds(value)
 
    @property
    def minutes(self):
@@ -117,8 +110,7 @@ class Date(Object):
 
    @minutes.setter
    def minutes(self, value):
-      self._value = self._value.replace(minute=value)
-      self._sync()
+      self.setMinutes(value)
 
    @property
    def minutesUTC(self):
@@ -126,8 +118,7 @@ class Date(Object):
 
    @minutesUTC.setter
    def minutesUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(minute=value)
-      self._syncUTC()
+      self.setUTCMinutes(value)
 
    @property
    def month(self):
@@ -135,8 +126,7 @@ class Date(Object):
 
    @month.setter
    def month(self, value):
-      self._value = self._value.replace(month=value+1)
-      self._sync()
+      self.setMonth(value)
 
    @property
    def monthUTC(self):
@@ -144,8 +134,7 @@ class Date(Object):
 
    @monthUTC.setter
    def monthUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(month=value+1)
-      self._syncUTC()
+      self.setUTCMonth(value)
 
    @property
    def seconds(self):
@@ -153,8 +142,7 @@ class Date(Object):
 
    @seconds.setter
    def seconds(self, value):
-      self._value = self._value.replace(second=value)
-      self._sync()
+      self.setSeconds(value)
 
    @property
    def secondsUTC(self):
@@ -162,8 +150,7 @@ class Date(Object):
 
    @secondsUTC.setter
    def secondsUTC(self, value):
-      self._valueUTC = self._valueUTC.replace(second=value)
-      self._syncUTC()
+      self.setUTCSeconds(value)
 
    @property
    def time(self):
@@ -272,53 +259,98 @@ class Date(Object):
       raise NotImplementedError
 
    def setDate(self, day):
-      self.date = day
+      self._value = self._value.replace(day=day)
       self._sync()
       return self.time
 
    def setFullYear(self, year, month=null, day=null):
-      raise NotImplementedError
+      self._value = self._value.replace(year=year)
+      if month is not null or day is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
 
    def setHours(self, hour, minute=null, second=null, millisecond=null):
-      raise NotImplementedError
+      self._value = self._value.replace(hour=hour)
+      if minute is not null or second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
 
    def setMilliseconds(self, millisecond):
-      raise NotImplementedError
+      self._value = self._value.replace(microsecond=millisecond*1000)
+      self._sync()
+      return self.time
 
-   def setMinutes(self, minutes, seconds=null, milliseconds=null):
-      raise NotImplementedError
+   def setMinutes(self, minute, second=null, millisecond=null):
+      self._value = self._value.replace(minute=minute)
+      if second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
 
    def setMonth(self, month, day=null):
-      raise NotImplementedError
+      self._value = self._value.replace(month=month+1)
+      if day is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
 
    def setSeconds(self, second, millisecond=null):
-      raise NotImplementedError
+      self._value = self._value.replace(second=second)
+      if millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
 
    def setTime(self, millisecond):
-      raise NotImplementedError
+      self.time = millisecond
+      return self.time
 
    def setUTCDate(self, day):
-      self.dateUTC = day
+      self._valueUTC = self._valueUTC.replace(day=day)
       self._syncUTC()
       return self.time
 
    def setUTCFullYear(self, year, month=null, day=null):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(year=year)
+      if month is not null or day is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
 
    def setUTCHours(self, hour, minute=null, second=null, millisecond=null):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(hour=hour)
+      if minute is not null or second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
 
    def setUTCMilliseconds(self, millisecond):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(microsecond=millisecond*1000)
+      self._syncUTC()
+      return self.time
 
-   def setUTCMinutes(self, minutes, seconds=null, milliseconds=null):
-      raise NotImplementedError
+   def setUTCMinutes(self, minute, second=null, millisecond=null):
+      self._valueUTC = self._valueUTC.replace(minute=minute)
+      if second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
 
    def setUTCMonth(self, month, day=null):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(month=month+1)
+      if day is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
 
    def setUTCSeconds(self, second, millisecond=null):
-      raise NotImplementedError
+      self._valueUTC = self._valueUTC.replace(second=second)
+      if millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
 
    def _monthName(self, mon):
       return ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
