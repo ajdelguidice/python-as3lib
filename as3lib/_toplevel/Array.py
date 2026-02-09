@@ -74,6 +74,9 @@ class Array(list, Object):
    def __neg__(self):
       return -Number(0)
 
+   def __each__(self):
+      return (self[i] for i in range(self.length))
+
    def concat(self, *args):
       '''
       Concatenates the elements specified in the parameters with the elements in an array and creates a new array. If the parameters specify an array, the elements of that array are concatenated. If you don't pass any parameters, the new array is a duplicate (shallow clone) of the original array.
@@ -299,7 +302,13 @@ class Array(list, Object):
    def _flagSort(self, flags):
       # NOTE: These are flags, not exclusive values
       if flags & 4:  # UNIQUESORT
-         raise NotImplementedError
+         # NOTE: Only works for hashable types
+         s = set()
+         any(x in s or s.add(x) for x in self)
+         s = set()
+         duplicates = set(x for x in self if x in s or s.add(x))
+         if duplicates:
+            return Number(0)
       if flags & 1:  # CASEINSENSITIVE
          raise NotImplementedError
       if flags & 2:  # DESCENDING
