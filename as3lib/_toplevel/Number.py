@@ -84,6 +84,9 @@ class Number(Object):
    def __repr__(self):
       return 'as3lib.Number(%s)' % self
 
+   def __hash__(self):
+      return hash(self._value)
+
    def __add__(self, value):
       return Number(self._value + self._Number(value))
 
@@ -108,6 +111,9 @@ class Number(Object):
 
    def __int__(self):
       return builtins.int(self._value)
+
+   def __index__(self):
+      return math.floor(self._value)
 
    def __eq__(self, value):
       return self._value == value
