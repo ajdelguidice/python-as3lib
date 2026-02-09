@@ -213,6 +213,20 @@ except Exception as e:
 from as3lib.flash.desktop import NativeApplication
 as3state.nativeApplication = NativeApplication()
 
+
+# Legacy type annotations. These will be removed in a future version because
+# python types are so different to as3 ones that these are often misleading.
+from typing import Union
+from types import NoneType
+
+allNumber = Union[builtins.int, float, int, uint, Number]
+allInt = Union[builtins.int, int, uint]
+allString = Union[str, String]
+allArray = Union[list, tuple, Array, Vector]
+allBoolean = Union[bool, Boolean]
+allNone = Union[undefined, null, NoneType]
+
+
 __all__ = (
    'true',
    'false',
