@@ -162,7 +162,7 @@ from ._toplevel.int import int
 Int = int  # Backwards compatibility
 from ._toplevel.int import uint
 from ._toplevel.JSON import JSON
-from ._toplevel.Keywords import delete, each
+from ._toplevel.Keywords import delete, each, stricteq, strictne
 from ._toplevel.Math import Math
 from ._toplevel.Number import Infinity, NaN, Number
 from ._toplevel.Object import Object
@@ -206,6 +206,7 @@ try:
 except Exception as e:
    raise Error('Failed to set up miniamf type adapters.') from e
 
+
 # Create NativeApplication Instance
 from as3lib.flash.desktop import NativeApplication
 as3state.nativeApplication = NativeApplication()
@@ -234,6 +235,9 @@ __all__ = (
 
    'delete',
    'each',
+
+   'stricteq',
+   'strictne',
 
    'ArgumentError',
    'Array',
