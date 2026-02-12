@@ -172,7 +172,6 @@ from ._toplevel.trace import trace
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
-NInfinity = Number.NEGATIVE_INFINITY  # TODO: Remove this
 
 try:
    from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
@@ -228,7 +227,6 @@ allNone = Union[undefined, null, NoneType]
 __all__ = (
    'true',
    'false',
-   'NInfinity',
    'Infinity',
    'NaN',
    'undefined',
