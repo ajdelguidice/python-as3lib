@@ -360,13 +360,7 @@ class Date(Object):
       return ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')[int(date)]
 
    def _timezone(self):
-      sec = self.timezoneOffset
-      sign = '-' if sec < 0 else '+'
-      hours = Math.abs(Math.floor(sec / 60))
-      minutes = sec % 60
-      if hours == 0 and minutes == 0:
-         return 'GMT'
-      return f'GMT{sign}{hours:0>2}{minutes:0>2}'
+      return 'GMT%s' % ''.join(self._value.strftime('%:z').split(':')[:2])
 
    def _time(self, HH, MM, SS):
       return f'{int(HH):0>2}:{int(MM):0>2}:{int(SS):0>2}'
