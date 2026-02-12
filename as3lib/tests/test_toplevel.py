@@ -42,7 +42,6 @@ class ArrayTests(as3libTestCase):
       self.assertEqual(arr[index], 0)
 
    def test_access(self):
-      # TODO: Add more of this test
       a = Array('a', 'b', 'c')
       self.assertEqual(a[0], 'a')
       self.assertEqual(a[1], 'b')
@@ -54,7 +53,19 @@ class ArrayTests(as3libTestCase):
       a[2] = 'Second'
       a[3] = 'Third'
       self.assertEqual(a.removeAt(1), undefined)
-      self.assertEqual(a.length, 4)
+      self.assertArray(a, ['First', 'Second', 'Third', undefined], 4)
+
+      self.assertEqual(a.removeAt(20), undefined)
+      self.assertArray(a, ['First', 'Second', 'Third', undefined], 4)
+
+      self.assertEqual(a.removeAt(-2), 'Third')
+      self.assertArray(a, ['First', 'Second', undefined], 3)
+
+      self.assertEqual(a.removeAt(-30), 'First')
+      self.assertArray(a, ['Second', undefined], 2)
+
+      self.assertEqual(a.removeAt(0), 'Second')
+      self.assertArray(a, [undefined], 1)
 
    def test_concat(self):
       a = Array('a', 'b', 'c')
@@ -792,8 +803,6 @@ class ArrayTests(as3libTestCase):
       def func():
          print('called')
       self.assertEqual(a.sortOn(func).length, 5)
-
-      delete(Array.prototype[3])
 
    def test_sparse_ops(self):
       arr = Array(1, 2)
@@ -3583,7 +3592,7 @@ class ObjectTests(as3libTestCase):
       self.assertEnumerate(x, 'key = value,key2 = value2')
 
       # delete key2
-      delete(x['key2'])
+      del x['key2']  # delete
       self.assertEnumerate(x, 'key = value')
 
       # other objects
@@ -3932,27 +3941,42 @@ class OperationTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_ifstricteq(self):
-      # NOTE: These probably won't work
-      self.assertIsNot(as3lib.Int(2), String('2'))
-      self.assertIs(as3lib.Int(2), as3lib.Int(2))
-      self.assertIsNot(as3lib.Int(2), as3lib.Int(5))
-      self.assertIs(true, true)
-      self.assertIs(false, false)
-      self.assertIs(true, false)
-      self.assertIsNot(as3lib.Int(1), true)
-      self.assertIsNot(as3lib.Int(0), false)
-      self.assertIs(String('abc'), String('abc'))
-      self.assertIsNot(as3lib.Int(0), undefined)
-      self.assertIs(undefined, undefined)
-      self.assertIs(NaN, NaN)
-      self.assertIsNot(undefined, NaN)
-      self.assertIsNot(as3lib.Int(0), null)
-      self.assertIs(null, null)
-      self.assertIsNot(undefined, null)
-      self.assertIsNot(NaN, null)
+      self.assertNotStrictEQ(as3lib.Number(2), String('2'))
+      self.assertStrictEQ(as3lib.Number(2), as3lib.Number(2))
+      self.assertNotStrictEQ(as3lib.Number(2), as3lib.Number(5))
+      self.assertStrictEQ(true, true)
+      self.assertStrictEQ(false, false)
+      self.assertNotStrictEQ(true, false)
+      self.assertNotStrictEQ(as3lib.Number(1), true)
+      self.assertNotStrictEQ(as3lib.Number(0), false)
+      self.assertStrictEQ(String('abc'), String('abc'))
+      self.assertNotStrictEQ(as3lib.Number(0), undefined)
+      self.assertStrictEQ(undefined, undefined)
+      self.assertStrictEQ(NaN, NaN)
+      self.assertNotStrictEQ(undefined, NaN)
+      self.assertNotStrictEQ(as3lib.Number(0), null)
+      self.assertStrictEQ(null, null)
+      self.assertNotStrictEQ(undefined, null)
+      self.assertNotStrictEQ(NaN, null)
 
    def test_ifstrictne(self):
-      raise TestNotImplemented
+      self.assertStrictNE(as3lib.Number(2), String('2'))
+      self.assertNotStrictNE(as3lib.Number(2), as3lib.Number(2))
+      self.assertStrictNE(as3lib.Number(2), as3lib.Number(5))
+      self.assertNotStrictNE(true, true)
+      self.assertNotStrictNE(false, false)
+      self.assertStrictNE(true, false)
+      self.assertStrictNE(as3lib.Number(1), true)
+      self.assertStrictNE(as3lib.Number(0), false)
+      self.assertNotStrictNE(String('abc'), String('abc'))
+      self.assertStrictNE(as3lib.Number(0), undefined)
+      self.assertNotStrictNE(undefined, undefined)
+      self.assertStrictNE(NaN, NaN)
+      self.assertStrictNE(undefined, NaN)
+      self.assertStrictNE(as3lib.Number(0), null)
+      self.assertNotStrictNE(null, null)
+      self.assertStrictNE(undefined, null)
+      self.assertStrictNE(NaN, null)
 
    def test_in(self):
       raise TestNotImplemented
@@ -5739,157 +5763,53 @@ class VectorTests(as3libTestCase):
 
       class Interface:
          ...
-      raise TestNotImplemented
+      raise MethodNotImplemented('implements')
+
+      @implements(Interface)
+      class Implementer:
+         ...
+
+      a_iface = Vector([], type=Interface)
+      a_iface.length = 1
+      a_iface[0] = Implementer()
+
+      b_iface = Vector([], type=Implementer)
+      b_iface.length = 1
+      b_iface[0] = Implementer()
+
+      c_iface = a_iface.concat(b_iface)
+      self.assertEqual(c_iface.length, 2)
+      self.assertEqual(type(c_iface[0]), Implementer)
+      self.assertEqual(type(c_iface[1]), Implementer)
+
+      a_int = Vector.int([1,2])
+      b_int = Vector.int([5,16])
+      c_int = a_int.concat(b_int)
+      self.assertArray(c_int, [1, 2, 5, 16], 4)
+
+      a_number = Vector.Number([1,2,3,4])
+      b_number = Vector.Number([5, NaN, -5, 0])
+      c_number = a_number.concat(b_number)
+      self.assertArray(c_number, [1, 2, 3, 4, 5, NaN, -5, 0], 8)
+
+      a_string = Vector.String(["a", "c", "d", "f"])
+      b_string = Vector.String(["986", "B4", "Q", "rrr"])
+      c_string = a_string.concat(b_string)
+      self.assertArray(c_string, ['a', 'c', 'd', 'f', '986', 'B4', 'Q', 'rrr'], 8)
+
+      a_uint = Vector.uint([1,2])
+      b_uint = Vector.uint([5,16])
+      c_uint = a_uint.concat(b_uint)
+      self.assertArray(c_uint, [1, 2, 5, 16], 4)
+
+      raise MethodNotImplemented('Vector.<Vector>')
       '''
-      class Implementer implements Interface {
-
-      }
-
-      trace("/// var a_iface: Vector.<Interface> = new <Interface>[];");
-      var a_iface:Vector.<Interface> = new <Interface>[];
-
-      trace("/// a_iface.length = 1;");
-      a_iface.length = 1;
-
-      trace("/// a_iface[0] = new Implementer();");
-      a_iface[0] = new Implementer();
-
-      trace("/// var b_iface: Vector.<Implementer> = new <Implementer>[];");
-      var b_iface:Vector.<Implementer> = new <Implementer>[];
-
-      trace("/// b_iface.length = 1;");
-      b_iface.length = 1;
-
-      trace("/// b_iface[0] = new Implementer();");
-      b_iface[0] = new Implementer();
-
-      trace("/// var c_iface = a_iface.concat(b_iface);");
-      var c_iface = a_iface.concat(b_iface);
-
-      trace("/// (contents of c_iface...)");
-      trace_vector(c_iface);
-
-      trace("/// var a_int: Vector.<int> = new <int>[1,2];");
-      var a_int:Vector.<int> = new <int>[1,2];
-
-      trace("/// var b_int: Vector.<int> = new <int>[5,16];");
-      var b_int:Vector.<int> = new <int>[5,16];
-
-      trace("/// var c_int = a_int.concat(b_int);");
-      var c_int = a_int.concat(b_int);
-
-      trace("/// (contents of c_int...)");
-      trace_vector(c_int);
-
-      trace("/// var a_number: Vector.<Number> = new <Number>[1,2,3,4];");
-      var a_number:Vector.<Number> = new <Number>[1,2,3,4];
-
-      trace("/// var b_number: Vector.<Number> = new <Number>[5, NaN, -5, 0];");
-      var b_number:Vector.<Number> = new <Number>[5, NaN, -5, 0];
-
-      trace("/// var c_number = a_number.concat(b_number);");
-      var c_number = a_number.concat(b_number);
-
-      trace("/// (contents of c_number...)");
-      trace_vector(c_number);
-
-      trace("/// var a_string: Vector.<String> = new <String>[\"a\",\"c\",\"d\",\"f\"];");
-      var a_string:Vector.<String> = new <String>["a", "c", "d", "f"];
-
-      trace("/// var b_string: Vector.<String> = new <String>[\"986\",\"B4\",\"Q\",\"rrr\"];");
-      var b_string:Vector.<String> = new <String>["986", "B4", "Q", "rrr"];
-
-      trace("/// var c_string = a_string.concat(b_string);");
-      var c_string = a_string.concat(b_string);
-
-      trace("/// (contents of c_string...)");
-      trace_vector(c_string);
-
-      trace("/// var a_uint: Vector.<uint> = new <uint>[1,2];");
-      var a_uint:Vector.<uint> = new <uint>[1,2];
-
-      trace("/// var b_uint: Vector.<uint> = new <uint>[5,16];");
-      var b_uint:Vector.<uint> = new <uint>[5,16];
-
-      trace("/// var c_uint = a_uint.concat(b_uint);");
-      var c_uint = a_uint.concat(b_uint);
-
-      trace("/// (contents of c_uint...)");
-      trace_vector(c_uint);
-
-      trace("/// var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];");
-      var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];
-
-      trace("/// var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];");
-      var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];
-
-      trace("/// var c_vector = a_vector.concat(b_vector)");
-      var c_vector = a_vector.concat(b_vector);
-
-      trace("/// (contents of c_vector...)");
-      trace_vector(c_vector);
-      2026-01-04T02:34:08.279886Z  INFO avm_trace: /// var a_iface: Vector.<Interface> = new <Interface>[];
-      2026-01-04T02:34:08.279901Z  INFO avm_trace: /// a_iface.length = 1;
-      2026-01-04T02:34:08.279913Z  INFO avm_trace: /// a_iface[0] = new Implementer();
-      2026-01-04T02:34:08.279926Z  INFO avm_trace: /// var b_iface: Vector.<Implementer> = new <Implementer>[];
-      2026-01-04T02:34:08.279942Z  INFO avm_trace: /// b_iface.length = 1;
-      2026-01-04T02:34:08.279949Z  INFO avm_trace: /// b_iface[0] = new Implementer();
-      2026-01-04T02:34:08.279956Z  INFO avm_trace: /// var c_iface = a_iface.concat(b_iface);
-      2026-01-04T02:34:08.279966Z  INFO avm_trace: /// (contents of c_iface...)
-      2026-01-04T02:34:08.279974Z  INFO avm_trace: ///length:  2
-      2026-01-04T02:34:08.279984Z  INFO avm_trace: [object Implementer]
-      2026-01-04T02:34:08.279995Z  INFO avm_trace: [object Implementer]
-      2026-01-04T02:34:08.280006Z  INFO avm_trace: /// var a_int: Vector.<int> = new <int>[1,2];
-      2026-01-04T02:34:08.280019Z  INFO avm_trace: /// var b_int: Vector.<int> = new <int>[5,16];
-      2026-01-04T02:34:08.280031Z  INFO avm_trace: /// var c_int = a_int.concat(b_int);
-      2026-01-04T02:34:08.280042Z  INFO avm_trace: /// (contents of c_int...)
-      2026-01-04T02:34:08.280056Z  INFO avm_trace: ///length:  4
-      2026-01-04T02:34:08.280065Z  INFO avm_trace: 1
-      2026-01-04T02:34:08.280072Z  INFO avm_trace: 2
-      2026-01-04T02:34:08.280078Z  INFO avm_trace: 5
-      2026-01-04T02:34:08.280085Z  INFO avm_trace: 16
-      2026-01-04T02:34:08.280091Z  INFO avm_trace: /// var a_number: Vector.<Number> = new <Number>[1,2,3,4];
-      2026-01-04T02:34:08.280104Z  INFO avm_trace: /// var b_number: Vector.<Number> = new <Number>[5, NaN, -5, 0];
-      2026-01-04T02:34:08.280118Z  INFO avm_trace: /// var c_number = a_number.concat(b_number);
-      2026-01-04T02:34:08.280129Z  INFO avm_trace: /// (contents of c_number...)
-      2026-01-04T02:34:08.280142Z  INFO avm_trace: ///length:  8
-      2026-01-04T02:34:08.280149Z  INFO avm_trace: 1
-      2026-01-04T02:34:08.280156Z  INFO avm_trace: 2
-      2026-01-04T02:34:08.280162Z  INFO avm_trace: 3
-      2026-01-04T02:34:08.280169Z  INFO avm_trace: 4
-      2026-01-04T02:34:08.280176Z  INFO avm_trace: 5
-      2026-01-04T02:34:08.280183Z  INFO avm_trace: NaN
-      2026-01-04T02:34:08.280428Z  INFO avm_trace: -5
-      2026-01-04T02:34:08.280453Z  INFO avm_trace: 0
-      2026-01-04T02:34:08.280460Z  INFO avm_trace: /// var a_string: Vector.<String> = new <String>["a","c","d","f"];
-      2026-01-04T02:34:08.280483Z  INFO avm_trace: /// var b_string: Vector.<String> = new <String>["986","B4","Q","rrr"];
-      2026-01-04T02:34:08.280490Z  INFO avm_trace: /// var c_string = a_string.concat(b_string);
-      2026-01-04T02:34:08.280496Z  INFO avm_trace: /// (contents of c_string...)
-      2026-01-04T02:34:08.280502Z  INFO avm_trace: ///length:  8
-      2026-01-04T02:34:08.280506Z  INFO avm_trace: a
-      2026-01-04T02:34:08.280510Z  INFO avm_trace: c
-      2026-01-04T02:34:08.280514Z  INFO avm_trace: d
-      2026-01-04T02:34:08.280518Z  INFO avm_trace: f
-      2026-01-04T02:34:08.280521Z  INFO avm_trace: 986
-      2026-01-04T02:34:08.280525Z  INFO avm_trace: B4
-      2026-01-04T02:34:08.280529Z  INFO avm_trace: Q
-      2026-01-04T02:34:08.280533Z  INFO avm_trace: rrr
-      2026-01-04T02:34:08.280537Z  INFO avm_trace: /// var a_uint: Vector.<uint> = new <uint>[1,2];
-      2026-01-04T02:34:08.280545Z  INFO avm_trace: /// var b_uint: Vector.<uint> = new <uint>[5,16];
-      2026-01-04T02:34:08.280550Z  INFO avm_trace: /// var c_uint = a_uint.concat(b_uint);
-      2026-01-04T02:34:08.280556Z  INFO avm_trace: /// (contents of c_uint...)
-      2026-01-04T02:34:08.280562Z  INFO avm_trace: ///length:  4
-      2026-01-04T02:34:08.280566Z  INFO avm_trace: 1
-      2026-01-04T02:34:08.280580Z  INFO avm_trace: 2
-      2026-01-04T02:34:08.280583Z  INFO avm_trace: 5
-      2026-01-04T02:34:08.280587Z  INFO avm_trace: 16
-      2026-01-04T02:34:08.280591Z  INFO avm_trace: /// var a_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[1,2]];
-      2026-01-04T02:34:08.280601Z  INFO avm_trace: /// var b_vector:Vector.<Vector.<int>> = new <Vector.<int>>[new <int>[5,16]];
-      2026-01-04T02:34:08.280609Z  INFO avm_trace: /// var c_vector = a_vector.concat(b_vector)
-      2026-01-04T02:34:08.280614Z  INFO avm_trace: /// (contents of c_vector...)
-      2026-01-04T02:34:08.280619Z  INFO avm_trace: ///length:  2
-      2026-01-04T02:34:08.280640Z  INFO avm_trace: 1,2
-      2026-01-04T02:34:08.280647Z  INFO avm_trace: 5,16
+      a_vector = Vector.<Vector.<int>>[new <int>[1,2]]
+      b_vector = Vector.<Vector.<int>>[new <int>[5,16]]
+      c_vector = a_vector.concat(b_vector)
+      self.assertEqual(c_vector.length, 2)
+      self.assertArray(c_vector[0], [1, 2], 2)
+      self.assertArray(c_vector[1], [5, 16], 2)
       '''
 
    def test_constructor(self):

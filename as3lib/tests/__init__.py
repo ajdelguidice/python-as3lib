@@ -1,4 +1,5 @@
-from as3lib import each, isNaN, NaN, Number
+from as3lib import each, NaN, Number
+from as3lib._toplevel.Keywords import stricteq, strictne
 import unittest
 
 
@@ -77,6 +78,18 @@ class as3libTestCase(unittest.TestCase):
             self.assertEqual(e.message, message)
       else:
          self.fail('Function didn\'t raise an error.')
+
+   def assertStrictEQ(self, obj1, obj2):
+      self.assertTrue(stricteq(obj1, obj2))
+
+   def assertNotStrictEQ(self, obj1, obj2):
+      self.assertFalse(stricteq(obj1, obj2))
+
+   def assertStrictNE(self, obj1, obj2):
+      self.assertTrue(strictne(obj1, obj2))
+
+   def assertNotStrictNE(self, obj1, obj2):
+      self.assertFalse(strictne(obj1, obj2))
 
 
 class TestNotImplemented(NotImplementedError):
