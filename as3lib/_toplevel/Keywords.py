@@ -1,5 +1,6 @@
 # This file defines the actionscript keywords as python decorators/functions
-from as3lib._toplevel.Boolean import true
+from as3lib._toplevel.Boolean import Boolean, true
+from as3lib._toplevel.Number import Number
 from dataclasses import dataclass
 from miniamf import register_package
 
@@ -56,11 +57,13 @@ class namespace:
 
 # Operations
 def stricteq(obj1, obj2):
-   return type(obj1) == type(obj2) and obj1 == obj2
+   if isinstance(obj1, Number) and obj1._is_nan() and isinstance(obj2, Number) and obj2._is_nan():
+      return true
+   return Boolean(type(obj1) == type(obj2) and obj1 == obj2)
 
 
 def strictne(obj1, obj2):
-   return type(obj1) != type(obj2) or obj1 != obj2
+   return Boolean(type(obj1) != type(obj2) or obj1 != obj2)
 
 
 # Other keywords
