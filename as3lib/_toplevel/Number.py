@@ -190,9 +190,9 @@ class Number(Object):
       # TODO: Radix
       if self._is_nan():
          return 'NaN'
-      if self._value == _NegInf_value:
+      if self._value == Number.NEGATIVE_INFINITY:
          return "-Infinity"
-      if self._value == _PosInf_value:
+      if self._value == Number.POSITIVE_INFINITY:
          return "Infinity"
       if radix != 10:
          return str(math.floor(self._value))
@@ -203,6 +203,6 @@ class Number(Object):
    def valueOf(self):
       return self._value
 
-Number.NaN = Number(_NaN_value)
+Infinity = Number.POSITIVE_INFINITY = Number(_PosInf_value)
+NaN = Number.NaN = Number(_NaN_value)
 Number.NEGATIVE_INFINITY = Number(_NegInf_value)
-Number.POSITIVE_INFINITY = Number(_PosInf_value)

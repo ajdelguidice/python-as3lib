@@ -164,7 +164,7 @@ from ._toplevel.int import uint
 from ._toplevel.JSON import JSON
 from ._toplevel.Keywords import delete, each
 from ._toplevel.Math import Math
-from ._toplevel.Number import Number
+from ._toplevel.Number import Infinity, NaN, Number
 from ._toplevel.Object import Object
 from ._toplevel.RegExp import RegExp
 from ._toplevel.String import String
@@ -172,9 +172,7 @@ from ._toplevel.trace import trace
 from ._toplevel.XML import Namespace, QName, XML, XMLList
 from ._toplevel.Vector import Vector
 
-NaN = Number.NaN
-Infinity = Number.POSITIVE_INFINITY
-NInfinity = Number.NEGATIVE_INFINITY
+NInfinity = Number.NEGATIVE_INFINITY  # TODO: Remove this
 
 try:
    from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
