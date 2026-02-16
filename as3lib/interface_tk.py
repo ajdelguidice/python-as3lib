@@ -950,17 +950,11 @@ class itkWorkaroundWindow(tkinter.Tk):
    _intName = 'itkWorkaroundWindow'
 
    def __init__(self):
-      self._destroyed = False
       super().__init__()
       self.withdraw()
 
    wm_deiconify = _nullFunc
    deiconify = _nullFunc
-
-   def destroy(self, *e):
-      if not self._destroyed:
-         self._destroyed = True
-         super().destroy()
 
 
 class itkRoot(tkinter.Toplevel):
@@ -974,8 +968,9 @@ class itkRoot(tkinter.Toplevel):
       Tkinter requires one window, and only one window, to be of class
       tkinter.Tk. This window is automatically created when the first
       interface_tk window is created and destroyed when the last interface_tk
-      is destroyed. It lives at as3state.windows[0] and should not be used as a
-      window. It's only purpose is to be the required tkinter.Tk window.
+      is destroyed. It lives inside of flash.desktop.NativeApplication and
+      should not be used as a window. It's only purpose is to be the required
+      tkinter.Tk window.
    '''
    _intName = 'Window'
 
@@ -1024,7 +1019,7 @@ class itkRoot(tkinter.Toplevel):
             self.config(menu=self.menubar['root'])
       self._children['display'] = itkDisplay(self, itkWindow=self, background=self._color)
       self._children['display'].update()
-      as3state.windows[self._id] = self
+      as3state.nativeApplication.openedWindows[self._id] = self
       self._destroyed = False  # Variable to prevent destroy being called more than once
 
    def resetSize(self):
@@ -1253,8 +1248,8 @@ class itkRoot(tkinter.Toplevel):
       if not self._destroyed:
          self._destroyed = True
          super().destroy()
-         del as3state.windows[self._id]
-         if not len(as3state.windows):
+         del as3state.nativeApplication.openedWindows[self._id]
+         if not as3state.nativeApplication.openedWindows.length:
             as3state.nativeApplication._close()
 
 

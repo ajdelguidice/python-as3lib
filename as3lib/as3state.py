@@ -36,7 +36,6 @@ appdatadirectory = None  # The path to the application specific data directory (
 prototypes = {}  # Each class needs a global default instance of itself. Store it here
 
 # flash.display
-windows = {}  # Dictionary containing all non-flash windows. Will be removed once proper window support is added
 frameRate = 30
 
 # flash.filesystem
