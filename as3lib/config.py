@@ -1,7 +1,7 @@
 from as3lib import as3state
 from as3lib.as3state import __version__
 from io import StringIO
-from pathlib import Path
+from pathlib import Path, PurePath
 try:
    import tomllib
 except Exception:
@@ -16,6 +16,12 @@ class TOML:
    for this library. It is not guaranteed to work for your use case.
    '''
    def Value(value):
+      if isinstance(value, PurePath):
+         value = str(value)
+         if as3state.platform == 'Windows':
+            # workaround: tomli does not parse windows paths correctly.
+            # Must use / instead of \
+            value = value.replace('\\', '/')
       if isinstance(value, str):
          return f'"{value}"'
       if isinstance(value, bool):
@@ -161,15 +167,28 @@ def Load():
       }
       modified = True
    if cfg['migrateOldConfig']:
-      from configparser import ConfigParser, UNNAMED_SECTION
+      unnamedsectionworkaround = False
+      import configparser
+      try:
+         UNNAMED_SECTION = configparser.UNNAMED_SECTION
+      except:
+         # Workaround for python < 3.13
+         unnamedsectionworkaround = True
+         UNNAMED_SECTION = 'UNNAMED_SECTION'
+      ConfigParser = configparser.ConfigParser
       modified = True
       mmcfgpath = as3state.librarydirectory / 'mm.cfg'
       wlcfgpath = as3state.librarydirectory / 'wayland.cfg'
       oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
       if mmcfgpath.exists():
-         mmcfg = ConfigParser(allow_unnamed_section=True)
-         with open(mmcfgpath, 'r') as f:
-            mmcfg.read_file(f)
+         if unnamedsectionworkaround:
+            mmcfg = ConfigParser(allow_unnamed_section=True)
+            with open(mmcfgpath, 'r') as f:
+               mmcfg.read_string('[UNNAMED_SECTION]\n' + f.read())
+         else:
+            mmcfg = ConfigParser(allow_unnamed_section=True)
+            with open(mmcfgpath, 'r') as f:
+               mmcfg.read_file(f)
          cfg['mm.cfg'] = {
             'ErrorReportingEnable': mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1,
             'MaxWarnings': mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
@@ -258,7 +277,7 @@ def Save(saveAnyways: bool = False):
          'ErrorReportingEnable': as3state.ErrorReportingEnable,
          'MaxWarnings': as3state.MaxWarnings,
          'TraceOutputFileEnable': as3state.TraceOutputFileEnable,
-         'TraceOutputFileName': str(as3state.TraceOutputFileName),
+         'TraceOutputFileName': as3state.TraceOutputFileName,
          'ClearLogsOnStartup': as3state.ClearLogsOnStartup,
          'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
       },
