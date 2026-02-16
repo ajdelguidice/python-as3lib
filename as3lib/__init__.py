@@ -17,7 +17,7 @@ initerrors
 
 
 # Helper functions
-def defaultTraceFilePath_Flash(sysverOverride: tuple = None):
+def traceFilePath_Flash(sysverOverride: tuple = None):
    '''
    Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Arguements:
@@ -25,25 +25,24 @@ def defaultTraceFilePath_Flash(sysverOverride: tuple = None):
    '''
    if as3state.platform == 'Windows':
       username = os.getlogin()
-   elif as3state.platform in {'Linux', 'Darwin'}:
+   else:
       from pwd import getpwuid
       username = getpwuid(os.getuid())[0]
-   if sysverOverride is not None:
+   if sysverOverride:
       if sysverOverride[0] == 'Linux':
-         return fr'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
+         return f'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
       if sysverOverride[0] == 'Darwin':
-         return fr'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+         return f'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
       if sysverOverride[0] == 'Windows':
          if sysverOverride[1] in {'95', '98', 'ME', 'XP'}:
-            return fr'C:\Documents and Settings\{username}\Application Data\Macromedia\Flash Player\Logs\flashlog.txt'
-         if sysverOverride[1] in {'Vista', '7', '8', '8.1', '10', '11'}:
-            return fr'C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt'
+            return f'C:/Documents and Settings/{username}/Application Data/Macromedia/Flash Player/Logs/flashlog.txt'
+         return f'C:/Users/{username}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
    if as3state.platform == 'Linux':
-      return fr'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
+      return f'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
    if as3state.platform == 'Windows':
-      return fr'C:\Users\{username}\AppData\Roaming\Macromedia\Flash Player\Logs\flashlog.txt'
+      return f'C:/Users/{username}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
    if as3state.platform == 'Darwin':
-      return fr'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+      return f'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
 
 
 def sm_x11():
@@ -105,7 +104,7 @@ if not as3state.initdone:
    as3state.userdirectory = Path.home()
    as3state.desktopdirectory = Path(os.environ.get('XDG_DESKTOP_DIR', as3state.userdirectory / 'Desktop'))
    as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR', as3state.userdirectory / 'Documents'))
-   as3state.defaultTraceFilePath_Flash = defaultTraceFilePath_Flash()
+   as3state.defaultTraceFilePath_Flash = Path(traceFilePath_Flash())
 
    if as3state.platform == 'Linux':
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
@@ -118,9 +117,10 @@ if not as3state.initdone:
    elif as3state.platform == 'Windows':
       setScreenProperties(sm_windows)
    elif as3state.platform == 'Darwin':
+      as3state.initerror.append((4, 'Detected platform "Darwin" is untested and is missing a lot of features.'))
       setScreenProperties(sm_darwin)
    elif as3state.platform == '':
-      as3state.initerror.append((4, 'Detected platform is blank. Something is very wrong.'))
+      as3state.initerror.append((4, 'Current platform could not be determined.'))
    else:
       as3state.initerror.append((0, f'Current platform {as3state.platform} not supported.'))
 
