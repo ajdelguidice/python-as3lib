@@ -1,8 +1,11 @@
 from __future__ import annotations
 from as3lib._toplevel.Array import Array
+from as3lib._toplevel.Boolean import false, true
 from as3lib._toplevel.Constants import undefined, null
 from as3lib._toplevel.Errors import ArgumentError, TypeError
 from as3lib._toplevel.Functions import isXMLName
+from as3lib._toplevel.Keywords import each
+from as3lib._toplevel.int import int
 from as3lib._toplevel.Object import Object
 from as3lib._toplevel.String import String
 
@@ -25,6 +28,10 @@ class Namespace(Object):
       self._uri = value
 
    def __init__(self, *args):
+      # Fix enumeration order
+      self._uri = undefined
+      self._prefix = undefined
+
       if len(args) >= 2:
          val1 = args[0]
          val2 = args[1]
@@ -104,8 +111,7 @@ class QName(Object):
          return self.localName
       elif self.uri is null:
          return '*::%s' % self.localName
-      else:
-         return '%s::%s' % (self.uri, self.localName)
+      return '%s::%s' % (self.uri, self.localName)
 
    def valueOf(self):
       return self
@@ -119,20 +125,20 @@ class XMLList(Object):
 
    def attribute(self, attributeName):
       res = Array()
-      for i in self._value:
+      for i in each(self._value):
          j = i.attributes(attributeName)
          if j.length() > 0:
             res.append(j)
       return XMLList(res)
 
    def attributes(self):
-      return XMLList([i.attributes() for i in self._value])
+      return XMLList([i.attributes() for i in each(self._value)])
 
    def child(self, propertyName):
-      return XMLList([i.child(propertyName) for i in self._value])
+      return XMLList([i.child(propertyName) for i in each(self._value)])
 
    def children(self):
-      return XMLList([i.children() for i in self._value])
+      return XMLList([i.children() for i in each(self._value)])
 
    def comments(self):...
    def contains(self, value):...
@@ -190,14 +196,13 @@ class XML(Object):
 
    @staticmethod
    def defaultSettings():
-      # TODO: Make this return an Object once that is properly implemented
-      return {
-         'ignoreComments': True,
-         'ignoreProcessingInstructions': True,
-         'ignoreWhitespace': True,
-         'prettyIndent': 2,
-         'prettyPrinting': True
-      }
+      obj = Object()
+      obj.ignoreComments = true
+      obj.ignoreProcessingInstructions = true
+      obj.ignoreWhitespace = true
+      obj.prettyIndent = int(2)
+      obj.prettyPrinting = true
+      return obj
 
    def decendants(self, name):...
    def elements(self, name):...
@@ -241,17 +246,29 @@ class XML(Object):
       self._namespace = ns
 
    @staticmethod
-   def setSettings(*rest):...
+   def setSettings(rest = null):
+      if rest is null:
+         rest = XML.defaultSettings()
+      if 'ignoreComments' in rest:
+         XML.ignoreComments = rest.ignoreComments
+      if 'ignoreProcessingInstructions' in rest:
+         XML.ignoreProcessingInstructions = rest.ignoreProcessingInstructions
+      if 'ignoreWhitespace' in rest:
+         XML.ignoreWhitespace = rest.ignoreWhitespace
+      if 'prettyIndent' in rest:
+         XML.prettyIndent = rest.prettyIndent
+      if 'prettyPrinting' in rest:
+         XML.prettyPrinting = rest.prettyPrinting
 
-   def settings(self):
-      # TODO: Make this return an Object once that is properly implemented
-      return {
-         'ignoreComments': self.ignoreComments,
-         'ignoreProcessingInstructions': self.ignoreProcessingInstructions,
-         'ignoreWhitespace': self.ignoreWhitespace,
-         'prettyIndent': self.prettyIndent,
-         'prettyPrinting': self.prettyPrinting
-      }
+   @staticmethod
+   def settings():
+      obj = Object()
+      obj.ignoreComments = XML.ignoreComments
+      obj.ignoreProcessingInstructions = XML.ignoreProcessingInstructions
+      obj.ignoreWhitespace = XML.ignoreWhitespace
+      obj.prettyIndent = XML.prettyIndent
+      obj.prettyPrinting = XML.prettyPrinting
+      return obj
 
    def text(self):...
    def toString(self):...
