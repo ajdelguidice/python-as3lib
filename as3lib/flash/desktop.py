@@ -74,7 +74,7 @@ class NativeApplication(EventDispatcher):
       raise NotImplementedError
 
    @property
-   def nativeApplication(self):  # TODO: Make static
+   def nativeApplication(self=None):  # TODO: Make static
       return as3state.nativeApplication
 
    @property
@@ -151,6 +151,9 @@ class NativeApplication(EventDispatcher):
       self._openedWindows = Array()
       self._timeSinceUserInput = int(0)
 
+      # TODO: Store toolkit main object here. ex: tkinter.Tk or QApplication
+      self._toolkitApplication = None
+
    def activate(self, window=null):
       raise NotImplementedError
 
@@ -176,7 +179,8 @@ class NativeApplication(EventDispatcher):
       raise NotImplementedError
 
    def isSetAsDefaultApplication(self, extension):
-      raise NotImplementedError
+      # TODO: Stub
+      return false
 
    def paste(self):
       raise NotImplementedError
@@ -192,6 +196,10 @@ class NativeApplication(EventDispatcher):
 
    def setAsDefaultApplication(self, extension):
       raise NotImplementedError
+
+   def _close(self):
+      # INTERNAL: closes the toolkit main object
+      self._toolkitApplication.destroy()
 
 
 class NativeDragActions:...

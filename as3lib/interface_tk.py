@@ -961,7 +961,6 @@ class itkWorkaroundWindow(tkinter.Tk):
       if not self._destroyed:
          self._destroyed = True
          super().destroy()
-         del as3state.windows[0]
 
 
 class itkRoot(tkinter.Toplevel):
@@ -994,8 +993,8 @@ class itkRoot(tkinter.Toplevel):
       self.menubar = {}
       self.images = {'': itkBlankImage()}
       ico = kwargs.pop('icon', DefaultIcon)
-      if not as3state.windows:
-         as3state.windows[0] = itkWorkaroundWindow()
+      if not as3state.nativeApplication._toolkitApplication:
+         as3state.nativeApplication._toolkitApplication = itkWorkaroundWindow()
       tkinter.Toplevel.__init__(self, **kwargs)
       self._mult = 1
       self._fontmult = 100
@@ -1255,8 +1254,8 @@ class itkRoot(tkinter.Toplevel):
          self._destroyed = True
          super().destroy()
          del as3state.windows[self._id]
-         if len(as3state.windows) == 1:
-            as3state.windows[0].destroy()
+         if not len(as3state.windows):
+            as3state.nativeApplication._close()
 
 
 class itkRootMain(itkRoot):
@@ -1279,13 +1278,13 @@ class itkRootMain(itkRoot):
 
    def mainloop(self):
       self.mult = 1
-      as3state.windows[0].mainloop()
+      as3state.nativeApplication._toolkitApplication.mainloop()
 
    def destroy(self):
       if not self._destroyed:
          self._destroyed = True
          super().destroy()
-         as3state.windows[0].destroy()
+         as3state.nativeApplication._close()
 
 
 def window(**kwargs):
