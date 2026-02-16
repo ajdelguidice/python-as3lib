@@ -1236,13 +1236,13 @@ class NativeWindow(EventDispatcher):
          initOptions = NativeWindowInitOptions()
       if not isinstance(initOptions, NativeWindowInitOptions):
          raise IllegalOperationError()
-      if len(as3state.windows) == 0:
-         as3state.windows['TkWorkaroundWindow'] = tkinter.Tk()
-         as3state.windows['TkWorkaroundWindow'].iconify()
+      if not as3state.nativeApplication.openedWindows.length:
+         as3state.nativeApplication._toolkitApplication = tkinter.Tk()
+         as3state.nativeApplication._toolkitApplication.withdraw()
       self._windowObject = tkinter.Toplevel()
       self.minimize()
       self._winNum = next(_windowNameGenerator)
-      as3state.windows[self._winNum] = self
+      as3state.nativeApplication.openedWindows[self._winNum] = self
       self.title = 'Flash Player'
       if initOptions.owner is not None:
          self._owner = initOptions.owner
@@ -1255,6 +1255,8 @@ class NativeWindow(EventDispatcher):
 
    def close(self):
       self._windowObject.destroy()
+      if not as3state.nativeApplication.openedWindows.length:
+         as3state.nativeApplication._close()
       self._closed = True
 
    def globalToScreen(self, globalPoint: Point):
