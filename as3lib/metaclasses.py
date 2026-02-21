@@ -10,39 +10,38 @@ class _AS3_CONSTANTSOBJECT(type):
    '''
    def __new__(cls, name, bases, classdict):
       for b in bases:
-         if isinstance(b, _AS3_DEFINITIONSOBJECT):
-            raise TypeError('type "{0}" is not an acceptable base type'.format(b.__name__))
+         if isinstance(b, _AS3_CONSTANTSOBJECT):
+            raise TypeError(f'type "{b.__name__}" is not an acceptable base type')
       return type.__new__(cls, name, bases, dict(classdict))
 
    def __setattr__(cls, name, value):
-      print('Error: Can not modify objects inside of a _AS3_CONSTANTSOBJECT object')
+      raise Exception('Modifying enum values is not allowed.')
 
    def __delattr__(cls, name):
-      print('Error: Can not modify objects inside of a _AS3_CONSTANTSOBJECT object')
+      raise Exception('Modifying enum values is not allowed.')
 
    def __iter__(cls):
-      for attr in dir(cls):
-         if not attr.startswith('__'):
-            yield attr
+      for name, attr in cls.__dict__.items():
+         if not name.startswith('__') and not hasattr(attr, '__call__'):
+            yield name
 
    def hasOwnProperty(cls, name):
-      if not name.startswith('__') and name in cls.__dict__:
-         return True
-      return False
+      return not name.startswith('__') and name in cls.__dict__
 
-   def isPrototypeOf(cls, name):...
+   def isPrototypeOf(cls, name):
+      raise NotImplementedError
 
    def propertyIsEnumerable(cls, name):
       return cls.hasOwnProperty(name)
 
    def setPropertyIsEnumerable(cls, name):
-      print('Error: Can not set enumerability of objects inside of a _AS3_CONSTANTSOBJECT. They will always be enumerable.')
+      raise NotImplementedError
 
    def toLocaleString(cls):
       return cls.toString()
 
    def toString(cls):
-      return {i: cls.__dict__[i] for i in cls.__dict__ if not i.startswith('__')}
+      return f'{cls.__name__}({", ".join(f"{k}={v}" for k,v in cls.__dict__.items() if not k.startswith('__'))})'
 
    def valueOf(cls):
       return cls
