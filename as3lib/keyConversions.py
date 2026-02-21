@@ -5,25 +5,25 @@ class Linux:
    def mouseButtonNameToTkNumber(name: str):
       if name == 'Left':
          return 1
-      elif name == 'Middle':
+      if name == 'Middle':
          return 2
-      elif name == 'Right':
+      if name == 'Right':
          return 3
 
    def mouseButtonNameToTkname(name: str):
       if name == 'Left':
          return '<Button-1>'
-      elif name == 'Middle':
+      if name == 'Middle':
          return '<Button-2>'
-      elif name == 'Right':
+      if name == 'Right':
          return '<Button-3>'
 
    def tkeventToMouseButtonName(event):
       if event.num == 1:
          return 'Left'
-      elif event.num == 2:
+      if event.num == 2:
          return 'Middle'
-      elif event.num == 3:
+      if event.num == 3:
          return 'Right'
 
    def tkeventToJavascriptKeycode(event):
@@ -34,25 +34,25 @@ class Windows:
    def mouseButtonNameToTkNumber(name: str):
       if name == 'Left':
          return 1
-      elif name == 'Middle':
+      if name == 'Middle':
          return 2
-      elif name == 'Right':
+      if name == 'Right':
          return 3
 
    def mouseButtonNameToTkname(name: str):
       if name == 'Left':
          return '<Button-1>'
-      elif name == 'Middle':
+      if name == 'Middle':
          return '<Button-2>'
-      elif name == 'Right':
+      if name == 'Right':
          return '<Button-3>'
 
    def tkeventToMouseButtonName(event):
       if event.num == 1:
          return 'Left'
-      elif event.num == 2:
+      if event.num == 2:
          return 'Middle'
-      elif event.num == 3:
+      if event.num == 3:
          return 'Right'
 
    def tkeventToJavascriptKeycode(event):
@@ -64,25 +64,25 @@ class Darwin:
    def mouseButtonNameToTkNumber(name: str):
       if name == 'Left':
          return 1
-      elif name == 'Middle':
+      if name == 'Middle':
          return 3
-      elif name == 'Right':
+      if name == 'Right':
          return 2
 
    def mouseButtonNameToTkname(name: str):
       if name == 'Left':
          return '<Button-1>'
-      elif name == 'Middle':
+      if name == 'Middle':
          return '<Button-3>'
-      elif name == 'Right':
+      if name == 'Right':
          return '<Button-2>'
 
    def tkeventToMouseButtonName(event):
       if event.num == 1:
          return 'Left'
-      elif event.num == 2:
+      if event.num == 2:
          return 'Right'
-      elif event.num == 3:
+      if event.num == 3:
          return 'Middle'
 
    def tkeventToJavascriptKeycode(event):...
