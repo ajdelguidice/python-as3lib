@@ -92,7 +92,6 @@ def setScreenProperties(func):
 
 # Initialise as3lib
 if as3state.startTime is None:
-   from datetime import datetime
    from miniamf import util
    as3state.startTime = int(util.utcnow().timestamp() * 1000)
 if not as3state.initdone:
