@@ -1,6 +1,6 @@
 from __future__ import annotations
 import as3lib as as3
-from as3lib import Array, ArgumentError, as3state, metaclasses, Object
+from as3lib import Array, ArgumentError, as3state, false, metaclasses, Object, true
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
@@ -1107,7 +1107,7 @@ class NativeWindow(EventDispatcher):
 
    @property
    def closed(self):
-      return self._closed
+      return false if self._windowObject else true
 
    @property
    def displayState(self):
@@ -1229,16 +1229,13 @@ class NativeWindow(EventDispatcher):
       raise NotImplementedError
 
    def __init__(self, initOptions: NativeWindowInitOptions = None):
-      self._closed = False
       self._active = False
       self._alwaysInFront = False
       if initOptions is None:
          initOptions = NativeWindowInitOptions()
       if not isinstance(initOptions, NativeWindowInitOptions):
          raise IllegalOperationError()
-      if not as3state.nativeApplication.openedWindows.length:
-         as3state.nativeApplication._toolkitApplication = tkinter.Tk()
-         as3state.nativeApplication._toolkitApplication.withdraw()
+      as3state.nativeApplication._guiInit()
       self._windowObject = tkinter.Toplevel()
       self.minimize()
       self._winNum = next(_windowNameGenerator)
@@ -1255,9 +1252,12 @@ class NativeWindow(EventDispatcher):
 
    def close(self):
       self._windowObject.destroy()
+      self._windowObject = None
       if not as3state.nativeApplication.openedWindows.length:
          as3state.nativeApplication._close()
-      self._closed = True
+      e = Event('close')
+      e._target = self
+      self.dispatchEvent(e)
 
    def globalToScreen(self, globalPoint: Point):
       raise NotImplementedError
