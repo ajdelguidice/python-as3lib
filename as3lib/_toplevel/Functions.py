@@ -42,13 +42,13 @@ def isNaN(num):
    return Number(num)._is_nan()
 
 
-def isXMLName(str_: String):
+def isXMLName(str: String):
    # currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
-   str_ = String(str_)
+   str = String(str)
    whitelist = {'-', '_', '.'}
-   if not str_.length or not str_[0].isalpha() and str_[0] != '_' or str_.lower().startswith('xml') or ' ' in str_:
+   if not str.length or not str[0].isalpha() and str[0] != '_' or str.lower().startswith('xml') or ' ' in str:
       return False
-   for i in str_:
+   for i in str:
       if not i.isalnum() and i not in whitelist:
          return False
    return True
