@@ -15,7 +15,6 @@ import tkhtmlview
 Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
 Notes:
 - When setting commands, they must be accessible from the scope of where they are called
-- If using wayland, windows made using tkinter.Tk() will not group with windows made using tkinter.Toplevel(). This will hopefully be fixed if the ext-zones protocol is merged (tcl/tk would have to support it as well).
 '''
 
 as3state.interfaceType = 'Tkinter'
@@ -977,9 +976,7 @@ class itkRoot(tkinter.Toplevel):
       self.menubar = {}
       self.images = {'': itkBlankImage()}
       ico = kwargs.pop('icon', DefaultIcon)
-      if not as3state.nativeApplication._toolkitApplication:
-         as3state.nativeApplication._toolkitApplication = tkinter.Tk()
-         as3state.nativeApplication._toolkitApplication.withdraw()
+      as3state.nativeApplication._guiInit()
       tkinter.Toplevel.__init__(self, **kwargs)
       self._mult = 1
       self._fontmult = 100
@@ -1249,6 +1246,7 @@ class itkRootMain(itkRoot):
    capabilities:
       mainloop() can be called on this object.
       This object can have an about window attached to it
+      Closing this window closes all others
    '''
    _intName = 'WindowMain'
 
