@@ -1,11 +1,11 @@
 from __future__ import annotations
 from as3lib._toplevel.Constants import undefined, null
-from as3lib._toplevel.Errors import Error, RangeError, TypeError
-from as3lib._toplevel.Math import Math
+from as3lib._toplevel.Errors import RangeError, TypeError
 from as3lib._toplevel.Number import Number, _parseFloat
 from as3lib._toplevel.Object import Object
 import builtins
 from ctypes import c_uint32, c_int32
+import math
 
 
 _base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
@@ -59,11 +59,17 @@ class int(Object):
    def __int__(self):
       return self._value
 
+   def __index__(self):
+      return self._value
+
    def __bool__(self):
       return bool(self._value)
 
    def __repr__(self):
       return 'as3lib.int(%s)' % self._value
+
+   def __hash__(self):
+      return hash(self._value)
 
    def __add__(self, value):
       return int(self._value + self._int(value))
@@ -115,7 +121,7 @@ class int(Object):
       if isinstance(value, (builtins.int)):
          return value
       if isinstance(value, float):
-         return Math.floor(value)
+         return math.floor(value)
       if hasattr(value, '__int__'):
          return builtins.int(value)
       if isinstance(value, Object):
@@ -139,15 +145,10 @@ class int(Object):
       return ('{:.%sf}' % fractionDigits).format(self._value)
 
    def toPrecision(self, precision: uint):
+      precision = uint(precision)
       if precision < 1 or precision > 21:
          raise RangeError('precision is outside of acceptable range')
-      temp = str(self._value)
-      length = len(temp)
-      if precision < length:
-         return self.toExponential(precision-1)
-      if precision == length:
-         return temp
-      return '%s.%s' % (temp, '0' * (precision - length))
+      raise NotImplementedError
 
    def toString(self, radix: uint = 10):
       if radix <= 36 and radix >= 2:
