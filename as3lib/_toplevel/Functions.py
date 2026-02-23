@@ -1,8 +1,9 @@
 from as3lib import as3state
-from as3lib._toplevel.Constants import undefined
+from as3lib._toplevel.Constants import null, undefined
 from as3lib._toplevel.Errors import Error
 from as3lib._toplevel.int import int, uint
 from as3lib._toplevel.Number import _parseFloat, Number
+from as3lib._toplevel.String import String
 import builtins
 from pathlib import Path, PurePath
 
@@ -41,10 +42,11 @@ def isNaN(num):
    return Number(num)._is_nan()
 
 
-def isXMLName(str_: str):
+def isXMLName(str_: String):
    # currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
+   str_ = String(str_)
    whitelist = {'-', '_', '.'}
-   if not isinstance(str_, str) or not len(str_) or not str_[0].isalpha() and str_[0] != '_' or str_[:3].lower() == 'xml' or ' ' in str_:
+   if not str_.length or not str_[0].isalpha() and str_[0] != '_' or str_.lower().startswith('xml') or ' ' in str_:
       return False
    for i in str_:
       if not i.isalnum() and i not in whitelist:
@@ -52,43 +54,45 @@ def isXMLName(str_: str):
    return True
 
 
-def parseFloat(str_: str = None):
-   return _parseFloat(str_)
+def parseFloat(str: String = undefined):
+   return _parseFloat(undefined if str is undefined else String(str))
 
 
-def parseInt(str_: str = None, radix: int | uint = 0):
+def parseInt(str: String = undefined, radix: uint = 0):
    # TODO: Find a better way of doing the sign detection
-   if str_ is undefined:
-      if radix == 32:
-         return Number(785077)
+   radix = uint(radix)
+   if radix == 0:
+      radix = 10
+   if radix < 2 or radix > 36:
       return Number.NaN
-   if str_ is None:
+   if str is undefined:
+      if radix >= 32:
+         return Number(builtins.int('undefined', radix))
       return Number.NaN
-   str_ = str_.lstrip()
+   str = String(str)
+   str = str.lstrip()
    zero = False
    minus = 0
    j1 = 0
-   while j1 < len(str_) and str_[j1] in '-+':
-      if str_[j1] == '-':
+   while j1 < len(str) and str[j1] in '-+':
+      if str[j1] == '-':
          minus += 1
       j1 += 1
-   str_ = str_[j1:]
-   if len(str_) >= 2 and str_.startswith('0x'):
+   str = str[j1:]
+   if len(str) >= 2 and str.startswith('0x'):
       radix = 16
-      str_ = str_[2:]
-   elif radix < 2 or radix > 36:
-      raise Error(f'parseInt; radix {radix} is outside of the acceptable range')
-   if str_.startswith('0'):
+      str = str[2:]
+   if str.startswith('0'):
       zero = True
-      str_.lstrip("0")
+      str.lstrip("0")
    radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
-   str_ = str_.upper()
+   str = str.upper()
    j = 0
-   while j < len(str_) and str_[j] in radixchars:
+   while j < len(str) and str[j] in radixchars:
       j += 1
    if j == 0:
       return Number(0) if zero else Number.NaN
-   return Number(builtins.int(str_[:j], radix) * (-1 if minus % 2 else 1))
+   return Number(builtins.int(str[:j], radix) * (-1 if minus % 2 else 1))
 
 
 def unescape(str):
