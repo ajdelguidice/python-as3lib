@@ -45,14 +45,6 @@ def traceFilePath_Flash(sysverOverride: tuple = None):
       return f'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
 
 
-def EnableDebug():
-   as3state.as3DebugEnable = True
-
-
-def DisableDebug():
-   as3state.as3DebugEnable = False
-
-
 def sm_x11():
    '''
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
@@ -164,7 +156,7 @@ from ._toplevel.Class import Class
 from ._toplevel.Constants import undefined, null
 from ._toplevel.Date import Date
 from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
-from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, isValidDirectory, setDataDirectory
+from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, isValidDirectory
 from ._toplevel.int import int
 Int = int  # Backwards compatibility
 from ._toplevel.int import uint
@@ -230,6 +222,22 @@ allString = Union[str, String]
 allArray = Union[list, tuple, Array, Vector]
 allBoolean = Union[bool, Boolean]
 allNone = Union[undefined, null, NoneType]
+
+
+# Library state setting functions
+def EnableDebug():
+   as3state.as3DebugEnable = True
+
+
+def DisableDebug():
+   as3state.as3DebugEnable = False
+
+
+def setDataDirectory(dir_: str):
+   dir_ = Path(dir_)
+   if not isValidDirectory(dir_):
+      raise Error(f'setDataDirectory; Directory "{dir_}" not valid')
+   as3state.appdatadirectory = dir_
 
 
 __all__ = (

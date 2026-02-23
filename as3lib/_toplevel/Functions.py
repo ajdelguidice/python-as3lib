@@ -218,9 +218,3 @@ else:
                if j in BlacklistedChars:
                   return False
       return True
-
-
-def setDataDirectory(directory: str):
-   if not isValidDirectory(Path(directory)):
-      raise Error(f'setDataDirectory; Directory {directory} not valid')
-   as3state.appdatadirectory = Path(directory)
