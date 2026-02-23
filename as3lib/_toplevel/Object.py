@@ -18,8 +18,14 @@ class Object:
    def __setitem__(self, item, value):
       setattr(self, str(item), value)
 
+   def __delitem__(self, item):
+      super().__delattr__(str(item))
+
+   def __iter__(self):
+      return (i for i in self.__dict__.keys())
+
    def hasOwnProperty(self, name: str):
-      raise NotImplementedError
+      return str(name) in self.__dict__
 
    def isPrototypeOf(self, theClass):
       warn('isPrototypeOf will not work properly because the prototype property is not implemented.')
