@@ -99,20 +99,6 @@ def unescape(str):
    raise NotImplementedError
 
 
-def EnableDebug():
-   '''
-   Enables as3lib debug mode. This is a substitute for have an entire separate interpreter.
-   '''
-   as3state.as3DebugEnable = True
-
-
-def DisableDebug():
-   '''
-   Disables as3lib debug mode. This is a substitute for have an entire separate interpreter.
-   '''
-   as3state.as3DebugEnable = False
-
-
 def isEven(num: builtins.int | float | int | Number | uint):
    num = Number(num)
    if not isFinite(num):
