@@ -1,5 +1,4 @@
-from as3lib import each, NaN, Number
-from as3lib._toplevel.Keywords import stricteq, strictne
+from as3lib import each, NaN, Number, stricteq, strictne
 import unittest
 
 
