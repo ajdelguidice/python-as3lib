@@ -1,5 +1,6 @@
 from as3lib import as3state, ArgumentError, Array, false, int, null, true
 from as3lib.flash.events import EventDispatcher
+import tkinter
 
 
 # Interfaces
@@ -151,7 +152,6 @@ class NativeApplication(EventDispatcher):
       self._openedWindows = Array()
       self._timeSinceUserInput = int(0)
 
-      # TODO: Store toolkit main object here. ex: tkinter.Tk or QApplication
       self._toolkitApplication = None
 
    def activate(self, window=null):
@@ -196,6 +196,13 @@ class NativeApplication(EventDispatcher):
 
    def setAsDefaultApplication(self, extension):
       raise NotImplementedError
+
+   def _guiInit(self):
+      # INTERNAL: Creates the base gui object if it does not yet exist.
+      #           ex: tkinter.Tk, QApplication
+      if not self._toolkitApplication:
+         self._toolkitApplication = tkinter.Tk()
+         self._toolkitApplication.withdraw()
 
    def _close(self):
       # INTERNAL: closes the toolkit main object
