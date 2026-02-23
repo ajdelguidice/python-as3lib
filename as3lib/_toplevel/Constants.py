@@ -16,6 +16,16 @@ class undefined:
    def __bool__(self):
       return False
 
+   # TODO: Circular reference
+   #def __neg__(self):
+   #   return NaN
+
+   def __iter__(self):
+      return iter([])
+
+   def __each__(self):
+      return iter([])
+
    def toString(self):
       return 'undefined'
 
@@ -37,6 +47,15 @@ class null:
 
    def __bool__(self):
       return False
+
+   def __neg__(self):
+      return 0
+
+   def __iter__(self):
+      return iter([])
+
+   def __each__(self):
+      return iter([])
 
    def toString(self):
       return 'null'
