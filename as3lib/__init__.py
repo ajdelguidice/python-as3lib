@@ -19,30 +19,26 @@ initerrors
 # Helper functions
 def traceFilePath_Flash(sysverOverride: tuple = None):
    '''
-   Outputs the defualt file path for trace as defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
+   These paths are defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
    Arguements:
       sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
    '''
-   if as3state.platform == 'Windows':
-      username = os.getlogin()
-   else:
-      from pwd import getpwuid
-      username = getpwuid(os.getuid())[0]
+   user = as3state._user
    if sysverOverride:
       if sysverOverride[0] == 'Linux':
-         return f'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
+         return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
       if sysverOverride[0] == 'Darwin':
-         return f'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+         return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
       if sysverOverride[0] == 'Windows':
          if sysverOverride[1] in {'95', '98', 'ME', 'XP'}:
-            return f'C:/Documents and Settings/{username}/Application Data/Macromedia/Flash Player/Logs/flashlog.txt'
-         return f'C:/Users/{username}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
+            return f'C:/Documents and Settings/{user}/Application Data/Macromedia/Flash Player/Logs/flashlog.txt'
+         return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
    if as3state.platform == 'Linux':
-      return f'/home/{username}/.macromedia/Flash_Player/Logs/flashlog.txt'
+      return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
    if as3state.platform == 'Windows':
-      return f'C:/Users/{username}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
+      return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
    if as3state.platform == 'Darwin':
-      return f'/Users/{username}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+      return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
 
 
 def sm_x11():
@@ -95,6 +91,11 @@ if as3state.startTime is None:
    from miniamf import util
    as3state.startTime = int(util.utcnow().timestamp() * 1000)
 if not as3state.initdone:
+   if as3state.platform == 'Windows':
+      as3state._user = os.getlogin()
+   else:
+      from pwd import getpwuid
+      as3state._user = getpwuid(os.getuid())[0]
    import platform
    as3state.platform = platform.system()
    as3state.separator = '\\' if as3state.platform == 'Windows' else '/'

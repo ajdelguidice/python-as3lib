@@ -11,6 +11,7 @@ pythonversion = None  # version of python currently running
 interfaceType = None  # type of interface (Tkinter, or whatever else I decide to use)
 startTime = None  # logs start time for flash.utils.getTimer
 nativeApplication = None  # The native application instance for the running application
+_user = None  # Name of the currect user.
 
 # Global config
 _cfg = None  # DO NOT EDIT THIS. This is for determining if the config needs to be saved.
