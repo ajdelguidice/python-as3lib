@@ -17,8 +17,6 @@ Notes:
 - When setting commands, they must be accessible from the scope of where they are called
 '''
 
-as3state.interfaceType = 'Tkinter'
-
 
 def _idGen():
    i = 1
