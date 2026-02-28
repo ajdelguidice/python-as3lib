@@ -1,3 +1,4 @@
+# Temporary interface to help figure things out. A bit slow when too many things are defined.
 import as3lib as as3
 try:
    from as3lib import cmath
@@ -10,12 +11,6 @@ import tkinter
 from tkinter import filedialog
 from tkinter.ttk import Combobox, Notebook
 import tkhtmlview
-
-'''
-Temporary interface to get things working. A bit slow when too many things are defined. Even after this module is no longer needed, it will probably stay for compatibility purposes.
-Notes:
-- When setting commands, they must be accessible from the scope of where they are called
-'''
 
 
 def _idGen():
