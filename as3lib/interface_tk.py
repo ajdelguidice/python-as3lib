@@ -32,8 +32,6 @@ def _nullFunc(*args):
 
 
 class itkBaseWidget:
-   _intName = None
-
    def __init__(self, cls, master, **kwargs):
       self._x = kwargs.pop('x', None)
       self._y = kwargs.pop('y', None)
@@ -162,8 +160,6 @@ class itkBaseWidget:
 
 
 class itkFrame(itkBaseWidget, tkinter.Frame):
-   _intName = 'Frame'
-
    def __init__(self, master=None, **kwargs):
       super().__init__(tkinter.Frame, master, **kwargs)
 
@@ -177,8 +173,6 @@ class itkFrame(itkBaseWidget, tkinter.Frame):
 
 
 class itkLabel(itkBaseWidget, tkinter.Label):
-   _intName = 'Label'
-
    def __init__(self, master=None, **kwargs):
       super().__init__(tkinter.Label, master, **kwargs)
 
@@ -192,8 +186,6 @@ class itkLabel(itkBaseWidget, tkinter.Label):
 
 
 class itknwhLabel(itkLabel):
-   _intName = 'nwhLabel'
-
    def update(self):
       nm = self._window.mult
       self.place(x=self._x*nm, y=self._y*nm, anchor=self._anchor)
@@ -203,8 +195,6 @@ class itknwhLabel(itkLabel):
 
 
 class itkButton(itkBaseWidget, tkinter.Button):
-   _intName = 'Button'
-
    def __init__(self, master=None, **kwargs):
       super().__init__(tkinter.Button, master, **kwargs)
 
@@ -218,8 +208,6 @@ class itkButton(itkBaseWidget, tkinter.Button):
 
 
 class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
-   _intName = 'HTMLScrolledText'
-
    def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling', True)
       self._sbwidth = kwargs.pop('sbwidth', 12)
@@ -321,8 +309,6 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
 
 
 class itkEntry(itkBaseWidget, tkinter.Entry):
-   _intName = 'Entry'
-
    def __init__(self, master=None, **kwargs):
       self._text = kwargs.pop('textvariable', tkinter.StringVar())
       super().__init__(tkinter.Entry, master, textvariable=self._text, **kwargs)
@@ -341,8 +327,6 @@ class itkEntry(itkBaseWidget, tkinter.Entry):
 
 
 class itkNotebook(itkBaseWidget, Notebook):
-   _intName = 'Notebook'
-
    def __init__(self, master=None, **kwargs):
       super().__init__(Notebook, master, **kwargs)
 
@@ -359,8 +343,6 @@ class itkNotebook(itkBaseWidget, Notebook):
 
 
 class itkNBFrame(itkFrame):
-   _intName = 'NBFrame'
-
    def __init__(self, master, **kwargs):
       self._text = kwargs.pop('text', '')
       super().__init__(master, **kwargs)
@@ -381,8 +363,6 @@ class itkNBFrame(itkFrame):
 
 
 class itkImageLabel(itkLabel):
-   _intName = 'ImageLabel'
-
    def __init__(self, master, **kwargs):
       temp = kwargs.pop('image_name', '')
       self._imgname = ''
@@ -451,8 +431,6 @@ class HTMLText(itkHTMLScrolledText):
 
 
 class itkScrolledListBox(itkBaseWidget, ScrolledListbox):
-   _intName = 'ScrolledListBox'
-
    def __init__(self, master=None, **kwargs):
       self._sbscaling = kwargs.pop('sbscaling', True)
       self._sbwidth = kwargs.pop('sbwidth', 12)
@@ -503,8 +481,6 @@ class _ComboLabelWithRadioButtons(tkinter.Label):
 
 
 class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
-   _intName = 'ComboLabelWithRadioButtons'
-
    def __init__(self, master=None, **kwargs):
       # TODO: Add a Label widget for every radiobutton because radiobutton.foreground also changes the button colour
       super().__init__(_ComboLabelWithRadioButtons, master, **kwargs)
@@ -549,8 +525,6 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
 
 
 class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
-   _intName = 'CheckboxWithLabel'
-
    def __init__(self, master=None, **kwargs):
       self.frame = tkinter.Frame(master)
       self._cbvar = tkinter.BooleanVar()
@@ -589,8 +563,6 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
 
 
 class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
-   _intName = 'CheckboxWithEntry'
-
    def __init__(self, master=None, **kwargs):
       self._indent = kwargs.pop('indent', 0)
       self._cbvar = tkinter.BooleanVar()
@@ -666,8 +638,6 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
 
 
 class CheckboxWithCombobox(itkBaseWidget, Combobox):
-   _intName = 'CheckboxWithCombobox'
-
    def __init__(self, master=None, **kwargs):
       self._indent = kwargs.pop('indent', 0)
       self._cbvar = tkinter.BooleanVar()
@@ -742,8 +712,6 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
 
 
 class FileEntryBox(itkBaseWidget, tkinter.Entry):
-   _intName = 'FileEntryBox'
-
    def __init__(self, master=None, **kwargs):
       self.filetype = kwargs.pop('filetype', 'dir')
       self.fileaction = kwargs.pop('fileaction', 'open')
@@ -802,8 +770,6 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
 
 
 class ComboEntryBox(itkBaseWidget, tkinter.Button):
-   _intName = 'ComboEntryBox'
-
    def __init__(self, master=None, **kwargs):
       self._textwidth = kwargs.pop('textwidth')
       self._buttonwidth = kwargs.pop('buttonwidth')
@@ -859,16 +825,12 @@ class ComboEntryBox(itkBaseWidget, tkinter.Button):
 
 
 class itkDisplay(itkFrame):
-   _intName = 'display'
-
    def update(self):
       nm = self._window.mult
       self.place(x=self._window.width//2, y=self._window.height//2, width=self._window._startwidth*nm, height=self._window._startheight*nm, anchor='center')
 
 
 class itkImage:
-   _intName = 'Image'
-
    def __init__(self, window, data, size):
       self._window = window
       self._data = data
@@ -885,7 +847,6 @@ class itkImage:
 
 
 class itkBlankImage:
-   _intName = 'BlankImage'
    img = ''
    __init__ = _nullFunc
    resize = _nullFunc
@@ -953,8 +914,6 @@ class itkRoot(tkinter.Toplevel):
       should not be used as a window. It's only purpose is to be the required
       tkinter.Tk window.
    '''
-   _intName = 'Window'
-
    def __init__(self, **kwargs):
       self._id = next(_windowID)
       self._startwidth = kwargs.pop('defaultWidth', kwargs.pop('width'))
@@ -1241,8 +1200,6 @@ class itkRootMain(itkRoot):
       This object can have an about window attached to it
       Closing this window closes all others
    '''
-   _intName = 'WindowMain'
-
    def __init__(self, **kwargs):
       aw = kwargs.pop('aboutWindow', itkAboutWindow)
       super().__init__(**kwargs)
