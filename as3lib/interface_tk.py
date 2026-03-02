@@ -14,7 +14,7 @@ import tkhtmlview
 
 
 def _idGen():
-   i = 1
+   i = 0
    while True:
       yield i
       i += 1
