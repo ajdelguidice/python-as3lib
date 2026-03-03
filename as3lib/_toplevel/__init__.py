@@ -167,6 +167,9 @@ class Object:
    def __iter__(self):
       return (i for i in self.__dict__.keys())
 
+   def __neg__(self):
+      return NaN
+
    def hasOwnProperty(self, name: str):
       return str(name) in self.__dict__
 
