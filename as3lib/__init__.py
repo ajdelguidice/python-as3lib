@@ -1,4 +1,5 @@
 from . import as3state, config
+from ._toplevel.trace import trace
 from .helpers import isValidDirectory
 import builtins, os
 from functools import partial
@@ -137,7 +138,7 @@ if not as3state.initdone:
 
    # Display errors to user
    if as3state.initerror:
-      print(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n{"".join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}')
+      trace(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n{"".join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}')
 
    # Set the default appdatadirectory
    import __main__
@@ -162,7 +163,6 @@ from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
                         isXMLName, parseFloat, parseInt, unescape, delete,
                         each, stricteq, strictne)
 Int = int  # Backwards compatibility
-from ._toplevel.trace import trace
 
 
 try:
