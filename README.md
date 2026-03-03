@@ -37,11 +37,11 @@ This library also makes use of the following python builtin modules: tkinter, re
 
 <b>&lt;library-directory&gt;/as3lib.toml</b> - This library's config file. This includes mm.cfg and wayland.cfg that were included in previous versions. Old config files will only be migrated if this file does not exist or if "migrateOldConfig" is set to true.
 
+<b>&lt;library-directory&gt;/mm.cfg</b> - Migration path for adobe flash player <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a>. Only used on first run or if migrateOldConfig is true in as3lib.toml.
+
 <b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - The config file used by version 0.0.11.
 
 <b><u>DEPRECATED</u> &lt;library-directory&gt;/wayland.cfg</b> - Generated on versions before 0.0.11 to hold the values that can not be fetched automatically on wayland (linux). Now integrated into as3lib.toml.
-
-<b><u>DEPRECATED</u> &lt;library-directory&gt;/mm.cfg</b> - Place your <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a> file from adobe flash player here before first running this library if you want to automatically migrate it. Will not be deleted after migration.
 
 ## License
 
