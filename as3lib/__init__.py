@@ -1,10 +1,10 @@
 from . import as3state, config
-from pathlib import Path
-from subprocess import check_output
-import os
-import builtins
+from .helpers import isValidDirectory
+import builtins, os
 from functools import partial
 from miniamf import add_type
+from pathlib import Path
+from subprocess import check_output
 
 '''
 initerrors
@@ -161,7 +161,6 @@ from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
                         encodeURIComponent, escape, isFinite, isNaN,
                         isXMLName, parseFloat, parseInt, unescape, delete,
                         each, stricteq, strictne)
-from ._toplevel.Functions import isValidDirectory
 Int = int  # Backwards compatibility
 from ._toplevel.trace import trace
 
@@ -288,6 +287,7 @@ __all__ = (
    'XMLList',
    'Vector',
    'VerifyError',
+
    'EnableDebug',
    'DisableDebug',
    'isValidDirectory',
