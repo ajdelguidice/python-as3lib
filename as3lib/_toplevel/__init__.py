@@ -82,6 +82,10 @@ undefined = undefined()
 null = null()
 
 
+class Class:
+   ...
+
+
 class Object:
    # ActionScript3 Base object
    # TODO: Make item assignment work with non-string values.
@@ -144,8 +148,8 @@ def _genErrNum():
 _ErNo = _genErrNum()
 
 
-# !Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
 class Error(Exception, Object):
+   # TODO: Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
    @property
    def errorID(self):
       return self._id
@@ -199,6 +203,7 @@ class EvalError(Error):
    def __init__(self, message='', id=0):
       super().__init__(message, id)
       self.name = 'EvalError'
+
 
 class RangeError(Error):
    def __init__(self, message='', id=0):
@@ -1668,6 +1673,16 @@ class Date(Object):
 
    def valueOf(self):
       return self.time
+
+
+class JSON(Object):
+   @staticmethod
+   def parse(text, reviver=null):
+      raise NotImplementedError
+
+   @staticmethod
+   def stringify(value, replacer=null, space=null):
+      raise NotImplementedError
 
 
 # Functions
