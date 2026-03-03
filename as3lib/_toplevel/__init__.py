@@ -491,8 +491,6 @@ class Boolean(Object):
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
          return expression
-      if expression is null or expression is undefined or expression is None:
-         return False
       # NOTE: For some reason, python str does not have __bool__ but can be
       #       converted to one anyways
       if hasattr(expression, '__bool__') or isinstance(expression, str):
