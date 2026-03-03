@@ -3885,7 +3885,7 @@ class OperationTests(as3libTestCase):
       self.assertEqual(-Number(0.0), 0)
       self.assertNaN(-NaN)
       self.assertEqual(--Number(0.0), 0)
-      self.assertEqual(-Infinity, as3lib.NInfinity)
+      self.assertEqual(-Infinity, Number.NEGATIVE_INFINITY)
       self.assertEqual(-Number(1.0), as3lib.Int(-1))
       self.assertEqual(--Number(1.0), as3lib.Int(1))
       self.assertNaN(-Object())
