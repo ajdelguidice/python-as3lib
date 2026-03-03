@@ -18,10 +18,3 @@ def isOdd(num: builtins.int | float | int | Number | uint):
    if num.valueOf().is_integer():
       return num % 2 != 0
    ...
-
-
-def objIsChildClass(obj, cls):
-   '''
-   Checks both isinstance and issubclass for (obj,cls)
-   '''
-   return isinstance(obj, cls) or issubclass(obj, cls)
