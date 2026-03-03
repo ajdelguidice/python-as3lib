@@ -151,26 +151,19 @@ if not as3state.initdone:
 
 
 # Export toplevel and set up miniamf adapters
-from ._toplevel.Array import Array
-from ._toplevel.Boolean import Boolean, false, true
-from ._toplevel.Class import Class
-from ._toplevel.Constants import undefined, null
-from ._toplevel.Date import Date
-from ._toplevel.Errors import ArgumentError, DefinitionError, Error, EvalError, RangeError, ReferenceError, SecurityError, SyntaxError, TypeError, URIError, VerifyError
-from ._toplevel.Functions import decodeURI, decodeURIComponent, encodeURI, encodeURIComponent, escape, isFinite, isNaN, isXMLName, parseFloat, parseInt, unescape, isValidDirectory
-from ._toplevel.int import int
+from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
+                        DefinitionError, Error, EvalError, false, Infinity,
+                        int, JSON, Math, Namespace, NaN, null, Number, Object,
+                        QName, RangeError, ReferenceError, RegExp,
+                        SecurityError, String, SyntaxError, true, TypeError,
+                        uint, undefined, URIError, Vector, VerifyError, XML,
+                        XMLList, decodeURI, decodeURIComponent, encodeURI,
+                        encodeURIComponent, escape, isFinite, isNaN,
+                        isXMLName, parseFloat, parseInt, unescape, delete,
+                        each, stricteq, strictne)
+from ._toplevel.Functions import isValidDirectory
 Int = int  # Backwards compatibility
-from ._toplevel.int import uint
-from ._toplevel.JSON import JSON
-from ._toplevel.Keywords import delete, each, stricteq, strictne
-from ._toplevel.Math import Math
-from ._toplevel.Number import Infinity, NaN, Number
-from ._toplevel.Object import Object
-from ._toplevel.RegExp import RegExp
-from ._toplevel.String import String
 from ._toplevel.trace import trace
-from ._toplevel.XML import Namespace, QName, XML, XMLList
-from ._toplevel.Vector import Vector
 
 
 try:

@@ -6,7 +6,7 @@ try:
    import tomllib
 except Exception:
    import tomli as tomllib
-from as3lib._toplevel.Errors import Error
+from as3lib._toplevel import Error
 
 
 class TOML:
