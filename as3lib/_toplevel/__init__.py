@@ -10,7 +10,6 @@ import math
 import random
 import re as regex
 import traceback
-from types import NoneType
 from warnings import warn
 
 from as3lib._toplevel.trace import errorTrace, trace
