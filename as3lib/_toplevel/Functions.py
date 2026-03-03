@@ -1,6 +1,5 @@
 from as3lib import as3state
 from as3lib._toplevel.Constants import null, undefined
-from as3lib._toplevel.Errors import Error
 from as3lib._toplevel.int import int, uint
 from as3lib._toplevel.Number import _parseFloat, Number
 from as3lib._toplevel.String import String
