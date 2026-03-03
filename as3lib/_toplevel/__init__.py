@@ -1,11 +1,91 @@
 from __future__ import annotations
+from as3lib.helpers import recursionDepth
+import builtins
+from ctypes import c_double, c_uint32, c_int32
+import datetime, time
+from functools import cmp_to_key
+from inspect import isfunction
+from io import StringIO
+import math
+import random
+import re as regex
+import traceback
+from types import NoneType
 from warnings import warn
 
+from as3lib._toplevel.trace import errorTrace, trace
 
-# TODO: Make item assignment work with non-string values.
-# TODO: Prototypes
+
+class undefined:
+   __slots__ = ("value")
+
+   def __init__(self):
+      self.value = None
+
+   def __int__(self):
+      return 0
+
+   def __str__(self):
+      return self.toString()
+
+   def __repr__(self):
+      return self.toString()
+
+   def __bool__(self):
+      return False
+
+   def __neg__(self):
+      return NaN
+
+   def __iter__(self):
+      return iter([])
+
+   def __each__(self):
+      return iter([])
+
+   def toString(self):
+      return 'undefined'
+
+
+class null:
+   __slots__ = ("value")
+
+   def __init__(self):
+      self.value = None
+
+   def __int__(self):
+      return 0
+
+   def __str__(self):
+      return self.toString()
+
+   def __repr__(self):
+      return self.toString()
+
+   def __bool__(self):
+      return False
+
+   def __neg__(self):
+      return 0
+
+   def __iter__(self):
+      return iter([])
+
+   def __each__(self):
+      return iter([])
+
+   def toString(self):
+      return 'null'
+
+
+undefined = undefined()
+null = null()
+
+
 class Object:
    # ActionScript3 Base object
+   # TODO: Make item assignment work with non-string values.
+   # TODO: Prototypes
    prototype = None
 
    def __init__(self):...
@@ -52,3 +132,1669 @@ class Object:
 
    def valueOf(self):
       return self
+
+
+def _genErrNum():
+   i = 0
+   while True:
+      yield i
+      i += 1
+
+
+_ErNo = _genErrNum()
+
+
+# !Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
+class Error(Exception, Object):
+   @property
+   def errorID(self):
+      return self._id
+
+   @property
+   def message(self):
+      return self._message
+
+   @message.setter
+   def message(self, value):
+      self._message = value
+
+   @property
+   def name(self):
+      return self._name
+
+   @name.setter
+   def name(self, value):
+      self._name = value
+
+   def __init__(self, message='', id=0):
+      self._name = 'Error'
+      self._id = next(_ErNo) if id == 0 else id
+      self._message = message if message != '' else 'Error'
+      errorTrace(self.toString())
+
+   @staticmethod
+   def getErrorMessage(number):
+      raise NotImplementedError
+
+   def getStackTrace(self):
+      return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
+
+   def toString(self):
+      return f'{self.name}: {self.message}'
+
+
+class ArgumentError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'ArgumentError'
+
+
+class DefinitionError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'DefinitionError'
+
+
+class EvalError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'EvalError'
+
+class RangeError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'RangeError'
+
+
+class ReferenceError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'ReferenceError'
+
+
+class SecurityError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'SecurityError'
+
+
+class SyntaxError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'SyntaxError'
+
+
+class TypeError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'TypeError'
+
+
+class URIError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'URIError'
+
+
+class VerifyError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'VerifyError'
+
+
+class Boolean(Object):
+   __slots__ = ('_value')
+
+   def __init__(self, expression=False):
+      self._value = self._Boolean(expression)
+
+   def __repr__(self):
+      return f'as3lib.Boolean({self._value})'
+
+   def __getitem__(self):
+      return self._value
+
+   def __setitem__(self, value):
+      self._value = value
+
+   def __bool__(self):
+      return self._value
+
+   def __float__(self):
+      return float(self._value)
+
+   def __int__(self):
+      return builtins.int(self._value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __abs__(self):
+      return Number(self._value)
+
+   def __neg__(self):
+      return -Number(self)
+
+   def __pos__(self):
+      return Number(self)
+
+   def _Boolean(self, expression=None):
+      if isinstance(expression, bool):
+         return expression
+      if expression is null or expression is undefined or expression is None:
+         return False
+      # NOTE: For some reason, python str does not have __bool__ but can be
+      #       converted to one anyways
+      if hasattr(expression, '__bool__') or isinstance(expression, str):
+         return bool(expression)
+      return False
+
+   def toString(self):
+      return str(self._value).lower()
+
+   def valueOf(self):
+      return self._value
+
+
+false = Boolean(False)
+true = Boolean(True)
+
+
+_NaN_value = 1e300000 / -1e300000
+_NegInf_value = -1e300000
+_PosInf_value = 1e300000
+
+
+def _exponentFixNum(value):
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      return ('%se{:+d}' % a).format(builtins.int(b))
+   return value
+
+
+class Number(Object):
+   __slots__ = '_val'
+   MAX_VALUE = 1.79e308
+   MIN_VALUE = 5e-324
+
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
+   def _is_nan(self):
+      return self._value.hex() == 'nan'
+
+   def __init__(self, num=null):
+      self._val = c_double(self._Number(num))
+
+   def __str__(self):
+      return self.toString()
+
+   def __repr__(self):
+      return 'as3lib.Number(%s)' % self
+
+   def __hash__(self):
+      return hash(self._value)
+
+   def __add__(self, value):
+      return Number(self._value + self._Number(value))
+
+   def __sub__(self, value):
+      return Number(self._value - self._Number(value))
+
+   def __mul__(self, value):
+      return Number(self._value * self._Number(value))
+
+   def __truediv__(self, value):
+      value = self._Number(value)
+      if value == 0:
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         if self._value < 0:
+            return Number.NEGATIVE_INFINITY
+         return Number.NaN
+      return Number(self._value / value)
+
+   def __float__(self):
+      return self._value
+
+   def __int__(self):
+      return builtins.int(self._value)
+
+   def __index__(self):
+      return math.floor(self._value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
+   def __neg__(self):
+      return Number(-self._value)
+
+   def __bool__(self):
+      return self._value != 0 and not self._is_nan()
+
+   def __abs__(self):
+      return Number(abs(self._value))
+
+   def __pow__(self, value):
+      return self._value ** value
+
+   def __round__(self, places=null):
+      if places is null:
+         if self._value % 1 >= 0.5:
+            return Number(math.ceil(self._value))
+         return Number(math.floor(self._value))
+      return Number(round(self._value, places))
+
+   def _Number(self, expression):
+      if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
+         return _NaN_value
+      if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
+         expression = expression.valueOf()
+      if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
+         return expression
+      if expression is undefined or expression is None:
+         return Number.NaN
+      if expression is null:
+         return 0.0
+      if hasattr(expression, '__float__'):
+         return float(expression)
+      if isinstance(expression, str):
+         return parseFloat(expression)
+      if isinstance(expression, Object):
+         return Number.NaN
+
+   def toExponential(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      if self._value == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return ('{:.%if}e-16' % fractionDigits).format(0)
+      if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
+         return self.toString()
+      return _exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value))
+
+   def toFixed(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      return ('{:.%if}' % fractionDigits).format(self._value)
+
+   def toPrecision(self, precision):
+      # TODO: Cast precision to uint
+      raise NotImplementedError
+
+   def toLocaleString(self):
+      return self.toString()
+
+   def toString(self, radix=10):
+      # TODO: Radix
+      if self._is_nan():
+         return 'NaN'
+      if self._value == Number.NEGATIVE_INFINITY:
+         return "-Infinity"
+      if self._value == Number.POSITIVE_INFINITY:
+         return "Infinity"
+      if radix != 10:
+         return str(math.floor(self._value))
+      if self._value.is_integer():
+         return _exponentFixNum('%i' % self._value)
+      return _exponentFixNum('%s' % self._value)
+
+   def valueOf(self):
+      return self._value
+
+
+class Math(Object):
+   E = Number(2.718281828459045)
+   LN10 = Number(2.302585092994046)
+   LN2 = Number(0.6931471805599453)
+   LOG10E = Number(0.4342944819032518)
+   LOG2E = Number(1.442695040888963387)
+   PI = Number(3.141592653589793)
+   SQRT1_2 = Number(0.7071067811865476)
+   SQRT2 = Number(1.4142135623730951)
+
+   @staticmethod
+   def abs(val):
+      val = Number(val)
+      return abs(val)
+
+   @staticmethod
+   def acos(val):
+      return math.acos(val)
+
+   @staticmethod
+   def asin(val):
+      return math.asin(val)
+
+   @staticmethod
+   def atan(val):
+      val = Number(val)
+      return Number(math.atan(val))
+
+   @staticmethod
+   def atan2(y, x):
+      x, y = Number(x), Number(y)
+      return Number(math.atan2(y, x))
+
+   @staticmethod
+   def ceil(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return math.ceil(val)
+
+   @staticmethod
+   def cos(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.cos(a))
+
+   @staticmethod
+   def exp(val):
+      return math.exp(val)
+
+   @staticmethod
+   def floor(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return math.floor(val)
+
+   @staticmethod
+   def log(val):
+      return math.log(val)
+
+   @staticmethod
+   def max(*values):
+      v = [Number.NEGATIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return max(v)
+
+   @staticmethod
+   def min(*values):
+      v = [Number.POSITIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return min(v)
+
+   @staticmethod
+   def pow(base, power):
+      return math.pow(base, power)
+
+   @staticmethod
+   def random():
+      return Number(random.random())
+
+   @staticmethod
+   def round(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return round(val)
+
+   @staticmethod
+   def sin(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.sin(a))
+
+   @staticmethod
+   def sqrt(val):
+      val = Number(val)
+      if val < 0 or val._is_nan():
+         return Number.NaN
+      return math.sqrt(val)
+
+   @staticmethod
+   def tan(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return math.tan(a)
+
+
+Infinity = Number.POSITIVE_INFINITY = Number(_PosInf_value)
+NaN = Number.NaN = Number(_NaN_value)
+Number.NEGATIVE_INFINITY = Number(_NegInf_value)
+
+
+_base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+def _as_base(num, radix):
+   if num == 0:
+      return '0'
+   l = []
+   temp = abs(num)
+   while temp > 0:
+      l.append(_base_digits[temp % radix])
+      temp //= radix
+   if num < 0:
+      l.append('-')
+   l.reverse()
+   return ''.join(l)
+
+
+def _exponentFixInt(value):
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      bi = builtins.int(b)
+      if bi == 0:
+         return a
+      if b.startswith('+'):
+         return '%se+%i' % (a, bi)
+      return '%se%i' % (a, bi)
+   return value
+
+
+class int(Object):
+   # TODO: Make this return a Number if the result is a float
+   MAX_VALUE = 2147483647
+   MIN_VALUE = -2147483648
+
+   _buffertype = c_int32
+
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
+   def __init__(self, value=0):
+      self._val = self._buffertype(self._int(value))
+
+   def __float__(self):
+      return float(self._value)
+
+   def __int__(self):
+      return self._value
+
+   def __index__(self):
+      return self._value
+
+   def __bool__(self):
+      return bool(self._value)
+
+   def __repr__(self):
+      return 'as3lib.int(%s)' % self._value
+
+   def __hash__(self):
+      return hash(self._value)
+
+   def __add__(self, value):
+      return int(self._value + self._int(value))
+
+   def __sub__(self, value):
+      return int(self._value - self._int(value))
+
+   def __mul__(self, value):
+      return int(self._value * self._int(value))
+
+   def __truediv__(self, value):
+      value = self._int(value)
+      if value == 0:
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         if self._value < 0:
+            return Number.NEGATIVE_INFINITY
+         return Number.NaN
+      return int(self._value / value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
+   def __lshift__(self, value):
+      return int(self._value << self._int(value))
+
+   def __rshift__(self, value):
+      return int(self._value >> self._int(value))
+
+   def __xor__(self, value):
+      return int(self._value ^ self._int(value))
+
+   def __mod__(self, value):
+      return int(self._value % self._int(value))
+
+   def _int(self, value):
+      if isinstance(value, str):
+         value = parseFloat(value)
+      if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         return 0
+      if isinstance(value, (int, uint, Number)):
+         value = value._value
+      if isinstance(value, (builtins.int)):
+         return value
+      if isinstance(value, float):
+         return math.floor(value)
+      if hasattr(value, '__int__'):
+         return builtins.int(value)
+      if isinstance(value, Object):
+         return 0
+      raise TypeError(f'Can not convert type {type(value)} to integer')
+
+   def toExponential(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
+         raise RangeError('fractionDigits is outside of acceptable range')
+      if self == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16'
+      return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value))
+
+   def toFixed(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
+         raise RangeError('fractionDigits is outside of acceptable range')
+      return ('{:.%sf}' % fractionDigits).format(self._value)
+
+   def toPrecision(self, precision: uint):
+      precision = uint(precision)
+      if precision < 1 or precision > 21:
+         raise RangeError('precision is outside of acceptable range')
+      raise NotImplementedError
+
+   def toString(self, radix: uint = 10):
+      if radix <= 36 and radix >= 2:
+         return _as_base(self._value, radix)
+
+   def valueOf(self):
+      return self._value
+
+
+class uint(int):
+   # NOTE: The tests from ruffle show that uint doesn't really exist
+   MAX_VALUE = 4294967295
+   MIN_VALUE = 0
+
+   _buffertype = c_uint32
+
+
+class Array(list, Object):
+   # TODO: Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
+   # NOTE: Actionscript arrays seem to function like a python dictionary which can only uses ints as keys
+   CASEINSENSITIVE = 1
+   DESCENDING = 2
+   UNIQUESORT = 4
+   RETURNINDEXEDARRAY = 8
+   NUMERIC = 16
+
+   def __init__(self, *args):
+      if len(args) == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
+         super().__init__([undefined for i in range(args[0])])
+      else:
+         super().__init__(args)
+
+   def __getitem__(self, item):
+      if isinstance(item, slice):
+         return Array(*[self[i] for i in range(*item.indices(len(self)))])
+      else:
+         try:
+            value = super().__getitem__(item)
+            return value if value is not None else undefined
+         except Exception:
+            return undefined
+
+   def __setitem__(self, item, value):
+      if isinstance(item, (builtins.int, int, uint, Number)) and item+1 > self.length:
+         '''
+         When you assign a value to an array element (ex: my_array[index] = value), if index is a number, and index+1 is greater than the length property, the length property is updated to index+1.
+         '''
+         self.length = item+1
+      super().__setitem__(item, value)
+
+   @property
+   def length(self):
+      return len(self)
+
+   @length.setter
+   def length(self, value: uint):
+      if value < 0:
+         raise RangeError(f'Array.length can not be negative. got {value}')
+      elif value == 0:
+         self.clear()
+      elif len(self) > value:
+         while len(self) > value:
+            self.pop()
+      elif len(self) < value:
+         while len(self) < value:
+            self.append(undefined)
+
+   def __add__(self, item):
+      return self.toString() + str(item)
+
+   def __repr__(self):
+      return f'as3lib.Array({self.toString()})'
+
+   def __pos__(self):
+      return Number(0)
+
+   def __neg__(self):
+      return -Number(0)
+
+   def __each__(self):
+      return (self[i] for i in range(self.length))
+
+   def concat(self, *args):
+      newArr = Array(*self)
+      for i in args:
+         if isinstance(i, (list, tuple)):
+            newArr.extend(i)
+         else:
+            newArr.append(i)
+      return newArr
+
+   def every(self, callback: callable):
+      if callback is null:
+         return True
+      for i in range(len(self)):
+         if callback(self[i], i, self) is False:
+            return False
+      return True
+
+   def filter(self, callback: callable):
+      if callback is null:
+         return
+      tempArray = Array()
+      for i in range(len(self)):
+         if callback(self[i], i, self) is True:
+            tempArray.push(self[i])
+      return tempArray
+
+   def forEach(self, callback: callable):
+      if callback is null:
+         return undefined
+      for i in range(len(self)):
+         callback(self[i], i, self)
+
+   def indexOf(self, searchElement, fromIndex: builtins.int | int = 0):
+      if fromIndex < 0:
+         fromIndex = 0
+      for i in range(fromIndex, len(self)):
+         if self[i] == searchElement:
+            return i
+      return -1
+
+   def insertAt(self, index: builtins.int | int, element):
+      self.insert(index, element)
+
+   @staticmethod
+   def _join(o, sep=None):
+      if sep is None or sep is undefined:
+         s = ','
+      elif hasattr(sep, 'toString'):
+         s = sep.toString()
+      else:
+         s = str(sep)
+      with StringIO() as out:
+         n = o.length
+         for i in range(n):
+            x = o[i]
+            if x is not None and x is not undefined and x is not null:
+               out.write(str(x))
+            if i + 1 < n:
+               out.write(s)
+         return out.getvalue()
+
+   def join(self, sep: str = ','):
+      return Array._join(self, sep)
+
+   def lastIndexOf(self, searchElement, fromIndex: builtins.int | int = None):
+      if fromIndex is None:
+         fromIndex = len(self)
+      elif fromIndex < 0:
+         raise RangeError(f'Array.lastIndexOf; fromIndex can not negative. got {fromIndex}')
+      index = self[::-1].indexOf(searchElement, len(self)-1-fromIndex)
+      return index if index == -1 else len(self)-1-index
+
+   def map(self, callback: callable):
+      if callback is null:
+         return
+      return Array(*[callback(self[i], i, self) for i in range(len(self))])
+
+   def pop(self):
+      return super().pop(-1)
+
+   def push(self, *args):
+      self.extend(args)
+
+   def removeAt(self, index: builtins.int | int):
+      return super().pop(index)
+
+   def reverse(self):
+      super().reverse()
+      return self
+
+   def shift(self):
+      return super().pop(0)
+
+   def slice(self, startIndex: builtins.int | int = 0, endIndex: builtins.int | int = 99*10^99):
+      if startIndex < 0:
+         startIndex = len(self)+startIndex
+      if endIndex < 0:
+         endIndex = len(self)+endIndex
+      return self[startIndex: endIndex]
+
+   def some(self, callback: callable):
+      if callback is null:
+         return False
+      for i in range(len(self)):
+         if callback(self[i], i, self) is True:
+            return True
+      return False
+
+   def _flagSort(self, flags):
+      # NOTE: These are flags, not exclusive values
+      if flags & 4:  # UNIQUESORT
+         # NOTE: Only works for hashable types
+         s = set()
+         any(x in s or s.add(x) for x in self)
+         s = set()
+         duplicates = set(x for x in self if x in s or s.add(x))
+         if duplicates:
+            return Number(0)
+      if flags & 1:  # CASEINSENSITIVE
+         raise NotImplementedError
+      if flags & 2:  # DESCENDING
+         raise NotImplementedError
+      if flags & 8:  # RETURNINDEXEDARRAY
+         raise NotImplementedError
+      if flags & 16:  # NUMERIC
+         super().sort(key=Number)
+
+   def sort(self, *args):
+      # NOTE: Only returns when 4 or 8 is specified
+      if len(args) == 0:  # Default sorting
+         # TODO: Ensure that this is correct
+         super().sort(key=str)  # TODO: Should be String
+      elif len(args) == 1:  # Comparison function or flags
+         if callable(args[0]):
+            super().sort(key=cmp_to_key(args[0]))
+         else:
+            s = self._flagSort(args[0])
+            if args[0] & 4 or args[0] & 8:
+               return s
+      elif len(args) == 2:  # Comparison function and flags
+         raise NotImplementedError
+
+   def sortOn(self, fieldName, options=null):
+      if isinstance(fieldName, (list, tuple, Array)):
+         if isinstance(options, (list, tuple, Array)):
+            # TODO: Ignore flags if fieldName.length != options.length
+            # TODO: Ignore UNIQUESORT and RETURNINDEXEDARRAY if not in the
+            #       first element
+            ...
+         ...
+      raise NotImplementedError
+
+   def splice(self, startIndex: int = null, deleteCount: uint = null, *values):
+      if startIndex is null:
+         return null
+      if deleteCount is null:
+         deleteCount = self.length
+      startIndex, deleteCount = int(startIndex), int(deleteCount)
+      if deleteCount < 0:
+         return Array()
+      removedValues = self[startIndex: startIndex+deleteCount]
+      self[startIndex: startIndex+deleteCount] = values
+      return removedValues
+
+   def toList(self):
+      return list(self)
+
+   def toLocaleString(self):
+      with StringIO() as out:
+         n = self.length
+         for i in range(n):
+            x = self[i]
+            if x is not None and x is not undefined and x is not null:
+               if hasattr(x, 'toLocaleString'):
+                  out.write(x.toLocaleString())
+               else:
+                  out.write(str(x))
+            if i + 1 < n:
+               out.write(',')
+         return out.getvalue()
+
+   def toString(self):
+      return Array._join(self)
+
+   def unshift(self, *args):
+      tempArray = [*args, *self]
+      self.clear()
+      self.extend(tempArray)
+      return len(self)
+
+
+class String(str, Object):
+   def __init__(self, value=''):
+      self.__init2(self._String(value))
+
+   def __init2(self, value):
+      # Workaround for super().__init__() eating arguements
+      super().__init__()
+
+   def __str__(self):
+      return self
+
+   @property
+   def length(self):
+      return len(self)
+
+   def _String(self, expression):
+      if isinstance(expression, str):
+         return expression
+      if isinstance(expression, bool):
+         return 'true' if expression else 'false'
+      if hasattr(expression, 'toString'):
+         return expression.toString()
+      return str(expression)
+
+   def __repr__(self):
+      return 'as3lib.String(%s)' % self
+
+   def __getitem__(self, item):
+      return String(super().__getitem__(item))
+
+   def __add__(self, value):
+      return String('%s%s' % (self, self._String(value)))
+
+   def __bool__(self):
+      return self.length > 0
+
+   def __neg__(self):
+      # TODO: Make sure that this is correct
+      return -Number(self)
+
+   def __pos__(self):
+      # TODO: Make sure that this is correct
+      return Number(self)
+
+   def charAt(self, index: builtins.int | int = 0):
+      if index < 0 or index > len(self) - 1:
+         return ''
+      return self[index]
+
+   def charCodeAt(self, index: builtins.int | int = 0):
+      if index < 0 or index > len(self) - 1:
+         return Number.NaN
+      return Number(builtins.int(r'{:04X}'.format(ord(self[index])), 16))
+
+   def concat(self, *args):
+      return self + ''.join([self._String(i) for i in args])
+
+   @staticmethod
+   def fromCharCode(*charCodes):
+      raise NotImplementedError
+
+   def indexOf(self, val, startIndex: builtins.int | int = 0):
+      return self.find(String(val), startIndex)
+
+   def lastIndexOf(self, val, startIndex: builtins.int | int = 0x7fffffff):
+      return self.rfind(String(val), startIndex)
+
+   def localeCompare(self, other, *values):
+      raise NotImplementedError
+
+   def match(self, pattern):
+      raise NotImplementedError
+
+   def replace(self, pattern, repl):
+      raise NotImplementedError
+
+   def search(self, pattern = undefined):
+      if pattern is undefined or pattern is null:
+         return -1
+      raise NotImplementedError
+
+   def slice(self, startIndex=0, endIndex=null):
+      si, ei = Number(startIndex), Number(endIndex)
+      if si == Number.POSITIVE_INFINITY or ei == Number.NEGATIVE_INFINITY:
+         return String('')
+      si = int(si)
+      if endIndex is null or ei == Number.POSITIVE_INFINITY:
+         return self[si:]
+      ei = int(ei)
+      return self[si:ei]
+
+   def split(self, delimiter=null, limit=0x7fffffff):
+      if delimiter is undefined or delimiter is null:
+         return Array(self)
+      elif delimiter == '' or False:
+         # An empty string, an empty regular expression, or a regular
+         # expression that can match an empty string
+         return Array(*[i for i in self])
+      elif False:
+         # If the delimiter parameter is a regular expression, only the first
+         # match at a given position of the string is considered, even if
+         # backtracking could find a nonempty substring match at that
+         # position.
+         ...
+      elif False:
+         # If the delimiter parameter is a regular expression containing
+         # grouping parentheses, then each time the delimiter is matched, the
+         # results (including any undefined results) of the grouping
+         # parentheses are spliced into the output array.
+         ...
+      else:
+         return Array(*super().split(delimiter, limit))
+
+   def substr(self, startIndex: Number = 0, len: Number = null):
+      startIndex = Number(startIndex)
+      if len is null:
+         return self[startIndex:]
+      else:
+         len = Number(len)
+      if len == Number.NEGATIVE_INFINITY:
+         return String('')
+      if len < 0:
+         len += self.length
+      return self[startIndex:startIndex+len]
+
+   def substring(self, startIndex: Number = 0, endIndex: Number = null):
+      startIndex = Number(startIndex)
+      if startIndex < 0:
+         startIndex = 0
+      endIndex = self.length if endIndex is null else Number(endIndex)
+      if endIndex < 0:
+         endIndex = 0
+      if startIndex > endIndex:
+         return self[endIndex:startIndex]
+      return self[startIndex:endIndex]
+
+   def toLocaleLowerCase(self):
+      return self.lower()
+
+   def toLocaleUpperCase(self):
+      return self.upper()
+
+   def toLowerCase(self):
+      return self.lower()
+
+   def toUpperCase(self):
+      return self.upper()
+
+   def toString(self):
+      return self
+
+   def valueOf(self):
+      return '%s' % self
+
+
+class RegExp(Object):
+   '''
+   Because global is a keyword in python, the global property has been renamed
+   to global_
+   '''
+   @property
+   def dotall(self):
+      return self._dotall
+
+   @property
+   def extended(self):
+      return self._extended
+
+   @property
+   def global_(self):
+      return self._global
+
+   @property
+   def ignoreCase(self):
+      return self._ignoreCase
+
+   @property
+   def lastIndex(self):
+      return self._lastIndex
+
+   @lastIndex.setter
+   def lastIndex(self, value):
+      self._lastIndex = value
+
+   @property
+   def multiline(self):
+      return self._multiline
+
+   @property
+   def source(self):
+      return self._source
+
+   def __init__(self, re=undefined, flags=undefined, *args):
+      if re is undefined:
+         re = ''
+      if re is null:
+         re = 'null'
+      self._lastIndex = 0
+      if isinstance(re, RegExp):
+         if flags is not undefined:
+            raise TypeError('Cannot supply flags when constructing one RegExp from another', 1100)
+         # TODO: Make sure this is correct
+         self._source = re.source
+
+         self._dotall = re.dotall
+         self._extended = re.extended
+         self._global = re.global_
+         self._ignoreCase = re.ignoreCase
+         # TODO: Find out what is done with this
+         # self._lastIndex = re.lastIndex
+
+         self._multiline = re.multiline
+      else:
+         if flags is undefined or flags is null:
+            flags = ''
+         self._source = String(re)
+         self._dotall = 's' in flags
+         self._extended = 'x' in flags
+         self._global = 'g' in flags
+         self._ignoreCase = 'i' in flags
+         self._multiline = 'm' in flags
+
+      flags = 0
+      if self.ignoreCase:
+         flags |= regex.IGNORECASE
+      if self.multiline:
+         flags |= regex.MULTILINE
+      if self.dotall:
+         flags |= regex.DOTALL
+      if self.extended:
+         flags |= regex.VERBOSE
+      self._re = regex.compile(self.source, flags)
+
+   def exec(self, str):
+      # TODO: output.index
+      # TODO: global flag
+      matches = list(self._re.finditer(str))
+      if not matches:
+         return null
+      match = matches[0]
+      output = Object()
+      for k, v in match.groupdict().items():
+         if v is None or v == '':
+            v = undefined
+         setattr(output, k, v)
+      output.input = str
+      group = match.group()
+      if group is None:
+         output[0] = undefined
+      else:
+         output[0] = group
+      output.index = match.start()
+      groups = match.groups()
+      if groups is not None:
+         i = 1
+         for item in groups:
+            output[i] = item
+            i += 1
+      if self.global_:
+         raise NotImplementedError
+      return output
+
+   def test(self, str):
+      if self.exec(str) is null:
+         return false
+      return true
+
+   def toString(self):
+      with StringIO() as s:
+         s.write('/%s/' % self.source)
+         if self.global_:
+            s.write('g')
+         if self.ignoreCase:
+            s.write('i')
+         if self.multiline:
+            s.write('m')
+         if self.dotall:
+            s.write('s')
+         if self.extended:
+            s.write('x')
+         return s.getvalue()
+
+
+def _getTimezone():
+   if time.daylight:
+      return datetime.timezone(datetime.timedelta(seconds=-time.altzone),time.tzname[1])
+   return datetime.timezone(datetime.timedelta(seconds=-time.timezone),time.tzname[0])
+
+
+class Date(Object):
+   # Notes:
+   # Python's datetime object (used internally for Date) has microseconds, not
+   # milliseconds, so some math must be done to convert between the two when
+   # used.
+   #
+   # Python uses 1 as January but flash uses 0, so math needs to be done here too
+   #
+   # Python starts the week on Monday but flash starts it on Sunday
+   #
+   # Python timestamps are in seconds but we need milliseconds
+
+   # TODO:
+   # toString variants
+   # Date.parse
+   # Date constructor with string argument.
+   # Date constructor with Number arguement sometimes has the wrong date. (possibly related to DST)
+   # Rewrite Date to not have to store the date twice. valueOf returns a utc timestamp
+   @property
+   def date(self):
+      return Number(self._value.day)
+
+   @date.setter
+   def date(self, value):
+      self.setDate(value)
+
+   @property
+   def dateUTC(self):
+      return Number(self._valueUTC.day)
+
+   @dateUTC.setter
+   def dateUTC(self, value):
+      self.setUTCDate(value)
+
+   @property
+   def day(self):
+      return Number(self._value.toordinal() % 7)
+
+   @property
+   def dayUTC(self):
+      return Number(self._valueUTC.toordinal() % 7)
+
+   @property
+   def fullYear(self):
+      return Number(self._value.year)
+
+   @fullYear.setter
+   def fullYear(self, value):
+      self.setFullYear(value)
+
+   @property
+   def fullYearUTC(self):
+      return Number(self._valueUTC.year)
+
+   @fullYearUTC.setter
+   def fullYearUTC(self, value):
+      self.setUTCFullYear(value)
+
+   @property
+   def hours(self):
+      return Number(self._value.hour)
+
+   @hours.setter
+   def hours(self, value):
+      self.setHours(value)
+
+   @property
+   def hoursUTC(self):
+      return Number(self._valueUTC.hour)
+
+   @hoursUTC.setter
+   def hoursUTC(self, value):
+      self.setUTCHours(value)
+
+   @property
+   def milliseconds(self):
+      return Number(self._value.microsecond / 1000)
+
+   @milliseconds.setter
+   def milliseconds(self, value):
+      self.setMilliseconds(value)
+
+   @property
+   def millisecondsUTC(self):
+      return Number(self._valueUTC.microsecond / 1000)
+
+   @millisecondsUTC.setter
+   def millisecondsUTC(self, value):
+      self.setUTCMilliseconds(value)
+
+   @property
+   def minutes(self):
+      return Number(self._value.minute)
+
+   @minutes.setter
+   def minutes(self, value):
+      self.setMinutes(value)
+
+   @property
+   def minutesUTC(self):
+      return Number(self._valueUTC.minute)
+
+   @minutesUTC.setter
+   def minutesUTC(self, value):
+      self.setUTCMinutes(value)
+
+   @property
+   def month(self):
+      return Number(self._value.month - 1)
+
+   @month.setter
+   def month(self, value):
+      self.setMonth(value)
+
+   @property
+   def monthUTC(self):
+      return Number(self._valueUTC.month - 1)
+
+   @monthUTC.setter
+   def monthUTC(self, value):
+      self.setUTCMonth(value)
+
+   @property
+   def seconds(self):
+      return Number(self._value.second)
+
+   @seconds.setter
+   def seconds(self, value):
+      self.setSeconds(value)
+
+   @property
+   def secondsUTC(self):
+      return Number(self._valueUTC.second)
+
+   @secondsUTC.setter
+   def secondsUTC(self, value):
+      self.setUTCSeconds(value)
+
+   @property
+   def time(self):
+      return Number(self._valueUTC.timestamp() * 1000)
+
+   @time.setter
+   def time(self, value):
+      raise NotImplementedError
+
+   @property
+   def timezoneOffset(self):
+      # TODO: Make sure this is dst aware
+      tz = self._value.utcoffset()
+      seconds = tz.seconds
+      if tz.days:
+         # Special handling for when python fucks up the tz
+         # For my timezone, it does days=-1 and then adds seconds
+         seconds += tz.days * 86400
+
+      return Math.floor(seconds / 60)  # minutes
+
+   def _sync(self):
+      self._valueUTC = self._value.astimezone(datetime.timezone.utc)
+
+   def _syncUTC(self):
+      self._value = self._valueUTC.astimezone(tz=self._localtz)
+
+   def __init__(self, yearOrTimevalue=None, month=None, date=1, hour=0, minute=0, second=0, millisecond=0):
+      # TODO: When NaN is passed as the first arguement, all values should be set to NaN
+      #       When a value is set after this, all other values become the default
+      self._localtz = _getTimezone()
+      if yearOrTimevalue is None and month is None:
+         # Passed no arguements. Use current date and time
+         self._value = datetime.datetime.now(tz=self._localtz)
+         self._sync()
+      elif isinstance(yearOrTimevalue, (int, float, Number)) and month is None:
+         # One arguement of type Number is passed. Interpret as utc timestamp
+         # TODO: _localtz is wrong here
+         self._valueUTC = datetime.datetime.fromtimestamp(yearOrTimevalue / 1000, datetime.timezone.utc)
+         self._syncUTC()
+      elif isinstance(yearOrTimevalue, str) and month is None:
+         # One arguement of type String is passed. Parse date string
+         raise NotImplementedError('One aruement of type String')  # TODO
+      else:
+         # Two or more arguements are passed. Use arguements literally
+         # TODO: Figure out what timezone this should be
+         self._value = datetime.datetime(yearOrTimevalue, month + 1, date, hour, minute, second, millisecond * 1000, tzinfo=self._localtz)
+         self._sync()
+
+   def getDate(self):
+      return self.date
+
+   def getDay(self):
+      return self.day
+
+   def getFullYear(self):
+      return self.fullYear
+
+   def getHours(self):
+      return self.hours
+
+   def getMilliseconds(self):
+      return self.milliseconds
+
+   def getMinutes(self):
+      return self.minutes
+
+   def getMonth(self):
+      return self.month
+
+   def getSeconds(self):
+      return self.seconds
+
+   def getTime(self):
+      return self.valueOf()
+
+   def getTimezoneOffset(self):
+      return self.timezoneOffset
+
+   def getUTCDate(self):
+      return self.dateUTC
+
+   def getUTCDay(self):
+      return self.dayUTC
+
+   def getUTCFullYear(self):
+      return self.fullYearUTC
+
+   def getUTCHours(self):
+      return self.hoursUTC
+
+   def getUTCMilliseconds(self):
+      return self.millisecondsUTC
+
+   def getUTCMinutes(self):
+      return self.minutesUTC
+
+   def getUTCMonth(self):
+      return self.monthUTC
+
+   def getUTCSeconds(self):
+      return self.secondsUTC
+
+   @staticmethod
+   def parse(date):
+      raise NotImplementedError
+
+   def setDate(self, day):
+      self._value = self._value.replace(day=day)
+      self._sync()
+      return self.time
+
+   def setFullYear(self, year, month=null, day=null):
+      self._value = self._value.replace(year=year)
+      if month is not null or day is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
+
+   def setHours(self, hour, minute=null, second=null, millisecond=null):
+      self._value = self._value.replace(hour=hour)
+      if minute is not null or second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
+
+   def setMilliseconds(self, millisecond):
+      self._value = self._value.replace(microsecond=millisecond*1000)
+      self._sync()
+      return self.time
+
+   def setMinutes(self, minute, second=null, millisecond=null):
+      self._value = self._value.replace(minute=minute)
+      if second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
+
+   def setMonth(self, month, day=null):
+      self._value = self._value.replace(month=month+1)
+      if day is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
+
+   def setSeconds(self, second, millisecond=null):
+      self._value = self._value.replace(second=second)
+      if millisecond is not null:
+         raise NotImplementedError
+      self._sync()
+      return self.time
+
+   def setTime(self, millisecond):
+      self.time = millisecond
+      return self.time
+
+   def setUTCDate(self, day):
+      self._valueUTC = self._valueUTC.replace(day=day)
+      self._syncUTC()
+      return self.time
+
+   def setUTCFullYear(self, year, month=null, day=null):
+      self._valueUTC = self._valueUTC.replace(year=year)
+      if month is not null or day is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
+
+   def setUTCHours(self, hour, minute=null, second=null, millisecond=null):
+      self._valueUTC = self._valueUTC.replace(hour=hour)
+      if minute is not null or second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
+
+   def setUTCMilliseconds(self, millisecond):
+      self._valueUTC = self._valueUTC.replace(microsecond=millisecond*1000)
+      self._syncUTC()
+      return self.time
+
+   def setUTCMinutes(self, minute, second=null, millisecond=null):
+      self._valueUTC = self._valueUTC.replace(minute=minute)
+      if second is not null or millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
+
+   def setUTCMonth(self, month, day=null):
+      self._valueUTC = self._valueUTC.replace(month=month+1)
+      if day is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
+
+   def setUTCSeconds(self, second, millisecond=null):
+      self._valueUTC = self._valueUTC.replace(second=second)
+      if millisecond is not null:
+         raise NotImplementedError
+      self._syncUTC()
+      return self.time
+
+   def _monthName(self, mon):
+      return ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+              'Oct', 'Nov', 'Dec')[builtins.int(mon)]
+
+   def _dayName(self, date):
+      return ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat')[builtins.int(date)]
+
+   def _timezone(self):
+      return 'GMT%s' % ''.join(self._value.strftime('%:z').split(':')[:2])
+
+   def _time(self, HH, MM, SS):
+      return f'{builtins.int(HH):0>2}:{builtins.int(MM):0>2}:{builtins.int(SS):0>2}'
+
+   def toDateString(self):
+      # TODO: Make sure this is correct
+      return '%s %s %s %s' % (self._dayName(self.day), self._monthName(self.month), self.date, self.fullYear)
+
+   def toJSON(self, k):
+      return self.toString()
+
+   def toLocaleDateString(self):
+      # Documentation says this returns the same as toDateString
+      return self.toDateString()
+
+   def toLocaleString(self):
+      raise NotImplementedError
+
+   def toLocaleTimeString(self):
+      raise NotImplementedError
+
+   def toString(self):
+      return '%s %s %s %s %s %s' % (
+         self._dayName(self.day), self._monthName(self.month), self.date, self._time(self.hours, self.minutes, self.seconds), self._timezone(), self.fullYear)
+
+   def toTimeString(self):
+      return '%s %s' % (self._time(self.hours, self.minutes, self.seconds), self._timezone())
+
+   def toUTCString(self):
+      return '%s %s %s %s %s UTC' % (self._dayName(self.dayUTC), self._monthName(self.monthUTC), self.dateUTC, self._time(self.hoursUTC, self.minutesUTC, self.secondsUTC), self.fullYearUTC)
+
+   @staticmethod
+   def UTC(year, month, date=1, hour=0, minute=0, second=0, millisecond=0):
+      return Number(datetime.datetime(year, month, date, hour, minute, second, millisecond * 1000, tzinfo=datetime.timezone.utc).timestamp() * 1000)
+
+   def valueOf(self):
+      return self.time
+
+
+# Functions
+def decodeURI(uri):
+   raise NotImplementedError
+
+
+def decodeURIComponent(uri):
+   raise NotImplementedError
+
+
+def encodeURI(uri):
+   raise NotImplementedError
+
+
+def encodeURIComponent(uri):
+   raise NotImplementedError
+
+
+def escape(str):
+   '''
+   Converts the parameter to a string and encodes it in a URL-encoded format, where most nonalphanumeric characters are replaced with % hexadecimal sequences. When used in a URL-encoded string, the percentage symbol (%) is used to introduce escape characters, and is not equivalent to the modulo operator (%).
+   The following characters are not converted to escape sequences by the escape() function.
+   0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@-_.*+/
+   '''
+   raise NotImplementedError
+
+
+def isFinite(num):
+   num = Number(num)
+   return not (num._is_nan() or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY)
+
+
+def isNaN(num):
+   return Number(num)._is_nan()
+
+
+def isXMLName(str: String):
+   # currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
+   str = String(str)
+   whitelist = {'-', '_', '.'}
+   if not str.length or not str[0].isalpha() and str[0] != '_' or str.lower().startswith('xml') or ' ' in str:
+      return False
+   for i in str:
+      if not i.isalnum() and i not in whitelist:
+         return False
+   return True
+
+
+def parseFloat(str: String = undefined):
+   # TODO: Make stop at second period
+   # TODO: '100a' should return NaN
+   if str is undefined:
+      return Number.NaN
+   str = str.lstrip()
+   if str == '':
+      return Number(0)
+   if str == 'Infinity':
+      return Number.POSITIVE_INFINITY
+   if str == '-Infinity':
+      return Number.NEGATIVE_INFINITY
+   size = len(str)
+   if size == 0:
+      return Number.NaN
+   if str[0].isdigit() or str[0] in '-+.':
+      j = 0
+      while str[j] in '-+':
+         j += 1
+      if size > j + 1 and str[j] == '0' and str[j + 1] == 'x':
+         j += 2
+         if size == j:
+            return Number.NaN
+         while j != size and str[j] in '0123456789abcdefABCDEF':
+            j += 1
+         return Number(builtins.int(str[:j], 16))
+      while j != size and (str[j].isdigit() or str[j] == '.'):
+         j += 1
+      if j != size and str[j] == 'e':
+         if str[j + 1] in '-+' and str[j + 2].isdigit():
+            j += 2
+            while j != size and str[j].isdigit():
+               j += 1
+         elif str[j + 1].isdigit():
+            j += 1
+            while j != size and str[j].isdigit():
+               j += 1
+      return Number(float(str[:j]))
+   return Number.NaN
+
+
+def parseInt(str: String = undefined, radix: uint = 0):
+   # TODO: Find a better way of doing the sign detection
+   radix = uint(radix)
+   if radix == 0:
+      radix = 10
+   if radix < 2 or radix > 36:
+      return Number.NaN
+   if str is undefined:
+      if radix >= 32:
+         return Number(builtins.int('undefined', radix))
+      return Number.NaN
+   str = String(str)
+   str = str.lstrip()
+   zero = False
+   minus = 0
+   j1 = 0
+   while j1 < len(str) and str[j1] in '-+':
+      if str[j1] == '-':
+         minus += 1
+      j1 += 1
+   str = str[j1:]
+   if len(str) >= 2 and str.startswith('0x'):
+      radix = 16
+      str = str[2:]
+   if str.startswith('0'):
+      zero = True
+      str.lstrip("0")
+   radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
+   str = str.upper()
+   j = 0
+   while j < len(str) and str[j] in radixchars:
+      j += 1
+   if j == 0:
+      return Number(0) if zero else Number.NaN
+   return Number(builtins.int(str[:j], radix) * (-1 if minus % 2 else 1))
+
+
+def unescape(str):
+   raise NotImplementedError
+
