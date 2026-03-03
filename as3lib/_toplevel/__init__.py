@@ -16,6 +16,64 @@ from warnings import warn
 from as3lib._toplevel.trace import errorTrace, trace
 
 
+# Internal Constants
+_NaN_value = 1e300000 / -1e300000
+_NegInf_value = -1e300000
+_PosInf_value = 1e300000
+
+
+# Internal Helpers
+def _getTimezone():  # Date
+   if time.daylight:
+      return datetime.timezone(datetime.timedelta(seconds=-time.altzone),time.tzname[1])
+   return datetime.timezone(datetime.timedelta(seconds=-time.timezone),time.tzname[0])
+
+
+def _errNumGen():  # Error
+   i = 0
+   while True:
+      yield i
+      i += 1
+
+
+_genErrorID = _errNumGen()
+
+
+def _exponentFixNum(value):  # Number
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      return ('%se{:+d}' % a).format(builtins.int(b))
+   return value
+
+
+_base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+def _as_base(num, radix):  # int
+   if num == 0:
+      return '0'
+   l = []
+   temp = abs(num)
+   while temp > 0:
+      l.append(_base_digits[temp % radix])
+      temp //= radix
+   if num < 0:
+      l.append('-')
+   l.reverse()
+   return ''.join(l)
+
+
+def _exponentFixInt(value):  # int
+   if value.find('e') != -1:
+      a, b = value.split('e')
+      bi = builtins.int(b)
+      if bi == 0:
+         return a
+      if b.startswith('+'):
+         return '%se+%i' % (a, bi)
+      return '%se%i' % (a, bi)
+   return value
+
+
+# Classes
 class undefined:
    __slots__ = ("value")
 
@@ -136,612 +194,6 @@ class Object:
 
    def valueOf(self):
       return self
-
-
-def _genErrNum():
-   i = 0
-   while True:
-      yield i
-      i += 1
-
-
-_ErNo = _genErrNum()
-
-
-class Error(Exception, Object):
-   # TODO: Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
-   @property
-   def errorID(self):
-      return self._id
-
-   @property
-   def message(self):
-      return self._message
-
-   @message.setter
-   def message(self, value):
-      self._message = value
-
-   @property
-   def name(self):
-      return self._name
-
-   @name.setter
-   def name(self, value):
-      self._name = value
-
-   def __init__(self, message='', id=0):
-      self._name = 'Error'
-      self._id = next(_ErNo) if id == 0 else id
-      self._message = message if message != '' else 'Error'
-      errorTrace(self.toString())
-
-   @staticmethod
-   def getErrorMessage(number):
-      raise NotImplementedError
-
-   def getStackTrace(self):
-      return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
-
-   def toString(self):
-      return f'{self.name}: {self.message}'
-
-
-class ArgumentError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'ArgumentError'
-
-
-class DefinitionError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'DefinitionError'
-
-
-class EvalError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'EvalError'
-
-
-class RangeError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'RangeError'
-
-
-class ReferenceError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'ReferenceError'
-
-
-class SecurityError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'SecurityError'
-
-
-class SyntaxError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'SyntaxError'
-
-
-class TypeError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'TypeError'
-
-
-class URIError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'URIError'
-
-
-class VerifyError(Error):
-   def __init__(self, message='', id=0):
-      super().__init__(message, id)
-      self.name = 'VerifyError'
-
-
-class Boolean(Object):
-   __slots__ = ('_value')
-
-   def __init__(self, expression=False):
-      self._value = self._Boolean(expression)
-
-   def __repr__(self):
-      return f'as3lib.Boolean({self._value})'
-
-   def __getitem__(self):
-      return self._value
-
-   def __setitem__(self, value):
-      self._value = value
-
-   def __bool__(self):
-      return self._value
-
-   def __float__(self):
-      return float(self._value)
-
-   def __int__(self):
-      return builtins.int(self._value)
-
-   def __eq__(self, value):
-      return self._value == value
-
-   def __abs__(self):
-      return Number(self._value)
-
-   def __neg__(self):
-      return -Number(self)
-
-   def __pos__(self):
-      return Number(self)
-
-   def _Boolean(self, expression=None):
-      if isinstance(expression, bool):
-         return expression
-      if expression is null or expression is undefined or expression is None:
-         return False
-      # NOTE: For some reason, python str does not have __bool__ but can be
-      #       converted to one anyways
-      if hasattr(expression, '__bool__') or isinstance(expression, str):
-         return bool(expression)
-      return False
-
-   def toString(self):
-      return str(self._value).lower()
-
-   def valueOf(self):
-      return self._value
-
-
-false = Boolean(False)
-true = Boolean(True)
-
-
-_NaN_value = 1e300000 / -1e300000
-_NegInf_value = -1e300000
-_PosInf_value = 1e300000
-
-
-def _exponentFixNum(value):
-   if value.find('e') != -1:
-      a, b = value.split('e')
-      return ('%se{:+d}' % a).format(builtins.int(b))
-   return value
-
-
-class Number(Object):
-   __slots__ = '_val'
-   MAX_VALUE = 1.79e308
-   MIN_VALUE = 5e-324
-
-   @property
-   def _value(self):
-      return self._val.value
-
-   @_value.setter
-   def _value(self, value):
-      self._val.value = value
-
-   def _is_nan(self):
-      return self._value.hex() == 'nan'
-
-   def __init__(self, num=null):
-      self._val = c_double(self._Number(num))
-
-   def __str__(self):
-      return self.toString()
-
-   def __repr__(self):
-      return 'as3lib.Number(%s)' % self
-
-   def __hash__(self):
-      return hash(self._value)
-
-   def __add__(self, value):
-      return Number(self._value + self._Number(value))
-
-   def __sub__(self, value):
-      return Number(self._value - self._Number(value))
-
-   def __mul__(self, value):
-      return Number(self._value * self._Number(value))
-
-   def __truediv__(self, value):
-      value = self._Number(value)
-      if value == 0:
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         if self._value < 0:
-            return Number.NEGATIVE_INFINITY
-         return Number.NaN
-      return Number(self._value / value)
-
-   def __float__(self):
-      return self._value
-
-   def __int__(self):
-      return builtins.int(self._value)
-
-   def __index__(self):
-      return math.floor(self._value)
-
-   def __eq__(self, value):
-      return self._value == value
-
-   def __lt__(self, value):
-      return self._value < value
-
-   def __gt__(self, value):
-      return self._value > value
-
-   def __neg__(self):
-      return Number(-self._value)
-
-   def __bool__(self):
-      return self._value != 0 and not self._is_nan()
-
-   def __abs__(self):
-      return Number(abs(self._value))
-
-   def __pow__(self, value):
-      return self._value ** value
-
-   def __round__(self, places=null):
-      if places is null:
-         if self._value % 1 >= 0.5:
-            return Number(math.ceil(self._value))
-         return Number(math.floor(self._value))
-      return Number(round(self._value, places))
-
-   def _Number(self, expression):
-      if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
-         return _NaN_value
-      if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
-         expression = expression.valueOf()
-      if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
-         return expression
-      if expression is undefined or expression is None:
-         return Number.NaN
-      if expression is null:
-         return 0.0
-      if hasattr(expression, '__float__'):
-         return float(expression)
-      if isinstance(expression, str):
-         return parseFloat(expression)
-      if isinstance(expression, Object):
-         return Number.NaN
-
-   def toExponential(self, fractionDigits=null):
-      # TODO: Cast fractionDigits to uint
-      if fractionDigits is null:
-         fractionDigits = 0
-      if self._value == 0:
-         if fractionDigits == 0:
-            return '1e-15'
-         return ('{:.%if}e-16' % fractionDigits).format(0)
-      if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
-         return self.toString()
-      return _exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value))
-
-   def toFixed(self, fractionDigits=null):
-      # TODO: Cast fractionDigits to uint
-      if fractionDigits is null:
-         fractionDigits = 0
-      return ('{:.%if}' % fractionDigits).format(self._value)
-
-   def toPrecision(self, precision):
-      # TODO: Cast precision to uint
-      raise NotImplementedError
-
-   def toLocaleString(self):
-      return self.toString()
-
-   def toString(self, radix=10):
-      # TODO: Radix
-      if self._is_nan():
-         return 'NaN'
-      if self._value == Number.NEGATIVE_INFINITY:
-         return "-Infinity"
-      if self._value == Number.POSITIVE_INFINITY:
-         return "Infinity"
-      if radix != 10:
-         return str(math.floor(self._value))
-      if self._value.is_integer():
-         return _exponentFixNum('%i' % self._value)
-      return _exponentFixNum('%s' % self._value)
-
-   def valueOf(self):
-      return self._value
-
-
-class Math(Object):
-   E = Number(2.718281828459045)
-   LN10 = Number(2.302585092994046)
-   LN2 = Number(0.6931471805599453)
-   LOG10E = Number(0.4342944819032518)
-   LOG2E = Number(1.442695040888963387)
-   PI = Number(3.141592653589793)
-   SQRT1_2 = Number(0.7071067811865476)
-   SQRT2 = Number(1.4142135623730951)
-
-   @staticmethod
-   def abs(val):
-      val = Number(val)
-      return abs(val)
-
-   @staticmethod
-   def acos(val):
-      return math.acos(val)
-
-   @staticmethod
-   def asin(val):
-      return math.asin(val)
-
-   @staticmethod
-   def atan(val):
-      val = Number(val)
-      return Number(math.atan(val))
-
-   @staticmethod
-   def atan2(y, x):
-      x, y = Number(x), Number(y)
-      return Number(math.atan2(y, x))
-
-   @staticmethod
-   def ceil(val):
-      val = Number(val)
-      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
-         return val
-      return math.ceil(val)
-
-   @staticmethod
-   def cos(angleRadians):
-      a = Number(angleRadians)
-      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
-         return Number.NaN
-      return Number(math.cos(a))
-
-   @staticmethod
-   def exp(val):
-      return math.exp(val)
-
-   @staticmethod
-   def floor(val):
-      val = Number(val)
-      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
-         return val
-      return math.floor(val)
-
-   @staticmethod
-   def log(val):
-      return math.log(val)
-
-   @staticmethod
-   def max(*values):
-      v = [Number.NEGATIVE_INFINITY]
-      for i in values:
-         n = Number(i)
-         if n._is_nan():
-            return Number.NaN
-         v.append(n)
-      return max(v)
-
-   @staticmethod
-   def min(*values):
-      v = [Number.POSITIVE_INFINITY]
-      for i in values:
-         n = Number(i)
-         if n._is_nan():
-            return Number.NaN
-         v.append(n)
-      return min(v)
-
-   @staticmethod
-   def pow(base, power):
-      return math.pow(base, power)
-
-   @staticmethod
-   def random():
-      return Number(random.random())
-
-   @staticmethod
-   def round(val):
-      val = Number(val)
-      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
-         return val
-      return round(val)
-
-   @staticmethod
-   def sin(angleRadians):
-      a = Number(angleRadians)
-      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
-         return Number.NaN
-      return Number(math.sin(a))
-
-   @staticmethod
-   def sqrt(val):
-      val = Number(val)
-      if val < 0 or val._is_nan():
-         return Number.NaN
-      return math.sqrt(val)
-
-   @staticmethod
-   def tan(angleRadians):
-      a = Number(angleRadians)
-      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
-         return Number.NaN
-      return math.tan(a)
-
-
-Infinity = Number.POSITIVE_INFINITY = Number(_PosInf_value)
-NaN = Number.NaN = Number(_NaN_value)
-Number.NEGATIVE_INFINITY = Number(_NegInf_value)
-
-
-_base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
-def _as_base(num, radix):
-   if num == 0:
-      return '0'
-   l = []
-   temp = abs(num)
-   while temp > 0:
-      l.append(_base_digits[temp % radix])
-      temp //= radix
-   if num < 0:
-      l.append('-')
-   l.reverse()
-   return ''.join(l)
-
-
-def _exponentFixInt(value):
-   if value.find('e') != -1:
-      a, b = value.split('e')
-      bi = builtins.int(b)
-      if bi == 0:
-         return a
-      if b.startswith('+'):
-         return '%se+%i' % (a, bi)
-      return '%se%i' % (a, bi)
-   return value
-
-
-class int(Object):
-   # TODO: Make this return a Number if the result is a float
-   MAX_VALUE = 2147483647
-   MIN_VALUE = -2147483648
-
-   _buffertype = c_int32
-
-   @property
-   def _value(self):
-      return self._val.value
-
-   @_value.setter
-   def _value(self, value):
-      self._val.value = value
-
-   def __init__(self, value=0):
-      self._val = self._buffertype(self._int(value))
-
-   def __float__(self):
-      return float(self._value)
-
-   def __int__(self):
-      return self._value
-
-   def __index__(self):
-      return self._value
-
-   def __bool__(self):
-      return bool(self._value)
-
-   def __repr__(self):
-      return 'as3lib.int(%s)' % self._value
-
-   def __hash__(self):
-      return hash(self._value)
-
-   def __add__(self, value):
-      return int(self._value + self._int(value))
-
-   def __sub__(self, value):
-      return int(self._value - self._int(value))
-
-   def __mul__(self, value):
-      return int(self._value * self._int(value))
-
-   def __truediv__(self, value):
-      value = self._int(value)
-      if value == 0:
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         if self._value < 0:
-            return Number.NEGATIVE_INFINITY
-         return Number.NaN
-      return int(self._value / value)
-
-   def __eq__(self, value):
-      return self._value == value
-
-   def __lt__(self, value):
-      return self._value < value
-
-   def __gt__(self, value):
-      return self._value > value
-
-   def __lshift__(self, value):
-      return int(self._value << self._int(value))
-
-   def __rshift__(self, value):
-      return int(self._value >> self._int(value))
-
-   def __xor__(self, value):
-      return int(self._value ^ self._int(value))
-
-   def __mod__(self, value):
-      return int(self._value % self._int(value))
-
-   def _int(self, value):
-      if isinstance(value, str):
-         value = parseFloat(value)
-      if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
-         return 0
-      if isinstance(value, (int, uint, Number)):
-         value = value._value
-      if isinstance(value, (builtins.int)):
-         return value
-      if isinstance(value, float):
-         return math.floor(value)
-      if hasattr(value, '__int__'):
-         return builtins.int(value)
-      if isinstance(value, Object):
-         return 0
-      raise TypeError(f'Can not convert type {type(value)} to integer')
-
-   def toExponential(self, fractionDigits: uint = null):
-      fractionDigits = uint(fractionDigits)
-      if fractionDigits > 20:
-         raise RangeError('fractionDigits is outside of acceptable range')
-      if self == 0:
-         if fractionDigits == 0:
-            return '1e-15'
-         return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16'
-      return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value))
-
-   def toFixed(self, fractionDigits: uint = null):
-      fractionDigits = uint(fractionDigits)
-      if fractionDigits > 20:
-         raise RangeError('fractionDigits is outside of acceptable range')
-      return ('{:.%sf}' % fractionDigits).format(self._value)
-
-   def toPrecision(self, precision: uint):
-      precision = uint(precision)
-      if precision < 1 or precision > 21:
-         raise RangeError('precision is outside of acceptable range')
-      raise NotImplementedError
-
-   def toString(self, radix: uint = 10):
-      if radix <= 36 and radix >= 2:
-         return _as_base(self._value, radix)
-
-   def valueOf(self):
-      return self._value
-
-
-class uint(int):
-   # NOTE: The tests from ruffle show that uint doesn't really exist
-   MAX_VALUE = 4294967295
-   MIN_VALUE = 0
-
-   _buffertype = c_uint32
 
 
 class Array(list, Object):
@@ -1000,293 +452,62 @@ class Array(list, Object):
       return len(self)
 
 
-class String(str, Object):
-   def __init__(self, value=''):
-      self.__init2(self._String(value))
+class Boolean(Object):
+   __slots__ = ('_value')
 
-   def __init2(self, value):
-      # Workaround for super().__init__() eating arguements
-      super().__init__()
-
-   def __str__(self):
-      return self
-
-   @property
-   def length(self):
-      return len(self)
-
-   def _String(self, expression):
-      if isinstance(expression, str):
-         return expression
-      if isinstance(expression, bool):
-         return 'true' if expression else 'false'
-      if hasattr(expression, 'toString'):
-         return expression.toString()
-      return str(expression)
+   def __init__(self, expression=False):
+      self._value = self._Boolean(expression)
 
    def __repr__(self):
-      return 'as3lib.String(%s)' % self
+      return f'as3lib.Boolean({self._value})'
 
-   def __getitem__(self, item):
-      return String(super().__getitem__(item))
+   def __getitem__(self):
+      return self._value
 
-   def __add__(self, value):
-      return String('%s%s' % (self, self._String(value)))
+   def __setitem__(self, value):
+      self._value = value
 
    def __bool__(self):
-      return self.length > 0
+      return self._value
+
+   def __float__(self):
+      return float(self._value)
+
+   def __int__(self):
+      return builtins.int(self._value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __abs__(self):
+      return Number(self._value)
 
    def __neg__(self):
-      # TODO: Make sure that this is correct
       return -Number(self)
 
    def __pos__(self):
-      # TODO: Make sure that this is correct
       return Number(self)
 
-   def charAt(self, index: builtins.int | int = 0):
-      if index < 0 or index > len(self) - 1:
-         return ''
-      return self[index]
-
-   def charCodeAt(self, index: builtins.int | int = 0):
-      if index < 0 or index > len(self) - 1:
-         return Number.NaN
-      return Number(builtins.int(r'{:04X}'.format(ord(self[index])), 16))
-
-   def concat(self, *args):
-      return self + ''.join([self._String(i) for i in args])
-
-   @staticmethod
-   def fromCharCode(*charCodes):
-      raise NotImplementedError
-
-   def indexOf(self, val, startIndex: builtins.int | int = 0):
-      return self.find(String(val), startIndex)
-
-   def lastIndexOf(self, val, startIndex: builtins.int | int = 0x7fffffff):
-      return self.rfind(String(val), startIndex)
-
-   def localeCompare(self, other, *values):
-      raise NotImplementedError
-
-   def match(self, pattern):
-      raise NotImplementedError
-
-   def replace(self, pattern, repl):
-      raise NotImplementedError
-
-   def search(self, pattern = undefined):
-      if pattern is undefined or pattern is null:
-         return -1
-      raise NotImplementedError
-
-   def slice(self, startIndex=0, endIndex=null):
-      si, ei = Number(startIndex), Number(endIndex)
-      if si == Number.POSITIVE_INFINITY or ei == Number.NEGATIVE_INFINITY:
-         return String('')
-      si = int(si)
-      if endIndex is null or ei == Number.POSITIVE_INFINITY:
-         return self[si:]
-      ei = int(ei)
-      return self[si:ei]
-
-   def split(self, delimiter=null, limit=0x7fffffff):
-      if delimiter is undefined or delimiter is null:
-         return Array(self)
-      elif delimiter == '' or False:
-         # An empty string, an empty regular expression, or a regular
-         # expression that can match an empty string
-         return Array(*[i for i in self])
-      elif False:
-         # If the delimiter parameter is a regular expression, only the first
-         # match at a given position of the string is considered, even if
-         # backtracking could find a nonempty substring match at that
-         # position.
-         ...
-      elif False:
-         # If the delimiter parameter is a regular expression containing
-         # grouping parentheses, then each time the delimiter is matched, the
-         # results (including any undefined results) of the grouping
-         # parentheses are spliced into the output array.
-         ...
-      else:
-         return Array(*super().split(delimiter, limit))
-
-   def substr(self, startIndex: Number = 0, len: Number = null):
-      startIndex = Number(startIndex)
-      if len is null:
-         return self[startIndex:]
-      else:
-         len = Number(len)
-      if len == Number.NEGATIVE_INFINITY:
-         return String('')
-      if len < 0:
-         len += self.length
-      return self[startIndex:startIndex+len]
-
-   def substring(self, startIndex: Number = 0, endIndex: Number = null):
-      startIndex = Number(startIndex)
-      if startIndex < 0:
-         startIndex = 0
-      endIndex = self.length if endIndex is null else Number(endIndex)
-      if endIndex < 0:
-         endIndex = 0
-      if startIndex > endIndex:
-         return self[endIndex:startIndex]
-      return self[startIndex:endIndex]
-
-   def toLocaleLowerCase(self):
-      return self.lower()
-
-   def toLocaleUpperCase(self):
-      return self.upper()
-
-   def toLowerCase(self):
-      return self.lower()
-
-   def toUpperCase(self):
-      return self.upper()
+   def _Boolean(self, expression=None):
+      if isinstance(expression, bool):
+         return expression
+      if expression is null or expression is undefined or expression is None:
+         return False
+      # NOTE: For some reason, python str does not have __bool__ but can be
+      #       converted to one anyways
+      if hasattr(expression, '__bool__') or isinstance(expression, str):
+         return bool(expression)
+      return False
 
    def toString(self):
-      return self
+      return str(self._value).lower()
 
    def valueOf(self):
-      return '%s' % self
+      return self._value
 
 
-class RegExp(Object):
-   '''
-   Because global is a keyword in python, the global property has been renamed
-   to global_
-   '''
-   @property
-   def dotall(self):
-      return self._dotall
-
-   @property
-   def extended(self):
-      return self._extended
-
-   @property
-   def global_(self):
-      return self._global
-
-   @property
-   def ignoreCase(self):
-      return self._ignoreCase
-
-   @property
-   def lastIndex(self):
-      return self._lastIndex
-
-   @lastIndex.setter
-   def lastIndex(self, value):
-      self._lastIndex = value
-
-   @property
-   def multiline(self):
-      return self._multiline
-
-   @property
-   def source(self):
-      return self._source
-
-   def __init__(self, re=undefined, flags=undefined, *args):
-      if re is undefined:
-         re = ''
-      if re is null:
-         re = 'null'
-      self._lastIndex = 0
-      if isinstance(re, RegExp):
-         if flags is not undefined:
-            raise TypeError('Cannot supply flags when constructing one RegExp from another', 1100)
-         # TODO: Make sure this is correct
-         self._source = re.source
-
-         self._dotall = re.dotall
-         self._extended = re.extended
-         self._global = re.global_
-         self._ignoreCase = re.ignoreCase
-         # TODO: Find out what is done with this
-         # self._lastIndex = re.lastIndex
-
-         self._multiline = re.multiline
-      else:
-         if flags is undefined or flags is null:
-            flags = ''
-         self._source = String(re)
-         self._dotall = 's' in flags
-         self._extended = 'x' in flags
-         self._global = 'g' in flags
-         self._ignoreCase = 'i' in flags
-         self._multiline = 'm' in flags
-
-      flags = 0
-      if self.ignoreCase:
-         flags |= regex.IGNORECASE
-      if self.multiline:
-         flags |= regex.MULTILINE
-      if self.dotall:
-         flags |= regex.DOTALL
-      if self.extended:
-         flags |= regex.VERBOSE
-      self._re = regex.compile(self.source, flags)
-
-   def exec(self, str):
-      # TODO: output.index
-      # TODO: global flag
-      matches = list(self._re.finditer(str))
-      if not matches:
-         return null
-      match = matches[0]
-      output = Object()
-      for k, v in match.groupdict().items():
-         if v is None or v == '':
-            v = undefined
-         setattr(output, k, v)
-      output.input = str
-      group = match.group()
-      if group is None:
-         output[0] = undefined
-      else:
-         output[0] = group
-      output.index = match.start()
-      groups = match.groups()
-      if groups is not None:
-         i = 1
-         for item in groups:
-            output[i] = item
-            i += 1
-      if self.global_:
-         raise NotImplementedError
-      return output
-
-   def test(self, str):
-      if self.exec(str) is null:
-         return false
-      return true
-
-   def toString(self):
-      with StringIO() as s:
-         s.write('/%s/' % self.source)
-         if self.global_:
-            s.write('g')
-         if self.ignoreCase:
-            s.write('i')
-         if self.multiline:
-            s.write('m')
-         if self.dotall:
-            s.write('s')
-         if self.extended:
-            s.write('x')
-         return s.getvalue()
-
-
-def _getTimezone():
-   if time.daylight:
-      return datetime.timezone(datetime.timedelta(seconds=-time.altzone),time.tzname[1])
-   return datetime.timezone(datetime.timedelta(seconds=-time.timezone),time.tzname[0])
+false = Boolean(False)
+true = Boolean(True)
 
 
 class Date(Object):
@@ -1673,6 +894,788 @@ class Date(Object):
 
    def valueOf(self):
       return self.time
+
+
+class Error(Exception, Object):
+   # TODO: Implement the debug functionality as specified here https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/Error.html
+   @property
+   def errorID(self):
+      return self._id
+
+   @property
+   def message(self):
+      return self._message
+
+   @message.setter
+   def message(self, value):
+      self._message = value
+
+   @property
+   def name(self):
+      return self._name
+
+   @name.setter
+   def name(self, value):
+      self._name = value
+
+   def __init__(self, message='', id=0):
+      self._name = 'Error'
+      self._id = next(_genErrorID) if id == 0 else id
+      self._message = message if message != '' else 'Error'
+      errorTrace(self.toString())
+
+   @staticmethod
+   def getErrorMessage(number):
+      raise NotImplementedError
+
+   def getStackTrace(self):
+      return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
+
+   def toString(self):
+      return f'{self.name}: {self.message}'
+
+
+class ArgumentError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'ArgumentError'
+
+
+class DefinitionError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'DefinitionError'
+
+
+class EvalError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'EvalError'
+
+
+class RangeError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'RangeError'
+
+
+class ReferenceError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'ReferenceError'
+
+
+class SecurityError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'SecurityError'
+
+
+class SyntaxError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'SyntaxError'
+
+
+class TypeError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'TypeError'
+
+
+class URIError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'URIError'
+
+
+class VerifyError(Error):
+   def __init__(self, message='', id=0):
+      super().__init__(message, id)
+      self.name = 'VerifyError'
+
+
+class Number(Object):
+   __slots__ = '_val'
+   MAX_VALUE = 1.79e308
+   MIN_VALUE = 5e-324
+
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
+   def _is_nan(self):
+      return self._value.hex() == 'nan'
+
+   def __init__(self, num=null):
+      self._val = c_double(self._Number(num))
+
+   def __str__(self):
+      return self.toString()
+
+   def __repr__(self):
+      return 'as3lib.Number(%s)' % self
+
+   def __hash__(self):
+      return hash(self._value)
+
+   def __add__(self, value):
+      return Number(self._value + self._Number(value))
+
+   def __sub__(self, value):
+      return Number(self._value - self._Number(value))
+
+   def __mul__(self, value):
+      return Number(self._value * self._Number(value))
+
+   def __truediv__(self, value):
+      value = self._Number(value)
+      if value == 0:
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         if self._value < 0:
+            return Number.NEGATIVE_INFINITY
+         return Number.NaN
+      return Number(self._value / value)
+
+   def __float__(self):
+      return self._value
+
+   def __int__(self):
+      return builtins.int(self._value)
+
+   def __index__(self):
+      return math.floor(self._value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
+   def __neg__(self):
+      return Number(-self._value)
+
+   def __bool__(self):
+      return self._value != 0 and not self._is_nan()
+
+   def __abs__(self):
+      return Number(abs(self._value))
+
+   def __pow__(self, value):
+      return self._value ** value
+
+   def __round__(self, places=null):
+      if places is null:
+         if self._value % 1 >= 0.5:
+            return Number(math.ceil(self._value))
+         return Number(math.floor(self._value))
+      return Number(round(self._value, places))
+
+   def _Number(self, expression):
+      if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
+         return _NaN_value
+      if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
+         expression = expression.valueOf()
+      if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
+         return expression
+      if expression is undefined or expression is None:
+         return Number.NaN
+      if expression is null:
+         return 0.0
+      if hasattr(expression, '__float__'):
+         return float(expression)
+      if isinstance(expression, str):
+         return parseFloat(expression)
+      if isinstance(expression, Object):
+         return Number.NaN
+
+   def toExponential(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      if self._value == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return ('{:.%if}e-16' % fractionDigits).format(0)
+      if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
+         return self.toString()
+      return _exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value))
+
+   def toFixed(self, fractionDigits=null):
+      # TODO: Cast fractionDigits to uint
+      if fractionDigits is null:
+         fractionDigits = 0
+      return ('{:.%if}' % fractionDigits).format(self._value)
+
+   def toPrecision(self, precision):
+      # TODO: Cast precision to uint
+      raise NotImplementedError
+
+   def toLocaleString(self):
+      return self.toString()
+
+   def toString(self, radix=10):
+      # TODO: Radix
+      if self._is_nan():
+         return 'NaN'
+      if self._value == Number.NEGATIVE_INFINITY:
+         return "-Infinity"
+      if self._value == Number.POSITIVE_INFINITY:
+         return "Infinity"
+      if radix != 10:
+         return str(math.floor(self._value))
+      if self._value.is_integer():
+         return _exponentFixNum('%i' % self._value)
+      return _exponentFixNum('%s' % self._value)
+
+   def valueOf(self):
+      return self._value
+
+
+Infinity = Number.POSITIVE_INFINITY = Number(_PosInf_value)
+NaN = Number.NaN = Number(_NaN_value)
+Number.NEGATIVE_INFINITY = Number(_NegInf_value)
+
+
+class Math(Object):
+   E = Number(2.718281828459045)
+   LN10 = Number(2.302585092994046)
+   LN2 = Number(0.6931471805599453)
+   LOG10E = Number(0.4342944819032518)
+   LOG2E = Number(1.442695040888963387)
+   PI = Number(3.141592653589793)
+   SQRT1_2 = Number(0.7071067811865476)
+   SQRT2 = Number(1.4142135623730951)
+
+   @staticmethod
+   def abs(val):
+      val = Number(val)
+      return abs(val)
+
+   @staticmethod
+   def acos(val):
+      return math.acos(val)
+
+   @staticmethod
+   def asin(val):
+      return math.asin(val)
+
+   @staticmethod
+   def atan(val):
+      val = Number(val)
+      return Number(math.atan(val))
+
+   @staticmethod
+   def atan2(y, x):
+      x, y = Number(x), Number(y)
+      return Number(math.atan2(y, x))
+
+   @staticmethod
+   def ceil(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return math.ceil(val)
+
+   @staticmethod
+   def cos(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.cos(a))
+
+   @staticmethod
+   def exp(val):
+      return math.exp(val)
+
+   @staticmethod
+   def floor(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return math.floor(val)
+
+   @staticmethod
+   def log(val):
+      return math.log(val)
+
+   @staticmethod
+   def max(*values):
+      v = [Number.NEGATIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return max(v)
+
+   @staticmethod
+   def min(*values):
+      v = [Number.POSITIVE_INFINITY]
+      for i in values:
+         n = Number(i)
+         if n._is_nan():
+            return Number.NaN
+         v.append(n)
+      return min(v)
+
+   @staticmethod
+   def pow(base, power):
+      return math.pow(base, power)
+
+   @staticmethod
+   def random():
+      return Number(random.random())
+
+   @staticmethod
+   def round(val):
+      val = Number(val)
+      if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+         return val
+      return round(val)
+
+   @staticmethod
+   def sin(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return Number(math.sin(a))
+
+   @staticmethod
+   def sqrt(val):
+      val = Number(val)
+      if val < 0 or val._is_nan():
+         return Number.NaN
+      return math.sqrt(val)
+
+   @staticmethod
+   def tan(angleRadians):
+      a = Number(angleRadians)
+      if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+         return Number.NaN
+      return math.tan(a)
+
+
+class int(Object):
+   # TODO: Make this return a Number if the result is a float
+   MAX_VALUE = 2147483647
+   MIN_VALUE = -2147483648
+
+   _buffertype = c_int32
+
+   @property
+   def _value(self):
+      return self._val.value
+
+   @_value.setter
+   def _value(self, value):
+      self._val.value = value
+
+   def __init__(self, value=0):
+      self._val = self._buffertype(self._int(value))
+
+   def __float__(self):
+      return float(self._value)
+
+   def __int__(self):
+      return self._value
+
+   def __index__(self):
+      return self._value
+
+   def __bool__(self):
+      return bool(self._value)
+
+   def __repr__(self):
+      return 'as3lib.int(%s)' % self._value
+
+   def __hash__(self):
+      return hash(self._value)
+
+   def __add__(self, value):
+      return int(self._value + self._int(value))
+
+   def __sub__(self, value):
+      return int(self._value - self._int(value))
+
+   def __mul__(self, value):
+      return int(self._value * self._int(value))
+
+   def __truediv__(self, value):
+      value = self._int(value)
+      if value == 0:
+         if self._value > 0:
+            return Number.POSITIVE_INFINITY
+         if self._value < 0:
+            return Number.NEGATIVE_INFINITY
+         return Number.NaN
+      return int(self._value / value)
+
+   def __eq__(self, value):
+      return self._value == value
+
+   def __lt__(self, value):
+      return self._value < value
+
+   def __gt__(self, value):
+      return self._value > value
+
+   def __lshift__(self, value):
+      return int(self._value << self._int(value))
+
+   def __rshift__(self, value):
+      return int(self._value >> self._int(value))
+
+   def __xor__(self, value):
+      return int(self._value ^ self._int(value))
+
+   def __mod__(self, value):
+      return int(self._value % self._int(value))
+
+   def _int(self, value):
+      if isinstance(value, str):
+         value = parseFloat(value)
+      if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
+         return 0
+      if isinstance(value, (int, uint, Number)):
+         value = value._value
+      if isinstance(value, (builtins.int)):
+         return value
+      if isinstance(value, float):
+         return math.floor(value)
+      if hasattr(value, '__int__'):
+         return builtins.int(value)
+      if isinstance(value, Object):
+         return 0
+      raise TypeError(f'Can not convert type {type(value)} to integer')
+
+   def toExponential(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
+         raise RangeError('fractionDigits is outside of acceptable range')
+      if self == 0:
+         if fractionDigits == 0:
+            return '1e-15'
+         return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16'
+      return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value))
+
+   def toFixed(self, fractionDigits: uint = null):
+      fractionDigits = uint(fractionDigits)
+      if fractionDigits > 20:
+         raise RangeError('fractionDigits is outside of acceptable range')
+      return ('{:.%sf}' % fractionDigits).format(self._value)
+
+   def toPrecision(self, precision: uint):
+      precision = uint(precision)
+      if precision < 1 or precision > 21:
+         raise RangeError('precision is outside of acceptable range')
+      raise NotImplementedError
+
+   def toString(self, radix: uint = 10):
+      if radix <= 36 and radix >= 2:
+         return _as_base(self._value, radix)
+
+   def valueOf(self):
+      return self._value
+
+
+class uint(int):
+   # NOTE: The tests from ruffle show that uint doesn't really exist
+   MAX_VALUE = 4294967295
+   MIN_VALUE = 0
+
+   _buffertype = c_uint32
+
+
+class String(str, Object):
+   def __init__(self, value=''):
+      self.__init2(self._String(value))
+
+   def __init2(self, value):
+      # Workaround for super().__init__() eating arguements
+      super().__init__()
+
+   def __str__(self):
+      return self
+
+   @property
+   def length(self):
+      return len(self)
+
+   def _String(self, expression):
+      if isinstance(expression, str):
+         return expression
+      if isinstance(expression, bool):
+         return 'true' if expression else 'false'
+      if hasattr(expression, 'toString'):
+         return expression.toString()
+      return str(expression)
+
+   def __repr__(self):
+      return 'as3lib.String(%s)' % self
+
+   def __getitem__(self, item):
+      return String(super().__getitem__(item))
+
+   def __add__(self, value):
+      return String('%s%s' % (self, self._String(value)))
+
+   def __bool__(self):
+      return self.length > 0
+
+   def __neg__(self):
+      # TODO: Make sure that this is correct
+      return -Number(self)
+
+   def __pos__(self):
+      # TODO: Make sure that this is correct
+      return Number(self)
+
+   def charAt(self, index: builtins.int | int = 0):
+      if index < 0 or index > len(self) - 1:
+         return ''
+      return self[index]
+
+   def charCodeAt(self, index: builtins.int | int = 0):
+      if index < 0 or index > len(self) - 1:
+         return Number.NaN
+      return Number(builtins.int(r'{:04X}'.format(ord(self[index])), 16))
+
+   def concat(self, *args):
+      return self + ''.join([self._String(i) for i in args])
+
+   @staticmethod
+   def fromCharCode(*charCodes):
+      raise NotImplementedError
+
+   def indexOf(self, val, startIndex: builtins.int | int = 0):
+      return self.find(String(val), startIndex)
+
+   def lastIndexOf(self, val, startIndex: builtins.int | int = 0x7fffffff):
+      return self.rfind(String(val), startIndex)
+
+   def localeCompare(self, other, *values):
+      raise NotImplementedError
+
+   def match(self, pattern):
+      raise NotImplementedError
+
+   def replace(self, pattern, repl):
+      raise NotImplementedError
+
+   def search(self, pattern = undefined):
+      if pattern is undefined or pattern is null:
+         return -1
+      raise NotImplementedError
+
+   def slice(self, startIndex=0, endIndex=null):
+      si, ei = Number(startIndex), Number(endIndex)
+      if si == Number.POSITIVE_INFINITY or ei == Number.NEGATIVE_INFINITY:
+         return String('')
+      si = int(si)
+      if endIndex is null or ei == Number.POSITIVE_INFINITY:
+         return self[si:]
+      ei = int(ei)
+      return self[si:ei]
+
+   def split(self, delimiter=null, limit=0x7fffffff):
+      if delimiter is undefined or delimiter is null:
+         return Array(self)
+      elif delimiter == '' or False:
+         # An empty string, an empty regular expression, or a regular
+         # expression that can match an empty string
+         return Array(*[i for i in self])
+      elif False:
+         # If the delimiter parameter is a regular expression, only the first
+         # match at a given position of the string is considered, even if
+         # backtracking could find a nonempty substring match at that
+         # position.
+         ...
+      elif False:
+         # If the delimiter parameter is a regular expression containing
+         # grouping parentheses, then each time the delimiter is matched, the
+         # results (including any undefined results) of the grouping
+         # parentheses are spliced into the output array.
+         ...
+      else:
+         return Array(*super().split(delimiter, limit))
+
+   def substr(self, startIndex: Number = 0, len: Number = null):
+      startIndex = Number(startIndex)
+      if len is null:
+         return self[startIndex:]
+      else:
+         len = Number(len)
+      if len == Number.NEGATIVE_INFINITY:
+         return String('')
+      if len < 0:
+         len += self.length
+      return self[startIndex:startIndex+len]
+
+   def substring(self, startIndex: Number = 0, endIndex: Number = null):
+      startIndex = Number(startIndex)
+      if startIndex < 0:
+         startIndex = 0
+      endIndex = self.length if endIndex is null else Number(endIndex)
+      if endIndex < 0:
+         endIndex = 0
+      if startIndex > endIndex:
+         return self[endIndex:startIndex]
+      return self[startIndex:endIndex]
+
+   def toLocaleLowerCase(self):
+      return self.lower()
+
+   def toLocaleUpperCase(self):
+      return self.upper()
+
+   def toLowerCase(self):
+      return self.lower()
+
+   def toUpperCase(self):
+      return self.upper()
+
+   def toString(self):
+      return self
+
+   def valueOf(self):
+      return '%s' % self
+
+
+class RegExp(Object):
+   '''
+   Because global is a keyword in python, the global property has been renamed
+   to global_
+   '''
+   @property
+   def dotall(self):
+      return self._dotall
+
+   @property
+   def extended(self):
+      return self._extended
+
+   @property
+   def global_(self):
+      return self._global
+
+   @property
+   def ignoreCase(self):
+      return self._ignoreCase
+
+   @property
+   def lastIndex(self):
+      return self._lastIndex
+
+   @lastIndex.setter
+   def lastIndex(self, value):
+      self._lastIndex = value
+
+   @property
+   def multiline(self):
+      return self._multiline
+
+   @property
+   def source(self):
+      return self._source
+
+   def __init__(self, re=undefined, flags=undefined, *args):
+      if re is undefined:
+         re = ''
+      if re is null:
+         re = 'null'
+      self._lastIndex = 0
+      if isinstance(re, RegExp):
+         if flags is not undefined:
+            raise TypeError('Cannot supply flags when constructing one RegExp from another', 1100)
+         # TODO: Make sure this is correct
+         self._source = re.source
+
+         self._dotall = re.dotall
+         self._extended = re.extended
+         self._global = re.global_
+         self._ignoreCase = re.ignoreCase
+         # TODO: Find out what is done with this
+         # self._lastIndex = re.lastIndex
+
+         self._multiline = re.multiline
+      else:
+         if flags is undefined or flags is null:
+            flags = ''
+         self._source = String(re)
+         self._dotall = 's' in flags
+         self._extended = 'x' in flags
+         self._global = 'g' in flags
+         self._ignoreCase = 'i' in flags
+         self._multiline = 'm' in flags
+
+      flags = 0
+      if self.ignoreCase:
+         flags |= regex.IGNORECASE
+      if self.multiline:
+         flags |= regex.MULTILINE
+      if self.dotall:
+         flags |= regex.DOTALL
+      if self.extended:
+         flags |= regex.VERBOSE
+      self._re = regex.compile(self.source, flags)
+
+   def exec(self, str):
+      # TODO: output.index
+      # TODO: global flag
+      matches = list(self._re.finditer(str))
+      if not matches:
+         return null
+      match = matches[0]
+      output = Object()
+      for k, v in match.groupdict().items():
+         if v is None or v == '':
+            v = undefined
+         setattr(output, k, v)
+      output.input = str
+      group = match.group()
+      if group is None:
+         output[0] = undefined
+      else:
+         output[0] = group
+      output.index = match.start()
+      groups = match.groups()
+      if groups is not None:
+         i = 1
+         for item in groups:
+            output[i] = item
+            i += 1
+      if self.global_:
+         raise NotImplementedError
+      return output
+
+   def test(self, str):
+      if self.exec(str) is null:
+         return false
+      return true
+
+   def toString(self):
+      with StringIO() as s:
+         s.write('/%s/' % self.source)
+         if self.global_:
+            s.write('g')
+         if self.ignoreCase:
+            s.write('i')
+         if self.multiline:
+            s.write('m')
+         if self.dotall:
+            s.write('s')
+         if self.extended:
+            s.write('x')
+         return s.getvalue()
 
 
 class JSON(Object):
@@ -2089,28 +2092,53 @@ class XMLList(Object):
    def children(self):
       return XMLList([i.children() for i in each(self._value)])
 
-   def comments(self):...
-   def contains(self, value):...
-   def copy(self):...
-   def decendants(self, name):...
-   def elements(self, name):...
-   def hasComplexContext(self):...
-   def hasOwnProperty(self, p):...
-   def hasSimpleContext(self):...
+   def comments(self):
+      raise NotImplementedError
+
+   def contains(self, value):
+      raise NotImplementedError
+
+   def copy(self):
+      raise NotImplementedError
+
+   def decendants(self, name):
+      raise NotImplementedError
+
+   def elements(self, name):
+      raise NotImplementedError
+
+   def hasComplexContext(self):
+      raise NotImplementedError
+
+   def hasOwnProperty(self, p):
+      raise NotImplementedError
+
+   def hasSimpleContext(self):
+      raise NotImplementedError
 
    def length(self):
       return self._value.length
 
-   def normalize(self):...
-   def parent(self):...
-   def processingInstructions(self, name):...
-   def propertyIsEnumerable(self, p):...
+   def normalize(self):
+      raise NotImplementedError
+
+   def parent(self):
+      raise NotImplementedError
+
+   def processingInstructions(self, name):
+      raise NotImplementedError
+
+   def propertyIsEnumerable(self, p):
+      raise NotImplementedError
 
    def text(self):
       return XMLList([i.text() for i in self._value])
 
-   def toString(self):...
-   def toXMLString(self):...
+   def toString(self):
+      raise NotImplementedError
+
+   def toXMLString(self):
+      raise NotImplementedError
 
    def valueOf(self):
       return self
@@ -2132,16 +2160,35 @@ class XML(Object):
       self._namespaces = Array()
       ...
 
-   def addNamespace(self, ns):...
-   def appendChild(self, child):...
-   def attribute(self, attributeName):...
-   def attributes(self):...
-   def child(self, propertyName):...
-   def childIndex(self):...
-   def children(self):...
-   def comments(self):...
-   def contains(self, value):...
-   def copy(self):...
+   def addNamespace(self, ns):
+      raise NotImplementedError
+
+   def appendChild(self, child):
+      raise NotImplementedError
+
+   def attribute(self, attributeName):
+      raise NotImplementedError
+
+   def attributes(self):
+      raise NotImplementedError
+
+   def child(self, propertyName):
+      raise NotImplementedError
+
+   def childIndex(self):
+      raise NotImplementedError
+
+   def children(self):
+      raise NotImplementedError
+
+   def comments(self):
+      raise NotImplementedError
+
+   def contains(self, value):
+      raise NotImplementedError
+
+   def copy(self):
+      raise NotImplementedError
 
    @staticmethod
    def defaultSettings():
@@ -2153,14 +2200,29 @@ class XML(Object):
       obj.prettyPrinting = true
       return obj
 
-   def decendants(self, name):...
-   def elements(self, name):...
-   def hasComplexContext(self):...
-   def hasOwnProperty(self, p):...
-   def hasSimpleContext(self):...
-   def inScopeNamespace(self):...
-   def inserChildAfter(self, child1, child2):...
-   def insertChildBefore(self, child1, child2):...
+   def decendants(self, name):
+      raise NotImplementedError
+
+   def elements(self, name):
+      raise NotImplementedError
+
+   def hasComplexContext(self):
+      raise NotImplementedError
+
+   def hasOwnProperty(self, p):
+      raise NotImplementedError
+
+   def hasSimpleContext(self):
+      raise NotImplementedError
+
+   def inScopeNamespace(self):
+      raise NotImplementedError
+
+   def inserChildAfter(self, child1, child2):
+      raise NotImplementedError
+
+   def insertChildBefore(self, child1, child2):
+      raise NotImplementedError
 
    def length(self):
       return 1
@@ -2171,25 +2233,44 @@ class XML(Object):
    def name(self):
       return self._name
 
-   def namespace(prefix):...
-   def namespaceDeclarations(self):...
+   def namespace(prefix):
+      raise NotImplementedError
+
+   def namespaceDeclarations(self):
+      raise NotImplementedError
 
    def nodeKind(self):
       return self._type
 
-   def normalize(self):...
-   def parent(self):...
-   def prependChild(self):...
-   def processingInstructions(self, name):...
-   def propertyIsEnumerable(self, p):...
-   def removeNamespace(self, ns):...
-   def replace(self, propertyName, value):...
-   def setChildren(self, value):...
+   def normalize(self):
+      raise NotImplementedError
+
+   def parent(self):
+      raise NotImplementedError
+
+   def prependChild(self):
+      raise NotImplementedError
+
+   def processingInstructions(self, name):
+      raise NotImplementedError
+
+   def propertyIsEnumerable(self, p):
+      raise NotImplementedError
+
+   def removeNamespace(self, ns):
+      raise NotImplementedError
+
+   def replace(self, propertyName, value):
+      raise NotImplementedError
+
+   def setChildren(self, value):
+      raise NotImplementedError
 
    def setLocalName(self, name):
       self._name._localName = name
 
-   def setName(self, name):...
+   def setName(self, name):
+      raise NotImplementedError
 
    def setNamespace(self, ns:Namespace):
       self._namespace = ns
@@ -2219,9 +2300,14 @@ class XML(Object):
       obj.prettyPrinting = XML.prettyPrinting
       return obj
 
-   def text(self):...
-   def toString(self):...
-   def toXMLString(self):...
+   def text(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
+
+   def toXMLString(self):
+      raise NotImplementedError
 
    def valueOf(self):
       return self
