@@ -178,9 +178,9 @@ class Object:
       p = theClass.prototype
       while p is not None:
          if p is self.__class__:
-            return True
+            return true
          p = p.prototype
-      return False
+      return false
 
    def propertyIsEnumerable(self, name: str):
       raise NotImplementedError
@@ -274,18 +274,18 @@ class Array(list, Object):
 
    def every(self, callback: callable):
       if callback is null:
-         return True
+         return true
       for i in range(len(self)):
-         if callback(self[i], i, self) is False:
-            return False
-      return True
+         if not callback(self[i], i, self):
+            return false
+      return true
 
    def filter(self, callback: callable):
       if callback is null:
          return
       tempArray = Array()
       for i in range(len(self)):
-         if callback(self[i], i, self) is True:
+         if callback(self[i], i, self):
             tempArray.push(self[i])
       return tempArray
 
@@ -365,11 +365,11 @@ class Array(list, Object):
 
    def some(self, callback: callable):
       if callback is null:
-         return False
+         return false
       for i in range(len(self)):
-         if callback(self[i], i, self) is True:
-            return True
-      return False
+         if callback(self[i], i, self):
+            return true
+      return false
 
    def _flagSort(self, flags):
       # NOTE: These are flags, not exclusive values
@@ -1832,11 +1832,11 @@ class Vector(list, Object):
 
    def every(self, callback, thisObject=null):
       if callback is null:
-         return True
+         return true
       for i in self:
          if not callback(self[i], i, self):
-            return False
-      return True
+            return false
+      return true
 
    def filter(self, callback, thisObject=null):
       # TODO: Handle null callback
@@ -1923,11 +1923,11 @@ class Vector(list, Object):
 
    def some(self, callback, thisObject=null):
       if callback is null:
-         return False
+         return false
       for i in self:
          if callback(self[i], i, self):
-            return True
-      return False
+            return true
+      return false
 
    def sort(self):
       raise NotImplementedError
@@ -2147,11 +2147,11 @@ class XMLList(Object):
 class XML(Object):
    # Prerequisite: Object attribute access
    # TODO: Implement accessing children. This should be done by using <xmlobj>.<child>. Doing this appears to return all children with the name <child>
-   ignoreComments = True
-   ignoreProcessingInstructions = True
-   ignoreWhitespace = True
+   ignoreComments = true
+   ignoreProcessingInstructions = true
+   ignoreWhitespace = true
    prettyIndent = 2
-   prettyPrinting = True
+   prettyPrinting = true
 
    def __init__(self, value):
       self._name: QName = None
@@ -2353,11 +2353,11 @@ def isXMLName(str: String):
    str = String(str)
    whitelist = {'-', '_', '.'}
    if not str.length or not str[0].isalpha() and str[0] != '_' or str.lower().startswith('xml') or ' ' in str:
-      return False
+      return false
    for i in str:
       if not i.isalnum() and i not in whitelist:
-         return False
-   return True
+         return false
+   return true
 
 
 def parseFloat(str: String = undefined):
