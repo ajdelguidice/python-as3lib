@@ -92,13 +92,13 @@ if as3state.startTime is None:
    from miniamf import util
    as3state.startTime = int(util.utcnow().timestamp() * 1000)
 if not as3state.initdone:
+   import platform
+   as3state.platform = platform.system()
    if as3state.platform == 'Windows':
       as3state._user = os.getlogin()
    else:
       from pwd import getpwuid
       as3state._user = getpwuid(os.getuid())[0]
-   import platform
-   as3state.platform = platform.system()
    as3state.separator = '\\' if as3state.platform == 'Windows' else '/'
    as3state.pythonversion = platform.python_version()
    as3state.librarydirectory = Path(__file__).resolve().parent
