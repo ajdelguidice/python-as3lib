@@ -2,8 +2,8 @@ from as3lib import (ArgumentError, false, Infinity, Math, NaN, null, Object,
                     RangeError, true, TypeError, undefined, Vector)
 from as3lib.flash.display import Sprite, MovieClip
 from as3lib.flash.geom import (ColorTransform, Matrix, Matrix3D,
-                               PerspectiveProjection, Point, Utils3D,
-                               Vector3D)
+                               PerspectiveProjection, Point, Rectangle,
+                               Utils3D, Vector3D)
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
@@ -1009,7 +1009,458 @@ class PointTests(as3libTestCase):
 
 
 class RectangleTests(as3libTestCase):
-   ...
+   def assertRectangle(self, rect, top, right, bottom, left, topLeft,
+                       bottomRight, width, height, size, x, y):
+      # Previously called "dump"
+      self.assertEqual(rect.top, top)
+      self.assertEqual(rect.right, right)
+      self.assertEqual(rect.bottom, bottom)
+      self.assertEqual(rect.left, left)
+      self.assertPoint(rect.topLeft, topLeft.x, topLeft.y)
+      self.assertPoint(rect.bottomRight, bottomRight.x, bottomRight.y)
+      self.assertEqual(rect.width, width)
+      self.assertEqual(rect.height, height)
+      self.assertPoint(rect.size, size.x, size.y)
+      self.assertEqual(rect.x, x)
+      self.assertEqual(rect.y, y)
+      #trace(" // " + desc)
+      #trace(extended)
+      #trace("")
+
+   def test_constructor(self):
+      check = (0, 0, 0, 0, Point(0, 0), Point(0, 0), 0, 0, Point(0, 0), 0, 0)
+      self.assertRectangle(Rectangle(), *check)
+      check = (0, 1, 0, 1, Point(1, 0), Point(1, 0), 0, 0, Point(0, 0), 1, 0)
+      self.assertRectangle(Rectangle(1), *check)
+      check = (2, 1, 2, 1, Point(1, 2), Point(1, 2), 0, 0, Point(0, 0), 1, 2)
+      self.assertRectangle(Rectangle(1, 2), *check)
+      check = (2, 4, 2, 1, Point(1, 2), Point(4, 2), 3, 0, Point(3, 0), 1, 2)
+      self.assertRectangle(Rectangle(1, 2, 3), *check)
+      check = (2, 4, 6, 1, Point(1, 2), Point(4, 6), 3, 4, Point(3, 4), 1, 2)
+      self.assertRectangle(Rectangle(1, 2, 3, 4), *check)
+
+   def tryValues(self, key, values, check):
+      rect = Rectangle(1, 3, 5, 7)
+      self.assertRectangle(rect, 3, 6, 10, 1, Point(1, 3), Point(6, 10), 5, 7, Point(5, 7), 1, 3)
+
+      for i in range(len(values)):
+         # Reset, just to make sure we aren't leaking state
+         rect = Rectangle(1, 3, 5, 7)
+
+         # originally "rect[key] = value"
+         setattr(rect, key, values[i])
+
+         self.assertRectangle(rect, *(check[i]))
+
+   def test_constructorSpecial(self):
+      numberValues = (0, 100, -200, NaN, Infinity)
+      check = ((0, 6, 10, 1, Point(1, 0), Point(6, 10), 5, 10, Point(5, 10), 1, 0),
+               (100, 6, 10, 1, Point(1, 100), Point(6, 10), 5, -90, Point(5, -90), 1, 100),
+               (-200, 6, 10, 1, Point(1, -200), Point(6, 10), 5, 210, Point(5, 210), 1, -200),
+               (NaN, 6, NaN, 1, Point(1, NaN), Point(6, NaN), 5, NaN, Point(5, NaN), 1, NaN),
+               (Infinity, 6, NaN, 1, Point(1, Infinity), Point(6, NaN), 5, -Infinity, Point(5, -Infinity), 1, Infinity))
+      self.tryValues("top", numberValues, check)
+
+      check = ((3, 0, 10, 1, Point(1, 3), Point(0, 10), -1, 7, Point(-1, 7), 1, 3),
+               (3, 100, 10, 1, Point(1, 3), Point(100, 10), 99, 7, Point(99, 7), 1, 3),
+               (3, -200, 10, 1, Point(1, 3), Point(-200, 10), -201, 7, Point(-201, 7), 1, 3),
+               (3, NaN, 10, 1, Point(1, 3), Point(NaN, 10), NaN, 7, Point(NaN, 7), 1, 3),
+               (3, Infinity, 10, 1, Point(1, 3), Point(Infinity, 10), Infinity, 7, Point(Infinity, 7), 1, 3))
+      self.tryValues("right", numberValues, check)
+
+      check = ((3, 6, 10, 0, Point(0, 3), Point(6, 10), 6, 7, Point(6, 7), 0, 3),
+               (3, 6, 10, 100, Point(100, 3), Point(6, 10), -94, 7, Point(-94, 7), 100, 3),
+               (3, 6, 10, -200, Point(-200, 3), Point(6, 10), 206, 7, Point(206, 7), -200, 3),
+               (3, NaN, 10, NaN, Point(NaN, 3), Point(NaN, 10), NaN, 7, Point(NaN, 7), NaN, 3),
+               (3, NaN, 10, Infinity, Point(Infinity, 3), Point(NaN, 10), -Infinity, 7, Point(-Infinity, 7), Infinity, 3))
+      self.tryValues("left", numberValues, check)
+
+      check = ((3, 6, 0, 1, Point(1, 3), Point(6, 0), 5, -3, Point(5, -3), 1, 3),
+               (3, 6, 100, 1, Point(1, 3), Point(6, 100), 5, 97, Point(5, 97), 1, 3),
+               (3, 6, -200, 1, Point(1, 3), Point(6, -200), 5, -203, Point(5, -203), 1, 3),
+               (3, 6, NaN, 1, Point(1, 3), Point(6, NaN), 5, NaN, Point(5, NaN), 1, 3),
+               (3, 6, Infinity, 1, Point(1, 3), Point(6, Infinity), 5, Infinity, Point(5, Infinity), 1, 3))
+      self.tryValues("bottom", numberValues, check)
+
+      check = ((3, 1, 10, 1, Point(1, 3), Point(1, 10), 0, 7, Point(0, 7), 1, 3),
+               (3, 101, 10, 1, Point(1, 3), Point(101, 10), 100, 7, Point(100, 7), 1, 3),
+               (3, -199, 10, 1, Point(1, 3), Point(-199, 10), -200, 7, Point(-200, 7), 1, 3),
+               (3, NaN, 10, 1, Point(1, 3), Point(NaN, 10), NaN, 7, Point(NaN, 7), 1, 3),
+               (3, Infinity, 10, 1, Point(1, 3), Point(Infinity, 10), Infinity, 7, Point(Infinity, 7), 1, 3))
+      self.tryValues("width", numberValues, check)
+
+      check = ((3, 6, 3, 1, Point(1, 3), Point(6, 3), 5, 0, Point(5, 0), 1, 3),
+               (3, 6, 103, 1, Point(1, 3), Point(6, 103), 5, 100, Point(5, 100), 1, 3),
+               (3, 6, -197, 1, Point(1, 3), Point(6, -197), 5, -200, Point(5, -200), 1, 3),
+               (3, 6, NaN, 1, Point(1, 3), Point(6, NaN), 5, NaN, (5, NaN), 1, 3),
+               (3, 6, Infinity, 1, Point(1, 3), Point(6, Infinity), 5, Infinity, Point(5, Infinity), 1, 3))
+      self.tryValues("height", numberValues, check)
+
+      check = ((3, 5, 10, 0, Point(0, 3), Point(5, 10), 5, 7, Point(5, 7), 0, 3),
+               (3, 105, 10, 100, Point(100, 3), Point(105, 10), 5, 7, Point(5, 7), 100, 3),
+               (3, -195, 10, -200, Point(-200, 3), Point(-195, 10), 5, 7, Point(5, 7), -200, 3),
+               (3, NaN, 10, NaN, Point(NaN, 3), Point(NaN, 10), 5, 7, Point(5, 7), NaN, 3),
+               (3, Infinity, 10, Infinity, Point(Infinity, 3), Point(Infinity, 10), 5, 7, Point(5, 7), Infinity, 3))
+      self.tryValues("x", numberValues, check)
+
+      check = ((0, 6, 7, 1, Point(1, 0), Point(6, 7), 5, 7, Point(5, 7), 1, 0),
+               (100, 6, 107, 1, Point(1, 100), Point(6, 107), 5, 7, Point(5, 7), 1, 100),
+               (-200, 6, -193, 1, Point(1, -200), Point(6, -193), 5, 7, Point(5, 7), 1, -200),
+               (NaN, 6, NaN, 1, Point(1, NaN), Point(6, NaN), 5, 7, Point(5, 7), 1, NaN),
+               (Infinity, 6, Infinity, 1, Point(1, Infinity), Point(6, Infinity), 5, 7, Point(5, 7), 1, Infinity))
+      self.tryValues("y", numberValues, check)
+
+      pointValues = (Point(0,0), Point(-100,-200), Point(100,200),
+                     Point(Infinity,Infinity), Point(NaN,NaN))
+      check = ((0, 6, 10, 0, Point(0, 0), Point(6, 10), 6, 10, Point(6, 10), 0, 0),
+               (-200, 6, 10, -100, Point(-100, -200), Point(6, 10), 106, 210, Point(106, 210), -100, -200),
+               (200, 6, 10, 100, Point(100, 200), Point(6, 10), -94, -190, Point(-94, -190), 100, 200),
+               (Infinity, NaN, NaN, Infinity, Point(Infinity, Infinity), Point(NaN, NaN), -Infinity, -Infinity, Point(-Infinity, -Infinity), Infinity, Infinity),
+               (NaN, NaN, NaN, NaN, Point(NaN, NaN), Point(NaN, NaN), NaN, NaN, Point(NaN, NaN), NaN, NaN))
+      self.tryValues("topLeft", pointValues, check)
+
+      check = ((3, 0, 0, 1, Point(1, 3), Point(0, 0), -1, -3, Point(-1, -3), 1, 3),
+               (3, -100, -200, 1, Point(1, 3), Point(-100, -200), -101, -203, Point(-101, -203), 1, 3),
+               (3, 100, 200, 1, Point(1, 3), Point(100, 200), 99, 197, Point(99, 197), 1, 3),
+               (3, Infinity, Infinity, 1, Point(1, 3), Point(Infinity, Infinity), Infinity, Infinity, Point(Infinity, Infinity), 1, 3),
+               (3, NaN, NaN, 1, Point(1, 3), Point(NaN, NaN), NaN, NaN, Point(NaN, NaN), 1, 3))
+      self.tryValues("bottomRight", pointValues, check)
+
+      check = ((3, 1, 3, 1, Point(1, 3), Point(1, 3), 0, 0, Point(0, 0), 1, 3),
+               (3, -99, -197, 1, Point(1, 3), Point(-99, -197), -100, -200, Point(-100, -200), 1, 3),
+               (3, 101, 203, 1, Point(1, 3), Point(101, 203), 100, 200, Point(100, 200), 1, 3),
+               (3, Infinity, Infinity, 1, Point(1, 3), Point(Infinity, Infinity), Infinity, Infinity, Point(Infinity, Infinity), 1, 3),
+               (3, NaN, NaN, 1, Point(1, 3), Point(NaN, NaN), NaN, NaN, Point(NaN, NaN), 1, 3))
+      self.tryValues("size", pointValues, check)
+
+   def test_clone(self):
+      orig = Rectangle(1, 3, 5, 7)
+      cloned = orig.clone()
+
+      check = (3, 6, 10, 1, Point(1, 3), Point(6, 10), 5, 7, Point(5, 7), 1, 3)
+      self.assertRectangle(orig, *check)
+      self.assertRectangle(cloned, *check)
+
+      self.assertNotEqual(orig, cloned)
+      self.assertTrue(orig.equals(cloned))
+
+   def test_copyFrom(self):
+      orig = Rectangle(1, 3, 5, 7)
+      other = Rectangle(2, 1, 3, 7)
+
+      check_orig = (3, 6, 10, 1, Point(1, 3), Point(6, 10), 5, 7, Point(5, 7), 1, 3)
+      check_other = (1, 5, 8, 2, Point(2, 1), Point(5, 8), 3, 7, Point(3, 7), 2, 1)
+      self.assertRectangle(orig, *check_orig)
+      self.assertRectangle(other, *check_other)
+
+      other.copyFrom(orig)
+      self.assertRectangle(other, *check_orig)
+
+      self.assertNotEqual(orig, other)
+
+   def test_equals(self):
+      orig = Rectangle(1, 3, 5, 7)
+
+      check = (3, 6, 10, 1, Point(1, 3), Point(6, 10), 5, 7, Point(5, 7), 1, 3)
+      self.assertRectangle(orig, *check)
+
+      self.assertTrue(orig.equals(Rectangle(1, 3, 5, 7)))
+
+   def test_isEmpty(self):
+      # TODO: Number needs to support <=
+      self.assertTrue(Rectangle().isEmpty())
+      self.assertTrue(Rectangle(0, 0, 0, 0).isEmpty())
+      self.assertTrue(Rectangle(1, 2, 3, 0).isEmpty())
+      self.assertTrue(Rectangle(1, 2, 0, 4).isEmpty())
+      self.assertFalse(Rectangle(1, 2, 3, 4).isEmpty())
+      self.assertFalse(Rectangle(1, 2, Infinity, Infinity).isEmpty())
+      self.assertFalse(Rectangle(1, 2, NaN, NaN).isEmpty())
+      self.assertFalse(Rectangle(1, 2, undefined, undefined).isEmpty())
+      self.assertTrue(Rectangle(1, 2, -1, -2).isEmpty())
+
+   def test_setEmpty(self):
+      orig = Rectangle(1, 3, 5, 7)
+
+      check = (3, 6, 10, 1, Point(1, 3), Point(6, 10), 5, 7, Point(5, 7), 1, 3)
+      self.assertRectangle(orig, *check)
+
+      ret = orig.setEmpty()
+      self.assertIs(ret, undefined)
+
+      check = (0, 0, 0, 0, Point(0, 0), Point(0, 0), 0, 0, Point(0, 0), 0, 0)
+      self.assertRectangle(orig, *check)
+
+   def tryMethod(name, argsList, isRect, dumpOrig):
+      #trace("");
+      #trace("/// " + name);
+      #trace("");
+
+      rectList = (Rectangle(), Rectangle(1, 3, 5, 7), Rectangle(-1, -3, 5, 7), Rectangle(1, 3, -5, 7))
+      for h in range(len(rectList)):
+         #dump(rectList[h], "rect")
+         for i in range(len(argsList)):
+               #Reset, just to make sure we aren't leaking state
+               rect = rectList[h].clone()
+
+               args = argsList[i]
+               argsText = ""
+               for j in range(len(args)):
+                  if (argsText.length > 0):
+                     argsText += ", "
+                  argsText += args[j]
+
+               result = rect[name].apply(rect, args)
+               if (isRect):
+                  dump(result, "rect." + name + "(" + argsText + ")")
+               else:
+                  trace("// rect." + name + "(" + argsText + ")")
+                  trace(result)
+                  trace("")
+
+               if (dumpOrig):
+                  dump(rect, "rect")
+
+   def test_contains(self):
+      """
+      tryMethod("contains", [
+      //    [],
+      //    [1],
+         [1, 2],
+         [1, 3],
+         [1.1, 3.1],
+         [6, 10],
+         [5.9, 9.9],
+         [4, NaN],
+      //    [undefined, 5],
+         [5, "5"],
+         [5, Infinity],
+      //    [true],
+      //    [false],
+      //    [true, true],
+      //    [false, false],
+      //    [true, false],
+      //    [false, true],
+      //    [0, 0],
+      //    [1, 1],
+      //    [0],
+      //    [1],
+      //    [{}],
+      //    [{}, {}],
+      //    [Infinity],
+      //    [NaN],
+      //    [new Point(1, 3)],
+      //    []
+      ], false, false);
+      """
+      """
+      /// contains
+      // rect
+      (top=0, right=0, bottom=0, left=0, topLeft=(x=0, y=0), bottomRight=(x=0, y=0), width=0, height=0, size=(x=0, y=0), x=0, y=0)
+      // rect.contains(1, 2)
+      false
+      // rect.contains(1, 3)
+      false
+      // rect.contains(1.1, 3.1)
+      false
+      // rect.contains(6, 10)
+      false
+      // rect.contains(5.9, 9.9)
+      false
+      // rect.contains(4, NaN)
+      false
+      // rect.contains(5, 5)
+      false
+      // rect.contains(5, Infinity)
+      false
+      // rect
+      (top=3, right=6, bottom=10, left=1, topLeft=(x=1, y=3), bottomRight=(x=6, y=10), width=5, height=7, size=(x=5, y=7), x=1, y=3)
+      // rect.contains(1, 2)
+      false
+      // rect.contains(1, 3)
+      true
+      // rect.contains(1.1, 3.1)
+      true
+      // rect.contains(6, 10)
+      false
+      // rect.contains(5.9, 9.9)
+      true
+      // rect.contains(4, NaN)
+      false
+      // rect.contains(5, 5)
+      true
+      // rect.contains(5, Infinity)
+      false
+      // rect
+      (top=-3, right=4, bottom=4, left=-1, topLeft=(x=-1, y=-3), bottomRight=(x=4, y=4), width=5, height=7, size=(x=5, y=7), x=-1, y=-3)
+      // rect.contains(1, 2)
+      true
+      // rect.contains(1, 3)
+      true
+      // rect.contains(1.1, 3.1)
+      true
+      // rect.contains(6, 10)
+      false
+      // rect.contains(5.9, 9.9)
+      false
+      // rect.contains(4, NaN)
+      false
+      // rect.contains(5, 5)
+      false
+      // rect.contains(5, Infinity)
+      false
+      // rect
+      (top=3, right=-4, bottom=10, left=1, topLeft=(x=1, y=3), bottomRight=(x=-4, y=10), width=-5, height=7, size=(x=-5, y=7), x=1, y=3)
+      // rect.contains(1, 2)
+      false
+      // rect.contains(1, 3)
+      false
+      // rect.contains(1.1, 3.1)
+      false
+      // rect.contains(6, 10)
+      false
+      // rect.contains(5.9, 9.9)
+      false
+      // rect.contains(4, NaN)
+      false
+      // rect.contains(5, 5)
+      false
+      // rect.contains(5, Infinity)
+      false
+      """
+      raise TestNotImplemented
+
+   def test_containsPoint(self):
+      """
+      tryMethod("containsPoint", [
+         [new Point()],
+         [new Point(1)],
+         [new Point(1, 2)],
+         [new Point(1, 3)],
+         [new Point(1.1, 3.1)],
+         [new Point(6, 10)],
+         [new Point(5.9, 9.9)],
+      //    [new Point(undefined, 5)],
+      //    [{x: 5, y: Infinity}],
+      //    [{x: 5, y: 5}]
+      ], false, false);
+      """
+      raise TestNotImplemented
+
+   def test_containsRect(self):
+      """
+      tryMethod("containsRect", [
+         [new Rectangle(0.9, 2.9, 5, 7)],
+         [new Rectangle(1, 3, 5.1, 7.1)],
+         [new Rectangle(5, 5, NaN, 1)]
+      ], false, false);
+      """
+      raise TestNotImplemented
+
+   def test_inflate(self):
+      """
+      tryMethod("inflate", [
+      //    [],
+      //    [1],
+         [1, 2],
+         [-3, -4],
+         [Infinity, 5],
+         [5, NaN],
+      //    [3, {}]
+      ], false, true);
+      """
+      raise TestNotImplemented
+
+   def test_inflateRect(self):
+      """
+      tryMethod("inflatePoint", [
+      //    [],
+      //    [new Point()],
+         [new Point(1, 2)],
+      //    [{x: 3, y: 4}],
+      //    [{x: 5}]
+      ], false, true);
+      """
+      raise TestNotImplemented
+
+   def test_intersection(self):
+      """
+      tryMethod("intersection", [
+      //    [],
+      //    [new Rectangle(1, 3, 5, 7)],
+         [new Rectangle(3, 5, 7, 9)],
+         [new Rectangle(-1, -3, 5, 7)],
+         [new Rectangle(30, 50, 1, 1)],
+      //    [{x: 3, y: 5, width: 7, height: 1}],
+      //    [{x: 3, y: 5, width: 2}]
+      ], true, false);
+      """
+      raise TestNotImplemented
+
+   def test_intersects(self):
+      """
+      tryMethod("intersects", [
+      //    [],
+      //    [new Rectangle(1, 3, 5, 7)],
+         [new Rectangle(3, 5, 7, 9)],
+         [new Rectangle(-1, -3, 5, 7)],
+      //    [{x: 3, y: 5, width: 7, height: 1}],
+      //    [{x: 3, y: 5, width: 2}]
+      ], false, false);
+      """
+      raise TestNotImplemented
+
+   def test_offset(self):
+      """
+      tryMethod("offset", [
+      //    [],
+      //    [1],
+         [1, 2],
+         [-3, -4],
+         [Infinity, 5],
+         [NaN, 6],
+      //    [5, NaN],
+      //    [3, {}]
+      ], false, true);
+      """
+      raise TestNotImplemented
+
+   def test_offsetPoint(self):
+      """
+      tryMethod("offsetPoint", [
+      //    [],
+      //    [new Point()],
+         [new Point(1, 2)],
+      //    [{x: 3, y: 4}],
+      //    [{x: 5}]
+      ], false, true);
+      """
+      raise TestNotImplemented
+
+   def test_union(self):
+      """
+      tryMethod("union", [
+      //    [],
+      //    [new Rectangle(1, 3, 5, 7)],
+         [new Rectangle(3, 5, 7, 9)],
+         [new Rectangle(3, 5, 7, 9)],
+         [new Rectangle(-1, -3, NaN, 7)],
+      //    [{x: 3, y: 5, width: 7, height: 1}],
+      //    [{x: 3, y: 5, width: 2}]
+      ], true, false);
+      """
+      raise TestNotImplemented
+
+   def test_setTo(self):
+      """
+      tryMethod("setTo", [
+         [3,5,7,9],
+         [-1,-3,5,7]
+      ], false, true);
+      """
+      raise TestNotImplemented
+
+   def test_toString(self):
+      raise TestNotImplemented
 
 
 class TransformTests(as3libTestCase):
