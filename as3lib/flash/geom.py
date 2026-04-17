@@ -1,5 +1,5 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import Math, Number, Object, Vector, null, TypeError
+from as3lib import Math, Number, Object, Vector, null, TypeError, undefined
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -96,7 +96,7 @@ class ColorTransform(Object):
       raise NotImplementedError
 
    def toString(self):
-      return 'redMultiplier=%s, redOffset=%s, greenMultiplier=%s, greenOffset=%s, blueMultiplier=%s, blueOffset=%s, alphaMultiplier=%s, alphaOffset=%s)' % (self._redM, self._redO, self._greenM, self._greenO, self._blueM, self._blueO, self._alphaM, self._alphaO)
+      return '(redMultiplier=%s, redOffset=%s, greenMultiplier=%s, greenOffset=%s, blueMultiplier=%s, blueOffset=%s, alphaMultiplier=%s, alphaOffset=%s)' % (self._redM, self._redO, self._greenM, self._greenO, self._blueM, self._blueO, self._alphaM, self._alphaO)
 
 
 class Matrix(Object):
@@ -506,11 +506,22 @@ class Point(Object):
       return self.x == toCompare.x and self.y == toCompare.y
 
    @staticmethod
-   def interpolate(pt1: Point, pt2: Point, f):
-      raise NotImplementedError
+   def interpolate(pt1: Point, pt2: Point, f: Number):
+      f = Number(f)
+      return Point(pt2.x + f * (pt1.x - pt2.x), pt2.y + f * (pt1.y - pt2.y))
 
    def normalize(self, thickness):
-      raise NotImplementedError
+      # TODO: Handle NaN, undefined, and null for x and y
+      norm_magnitude = Number(1) / self.length
+      if self.x == 0:
+         x = 0
+      else:
+         x = self.x * norm_magnitude * thickness
+      if self.y == 0:
+         y = 0
+      else:
+         y = self.y * norm_magnitude * thickness
+      self.setTo(x, y)
 
    def offset(self, dx, dy):
       self.x = self.x + dx
@@ -542,6 +553,10 @@ class Rectangle(Object):
 
    @property
    def bottomRight(self):
+      return Point(self.x + self.width, self.y + self.height)
+
+   @bottomRight.setter
+   def bottomRight(self, value: Point):
       raise NotImplementedError
 
    @property
@@ -550,10 +565,14 @@ class Rectangle(Object):
 
    @height.setter
    def height(self, value):
-      self._height = value
+      self._height = Number(value)
 
    @property
    def left(self):
+      return self.x
+
+   @left.setter
+   def left(self, value: Number):
       raise NotImplementedError
 
    @property
@@ -575,6 +594,10 @@ class Rectangle(Object):
 
    @property
    def top(self):
+      return self.y
+
+   @top.setter
+   def top(self, value: Number):
       raise NotImplementedError
 
    @property
@@ -592,7 +615,7 @@ class Rectangle(Object):
 
    @width.setter
    def width(self, value):
-      self._width = value
+      self._width = Number(value)
 
    @property
    def x(self):
@@ -600,7 +623,7 @@ class Rectangle(Object):
 
    @x.setter
    def x(self, value):
-      self._x = value
+      self._x = Number(value)
 
    @property
    def y(self):
@@ -608,13 +631,13 @@ class Rectangle(Object):
 
    @y.setter
    def y(self, value):
-      self._y = value
+      self._y = Number(value)
 
    def __init__(self, x=0, y=0, width=0, height=0):
-      self._x = x
-      self._y = y
-      self._width = width
-      self._height = height
+      self.x = x
+      self.y = y
+      self.width = width
+      self.height = height
 
    def clone(self):
       return Rectangle(self.x, self.y, self.width, self.height)
@@ -667,6 +690,7 @@ class Rectangle(Object):
       self.y = 0
       self.width = 0
       self.height = 0
+      return undefined
 
    def setTo(self, xa, ya, widtha, heighta):
       self.x = xa
@@ -854,9 +878,9 @@ class Vector3D(Object):
 
    def normalize(self):
       len = self.length
-      self.x /= len
-      self.y /= len
-      self.z /= len
+      self.x = 0 if self.x == 0 else self.x / len
+      self.y = 0 if self.y == 0 else self.y / len
+      self.z = 0 if self.z == 0 else self.z / len
       return len
 
    def project(self):
