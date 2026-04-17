@@ -2,7 +2,7 @@
 Note to self: remove all of the things that could change outside of this library
     Display stuff should not change (as defined by the actionscript documentation)
 '''
-__version__ = 12
+__version__ = 13
 
 platform = None  # Windows, Linux, or Darwin
 displayserver = None  # linux (x11 or wayland) or darwin (x11 or native) only
