@@ -1,5 +1,5 @@
-from as3lib import (ArgumentError, false, Infinity, Math, NaN, null, Object,
-                    RangeError, true, TypeError, undefined, Vector)
+from as3lib import (ArgumentError, false, Infinity, Math, NaN, null, Number,
+                    Object, RangeError, true, TypeError, undefined, Vector)
 from as3lib.flash.display import Sprite, MovieClip
 from as3lib.flash.geom import (ColorTransform, Matrix, Matrix3D,
                                PerspectiveProjection, Point, Rectangle,
@@ -57,7 +57,7 @@ class MatrixTests(as3libTestCase):
       self.assertMatrix(matrix, 1, 2, 3, 4, 5, 6)
 
       matrix = Matrix(1, 2, 3, 4, 5, 6)
-      matrix.rotate((90/180)*Math.PI)
+      matrix.rotate(Number(90/180)*Math.PI)
       self.assertMatrix(matrix, -2, 1.0000000000000002, -4,
                         3.0000000000000004, -6, 5)
 
@@ -983,7 +983,8 @@ class PointTests(as3libTestCase):
 
       p = Point(undefined, 100)
       p.normalize(1)
-      self.assertPoint(p, NaN, 100)
+      self.assertNaN(p.x)
+      self.assertEqual(p.y, 100)
 
       p = Point(100, null)
       p.normalize(1)
@@ -1026,6 +1027,12 @@ class RectangleTests(as3libTestCase):
       #trace(" // " + desc)
       #trace(extended)
       #trace("")
+
+   def assertRectangleSimple(self, rect, x, y, width, height):
+      self.assertEqual(rect.x, x)
+      self.assertEqual(rect.y, y)
+      self.assertEqual(rect.width, width)
+      self.assertEqual(rect.height, height)
 
    def test_constructor(self):
       check = (0, 0, 0, 0, Point(0, 0), Point(0, 0), 0, 0, Point(0, 0), 0, 0)
@@ -1220,141 +1227,92 @@ class RectangleTests(as3libTestCase):
                if (dumpOrig):
                   dump(rect, "rect")
 
+   def tryMethodBoolean(self, methodName, argsList, check):
+      rectList = (Rectangle(), Rectangle(1, 3, 5, 7), Rectangle(-1, -3, 5, 7), Rectangle(1, 3, -5, 7))
+      for h in range(len(rectList)):
+         #dump(rectList[h], "rect")
+         for i in range(len(argsList)):
+            #Reset, just to make sure we aren't leaking state
+            rect = rectList[h].clone()
+            args = argsList[i]
+            ck = check[h][i]
+            method = getattr(rect, methodName)
+            if ck and not method(*args) or not ck and method(*args):
+               raise AssertionError(f'Rectangle({rect.x}, {rect.y}, {rect.width}, {rect.height}).{methodName}({", ".join(str(i) for i in args)}) != {check}')
+
    def test_contains(self):
-      """
-      tryMethod("contains", [
-      //    [],
-      //    [1],
+      argsList = [
+      #    [],
+      #    [1],
          [1, 2],
          [1, 3],
          [1.1, 3.1],
          [6, 10],
          [5.9, 9.9],
          [4, NaN],
-      //    [undefined, 5],
+      #    [undefined, 5],
          [5, "5"],
          [5, Infinity],
-      //    [true],
-      //    [false],
-      //    [true, true],
-      //    [false, false],
-      //    [true, false],
-      //    [false, true],
-      //    [0, 0],
-      //    [1, 1],
-      //    [0],
-      //    [1],
-      //    [{}],
-      //    [{}, {}],
-      //    [Infinity],
-      //    [NaN],
-      //    [new Point(1, 3)],
-      //    []
-      ], false, false);
-      """
-      """
-      /// contains
-      // rect
-      (top=0, right=0, bottom=0, left=0, topLeft=(x=0, y=0), bottomRight=(x=0, y=0), width=0, height=0, size=(x=0, y=0), x=0, y=0)
-      // rect.contains(1, 2)
-      false
-      // rect.contains(1, 3)
-      false
-      // rect.contains(1.1, 3.1)
-      false
-      // rect.contains(6, 10)
-      false
-      // rect.contains(5.9, 9.9)
-      false
-      // rect.contains(4, NaN)
-      false
-      // rect.contains(5, 5)
-      false
-      // rect.contains(5, Infinity)
-      false
-      // rect
-      (top=3, right=6, bottom=10, left=1, topLeft=(x=1, y=3), bottomRight=(x=6, y=10), width=5, height=7, size=(x=5, y=7), x=1, y=3)
-      // rect.contains(1, 2)
-      false
-      // rect.contains(1, 3)
-      true
-      // rect.contains(1.1, 3.1)
-      true
-      // rect.contains(6, 10)
-      false
-      // rect.contains(5.9, 9.9)
-      true
-      // rect.contains(4, NaN)
-      false
-      // rect.contains(5, 5)
-      true
-      // rect.contains(5, Infinity)
-      false
-      // rect
-      (top=-3, right=4, bottom=4, left=-1, topLeft=(x=-1, y=-3), bottomRight=(x=4, y=4), width=5, height=7, size=(x=5, y=7), x=-1, y=-3)
-      // rect.contains(1, 2)
-      true
-      // rect.contains(1, 3)
-      true
-      // rect.contains(1.1, 3.1)
-      true
-      // rect.contains(6, 10)
-      false
-      // rect.contains(5.9, 9.9)
-      false
-      // rect.contains(4, NaN)
-      false
-      // rect.contains(5, 5)
-      false
-      // rect.contains(5, Infinity)
-      false
-      // rect
-      (top=3, right=-4, bottom=10, left=1, topLeft=(x=1, y=3), bottomRight=(x=-4, y=10), width=-5, height=7, size=(x=-5, y=7), x=1, y=3)
-      // rect.contains(1, 2)
-      false
-      // rect.contains(1, 3)
-      false
-      // rect.contains(1.1, 3.1)
-      false
-      // rect.contains(6, 10)
-      false
-      // rect.contains(5.9, 9.9)
-      false
-      // rect.contains(4, NaN)
-      false
-      // rect.contains(5, 5)
-      false
-      // rect.contains(5, Infinity)
-      false
-      """
-      raise TestNotImplemented
+      #    [true],
+      #    [false],
+      #    [true, true],
+      #    [false, false],
+      #    [true, false],
+      #    [false, true],
+      #    [0, 0],
+      #    [1, 1],
+      #    [0],
+      #    [1],
+      #    [{}],
+      #    [{}, {}],
+      #    [Infinity],
+      #    [NaN],
+      #    [new Point(1, 3)],
+      #    []
+      ]
+      checkList = (
+         (false, false, false, false, false, false, false, false),
+         (false, true, true, false, true, false, true, false),
+         (true, true, true, false, false, false, false, false),
+         (false, false, false, false, false, false, false, false)
+      )
+      self.tryMethodBoolean('contains', argsList, checkList)
 
    def test_containsPoint(self):
-      """
-      tryMethod("containsPoint", [
-         [new Point()],
-         [new Point(1)],
-         [new Point(1, 2)],
-         [new Point(1, 3)],
-         [new Point(1.1, 3.1)],
-         [new Point(6, 10)],
-         [new Point(5.9, 9.9)],
-      //    [new Point(undefined, 5)],
-      //    [{x: 5, y: Infinity}],
-      //    [{x: 5, y: 5}]
-      ], false, false);
-      """
-      raise TestNotImplemented
+      argsList = [
+         [Point()],
+         [Point(1)],
+         [Point(1, 2)],
+         [Point(1, 3)],
+         [Point(1.1, 3.1)],
+         [Point(6, 10)],
+         [Point(5.9, 9.9)],
+      #    [new Point(undefined, 5)],
+      #    [{x: 5, y: Infinity}],
+      #    [{x: 5, y: 5}]
+      ]
+      checkList = (
+         (false, false, false, false, false, false, false),
+         (false, false, false, true, true, false, true),
+         (true, true, true, true, true, false, false),
+         (false, false, false, false, false, false, false)
+      )
+      self.tryMethodBoolean('containsPoint', argsList, checkList)
 
    def test_containsRect(self):
-      """
-      tryMethod("containsRect", [
-         [new Rectangle(0.9, 2.9, 5, 7)],
-         [new Rectangle(1, 3, 5.1, 7.1)],
-         [new Rectangle(5, 5, NaN, 1)]
-      ], false, false);
-      """
-      raise TestNotImplemented
+      # TODO: Add rectangles that are inside some of the test rects
+      argsList = [
+         [Rectangle(0.9, 2.9, 5, 7)],
+         [Rectangle(1, 3, 5.1, 7.1)],
+         [Rectangle(5, 5, NaN, 1)]
+      ]
+      checkList = (
+         (false, false, false),
+         (false, false, false),
+         (false, false, false),
+         (false, false, false)
+      )
+      self.tryMethodBoolean('containsRect', argsList, checkList)
 
    def test_inflate(self):
       """
