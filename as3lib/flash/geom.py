@@ -643,15 +643,15 @@ class Rectangle(Object):
       return Rectangle(self.x, self.y, self.width, self.height)
 
    def contains(self, x, y):
-      # TODO: Make sure that this is correct. I am unsure if the boundaries are considered inside of the rectangle.
-      # If the boundaries are not inside the rectangle, this should be < and > instead of <= and >=.
-      return x >= self.x and x <= self.right and y >= self.y and y <= self.bottom
+      x, y = Number(x), Number(y)
+      return x >= self.x and x < self.right and y >= self.y and y < self.bottom
 
    def containsPoint(self, point: Point):
       return self.contains(point.x, point.y)
 
    def containsRect(self, rect: Rectangle):
-      raise NotImplementedError
+      # TODO: Ensure that this is correct
+      return self.containsPoint(rect.topLeft) and self.containsPoint(rect.bottomRight)
 
    def copyFrom(self, sourceRect: Rectangle):
       self.x = sourceRect.x
