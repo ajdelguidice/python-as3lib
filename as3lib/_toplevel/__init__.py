@@ -1060,6 +1060,12 @@ class Number(Object):
    def __gt__(self, value):
       return self._value > value
 
+   def __ge__(self, value):
+      return self._value >= value
+
+   def __le__(self, value):
+      return self._value <= value
+
    def __neg__(self):
       return Number(-self._value)
 
