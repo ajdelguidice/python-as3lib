@@ -1,5 +1,5 @@
 from __future__ import annotations  # allow forward references
-from as3lib import metaclasses
+from as3lib import metaclasses, Object, String, uint
 from as3lib.fl.core import UIComponent
 from as3lib.fl.containers import BaseScrollPane
 from as3lib.flash.events import EventDispatcher
@@ -97,3 +97,56 @@ class TileList(SelectableList):...
 
 
 class UIScrollBar(ScrollBar):...
+
+
+class listClasses:
+   class CellRenderer(LabelButton):
+      ...
+
+
+   class ImageCell(CellRenderer):
+      ...
+
+
+   class ListData(Object):
+      @property
+      def column(self):
+         return self._col
+
+      @property
+      def icon(self):
+         return self._icon
+
+      @property
+      def index(self):
+         return self._index
+
+      @property
+      def label(self):
+         return self._label
+
+      @property
+      def owner(self):
+         return self._owner
+
+      @property
+      def row(self):
+         return self._row
+
+      def __init__(self, label: String, icon: Object, owner: UIComponent, index: uint, row: uint, col: uint = 0):
+         self._label = String(label)
+         self._icon = icon
+         self._owner = owner
+         self._index = uint(index)
+         self._row = uint(row)
+         self._col = uint(col)
+
+
+   class TileListData(ListData):
+      @property
+      def source(self):
+         return self._source
+
+      def __init__(self, label: String, icon: Object, source: Object, owner: UIComponent, index: uint, row: uint, col: uint = 0):
+         super().__init__(label, icon, owner, index, row, col)
+         self._source = source
