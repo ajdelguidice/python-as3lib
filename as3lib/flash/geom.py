@@ -1,5 +1,5 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import Math, Number, Object, Vector, null, TypeError, undefined
+from as3lib import false, Math, Number, Object, Vector, null, TypeError, true, undefined
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -697,6 +697,7 @@ class Rectangle(Object):
       self.y = ya
       self.width = widtha
       self.height = heighta
+      return undefined
 
    def toString(self):
       return f'(x={self.x}, y={self.y}, w={self.width}, h={self.height})'
@@ -852,7 +853,7 @@ class Vector3D(Object):
 
    @staticmethod
    def distance(pt1: Vector3D, pt2: Vector3D):
-      raise NotImplementedError
+      return Math.sqrt((pt2.x - pt1.x) ** 2 + (pt2.y - pt1.y) ** 2 + (pt2.z - pt1.z) ** 2)
 
    def dotProduct(self, a: Vector3D):
       raise NotImplementedError
@@ -869,7 +870,17 @@ class Vector3D(Object):
       self.z += a.z
 
    def nearEquals(self, toCompare: Vector3D, tolerance, allFour=False):
-      raise NotImplementedError
+      # TODO: allFour
+      # NOTE: Can't use math.isclose here because it doesn't function the same
+      if allFour:
+         raise NotImplementedError
+      if tolerance == 0:
+         return false
+      if (abs(self.x - toCompare.x) > tolerance or
+          abs(self.y - toCompare.y) > tolerance or
+          abs(self.z - toCompare.z) > tolerance):
+         return false
+      return true
 
    def negate(self):
       self.x = -self.x
