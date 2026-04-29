@@ -1,10 +1,11 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import false, Math, Number, Object, Vector, null, TypeError, true, undefined
+from as3lib import false, Math, Number, Object, Vector, null, TypeError, true, uint, undefined
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
 
 class ColorTransform(Object):
+   # TODO: rgb property/variable
    @property
    def alphaMultiplier(self):
       return self._alphaM
@@ -42,7 +43,8 @@ class ColorTransform(Object):
       return self.redOffset << 16 | self.greenOffset << 8 | self.blueOffset
 
    @color.setter
-   def color(self, value):
+   def color(self, value: uint):
+      value = uint(value)
       self.redMultiplier = 0
       self.greenMultiplier = 0
       self.blueMultiplier = 0
@@ -96,7 +98,7 @@ class ColorTransform(Object):
       raise NotImplementedError
 
    def toString(self):
-      return '(redMultiplier=%s, redOffset=%s, greenMultiplier=%s, greenOffset=%s, blueMultiplier=%s, blueOffset=%s, alphaMultiplier=%s, alphaOffset=%s)' % (self._redM, self._redO, self._greenM, self._greenO, self._blueM, self._blueO, self._alphaM, self._alphaO)
+      return '(redMultiplier=%s, greenMultiplier=%s, blueMultiplier=%s, alphaMultiplier=%s, redOffset=%s, greenOffset=%s, blueOffset=%s, alphaOffset=%s)' % (self._redM, self._greenM, self._blueM, self._alphaM, self._redO, self._greenO, self._blueO, self._alphaO)
 
 
 class Matrix(Object):
