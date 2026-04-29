@@ -1346,6 +1346,12 @@ class int(Object):
    def __mod__(self, value):
       return int(self._value % self._int(value))
 
+   def __and__(self, value):
+      return int(self._value & self._int(value))
+
+   def __or__(self, value):
+      return int(self._value | self._int(value))
+
    def _int(self, value):
       if isinstance(value, str):
          value = parseFloat(value)
