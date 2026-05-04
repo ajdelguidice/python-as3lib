@@ -65,13 +65,15 @@ def sm_wayland():
 
 def sm_windows():
    import ctypes
+   width = int(ctypes.windll.user32.GetSystemMetrics(0))
+   height - int(ctypes.windll.user32.GetSystemMetrics(1))
    try:
       import win32api
    except ModuleNotFoundError:
       as3state.initerror.append((3, 'Windows: Requirement pywin32 either not installed or not accessible.'))
-      return 1600, 900, 60.0, 16
+      return width, height, 60.0, 16
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   return int(ctypes.windll.user32.GetSystemMetrics(0)), int(ctypes.windll.user32.GetSystemMetrics(1)), float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
+   return width, height, float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
 
 
 def sm_darwin():
