@@ -70,7 +70,7 @@ def sm_windows():
    try:
       import win32api
    except ModuleNotFoundError:
-      as3state.initerror.append((3, 'Windows: Requirement pywin32 either not installed or not accessible.'))
+      print('Warning: Windows requirement "pywin32" not found. Using default screen parameters.')
       return width, height, 60.0, 16
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
    return width, height, float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))

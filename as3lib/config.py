@@ -90,7 +90,10 @@ def _dependencyCheck():
       if check_output(('which', 'xrandr')).decode('utf-8').startswith('which: no'):
          as3state.initerror.append((3, 'Linux: requirement "xrandr" not found'))
          hasDeps = False
-   elif as3state.platform == 'Windows':...
+   elif as3state.platform == 'Windows':
+      if find_spec('win32api') is None:
+         as3state.initerror.append((3, 'Windows: Requirement "pywin32" not found'))
+         hasDeps = False
    elif as3state.platform == 'Darwin':...
    if find_spec('numpy') is None:  # https://pypi.org/project/numpy
       as3state.initerror.append((3, 'Python: requirement "numpy" not found'))
