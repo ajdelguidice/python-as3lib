@@ -7,6 +7,128 @@ from as3lib.flash.geom import (ColorTransform, Matrix, Matrix3D,
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
+class ColorTransformTests(as3libTestCase):
+   # NOTE: rgb property seems to be the same as color
+   def assertColorTransform(self, ct, redMultiplier, greenMultiplier,
+                            blueMultiplier, alphaMultiplier, redOffset,
+                            greenOffset, blueOffset, alphaOffset,
+                            color = None):
+      self.assertEqual(ct.redMultiplier, redMultiplier)
+      self.assertEqual(ct.greenMultiplier, greenMultiplier)
+      self.assertEqual(ct.blueMultiplier, blueMultiplier)
+      self.assertEqual(ct.alphaMultiplier, alphaMultiplier)
+      self.assertEqual(ct.redOffset, redOffset)
+      self.assertEqual(ct.greenOffset, greenOffset)
+      self.assertEqual(ct.blueOffset, blueOffset)
+      self.assertEqual(ct.alphaOffset, alphaOffset)
+      if color is not None:
+         self.assertEqual(ct.color, color)
+
+   def test_constructor(self):
+      ct = ColorTransform(1, 1, 1, 1, 255, 25, 0, 0)
+      self.assertColorTransform(ct, 1, 1, 1, 1, 255, 25, 0, 0, 16718080)
+
+   def test_colorSet1(self):
+      # TODO: verify that alphaOffset is correct.
+      ct = ColorTransform(1, 1, 1, 1, 255, 25, 25, 25)
+      ct.color = 16711680
+      self.assertColorTransform(ct, 0, 0, 0, 1, 255, 0, 0, 25, 16711680)
+
+   def test_concat(self):
+      ct = ColorTransform(0.5, 0.5, 0.5, 0.5, 10, 20, 30, 40)
+      ct2 = ColorTransform(0.5, 0.5, 0.5, 0.5, 50, 60, 70, 80)
+      ct.concat(ct2)
+      self.assertColorTransform(ct, 0.25, 0.25, 0.25, 0.25, 35, 50, 65, 80)
+
+   def test_multiplierSet(self):
+      ct = ColorTransform(1, 1, 0, 0.5, 0, 25, 0, 0)
+      ct.color = 65280
+      ct.greenMultiplier = 0.5
+      ct.redMultiplier = 0.5
+      ct.blueMultiplier = 0.5
+      ct.alphaMultiplier = 0.5
+      ct.alphaOffset = 50
+      self.assertColorTransform(ct, 0.5, 0.5, 0.5, 0.5, 0, 255, 0, 50)
+
+   def test_oobConstructorMult(self):
+      # TODO: Make sure that ct is the correct one
+      ct = ColorTransform(0.5, 0.5, 0.5, 0.5, 10, 20, 30, 40)
+      ct3 = ColorTransform(1000, 1000, 1000, 1000, 1000.1, 1000.1, 1000.1, 1000.1)
+      self.assertColorTransform(ct3, 1000, 1000, 1000, 1000, 1000.1, 1000.1, 1000.1, 1000.1)
+      ct3.concat(ct)
+      self.assertColorTransform(ct3, 250, 250, 250, 250, 36000.1, 51000.1, 66000.1, 81000.1)
+
+   def test_color(self):
+      ct = ColorTransform(1, 1, 1, 1, 255, 255, 255, 255)
+      self.assertEqual(ct.color, 16777215)
+      ct.redOffset = 30
+      self.assertEqual(ct.color, 2031615)
+      ct.greenOffset = 70
+      self.assertEqual(ct.color, 1984255)
+      ct.blueOffset = 80
+      self.assertEqual(ct.color, 1984080)
+      ct.alphaOffset = 100
+      self.assertEqual(ct.color, 1984080)
+
+   def test_colorSet(self):
+      ct = ColorTransform(1, 1, 1, 1, 255, 255, 255, 255)
+      ct.color = 2109504
+      self.assertEqual(ct.redOffset, 32)
+      self.assertEqual(ct.greenOffset, 48)
+      self.assertEqual(ct.blueOffset, 64)
+
+      ct.color = 123.456
+      self.assertEqual(ct.redOffset, 0)
+      self.assertEqual(ct.greenOffset, 0)
+      self.assertEqual(ct.blueOffset, 123)
+
+   def test_toString(self):
+      ct = ColorTransform(1,1,1,1,255,25,0,0)
+      self.assertEqual(ct.toString(), "(redMultiplier=1, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=255, greenOffset=25, blueOffset=0, alphaOffset=0)")
+
+   """
+   trace("Bad concat");
+   var ct = new flash.geom.ColorTransform(1,1,1,1,255,255,255,255);
+   ct.concat();
+   trace(ct);
+   for(var x in flash.geom.ColorTransform.prototype)
+   {
+      trace(x);
+   }
+   trace("Large values");
+   var ct = new flash.geom.ColorTransform();
+   ct.redMultiplier = 8589934592;
+   trace(ct);
+   trace("Strange values");
+   ct.redMultiplier = "Test123";
+   ct.greenOffset = 1000;
+   trace(ct);
+   var ct = new flash.geom.ColorTransform();
+   var n = 36893488147419103000;
+   ct.rgb = n;
+   trace(ct);
+
+   Bad concat
+   (redMultiplier=1, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=255, greenOffset=255, blueOffset=255, alphaOffset=255)
+   toString
+   concat
+   rgb
+   blueOffset
+   greenOffset
+   redOffset
+   alphaOffset
+   blueMultiplier
+   greenMultiplier
+   redMultiplier
+   alphaMultiplier
+   Large values
+   (redMultiplier=8589934592, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=0, greenOffset=0, blueOffset=0, alphaOffset=0)
+   Strange values
+   (redMultiplier=NaN, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=0, greenOffset=1000, blueOffset=0, alphaOffset=0)
+   (redMultiplier=0, greenMultiplier=0, blueMultiplier=0, alphaMultiplier=1, redOffset=0, greenOffset=0, blueOffset=0, alphaOffset=0)
+   """
+
+
 class MatrixTests(as3libTestCase):
    def test_constructor(self):
       self.assertMatrix(Matrix(), 1, 0, 0, 1, 0, 0)
@@ -651,6 +773,31 @@ class Matrix3DTests(as3libTestCase):
       asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
       self.assertMatrix3D(m, asrt)
 
+      # Invalid Vector length
+      tooShort = Matrix3D(Vector.Number([1, 2]))
+      asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+      self.assertMatrix3D(tooShort, asrt)
+
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16, 17])
+      tooLong = Matrix3D(v)
+      self.assertMatrix3D(tooLong, asrt)
+
+   def test_clone(self):
+      # NOTE: Mostly copied from MatrixTests.test_clone
+      #       Unsure if this is correct
+      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                         16])
+      m = Matrix3D(v)
+      cloned = m.clone()
+
+      asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+      self.assertMatrix3D(cloned, asrt)
+      self.assertIsNot(cloned, m)
+
+      m.rawData[0] = 22
+      self.assertNotEqual(cloned.rawData[0], 22)
+
    def test_appendScale(self):
       m = Matrix3D()
       m.appendScale(1, 2, 3)
@@ -752,15 +899,6 @@ class Matrix3DTests(as3libTestCase):
 
       vOut = m.deltaTransformVector(v)
       self.assertVector3D(vOut, 2332, 2576, 2820, 3120)
-
-      tooShort = Matrix3D(Vector.Number([1, 2]))
-      asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
-      self.assertMatrix3D(tooShort, asrt)
-
-      v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                         16, 17])
-      tooLong = Matrix3D(v)
-      self.assertMatrix3D(tooLong, asrt)
 
       modified = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                                 15, 16])
@@ -1202,7 +1340,8 @@ class RectangleTests(as3libTestCase):
       #trace("/// " + name);
       #trace("");
 
-      rectList = (Rectangle(), Rectangle(1, 3, 5, 7), Rectangle(-1, -3, 5, 7), Rectangle(1, 3, -5, 7))
+      rectList = (Rectangle(), Rectangle(1, 3, 5, 7), Rectangle(-1, -3, 5, 7),
+                  Rectangle(1, 3, -5, 7))
       for h in range(len(rectList)):
          #dump(rectList[h], "rect")
          for i in range(len(argsList)):
@@ -1409,13 +1548,17 @@ class RectangleTests(as3libTestCase):
       raise TestNotImplemented
 
    def test_setTo(self):
-      """
-      tryMethod("setTo", [
-         [3,5,7,9],
-         [-1,-3,5,7]
-      ], false, true);
-      """
-      raise TestNotImplemented
+      def assert_setTo(rect, x, y, width, height):
+         ret = rect.setTo(x, y, width, height)
+         self.assertEqual(ret, undefined)
+         self.assertRectangleSimple(rect, x, y, width, height)
+
+      rectList = (Rectangle(), Rectangle(1, 3, 5, 7), Rectangle(-1, -3, 5, 7),
+                  Rectangle(1, 3, -5, 7))
+      argsList = ((3, 5, 7, 9), (-1, -3, 5, 7))
+      for i in rectList:
+         for j in argsList:
+            assert_setTo(i.clone(), *j)
 
    def test_toString(self):
       raise TestNotImplemented
