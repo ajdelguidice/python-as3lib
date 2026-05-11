@@ -1,5 +1,6 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import false, Math, Number, Object, Vector, null, TypeError, true, uint, undefined
+from as3lib import (each, false, Math, null, Number, Object, TypeError, true,
+                    uint, undefined, Vector)
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -347,8 +348,8 @@ class Matrix3D:
       raise NotImplementedError
 
    def clone(self):
-      # TODO: Make this not cause rawData to be linked between the two
-      return Matrix3D(self.rawData)
+      # TODO: Find a better way to clone this data
+      return Matrix3D(Vector.Number(list(each(self.rawData))))
 
    def copyColumnFrom(self, column, vector3D:Vector3D):
       raise NotImplementedError
