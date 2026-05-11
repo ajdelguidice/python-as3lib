@@ -1,6 +1,7 @@
 from __future__ import annotations
 import as3lib as as3
-from as3lib import Array, ArgumentError, as3state, false, metaclasses, Object, true
+from as3lib import (Array, ArgumentError, as3state, Boolean, false,
+                    metaclasses, null, Object, String, true)
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher
@@ -654,7 +655,7 @@ class Graphics(Object):
       # Only internal things are supposed to be able to instantiate this but
       # there is no way to implement access restrictions like that in python
       # so an argument will have to do.
-      noerr = kwargs.pop('__as3Internal_constructorErrorOverride')
+      noerr = kwargs.get('__as3Internal_constructorErrorOverride', False)
       if not noerr:
          raise
       ...
@@ -1315,14 +1316,14 @@ class NativeWindowDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 class NativeWindowInitOptions:
    # TODO: Add restraints for properties and make them actual properties
    def __init__(self, **kwargs):
-      self.maximizable = bool(kwargs.get('maximizable', True))
-      self.minimizable = bool(kwargs.get('minimizable', True))
-      self.owner: NativeWindow = kwargs.get('owner', None)
-      self.renderMode = str(kwargs.get('renderMode', ''))
-      self.resizable = bool(kwargs.get('resizable', True))
-      self.systemChrome = str(kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD))
-      self.transparent = bool(kwargs.get('transparent', False))
-      self.type = str(kwargs.get('type', NativeWindowType.NORMAL))
+      self.maximizable = Boolean(kwargs.get('maximizable', True))
+      self.minimizable = Boolean(kwargs.get('minimizable', True))
+      self.owner: NativeWindow = kwargs.get('owner', null)
+      self.renderMode = String(kwargs.get('renderMode', ''))
+      self.resizable = Boolean(kwargs.get('resizable', True))
+      self.systemChrome = String(kwargs.get('systemChrome', NativeWindowSystemChrome.STANDARD))
+      self.transparent = Boolean(kwargs.get('transparent', False))
+      self.type = String(kwargs.get('type', NativeWindowType.NORMAL))
 
 
 class NativeWindowRenderMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
