@@ -66,7 +66,7 @@ def sm_wayland():
 def sm_windows():
    import ctypes
    width = int(ctypes.windll.user32.GetSystemMetrics(0))
-   height - int(ctypes.windll.user32.GetSystemMetrics(1))
+   height = int(ctypes.windll.user32.GetSystemMetrics(1))
    try:
       import win32api
    except ModuleNotFoundError:
