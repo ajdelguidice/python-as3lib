@@ -4,6 +4,7 @@ from .helpers import isValidDirectory
 import builtins, os
 from functools import partial
 from miniamf import add_type
+from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
 from pathlib import Path
 from subprocess import check_output
 
@@ -167,38 +168,38 @@ from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
 Int = int  # Backwards compatibility
 
 
-try:
-   from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
-   # TODO: Add adapter for Date, Object, XML stuff
-   def adapter(func, obj, encoder):
-      return func(obj)
+# Set up miniamf type adapters
+# TODO: Add adapter for Date, Object, XML stuff
+def adapter(func, obj, encoder):
+   return func(obj)
 
-   def arrayAdapter(obj, encoder):
-      return list(each(obj))
 
-   def vectorAdapter(obj, encoder):
-      if obj._type is int:
-         out = IntVector(each(obj))
-      elif obj._type is uint:
-         out = UintVector(each(obj))
-      elif obj._type is Number:
-         out = DoubleVector(each(obj))
-      else:
-         out = ObjectVector(each(obj))
-         # TODO
-         # out.classname =
-      out.fixed = obj.fixed
-      return out
+def arrayAdapter(obj, encoder):
+   return list(each(obj))
 
-   add_type(Array, arrayAdapter)
-   add_type(Boolean, partial(adapter, bool))
-   add_type(int, partial(adapter, builtins.int))
-   add_type(Number, partial(adapter, float))
-   add_type(String, partial(adapter, str))
-   add_type(uint, partial(adapter, int))
-   add_type(Vector, vectorAdapter)
-except Exception as e:
-   raise Error('Failed to set up miniamf type adapters.') from e
+
+def vectorAdapter(obj, encoder):
+   if obj._type is int:
+      out = IntVector(each(obj))
+   elif obj._type is uint:
+      out = UintVector(each(obj))
+   elif obj._type is Number:
+      out = DoubleVector(each(obj))
+   else:
+      out = ObjectVector(each(obj))
+      # TODO
+      # out.classname =
+   out.fixed = obj.fixed
+   return out
+
+
+add_type(Array, arrayAdapter)
+add_type(Boolean, partial(adapter, bool))
+add_type(int, partial(adapter, builtins.int))
+add_type(Number, partial(adapter, float))
+add_type(String, partial(adapter, str))
+add_type(uint, partial(adapter, int))
+add_type(Vector, vectorAdapter)
 
 
 # Create NativeApplication Instance
