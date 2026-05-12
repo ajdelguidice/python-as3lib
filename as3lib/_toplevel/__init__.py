@@ -97,6 +97,18 @@ class undefined:
    def __iter__(self):
       return iter([])
 
+   def __add__(self, value):
+      return NaN
+
+   def __sub__(self, value):
+      return NaN
+
+   def __mul__(self, value):
+      return NaN
+
+   def __truediv__(self, value):
+      return NaN
+
    def __lshift__(self, value):
       # TODO: Check return type
       return Number(0)
@@ -135,6 +147,22 @@ class null:
 
    def __iter__(self):
       return iter([])
+
+   def __add__(self, value):
+      # TODO: Check type
+      return Number(0) + value
+
+   def __sub__(self, value):
+      # TODO: Check type
+      return Number(0) - value
+
+   def __mul__(self, value):
+      # TODO: Check type
+      return Number(0) * value
+
+   def __truediv__(self, value):
+      # TODO: Check type
+      return Number(0) / value
 
    def __lshift__(self, value):
       # TODO: Check return type
@@ -183,6 +211,18 @@ class Object:
       return (i for i in self.__dict__.keys())
 
    def __neg__(self):
+      return NaN
+
+   def __add__(self, value):
+      return String(self.toString()) + value
+
+   def __sub__(self, value):
+      raise NotImplementedError
+
+   def __mul__(self, value):
+      raise NotImplementedError
+
+   def __truediv__(self, value):
       return NaN
 
    def hasOwnProperty(self, name: str):
@@ -505,6 +545,22 @@ class Boolean(Object):
 
    def __pos__(self):
       return Number(self)
+
+   def __add__(self, value):
+      # TODO: Check type
+      return Number(self._value) + value
+
+   def __sub__(self, value):
+      # TODO: Check type
+      return Number(self._value) - value
+
+   def __mul__(self, value):
+      # TODO: Check type
+      return Number(self._value) * value
+
+   def __truediv__(self, value):
+      # TODO: Check type
+      return Number(self._value) / value
 
    def __lshift__(self, value):
       # TODO: Check to see if this is actually correct
@@ -1064,7 +1120,7 @@ class Number(Object):
          if self._value < 0:
             return Number.NEGATIVE_INFINITY
          return Number.NaN
-      return Number(self._value / value)
+      return Number(self._value / self._Number(value))
 
    def __float__(self):
       return self._value
@@ -1125,7 +1181,7 @@ class Number(Object):
       if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
          return expression
       if expression is undefined or expression is None:
-         return Number.NaN
+         return _NaN_value
       if expression is null:
          return 0.0
       if hasattr(expression, '__float__'):
@@ -1133,7 +1189,7 @@ class Number(Object):
       if isinstance(expression, str):
          return parseFloat(expression)
       if isinstance(expression, Object):
-         return Number.NaN
+         return _NaN_value
 
    def toExponential(self, fractionDigits=null):
       # TODO: Cast fractionDigits to uint
@@ -1469,9 +1525,6 @@ class String(str, Object):
    def __getitem__(self, item):
       return String(super().__getitem__(item))
 
-   def __add__(self, value):
-      return String('%s%s' % (self, self._String(value)))
-
    def __bool__(self):
       return self.length > 0
 
@@ -1482,6 +1535,20 @@ class String(str, Object):
    def __pos__(self):
       # TODO: Make sure that this is correct
       return Number(self)
+
+   def __add__(self, value):
+      return String('%s%s' % (self, self._String(value)))
+
+   def __sub__(self, value):
+      raise NotImplementedError
+
+   def __mul__(self, value):
+      # TODO: Make sure that this is correct
+      return Number(self) * value
+
+   def __truediv__(self, value):
+      # TODO: Make sure that this is correct
+      return Number(self) / value
 
    def __lshift__(self, value):
       # TODO: Make sure that this is correct
