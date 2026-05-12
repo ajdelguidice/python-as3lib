@@ -3,8 +3,11 @@ import unittest
 
 
 class as3libTestCase(unittest.TestCase):
+   def isNaNExplicit(self, obj):
+      return hasattr(obj, '_is_nan') and obj._is_nan() or obj is NaN or obj is Number.NaN
+
    def assertNaN(self, obj):
-      if not (hasattr(obj, '_is_nan') and obj._is_nan() or obj is NaN or obj is Number.NaN):
+      if not self.isNaNExplicit(obj):
          self.fail('%r is not NaN' % obj)
 
    def assertArray(self, array, check, length=None):
