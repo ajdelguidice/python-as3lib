@@ -13,7 +13,7 @@ class ColorTransform(Object):
 
    @alphaMultiplier.setter
    def alphaMultiplier(self, value):
-      self._alphaM = value
+      self._alphaM = Number(value)
 
    @property
    def alphaOffset(self):
@@ -21,7 +21,7 @@ class ColorTransform(Object):
 
    @alphaOffset.setter
    def alphaOffset(self, value):
-      self._alphaO = value
+      self._alphaO = Number(value)
 
    @property
    def blueMultiplier(self):
@@ -29,7 +29,7 @@ class ColorTransform(Object):
 
    @blueMultiplier.setter
    def blueMultiplier(self, value):
-      self._blueM = value
+      self._blueM = Number(value)
 
    @property
    def blueOffset(self):
@@ -37,11 +37,11 @@ class ColorTransform(Object):
 
    @blueOffset.setter
    def blueOffset(self, value):
-      self._blueO = value
+      self._blueO = Number(value)
 
    @property
    def color(self):
-      return self.redOffset << 16 | self.greenOffset << 8 | self.blueOffset
+      return uint(self.redOffset << 16 | self.greenOffset << 8 | self.blueOffset)
 
    @color.setter
    def color(self, value: uint):
@@ -59,7 +59,7 @@ class ColorTransform(Object):
 
    @greenMultiplier.setter
    def greenMultiplier(self, value):
-      self._greenM = value
+      self._greenM = Number(value)
 
    @property
    def greenOffset(self):
@@ -67,7 +67,7 @@ class ColorTransform(Object):
 
    @greenOffset.setter
    def greenOffset(self, value):
-      self._greenO = value
+      self._greenO = Number(value)
 
    @property
    def redMultiplier(self):
@@ -75,7 +75,7 @@ class ColorTransform(Object):
 
    @redMultiplier.setter
    def redMultiplier(self, value):
-      self._redM = value
+      self._redM = Number(value)
 
    @property
    def redOffset(self):
@@ -83,17 +83,17 @@ class ColorTransform(Object):
 
    @redOffset.setter
    def redOffset(self, value):
-      self._redO = value
+      self._redO = Number(value)
 
    def __init__(self, redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0, redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):
-      self._redM = redMultiplier
-      self._redO = redOffset
-      self._greenM = greenMultiplier
-      self._greenO = greenOffset
-      self._blueM = blueMultiplier
-      self._blueO = blueOffset
-      self._alphaM = alphaMultiplier
-      self._alphaO = alphaOffset
+      self.redMultiplier = redMultiplier
+      self.greenMultiplier = greenMultiplier
+      self.blueMultiplier = blueMultiplier
+      self.alphaMultiplier = alphaMultiplier
+      self.redOffset = redOffset
+      self.greenOffset = greenOffset
+      self.blueOffset = blueOffset
+      self.alphaOffset = alphaOffset
 
    def concat(self, second: ColorTransform):
       raise NotImplementedError
