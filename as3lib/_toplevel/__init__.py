@@ -97,6 +97,14 @@ class undefined:
    def __iter__(self):
       return iter([])
 
+   def __lshift__(self, value):
+      # TODO: Check return type
+      return Number(0)
+
+   def __rshift__(self, value):
+      # TODO: Check return type
+      return Number(0)
+
    def __each__(self):
       return iter([])
 
@@ -127,6 +135,14 @@ class null:
 
    def __iter__(self):
       return iter([])
+
+   def __lshift__(self, value):
+      # TODO: Check return type
+      return Number(0)
+
+   def __rshift__(self, value):
+      # TODO: Check return type
+      return Number(0)
 
    def __each__(self):
       return iter([])
@@ -489,6 +505,14 @@ class Boolean(Object):
 
    def __pos__(self):
       return Number(self)
+
+   def __lshift__(self, value):
+      # TODO: Check to see if this is actually correct
+      return int(self._value) << value
+
+   def __rshift__(self, value):
+      # TODO: Check to see if this is actually correct
+      return int(self._value) >> value
 
    def _Boolean(self, expression=None):
       if isinstance(expression, bool):
@@ -1085,6 +1109,14 @@ class Number(Object):
          return Number(math.floor(self._value))
       return Number(round(self._value, places))
 
+   def __lshift__(self, value):
+      # TODO: Make sure that this is correct
+      return int(self) << value
+
+   def __rshift__(self, value):
+      # TODO: Make sure that this is correct
+      return int(self) >> value
+
    def _Number(self, expression):
       if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
          return _NaN_value
@@ -1450,6 +1482,14 @@ class String(str, Object):
    def __pos__(self):
       # TODO: Make sure that this is correct
       return Number(self)
+
+   def __lshift__(self, value):
+      # TODO: Make sure that this is correct
+      return int(self) << value
+
+   def __rshift__(self, value):
+      # TODO: Make sure that this is correct
+      return int(self) >> value
 
    def charAt(self, index: builtins.int | int = 0):
       if index < 0 or index > len(self) - 1:
