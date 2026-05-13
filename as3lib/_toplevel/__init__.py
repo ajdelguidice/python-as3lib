@@ -217,13 +217,19 @@ class Object:
       return String(self.toString()) + value
 
    def __sub__(self, value):
-      raise NotImplementedError
+      return Number(self) - value
 
    def __mul__(self, value):
       raise NotImplementedError
 
    def __truediv__(self, value):
       return NaN
+
+   def __lshift__(self, value):
+      return int(self) << value
+
+   def __rshift__(self, value):
+      return int(self) >> value
 
    def hasOwnProperty(self, name: str):
       return str(name) in self.__dict__
@@ -1187,7 +1193,7 @@ class Number(Object):
       if hasattr(expression, '__float__'):
          return float(expression)
       if isinstance(expression, str):
-         return parseFloat(expression)
+         return parseFloat(expression)._value
       if isinstance(expression, Object):
          return _NaN_value
 
@@ -1423,9 +1429,13 @@ class int(Object):
       return self._value > value
 
    def __lshift__(self, value):
+      # TODO: Negative shift value
+      #       For some reason, this wraps the bits around
+      #       Ex: 0b00000000000000000000000000000001 << -1 == 0b10000000000000000000000000000000
       return int(self._value << self._int(value))
 
    def __rshift__(self, value):
+      # TODO: Negative shift value
       return int(self._value >> self._int(value))
 
    def __xor__(self, value):
@@ -1540,7 +1550,7 @@ class String(str, Object):
       return String('%s%s' % (self, self._String(value)))
 
    def __sub__(self, value):
-      raise NotImplementedError
+      return Number(self) - value
 
    def __mul__(self, value):
       # TODO: Make sure that this is correct
