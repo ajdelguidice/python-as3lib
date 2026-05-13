@@ -644,7 +644,7 @@ class ArrayTests(as3libTestCase):
          Array.prototype[3] = 'hole11'
          Array.prototype[4] = 'hole12'
 
-         assert_array_props(a, check)
+         assertArrayProps(a, check)
 
          # Clean up
          delete(Array.prototype[2])
@@ -3848,7 +3848,7 @@ class OperationTests(as3libTestCase):
       self.assertDivide(String('false'), asrt_NaN)
       self.assertDivide(Number(0.0), asrt_0)
       self.assertDivide(NaN, asrt_NaN)
-      self.assertDivide(Number(-0.0), asrt_n0)
+      self.assertDivide(Number(-0.0), asrt_n0)  # TODO
       self.assertDivide(Infinity, asrt_inf)
       self.assertDivide(Number(1.0), asrt_1)
       self.assertDivide(Number(-1.0), asrt_n1)
@@ -3856,7 +3856,7 @@ class OperationTests(as3libTestCase):
       self.assertDivide(Object(), asrt_NaN)
       self.assertDivide(String('0.0'), asrt_0)
       self.assertDivide(String('NaN'), asrt_NaN)
-      self.assertDivide(String('-0.0'), asrt_n0)
+      self.assertDivide(String('-0.0'), asrt_n0)  # TODO
       self.assertDivide(String('Infinity'), asrt_inf)
       self.assertDivide(String('1.0'), asrt_1)
       self.assertDivide(String('-1.0'), asrt_n1)
@@ -4015,8 +4015,85 @@ class OperationTests(as3libTestCase):
       self.assertEqual(--Number(1.0), as3lib.Int(1))
       self.assertNaN(-Object())
 
+   def assertEquals_Test(self, value, check):
+      self.assertEqual(value == undefined, check[0])
+      self.assertEqual(value == null, check[1])
+      self.assertEqual(value == Number(-5), check[2])
+      self.assertEqual(value == Number(-1), check[3])
+      self.assertEqual(value == Number(-0), check[4])
+      self.assertEqual(value == Number(0), check[5])
+      self.assertEqual(value == Number(1), check[6])
+      self.assertEqual(value == Number(2), check[7])
+      self.assertEqual(value == Number(5), check[8])
+      self.assertEqual(value == String('abc'), check[9])
+      self.assertEqual(value == String('2'), check[10])
+      self.assertEqual(value == String('true'), check[11])
+      self.assertEqual(value == String('false'), check[12])
+      self.assertEqual(value == true, check[13])
+      self.assertEqual(value == false, check[14])
+      self.assertEqual(value == NaN, check[15])
+
    def test_equals(self):
-      raise TestNotImplemented
+      self.assertEquals_Test(undefined, (true, true, false, false, false,
+                                         false, false, false, false, false,
+                                         false, false, false, false, false,
+                                         false))
+      self.assertEquals_Test(null, (true, true, false, false, false, false,
+                                    false, false, false, false, false, false,
+                                    false, false, false, false))
+      self.assertEquals_Test(Number(-5), (false, false, true, false, false,
+                                          false, false, false, false, false,
+                                          false, false, false, false, false,
+                                          false))
+      self.assertEquals_Test(Number(-1), (false, false, false, true, false,
+                                          false, false, false, false, false,
+                                          false, false, false, false, false,
+                                          false))
+      self.assertEquals_Test(Number(-0), (false, false, false, false, true,
+                                          true, false, false, false, false,
+                                          false, false, false, false, true,
+                                          false))
+      self.assertEquals_Test(Number(0), (false, false, false, false, true,
+                                         true, false, false, false, false,
+                                         false, false, false, false, true,
+                                         false))
+      self.assertEquals_Test(Number(1), (false, false, false, false, false,
+                                         false, true, false, false, false,
+                                         false, false, false, true, false,
+                                         false))
+      self.assertEquals_Test(Number(2), (false, false, false, false, false,
+                                         false, false, true, false, false,
+                                         true, false, false, false, false,
+                                         false))
+      self.assertEquals_Test(Number(5), (false, false, false, false, false,
+                                         false, false, false, true, false,
+                                         false, false, false, false, false,
+                                         false))
+      self.assertEquals_Test(String('abc'), (false, false, false, false,
+                                             false, false, false, false,
+                                             false, true, false, false, false,
+                                             false, false, false))
+      self.assertEquals_Test(String('2'), (false, false, false, false, false,
+                                           false, false, true, false, false,
+                                           true, false, false, false, false,
+                                           false))
+      self.assertEquals_Test(String('true'), (false, false, false, false,
+                                              false, false, false, false,
+                                              false, false, false, true,
+                                              false, false, false, false))
+      self.assertEquals_Test(String('false'), (false, false, false, false,
+                                               false, false, false, false,
+                                               false, false, false, false,
+                                               true, false, false, false))
+      self.assertEquals_Test(true, (false, false, false, false, false, false,
+                                    true, false, false, false, false, false,
+                                    false, true, false, false))
+      self.assertEquals_Test(false, (false, false, false, false, true, true,
+                                     false, false, false, false, false, false,
+                                     false, false, true, false))
+      self.assertEquals_Test(NaN, (false, false, false, false, false, false,
+                                   false, false, false, false, false, false,
+                                   false, false, false, false))
 
    def test_greaterequals(self):
       raise TestNotImplemented
