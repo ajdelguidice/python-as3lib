@@ -3629,12 +3629,6 @@ class ObjectTests(as3libTestCase):
 
 
 class OperationTests(as3libTestCase):
-   def assertEqualCheckNaN(self, value, check):
-      if self.isNaNExplicit(check):
-         self.assertNaN(value)
-      else:
-         self.assertEqual(value, check)
-
    def test_add(self):
       def assertAdd(value, check):
          self.assertEqualCheckNaN(true + value, check[0])
