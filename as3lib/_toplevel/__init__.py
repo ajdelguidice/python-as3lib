@@ -1,10 +1,8 @@
 from __future__ import annotations
-from as3lib.helpers import recursionDepth
 import builtins
 from ctypes import c_double, c_uint32, c_int32
 import datetime, time
 from functools import cmp_to_key, partial
-from inspect import isfunction
 from io import StringIO
 import math
 import random
@@ -24,8 +22,8 @@ _PosInf_value = 1e300000
 # Internal Helpers
 def _getTimezone():  # Date
    if time.daylight:
-      return datetime.timezone(datetime.timedelta(seconds=-time.altzone),time.tzname[1])
-   return datetime.timezone(datetime.timedelta(seconds=-time.timezone),time.tzname[0])
+      return datetime.timezone(datetime.timedelta(seconds=-time.altzone), time.tzname[1])
+   return datetime.timezone(datetime.timedelta(seconds=-time.timezone), time.tzname[0])
 
 
 def _errNumGen():  # Error
@@ -49,15 +47,15 @@ _base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
 def _as_base(num, radix):  # int
    if num == 0:
       return '0'
-   l = []
+   digits = []
    temp = abs(num)
    while temp > 0:
-      l.append(_base_digits[temp % radix])
+      digits.append(_base_digits[temp % radix])
       temp //= radix
    if num < 0:
-      l.append('-')
-   l.reverse()
-   return ''.join(l)
+      digits.append('-')
+   digits.reverse()
+   return ''.join(digits)
 
 
 def _exponentFixInt(value):  # int
@@ -193,7 +191,8 @@ class Object:
    # TODO: Prototypes
    prototype = None
 
-   def __init__(self):...
+   def __init__(self):
+      ...
 
    def __str__(self):
       return self.toString()
@@ -1948,7 +1947,7 @@ class Vector(list, Object):
       with StringIO() as out:
          for i in o:
             x = o[i]
-            if x != None:
+            if x is not None:
                out.write(str(x))
             if i + 1 < o.length:
                out.write(s)
@@ -1992,7 +1991,7 @@ class Vector(list, Object):
       tempVector._superclass = self._superclass
       for i in self:
          if callback(self[i], i, self):
-            tempVector.push(item)
+            tempVector.push(i)
       return tempVector
 
    def forEach(self, callback, thisObject=null):
@@ -2092,14 +2091,15 @@ class Vector(list, Object):
    def unshift(self, *args):
       if self.fixed:
          raise RangeError('unshift can not be called on a Vector with fixed set to true.')
-      l = []
+      fillerArray = []
       for i in args:
-         l.append(Vector.coercePythonToAs3Object(i, self._type))
-         Vector._checkType(l[-1], self._type, self._superclass)
-      tempVect = (*l, *each(self))
+         fillerArray.append(Vector.coercePythonToAs3Object(i, self._type))
+         Vector._checkType(fillerArray[-1], self._type, self._superclass)
+      tempVect = (*fillerArray, *each(self))
       self.clear()
       self.extend(tempVect)
       return len(self)
+
 
 # Temporary aliases. Remove when a syntax similar to Vector.<Type> is
 # implemented.
@@ -2420,7 +2420,7 @@ class XML(Object):
    def setName(self, name):
       raise NotImplementedError
 
-   def setNamespace(self, ns:Namespace):
+   def setNamespace(self, ns: Namespace):
       self._namespace = ns
 
    @staticmethod
@@ -2630,4 +2630,3 @@ def as3_enumerate(iterable):
    implementation of __iter__ which breaks the builtin enumerate function.
    '''
    return ((i, iterable[i]) for i in iterable)
-
