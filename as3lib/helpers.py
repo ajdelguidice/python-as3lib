@@ -2,7 +2,7 @@
 # library but aren't in actionscript. EX: a helper for increasing python's
 # maximum recursion depth.
 from io import StringIO
-from pathlib import Path, PurePath
+from pathlib import PurePath
 import platform, sys
 
 

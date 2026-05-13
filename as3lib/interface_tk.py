@@ -4,7 +4,7 @@ try:
    from as3lib import cmath
 except Exception:
    from as3lib.cfail import cmath
-from as3lib import helpers, as3state, Error
+from as3lib import as3state, Error
 from io import BytesIO
 import PIL
 import tkinter
@@ -243,7 +243,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
    def processText(self, text):
       '''
       An overridable method to control text preprocessing.
-      
+
       This method should:
          1) Set self._text. This is what is returned by the text property and
             is used by the default implementation of this method to check
@@ -1011,13 +1011,13 @@ class itkRoot(tkinter.Toplevel):
    @property
    def mult(self):
       return self._mult
-   
+
    @mult.setter
    def mult(self, value):
       self._fontmult = value*100
       self._mult = value
       self.resizeChildren()
-   
+
    @property
    def fontmult(self):
       return self._fontmult
