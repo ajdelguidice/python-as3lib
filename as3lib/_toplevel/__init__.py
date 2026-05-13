@@ -71,11 +71,15 @@ def _exponentFixInt(value):  # int
 
 
 # Classes
+# TODO: The comparison functions are probably supposed to use valueOf for
+#       the comparison. Javascript does.
+#       JS EX: Object() < 11 => false
+#              { valueOf = function(){ return 10 } } < 11 => true
 class undefined:
-   __slots__ = ("value")
+   __slots__ = tuple()
 
    def __init__(self):
-      self.value = None
+      pass
 
    def __int__(self):
       return 0
@@ -123,10 +127,10 @@ class undefined:
 
 
 class null:
-   __slots__ = ("value")
+   __slots__ = tuple()
 
    def __init__(self):
-      self.value = None
+      pass
 
    def __int__(self):
       return 0
@@ -210,6 +214,14 @@ class Object:
       return (i for i in self.__dict__.keys())
 
    def __neg__(self):
+      """
+      # TODO: This is probably the correct solution but it currently causes
+      #       infinite recursion and does not return the correct type
+      value = self.valueOf()
+      if isinstance(value, (str, String)):
+         value = parseFloat(value)
+      return -value
+      """
       return NaN
 
    def __add__(self, value):
@@ -767,7 +779,7 @@ class Date(Object):
          # Passed no arguements. Use current date and time
          self._value = datetime.datetime.now(tz=self._localtz)
          self._sync()
-      elif isinstance(yearOrTimevalue, (int, float, Number)) and month is None:
+      elif isinstance(yearOrTimevalue, (builtins.int, int, float, Number)) and month is None:
          # One arguement of type Number is passed. Interpret as utc timestamp
          # TODO: _localtz is wrong here
          self._valueUTC = datetime.datetime.fromtimestamp(yearOrTimevalue / 1000, datetime.timezone.utc)
