@@ -1162,7 +1162,7 @@ class Number(Object):
       return Number(abs(self._value))
 
    def __pow__(self, value):
-      return self._value ** value
+      return Number(self._value ** self._Number(value))
 
    def __round__(self, places=null):
       if places is null:
@@ -1256,56 +1256,72 @@ class Math(Object):
    SQRT2 = Number(1.4142135623730951)
 
    @staticmethod
-   def abs(val):
+   def abs(val: Number):
+      return abs(Number(val))
+
+   @staticmethod
+   def acos(val: Number):
       val = Number(val)
-      return abs(val)
+      if val._is_nan() or val > 1 or val < -1:
+         return Number.NaN
+      return Number(math.acos(val))
 
    @staticmethod
-   def acos(val):
-      return math.acos(val)
-
-   @staticmethod
-   def asin(val):
-      return math.asin(val)
-
-   @staticmethod
-   def atan(val):
+   def asin(val: Number):
       val = Number(val)
-      return Number(math.atan(val))
+      if val._is_nan() or val > 1 or val < -1:
+         return Number.NaN
+      return Number(math.asin(val))
 
    @staticmethod
-   def atan2(y, x):
-      x, y = Number(x), Number(y)
-      return Number(math.atan2(y, x))
+   def atan(val: Number):
+      return Number(math.atan(Number(val)))
 
    @staticmethod
-   def ceil(val):
+   def atan2(y: Number, x: Number):
+      return Number(math.atan2(Number(y), Number(x)))
+
+   @staticmethod
+   def ceil(val: Number):
       val = Number(val)
       if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
          return val
-      return math.ceil(val)
+      return Number(math.ceil(val))
 
    @staticmethod
-   def cos(angleRadians):
+   def cos(angleRadians: Number):
       a = Number(angleRadians)
       if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
          return Number.NaN
       return Number(math.cos(a))
 
    @staticmethod
-   def exp(val):
-      return math.exp(val)
+   def exp(val: Number):
+      val = Number(val)
+      if val._is_nan():
+         return Number.NaN
+      try:
+         return math.exp(val)
+      except OverflowError:
+         return Number.POSITIVE_INFINITY
 
    @staticmethod
-   def floor(val):
+   def floor(val: Number):
       val = Number(val)
       if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
          return val
-      return math.floor(val)
+      return Number(math.floor(val))
 
    @staticmethod
-   def log(val):
-      return math.log(val)
+   def log(val: Number):
+      val = Number(val)
+      if val < 0 or val._is_nan():
+         return Number.NaN
+      if val == 0:
+         return Number.NEGATIVE_INFINITY
+      if val == Number.POSITIVE_INFINITY:
+         return Number.POSITIVE_INFINITY
+      return Number(math.log(val))
 
    @staticmethod
    def max(*values):
@@ -1328,40 +1344,43 @@ class Math(Object):
       return min(v)
 
    @staticmethod
-   def pow(base, power):
-      return math.pow(base, power)
+   def pow(base: Number, power: Number):
+      base, power = Number(base), Number(power)
+      if base._is_nan() or power._is_nan():
+         return Number.NaN
+      return Number(math.pow(base, power))
 
    @staticmethod
    def random():
       return Number(random.random())
 
    @staticmethod
-   def round(val):
+   def round(val: Number):
       val = Number(val)
       if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
          return val
       return round(val)
 
    @staticmethod
-   def sin(angleRadians):
+   def sin(angleRadians: Number):
       a = Number(angleRadians)
       if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
          return Number.NaN
       return Number(math.sin(a))
 
    @staticmethod
-   def sqrt(val):
+   def sqrt(val: Number):
       val = Number(val)
       if val < 0 or val._is_nan():
          return Number.NaN
-      return math.sqrt(val)
+      return Number(math.sqrt(val))
 
    @staticmethod
-   def tan(angleRadians):
+   def tan(angleRadians: Number):
       a = Number(angleRadians)
       if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
          return Number.NaN
-      return math.tan(a)
+      return Number(math.tan(a))
 
 
 class int(Object):
