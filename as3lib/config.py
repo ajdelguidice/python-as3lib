@@ -170,13 +170,12 @@ def Load():
       }
       modified = True
    if cfg['migrateOldConfig']:
-      unnamedsectionworkaround = False
+      no_unnamed_section = False
       import configparser
       try:
          UNNAMED_SECTION = configparser.UNNAMED_SECTION
-      except:
-         # Workaround for python < 3.13
-         unnamedsectionworkaround = True
+      except:  # Python < 3.13 compatibility
+         no_unnamed_section = True
          UNNAMED_SECTION = 'UNNAMED_SECTION'
       ConfigParser = configparser.ConfigParser
       modified = True
@@ -184,8 +183,8 @@ def Load():
       wlcfgpath = as3state.librarydirectory / 'wayland.cfg'
       oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
       if mmcfgpath.exists():
-         if unnamedsectionworkaround:
-            mmcfg = ConfigParser(allow_unnamed_section=True)
+         if no_unnamed_section:
+            mmcfg = ConfigParser()
             with open(mmcfgpath, 'r') as f:
                mmcfg.read_string('[UNNAMED_SECTION]\n' + f.read())
          else:
