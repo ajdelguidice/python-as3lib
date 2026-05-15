@@ -132,7 +132,8 @@ if not as3state.initdone:
 
    # Display errors to user
    if as3state.initerror:
-      trace(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n\t{"\n\t".join(as3state.initerror)}')
+      # NOTE: Use % because f-string expression parts can not contain a backslash on Python 3.10
+      trace('Warning: as3lib has initialised with errors, some functionality may be broken.\n\t%s' % "\n\t".join(as3state.initerror))
 
    # Set the default appdatadirectory
    import __main__
