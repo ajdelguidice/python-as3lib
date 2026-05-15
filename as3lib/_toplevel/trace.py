@@ -11,17 +11,16 @@ def _traceFileOutput(output):
 
 
 def trace(*args):
-   if as3state.as3DebugEnable:
-      output = ' '.join((str(i) for i in args))
-      print(output)
-      if as3state.TraceOutputFileEnable:
-         _traceFileOutput(output)
+   output = ' '.join((str(i) for i in args))
+   print(output)
+   if as3state.TraceOutputFileEnable:
+      _traceFileOutput(output)
 
 
 def errorTrace(*args):
    output = ' '.join(str(i) for i in args)
    print(output)
-   if as3state.as3DebugEnable and as3state.ErrorReportingEnable and not as3state.MaxWarningsReached:
+   if as3state.ErrorReportingEnable and not as3state.MaxWarningsReached:
       if as3state.CurrentWarnings < as3state.MaxWarnings or as3state.MaxWarnings == 0:
          as3state.CurrentWarnings += 1
       else:
