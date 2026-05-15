@@ -85,30 +85,30 @@ def _dependencyCheck():
    if as3state.platform == 'Linux':
       # Running on Wayland is done through XWayland so these are needed there too
       if check_output(('which', 'xwininfo')).decode('utf-8').startswith('which: no'):
-         as3state.initerror.append((3, 'Linux: requirement "xwininfo" not found'))
+         as3state.initerror.append('Dependencies/Linux: "xwininfo" not found')
          hasDeps = False
       if check_output(('which', 'xrandr')).decode('utf-8').startswith('which: no'):
-         as3state.initerror.append((3, 'Linux: requirement "xrandr" not found'))
+         as3state.initerror.append('Dependencies/Linux: "xrandr" not found')
          hasDeps = False
    elif as3state.platform == 'Windows':
       if find_spec('win32api') is None:
-         as3state.initerror.append((3, 'Windows: Requirement "pywin32" not found'))
+         as3state.initerror.append('Dependencies/Python: "pywin32" not found')
          hasDeps = False
    elif as3state.platform == 'Darwin':...
    if find_spec('numpy') is None:  # https://pypi.org/project/numpy
-      as3state.initerror.append((3, 'Python: requirement "numpy" not found'))
+      as3state.initerror.append('Dependencies/Python: "numpy" not found')
       hasDeps = False
    if find_spec('PIL') is None:  # https://pypi.org/project/Pillow
-      as3state.initerror.append((3, 'Python: requirement "Pillow" not found'))
+      as3state.initerror.append('Dependencies/Python: "Pillow" not found')
       hasDeps = False
    if find_spec('tkhtmlview') is None:  # https://pypi.org/project/tkhtmlview
-      as3state.initerror.append((3, 'Python: requirement "tkhtmlview" not found'))
+      as3state.initerror.append('Dependencies/Python: "tkhtmlview" not found')
       hasDeps = False
    if find_spec('miniamf') is None:
-      as3state.initerror.append((3, 'Python: requirement "Mini-AMF" or "as3lib-miniAMF" not found'))
+      as3state.initerror.append('Dependencies/Python: "Mini-AMF" or "as3lib-miniAMF" not found')
       hasDeps = False
    if find_spec('tomllib') is None and find_spec('tomli') is None:
-      as3state.initerror.append((3, 'Python: requirement "tomllib" or "tomli" not found'))
+      as3state.initerror.append('Dependencies/Python: "tomllib" or "tomli" not found')
       hasDeps = False
    return hasDeps
 

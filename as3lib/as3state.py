@@ -48,5 +48,5 @@ documentsdirectory = None
 intervals = {}  # Storage for timers set by setInterval and setTimeout
 
 # initcheck
-initdone = False  # Variable to make sure this module has initialized
-initerror = []  # [(errcode:int,errdesc:str),...]
+initdone = False  # Variable to make sure this module has initialised
+initerror = []  # List of errors that happened during initialisation

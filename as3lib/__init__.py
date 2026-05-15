@@ -8,15 +8,6 @@ from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
 from pathlib import Path
 from subprocess import check_output
 
-'''
-initerrors
-0 - platform not implemented
-1 - function not implemented for current platform
-2 - (Linux specific) unexpected display server (expected x11 or wayland)
-3 - dependency not found
-4 - other error
-'''
-
 
 # Helper functions
 def traceFilePath_Flash(sysverOverride: tuple = None):
@@ -78,7 +69,7 @@ def sm_windows():
 
 
 def sm_darwin():
-   as3state.initerror.append((1, 'Darwin: Fetching screen properties is not implemented.'))
+   as3state.initerror.append('Platform/Darwin: Fetching screen properties is not implemented.')
    return 1600, 900, 60.0, 16  # Placeholder
 
 
@@ -117,16 +108,16 @@ if not as3state.initdone:
       elif as3state.displayserver == 'wayland':
          setScreenProperties(sm_wayland)
       else:
-         as3state.initerror.append((2, f'Linux: Display server "{as3state.displayserver}" not supported.'))
+         as3state.initerror.append(f'Platform/Linux: Session type "{as3state.displayserver}" not supported.')
    elif as3state.platform == 'Windows':
       setScreenProperties(sm_windows)
    elif as3state.platform == 'Darwin':
-      as3state.initerror.append((4, 'Detected platform "Darwin" is untested and is missing a lot of features.'))
+      as3state.initerror.append('Platform/Darwin: This library is untested on the current platform and is missing some features.')
       setScreenProperties(sm_darwin)
    elif as3state.platform == '':
-      as3state.initerror.append((4, 'Current platform could not be determined.'))
+      as3state.initerror.append('Could not determine current platform.')
    else:
-      as3state.initerror.append((0, f'Current platform {as3state.platform} not supported.'))
+      as3state.initerror.append(f'Platform/{as3state.platform}: Not supported')
 
    # Ensure that at least something is loaded if values fail to load
    # This is a fix for the case where platform is not valid AND the display config values are missing
@@ -141,7 +132,7 @@ if not as3state.initdone:
 
    # Display errors to user
    if as3state.initerror:
-      trace(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n{"".join(f"\t({i[0]}) {i[1]}\n" for i in as3state.initerror)}')
+      trace(f'Warning: as3lib has initialised with errors, some functionality may be broken.\n\t{"\n\t".join(as3state.initerror)}')
 
    # Set the default appdatadirectory
    import __main__
