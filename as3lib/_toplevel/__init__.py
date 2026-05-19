@@ -185,6 +185,25 @@ undefined = undefined()
 null = null()
 
 
+def _as3lib_GetNumValueFromObject(obj):
+   # TODO: Ensure that using this is the correct solution
+   # TODO: Make this work with all as3 types
+   if obj is null:
+      return 0
+   if obj is undefined:
+      return _NaN_value
+   value = obj.valueOf()
+   if isinstance(value, (str, String)):
+      return parseFloat(value)._value
+   if isinstance(value, (Number, int, uint)):
+      return value._value
+   if isinstance(value, (bool, Boolean)):
+      return builtins.int(value)
+   if isinstance(value, Object):
+      return _NaN_value
+   return value
+
+
 class Class:
    ...
 
@@ -214,27 +233,32 @@ class Object:
       return (i for i in self.__dict__.keys())
 
    def __neg__(self):
-      """
-      # TODO: This is probably the correct solution but it currently causes
-      #       infinite recursion and does not return the correct type
-      value = self.valueOf()
-      if isinstance(value, (str, String)):
-         value = parseFloat(value)
-      return -value
-      """
-      return NaN
+      return Number(-_as3lib_GetNumValueFromObject(self))
 
    def __add__(self, value):
+      #thisValue = _as3lib_GetNumValueFromObject(self)
+      #valueNum = _as3lib_GetNumValueFromObject(value)
+      #if hasattr(thisValue, '_is_nan') and thisValue._is_nan() or hasattr(thisValue, 'hex') and thisValue.hex() == 'nan' or isinstance(value, (str, String)):
+      #   return String(self.toString()).concat(value)
+      #return Number(thisValue + valueNum)
       return String(self.toString()) + value
 
    def __sub__(self, value):
-      return Number(self) - value
+      return Number(_as3lib_GetNumValueFromObject(self) - _as3lib_GetNumValueFromObject(value))
 
    def __mul__(self, value):
       raise NotImplementedError
 
    def __truediv__(self, value):
-      return NaN
+      thisValue = _as3lib_GetNumValueFromObject(self)
+      value = _as3lib_GetNumValueFromObject(value)
+      if value == 0:
+         if thisValue > 0:
+            return Number.POSITIVE_INFINITY
+         if thisValue < 0:
+            return Number.NEGATIVE_INFINITY
+         return Number.NaN
+      return Number(thisValue / value)
 
    def __lshift__(self, value):
       return int(self) << value
@@ -328,9 +352,11 @@ class Array(list, Object):
       return f'as3lib.Array({self.toString()})'
 
    def __pos__(self):
+      # TODO: This is probably wrong
       return Number(0)
 
    def __neg__(self):
+      # TODO: This is probably wrong
       return -Number(0)
 
    def __each__(self):
@@ -557,9 +583,6 @@ class Boolean(Object):
    def __abs__(self):
       return Number(self._value)
 
-   def __neg__(self):
-      return -Number(self)
-
    def __pos__(self):
       return Number(self)
 
@@ -567,17 +590,9 @@ class Boolean(Object):
       # TODO: Check type
       return Number(self._value) + value
 
-   def __sub__(self, value):
-      # TODO: Check type
-      return Number(self._value) - value
-
    def __mul__(self, value):
       # TODO: Check type
       return Number(self._value) * value
-
-   def __truediv__(self, value):
-      # TODO: Check type
-      return Number(self._value) / value
 
    def __lshift__(self, value):
       # TODO: Check to see if this is actually correct
@@ -1123,22 +1138,6 @@ class Number(Object):
    def __add__(self, value):
       return Number(self._value + self._Number(value))
 
-   def __sub__(self, value):
-      return Number(self._value - self._Number(value))
-
-   def __mul__(self, value):
-      return Number(self._value * self._Number(value))
-
-   def __truediv__(self, value):
-      value = self._Number(value)
-      if value == 0:
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         if self._value < 0:
-            return Number.NEGATIVE_INFINITY
-         return Number.NaN
-      return Number(self._value / self._Number(value))
-
    def __float__(self):
       return self._value
 
@@ -1434,12 +1433,16 @@ class int(Object):
       return int(self._value + self._int(value))
 
    def __sub__(self, value):
-      return int(self._value - self._int(value))
+      return int(super().__sub__(self._int(value)))
 
    def __mul__(self, value):
       return int(self._value * self._int(value))
 
    def __truediv__(self, value):
+      #res = super().__truediv__(self._int(value))
+      #if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
+      #   return res
+      #return int(res)
       value = self._int(value)
       if value == 0:
          if self._value > 0:
@@ -1568,10 +1571,6 @@ class String(str, Object):
    def __bool__(self):
       return self.length > 0
 
-   def __neg__(self):
-      # TODO: Make sure that this is correct
-      return -Number(self)
-
    def __pos__(self):
       # TODO: Make sure that this is correct
       return Number(self)
@@ -1579,16 +1578,9 @@ class String(str, Object):
    def __add__(self, value):
       return String('%s%s' % (self, self._String(value)))
 
-   def __sub__(self, value):
-      return Number(self) - value
-
    def __mul__(self, value):
       # TODO: Make sure that this is correct
       return Number(self) * value
-
-   def __truediv__(self, value):
-      # TODO: Make sure that this is correct
-      return Number(self) / value
 
    def __lshift__(self, value):
       # TODO: Make sure that this is correct
