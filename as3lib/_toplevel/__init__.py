@@ -213,6 +213,16 @@ def _as3lib_GetNumValueFromObject(obj):
    return obj
 
 
+def _as3lib_toStringHelper(obj):
+   if hasattr(obj, 'toString'):
+      return obj.toString()
+   if isinstance(obj, (str, String)):
+      return obj
+   if isinstance(obj, bool):
+      return 'true' if obj else 'false'
+   return str(obj)
+
+
 class Class:
    ...
 
@@ -1154,7 +1164,9 @@ class Number(Object):
       return builtins.int(self._value)
 
    def __index__(self):
-      return math.floor(self._value)
+      if self._is_nan() or self == Number.POSITIVE_INFINITY or self == Number.NEGATIVE_INFINITY:
+         return 0
+      return builtins.int(math.floor(self._value))
 
    def __eq__(self, value):
       return self._value == value
@@ -1547,7 +1559,7 @@ class uint(int):
 
 class String(str, Object):
    def __init__(self, value=''):
-      self.__init2(self._String(value))
+      self.__init2(_as3lib_toStringHelper(value))
 
    def __init2(self, value):
       # Workaround for super().__init__() eating arguements
@@ -1559,15 +1571,6 @@ class String(str, Object):
    @property
    def length(self):
       return len(self)
-
-   def _String(self, expression):
-      if isinstance(expression, str):
-         return expression
-      if isinstance(expression, bool):
-         return 'true' if expression else 'false'
-      if hasattr(expression, 'toString'):
-         return expression.toString()
-      return str(expression)
 
    def __repr__(self):
       return 'as3lib.String(%s)' % self
@@ -1583,7 +1586,7 @@ class String(str, Object):
       return Number(self)
 
    def __add__(self, value):
-      return String('%s%s' % (self, self._String(value)))
+      return String('%s%s' % (self, _as3lib_toStringHelper(value)))
 
    def __mul__(self, value):
       # TODO: Make sure that this is correct
@@ -1597,18 +1600,20 @@ class String(str, Object):
       # TODO: Make sure that this is correct
       return int(self) >> value
 
-   def charAt(self, index: builtins.int | int = 0):
+   def charAt(self, index: Number = 0):
+      index = Number(index)
       if index < 0 or index > len(self) - 1:
-         return ''
-      return self[index]
+         return String()
+      return String(self[index])
 
-   def charCodeAt(self, index: builtins.int | int = 0):
+   def charCodeAt(self, index: Number = 0):
+      index = Number(index)
       if index < 0 or index > len(self) - 1:
          return Number.NaN
       return Number(builtins.int(r'{:04X}'.format(ord(self[index])), 16))
 
    def concat(self, *args):
-      return self + ''.join([self._String(i) for i in args])
+      return self + ''.join([_as3lib_toStringHelper(i) for i in args])
 
    @staticmethod
    def fromCharCode(*charCodes):
