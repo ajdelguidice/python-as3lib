@@ -188,20 +188,21 @@ null = null()
 def _as3lib_GetNumValueFromObject(obj):
    # TODO: Ensure that using this is the correct solution
    # TODO: Make this work with all as3 types
+   if hasattr(obj, 'valueOf'):
+      obj = obj.valueOf()
    if obj is null:
       return 0
    if obj is undefined:
       return _NaN_value
-   value = obj.valueOf()
-   if isinstance(value, (str, String)):
-      return parseFloat(value)._value
-   if isinstance(value, (Number, int, uint)):
-      return value._value
-   if isinstance(value, (bool, Boolean)):
-      return builtins.int(value)
-   if isinstance(value, Object):
+   if isinstance(obj, (str, String)):
+      return parseFloat(obj)._value
+   if isinstance(obj, (Number, int, uint)):
+      return obj._value
+   if isinstance(obj, (bool, Boolean)):
+      return builtins.int(obj)
+   if isinstance(obj, Object):
       return _NaN_value
-   return value
+   return obj
 
 
 class Class:
@@ -1138,6 +1139,9 @@ class Number(Object):
    def __add__(self, value):
       return Number(self._value + self._Number(value))
 
+   def __mul__(self, value):
+      return Number(self._value * self._Number(value))
+
    def __float__(self):
       return self._value
 
@@ -1433,24 +1437,16 @@ class int(Object):
       return int(self._value + self._int(value))
 
    def __sub__(self, value):
-      return int(super().__sub__(self._int(value)))
+      return int(super().__sub__(value))
 
    def __mul__(self, value):
       return int(self._value * self._int(value))
 
    def __truediv__(self, value):
-      #res = super().__truediv__(self._int(value))
-      #if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
-      #   return res
-      #return int(res)
-      value = self._int(value)
-      if value == 0:
-         if self._value > 0:
-            return Number.POSITIVE_INFINITY
-         if self._value < 0:
-            return Number.NEGATIVE_INFINITY
-         return Number.NaN
-      return int(self._value / value)
+      res = super().__truediv__(self._int(value))
+      if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
+         return res
+      return int(res)
 
    def __eq__(self, value):
       return self._value == value
