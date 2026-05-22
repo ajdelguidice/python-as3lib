@@ -85,10 +85,10 @@ class undefined:
       return 0
 
    def __str__(self):
-      return self.toString()
+      return str(self.toString())
 
    def __repr__(self):
-      return self.toString()
+      return str(self.toString())
 
    def __bool__(self):
       return False
@@ -123,7 +123,7 @@ class undefined:
       return iter([])
 
    def toString(self):
-      return 'undefined'
+      return String('undefined')
 
 
 class null:
@@ -136,10 +136,10 @@ class null:
       return 0
 
    def __str__(self):
-      return self.toString()
+      return str(self.toString())
 
    def __repr__(self):
-      return self.toString()
+      return str(self.toString())
 
    def __bool__(self):
       return False
@@ -178,7 +178,7 @@ class null:
       return iter([])
 
    def toString(self):
-      return 'null'
+      return String('null')
 
 
 undefined = undefined()
@@ -194,6 +194,14 @@ def _as3lib_GetNumValueFromObject(obj):
       return 0
    if obj is undefined:
       return _NaN_value
+   if isinstance(obj, Array):
+      # TODO: Check this
+      # NOTE: This produces the results:
+      #           [] == ''
+      #           [1] == 1
+      #           ['str'] == NaN
+      #           [1, 2] == NaN
+      obj = obj.toString()
    if isinstance(obj, (str, String)):
       return parseFloat(obj)._value
    if isinstance(obj, (Number, int, uint)):
@@ -219,7 +227,7 @@ class Object:
       ...
 
    def __str__(self):
-      return self.toString()
+      return str(self.toString())
 
    def __getitem__(self, item):
       return getattr(self, str(item))
@@ -287,10 +295,10 @@ class Object:
       raise NotImplementedError
 
    def toLocaleString(self):
-      return '[object %s]' % type(self).__name__
+      return String('[object %s]' % type(self).__name__)
 
    def toString(self):
-      return '[object %s]' % type(self).__name__
+      return String('[object %s]' % type(self).__name__)
 
    def valueOf(self):
       return self
@@ -422,7 +430,7 @@ class Array(list, Object):
                out.write(str(x))
             if i + 1 < n:
                out.write(s)
-         return out.getvalue()
+         return String(out.getvalue())
 
    def join(self, sep: str = ','):
       return Array._join(self, sep)
@@ -542,7 +550,7 @@ class Array(list, Object):
                   out.write(str(x))
             if i + 1 < n:
                out.write(',')
-         return out.getvalue()
+         return String(out.getvalue())
 
    def toString(self):
       return Array._join(self)
@@ -613,7 +621,7 @@ class Boolean(Object):
       return False
 
    def toString(self):
-      return str(self._value).lower()
+      return String(self._value).toLowerCase()
 
    def valueOf(self):
       return self._value
@@ -1045,7 +1053,7 @@ class Error(Exception, Object):
       return f'{self.name}: Error #{self.errorID}: {self.message}\n{"".join(traceback.format_tb(self.__traceback__))}'
 
    def toString(self):
-      return f'{self.name}: {self.message}'
+      return String(f'{self.name}: {self.message}')
 
 
 class ArgumentError(Error):
@@ -1126,9 +1134,6 @@ class Number(Object):
 
    def __init__(self, num=null):
       self._val = c_double(self._Number(num))
-
-   def __str__(self):
-      return self.toString()
 
    def __repr__(self):
       return 'as3lib.Number(%s)' % self
@@ -1239,16 +1244,16 @@ class Number(Object):
    def toString(self, radix=10):
       # TODO: Radix
       if self._is_nan():
-         return 'NaN'
+         return String('NaN')
       if self._value == Number.NEGATIVE_INFINITY:
-         return "-Infinity"
+         return String('-Infinity')
       if self._value == Number.POSITIVE_INFINITY:
-         return "Infinity"
+         return String('Infinity')
       if radix != 10:
-         return str(math.floor(self._value))
+         return String(math.floor(self._value))
       if self._value.is_integer():
-         return _exponentFixNum('%i' % self._value)
-      return _exponentFixNum('%s' % self._value)
+         return String(_exponentFixNum('%i' % self._value))
+      return String(_exponentFixNum('%s' % self._value))
 
    def valueOf(self):
       return self._value
@@ -1457,6 +1462,12 @@ class int(Object):
    def __gt__(self, value):
       return self._value > value
 
+   def __le__(self, value):
+      return self._value <= value
+
+   def __ge__(self, value):
+      return self._value >= value
+
    def __lshift__(self, value):
       # TODO: Negative shift value
       #       For some reason, this wraps the bits around
@@ -1520,7 +1531,7 @@ class int(Object):
 
    def toString(self, radix: uint = 10):
       if radix <= 36 and radix >= 2:
-         return _as_base(self._value, radix)
+         return String(_as_base(self._value, radix))
 
    def valueOf(self):
       return self._value
@@ -1822,7 +1833,7 @@ class RegExp(Object):
             s.write('s')
          if self.extended:
             s.write('x')
-         return s.getvalue()
+         return String(s.getvalue())
 
 
 class JSON(Object):
@@ -1951,7 +1962,7 @@ class Vector(list, Object):
                out.write(str(x))
             if i + 1 < o.length:
                out.write(s)
-         return out.getvalue()
+         return String(out.getvalue())
 
    def __repr__(self):
       return 'as3lib.Vector.<%s>(%s)' % (self._type.__name__, self)
