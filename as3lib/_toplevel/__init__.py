@@ -111,6 +111,9 @@ class undefined:
    def __truediv__(self, value):
       return NaN
 
+   def __mod__(self, value):
+      return NaN
+
    def __lshift__(self, value):
       # TODO: Check return type
       return Number(0)
@@ -165,6 +168,9 @@ class null:
    def __truediv__(self, value):
       # TODO: Check type
       return Number(0) / value
+
+   def __mod__(self, value):
+      return Number(0) % value
 
    def __lshift__(self, value):
       # TODO: Check return type
@@ -266,7 +272,7 @@ class Object:
       return Number(_as3lib_GetNumValueFromObject(self) - _as3lib_GetNumValueFromObject(value))
 
    def __mul__(self, value):
-      raise NotImplementedError
+      return Number(_as3lib_GetNumValueFromObject(self) * _as3lib_GetNumValueFromObject(value))
 
    def __truediv__(self, value):
       thisValue = _as3lib_GetNumValueFromObject(self)
@@ -278,6 +284,16 @@ class Object:
             return Number.NEGATIVE_INFINITY
          return Number.NaN
       return Number(thisValue / value)
+
+   def __mod__(self, value):
+      # TODO: Other behaviour of modulo
+      thisValue = _as3lib_GetNumValueFromObject(self)
+      value = _as3lib_GetNumValueFromObject(value)
+      if value == 0 or thisValue == Number.POSITIVE_INFINITY:
+         return Number.NaN
+      if value == Number.POSITIVE_INFINITY:
+         return Number(thisValue)
+      return Number(thisValue % value)
 
    def __lshift__(self, value):
       return int(self) << value
@@ -608,10 +624,6 @@ class Boolean(Object):
    def __add__(self, value):
       # TODO: Check type
       return Number(self._value) + value
-
-   def __mul__(self, value):
-      # TODO: Check type
-      return Number(self._value) * value
 
    def __lshift__(self, value):
       # TODO: Check to see if this is actually correct
@@ -1154,9 +1166,6 @@ class Number(Object):
    def __add__(self, value):
       return Number(self._value + self._Number(value))
 
-   def __mul__(self, value):
-      return Number(self._value * self._Number(value))
-
    def __float__(self):
       return self._value
 
@@ -1457,13 +1466,16 @@ class int(Object):
       return int(super().__sub__(value))
 
    def __mul__(self, value):
-      return int(self._value * self._int(value))
+      return int(super().__mul__(value))
 
    def __truediv__(self, value):
       res = super().__truediv__(self._int(value))
       if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
          return res
       return int(res)
+
+   def __mod__(self, value):
+      return int(super().__mod__(value))
 
    def __eq__(self, value):
       return self._value == value
@@ -1492,9 +1504,6 @@ class int(Object):
 
    def __xor__(self, value):
       return int(self._value ^ self._int(value))
-
-   def __mod__(self, value):
-      return int(self._value % self._int(value))
 
    def __and__(self, value):
       return int(self._value & self._int(value))
@@ -1588,9 +1597,10 @@ class String(str, Object):
    def __add__(self, value):
       return String('%s%s' % (self, _as3lib_toStringHelper(value)))
 
-   def __mul__(self, value):
-      # TODO: Make sure that this is correct
-      return Number(self) * value
+   # TODO: Remove these once String is not a subclass of str
+   __mul__ = Object.__mul__
+   __rmul__ = Object.__mul__
+   __mod__ = Object.__mod__
 
    def __lshift__(self, value):
       # TODO: Make sure that this is correct
