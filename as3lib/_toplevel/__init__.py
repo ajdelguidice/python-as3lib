@@ -122,6 +122,18 @@ class undefined:
       # TODO: Check return type
       return Number(0)
 
+   def __ge__(self, value):
+      return NaN >= value
+
+   def __gt__(self, value):
+      return NaN > value
+
+   def __lt__(self, value):
+      return NaN < value
+
+   def __le__(self, value):
+      return NaN <= value
+
    def __each__(self):
       return iter([])
 
@@ -179,6 +191,18 @@ class null:
    def __rshift__(self, value):
       # TODO: Check return type
       return Number(0)
+
+   def __ge__(self, value):
+      return Number(0) >= value
+
+   def __gt__(self, value):
+      return Number(0) > value
+
+   def __lt__(self, value):
+      return Number(0) < value
+
+   def __le__(self, value):
+      return Number(0) <= value
 
    def __each__(self):
       return iter([])
@@ -264,7 +288,7 @@ class Object:
       #thisValue = _as3lib_GetNumValueFromObject(self)
       #valueNum = _as3lib_GetNumValueFromObject(value)
       #if hasattr(thisValue, '_is_nan') and thisValue._is_nan() or hasattr(thisValue, 'hex') and thisValue.hex() == 'nan' or isinstance(value, (str, String)):
-      #   return String(self.toString()).concat(value)
+      #   return self.toString().concat(value)
       #return Number(thisValue + valueNum)
       return String(self.toString()) + value
 
@@ -300,6 +324,18 @@ class Object:
 
    def __rshift__(self, value):
       return int(self) >> value
+
+   def __ge__(self, value):
+      return Boolean(_as3lib_GetNumValueFromObject(self) >= _as3lib_GetNumValueFromObject(value))
+
+   def __gt__(self, value):
+      return Boolean(_as3lib_GetNumValueFromObject(self) > _as3lib_GetNumValueFromObject(value))
+
+   def __lt__(self, value):
+      return Boolean(_as3lib_GetNumValueFromObject(self) < _as3lib_GetNumValueFromObject(value))
+
+   def __le__(self, value):
+      return Boolean(_as3lib_GetNumValueFromObject(self) <= _as3lib_GetNumValueFromObject(value))
 
    def hasOwnProperty(self, name: str):
       return str(name) in self.__dict__
@@ -1180,18 +1216,6 @@ class Number(Object):
    def __eq__(self, value):
       return self._value == value
 
-   def __lt__(self, value):
-      return self._value < value
-
-   def __gt__(self, value):
-      return self._value > value
-
-   def __ge__(self, value):
-      return self._value >= value
-
-   def __le__(self, value):
-      return self._value <= value
-
    def __neg__(self):
       return Number(-self._value)
 
@@ -1479,18 +1503,6 @@ class int(Object):
 
    def __eq__(self, value):
       return self._value == value
-
-   def __lt__(self, value):
-      return self._value < value
-
-   def __gt__(self, value):
-      return self._value > value
-
-   def __le__(self, value):
-      return self._value <= value
-
-   def __ge__(self, value):
-      return self._value >= value
 
    def __lshift__(self, value):
       # TODO: Negative shift value
