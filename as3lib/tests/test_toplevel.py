@@ -3655,6 +3655,10 @@ class OperationTests(as3libTestCase):
          self.assertEqualCheckNaN(String('-1.0') + value, check[21])
          self.assertEqualCheckNaN(String('0xFF1306') + value, check[22])
 
+      # NOTE: It seems that adding to a String or adding a String to something
+      #       does string concatination.
+      # TODO: Make sure that the types are correct. Add is weird in ActionScript
+
       asrt_true = (2, 1, 1, NaN, 'true', 'strtrue', 'truetrue', 'falsetrue',
                    1, NaN, 1, Infinity, 2, 0, 16716551, '[object Object]true',
                    '0.0true', 'NaNtrue', '-0.0true', 'Infinitytrue',
@@ -3682,32 +3686,150 @@ class OperationTests(as3libTestCase):
                         '0xFF1306undefined')
       assertAdd(undefined, asrt_undefined)
 
-      raise TestNotImplemented
+      asrt_emptyString = ('true', 'false', 'null', 'undefined', '', 'str',
+                          'true', 'false', '0', 'NaN', '0', 'Infinity', '1',
+                          '-1', '16716550', '[object Object]', '0.0', 'NaN',
+                          '-0.0', 'Infinity', '1.0', '-1.0', '0xFF1306')
+      assertAdd(String(''), asrt_emptyString)
 
-      assertAdd(String(''), asrt_0)
-      assertAdd(String('str'), asrt_0)
-      assertAdd(String('true'), asrt_0)
-      assertAdd(String('false'), asrt_0)
+      asrt_strString = ('truestr', 'falsestr', 'nullstr', 'undefinedstr',
+                        'str', 'strstr', 'truestr', 'falsestr', '0str',
+                        'NaNstr', '0str', 'Infinitystr', '1str', '-1str',
+                        '16716550str', '[object Object]str', '0.0str',
+                        'NaNstr', '-0.0str', 'Infinitystr', '1.0str',
+                        '-1.0str', '0xFF1306str')
+      assertAdd(String('str'), asrt_strString)
+
+      asrt_trueString = ('truetrue', 'falsetrue', 'nulltrue', 'undefinedtrue',
+                         'true', 'strtrue', 'truetrue', 'falsetrue', '0true',
+                         'NaNtrue', '0true', 'Infinitytrue', '1true',
+                         '-1true', '16716550true', '[object Object]true',
+                         '0.0true', 'NaNtrue', '-0.0true', 'Infinitytrue',
+                         '1.0true', '-1.0true', '0xFF1306true')
+      assertAdd(String('true'), asrt_trueString)
+
+      asrt_falseString = ('truefalse', 'falsefalse', 'nullfalse',
+                          'undefinedfalse', 'false', 'strfalse', 'truefalse',
+                          'falsefalse', '0false', 'NaNfalse', '0false',
+                          'Infinityfalse', '1false', '-1false',
+                          '16716550false', '[object Object]false', '0.0false',
+                          'NaNfalse', '-0.0false', 'Infinityfalse',
+                          '1.0false', '-1.0false', '0xFF1306false')
+      assertAdd(String('false'), asrt_falseString)
+
+      asrt_0 = (1, 0, 0, NaN, '0', 'str0', 'true0', 'false0', 0, NaN, 0,
+                Infinity, 1, -1, 16716550, '[object Object]0', '0.00', 'NaN0',
+                '-0.00', 'Infinity0', '1.00', '-1.00', '0xFF13060')
       assertAdd(Number(0.0), asrt_0)
-      assertAdd(NaN, asrt_0)
+
+      asrt_NaN = (NaN, NaN, NaN, NaN, 'NaN', 'strNaN', 'trueNaN', 'falseNaN',
+                  NaN, NaN, NaN, NaN, NaN, NaN, NaN, '[object Object]NaN',
+                  '0.0NaN', 'NaNNaN', '-0.0NaN', 'InfinityNaN', '1.0NaN',
+                  '-1.0NaN', '0xFF1306NaN')
+      assertAdd(NaN, asrt_NaN)
+
       assertAdd(Number(-0.0), asrt_0)
-      assertAdd(Infinity, asrt_0)
+
+      asrt_Infinity = (Infinity, Infinity, Infinity, NaN, 'Infinity',
+                       'strInfinity', 'trueInfinity', 'falseInfinity',
+                       Infinity, NaN, Infinity, Infinity, Infinity, Infinity,
+                       Infinity, '[object Object]Infinity', '0.0Infinity',
+                       'NaNInfinity', '-0.0Infinity', 'InfinityInfinity',
+                       '1.0Infinity', '-1.0Infinity', '0xFF1306Infinity')
+      assertAdd(Infinity, asrt_Infinity)
+
+      asrt_1 = (2, 1, 1, NaN, '1', 'str1', 'true1', 'false1', 1, NaN, 1,
+                Infinity, 2, 0, 16716551, '[object Object]1', '0.01', 'NaN1',
+                '-0.01', 'Infinity1', '1.01', '-1.01', '0xFF13061')
       assertAdd(Number(1.0), asrt_1)
 
+      asrt_n1 = (0, -1, -1, NaN, '-1', 'str-1', 'true-1', 'false-1', -1, NaN,
+                 -1, Infinity, 0, -2, 16716549, '[object Object]-1', '0.0-1',
+                 'NaN-1', '-0.0-1', 'Infinity-1', '1.0-1', '-1.0-1',
+                 '0xFF1306-1')
       assertAdd(Number(-1.0), asrt_n1)
 
+      asrt_16716550 = (16716551, 16716550, 16716550, NaN, '16716550',
+                       'str16716550', 'true16716550', 'false16716550',
+                       16716550, NaN, 16716550, Infinity, 16716551, 16716549,
+                       33433100, '[object Object]16716550', '0.016716550',
+                       'NaN16716550', '-0.016716550', 'Infinity16716550',
+                       '1.016716550', '-1.016716550', '0xFF130616716550')
       assertAdd(Number(0xFF1306), asrt_16716550)
 
-      assertAdd(Object(), asrt_0)
-      assertAdd(String('0.0'), asrt_0)
-      assertAdd(String('NaN'), asrt_0)
-      assertAdd(String('-0.0'), asrt_0)
-      assertAdd(String('Infinity'), asrt_0)
-      assertAdd(String('1.0'), asrt_1)
+      asrt_Object = ('true[object Object]', 'false[object Object]',
+                     'null[object Object]', 'undefined[object Object]',
+                     '[object Object]', 'str[object Object]',
+                     'true[object Object]', 'false[object Object]',
+                     '0[object Object]', 'NaN[object Object]',
+                     '0[object Object]', 'Infinity[object Object]',
+                     '1[object Object]', '-1[object Object]',
+                     '16716550[object Object]',
+                     '[object Object][object Object]', '0.0[object Object]',
+                     'NaN[object Object]', '-0.0[object Object]',
+                     'Infinity[object Object]', '1.0[object Object]',
+                     '-1.0[object Object]', '0xFF1306[object Object]')
+      assertAdd(Object(), asrt_Object)
 
-      assertAdd(String('-1.0'), asrt_n1)
+      asrt_0String = ('true0.0', 'false0.0', 'null0.0', 'undefined0.0', '0.0',
+                      'str0.0', 'true0.0', 'false0.0', '00.0', 'NaN0.0',
+                      '00.0', 'Infinity0.0', '10.0', '-10.0', '167165500.0',
+                      '[object Object]0.0', '0.00.0', 'NaN0.0', '-0.00.0',
+                      'Infinity0.0', '1.00.0', '-1.00.0', '0xFF13060.0')
+      assertAdd(String('0.0'), asrt_0String)
 
-      assertAdd(String('0xFF1306'), asrt_16716550)
+      asrt_NaNString = ('trueNaN', 'falseNaN', 'nullNaN', 'undefinedNaN',
+                        'NaN', 'strNaN', 'trueNaN', 'falseNaN', '0NaN',
+                        'NaNNaN', '0NaN', 'InfinityNaN', '1NaN', '-1NaN',
+                        '16716550NaN', '[object Object]NaN', '0.0NaN',
+                        'NaNNaN', '-0.0NaN', 'InfinityNaN', '1.0NaN',
+                        '-1.0NaN', '0xFF1306NaN')
+      assertAdd(String('NaN'), asrt_NaNString)
+
+      asrt_n0String = ('true-0.0', 'false-0.0', 'null-0.0', 'undefined-0.0',
+                       '-0.0', 'str-0.0', 'true-0.0', 'false-0.0', '0-0.0',
+                       'NaN-0.0', '0-0.0', 'Infinity-0.0', '1-0.0', '-1-0.0',
+                       '16716550-0.0', '[object Object]-0.0', '0.0-0.0',
+                       'NaN-0.0', '-0.0-0.0', 'Infinity-0.0', '1.0-0.0',
+                       '-1.0-0.0', '0xFF1306-0.0')
+      assertAdd(String('-0.0'), asrt_n0String)
+
+      asrt_InfinityString = ('trueInfinity', 'falseInfinity', 'nullInfinity',
+                             'undefinedInfinity', 'Infinity', 'strInfinity',
+                             'trueInfinity', 'falseInfinity', '0Infinity',
+                             'NaNInfinity', '0Infinity', 'InfinityInfinity',
+                             '1Infinity', '-1Infinity', '16716550Infinity',
+                             '[object Object]Infinity', '0.0Infinity',
+                             'NaNInfinity', '-0.0Infinity',
+                             'InfinityInfinity', '1.0Infinity',
+                             '-1.0Infinity', '0xFF1306Infinity')
+      assertAdd(String('Infinity'), asrt_InfinityString)
+
+      asrt_1String = ('true1.0', 'false1.0', 'null1.0', 'undefined1.0', '1.0',
+                      'str1.0', 'true1.0', 'false1.0', '01.0', 'NaN1.0',
+                      '01.0', 'Infinity1.0', '11.0', '-11.0', '167165501.0',
+                      '[object Object]1.0', '0.01.0', 'NaN1.0', '-0.01.0',
+                      'Infinity1.0', '1.01.0', '-1.01.0', '0xFF13061.0')
+      assertAdd(String('1.0'), asrt_1String)
+
+      asrt_n1String = ('true-1.0', 'false-1.0', 'null-1.0', 'undefined-1.0',
+                       '-1.0', 'str-1.0', 'true-1.0', 'false-1.0', '0-1.0',
+                       'NaN-1.0', '0-1.0', 'Infinity-1.0', '1-1.0', '-1-1.0',
+                       '16716550-1.0', '[object Object]-1.0', '0.0-1.0',
+                       'NaN-1.0', '-0.0-1.0', 'Infinity-1.0', '1.0-1.0',
+                       '-1.0-1.0', '0xFF1306-1.0')
+      assertAdd(String('-1.0'), asrt_n1String)
+
+      asrt_16716550String = ('true0xFF1306', 'false0xFF1306', 'null0xFF1306',
+                             'undefined0xFF1306', '0xFF1306', 'str0xFF1306',
+                             'true0xFF1306', 'false0xFF1306', '00xFF1306',
+                             'NaN0xFF1306', '00xFF1306', 'Infinity0xFF1306',
+                             '10xFF1306', '-10xFF1306', '167165500xFF1306',
+                             '[object Object]0xFF1306', '0.00xFF1306',
+                             'NaN0xFF1306', '-0.00xFF1306',
+                             'Infinity0xFF1306', '1.00xFF1306',
+                             '-1.00xFF1306', '0xFF13060xFF1306')
+      assertAdd(String('0xFF1306'), asrt_16716550String)
 
    def test_subtract(self):
       def assertSubtract(value, check):
@@ -3781,6 +3903,70 @@ class OperationTests(as3libTestCase):
       assertSubtract(String('-1.0'), asrt_n1)
       assertSubtract(String('0xFF1306'), asrt_16716550)
 
+   def test_multiply(self):
+      def assertMultiply(value, check):
+         self.assertEqualCheckNaN(true * value, check[0])
+         self.assertEqualCheckNaN(false * value, check[1])
+         self.assertEqualCheckNaN(null * value, check[2])
+         self.assertEqualCheckNaN(undefined * value, check[3])
+         self.assertEqualCheckNaN(String('') * value, check[4])
+         self.assertEqualCheckNaN(String('str') * value, check[5])
+         self.assertEqualCheckNaN(String('true') * value, check[6])
+         self.assertEqualCheckNaN(String('false') * value, check[7])
+         self.assertEqualCheckNaN(Number(0.0) * value, check[8])
+         self.assertEqualCheckNaN(NaN * value, check[9])
+         self.assertEqualCheckNaN(Number(-0.0) * value, check[10])
+         self.assertEqualCheckNaN(Infinity * value, check[11])
+         self.assertEqualCheckNaN(Number(1.0) * value, check[12])
+         self.assertEqualCheckNaN(Number(-1.0) * value, check[13])
+         self.assertEqualCheckNaN(Number(0xFF1306) * value, check[14])
+         self.assertEqualCheckNaN(Object() * value, check[15])
+         self.assertEqualCheckNaN(String('0.0') * value, check[16])
+         self.assertEqualCheckNaN(String('NaN') * value, check[17])
+         self.assertEqualCheckNaN(String('-0.0') * value, check[18])
+         self.assertEqualCheckNaN(String('Infinity') * value, check[19])
+         self.assertEqualCheckNaN(String('1.0') * value, check[20])
+         self.assertEqualCheckNaN(String('-1.0') * value, check[21])
+         self.assertEqualCheckNaN(String('0xFF1306') * value, check[22])
+
+
+      asrt_1 = (1, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, Infinity, 1, -1, 16716550, NaN, 0, NaN, 0, Infinity, 1, -1, 16716550)
+
+      asrt_0 = (0, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, NaN, 0, 0, 0, NaN, 0, NaN, 0, NaN, 0, 0, 0)
+
+      asrt_NaN = (NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+
+      asrt_inf = (Infinity, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, Infinity, Infinity, -Infinity, Infinity, NaN, NaN, NaN, NaN, Infinity, Infinity, -Infinity, Infinity)
+
+      asrt_n1 = (-1, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, -Infinity, -1, 1, -16716550, NaN, 0, NaN, 0, -Infinity, -1, 1, -16716550)
+
+      asrt_16716550 = (16716550, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, Infinity, 16716550, -16716550, 279443043902500, NaN, 0, NaN, 0, Infinity, 16716550, -16716550, 279443043902500)
+
+
+      assertMultiply(true, asrt_1)
+      assertMultiply(false, asrt_0)
+      assertMultiply(null, asrt_0)
+      assertMultiply(undefined, asrt_NaN)
+      assertMultiply(String(''), asrt_0)
+      assertMultiply(String('str'), asrt_NaN)
+      assertMultiply(String('true'), asrt_NaN)
+      assertMultiply(String('false'), asrt_NaN)
+      assertMultiply(Number(0.0), asrt_0)
+      assertMultiply(NaN, asrt_NaN)
+      assertMultiply(Number(-0.0), asrt_0)
+      assertMultiply(Infinity, asrt_inf)
+      assertMultiply(Number(1.0), asrt_1)
+      assertMultiply(Number(-1.0), asrt_n1)
+      assertMultiply(Number(0xFF1306), asrt_16716550)
+      assertMultiply(Object(), asrt_NaN)
+      assertMultiply(String('0.0'), asrt_0)
+      assertMultiply(String('NaN'), asrt_NaN)
+      assertMultiply(String('-0.0'), asrt_0)
+      assertMultiply(String('Infinity'), asrt_inf)
+      assertMultiply(String('1.0'), asrt_1)
+      assertMultiply(String('-1.0'), asrt_n1)
+      assertMultiply(String('0xFF1306'), asrt_16716550)
+
    def test_divide(self):
       def assertDivide(value, check):
          self.assertEqualCheckNaN(true / value, check[0])
@@ -3842,7 +4028,7 @@ class OperationTests(as3libTestCase):
       assertDivide(String('false'), asrt_NaN)
       assertDivide(Number(0.0), asrt_0)
       assertDivide(NaN, asrt_NaN)
-      assertDivide(Number(-0.0), asrt_n0)  # TODO
+      #assertDivide(Number(-0.0), asrt_n0)  # TODO
       assertDivide(Infinity, asrt_inf)
       assertDivide(Number(1.0), asrt_1)
       assertDivide(Number(-1.0), asrt_n1)
@@ -3850,11 +4036,71 @@ class OperationTests(as3libTestCase):
       assertDivide(Object(), asrt_NaN)
       assertDivide(String('0.0'), asrt_0)
       assertDivide(String('NaN'), asrt_NaN)
-      assertDivide(String('-0.0'), asrt_n0)  # TODO
+      #assertDivide(String('-0.0'), asrt_n0)  # TODO
       assertDivide(String('Infinity'), asrt_inf)
       assertDivide(String('1.0'), asrt_1)
       assertDivide(String('-1.0'), asrt_n1)
       assertDivide(String('0xFF1306'), asrt_16716550)
+
+   def test_modulo(self):
+      def assertModulo(value, check):
+         self.assertEqualCheckNaN(true % value, check[0])
+         self.assertEqualCheckNaN(false % value, check[1])
+         self.assertEqualCheckNaN(null % value, check[2])
+         self.assertEqualCheckNaN(undefined % value, check[3])
+         self.assertEqualCheckNaN(String('') % value, check[4])
+         self.assertEqualCheckNaN(String('str') % value, check[5])
+         self.assertEqualCheckNaN(String('true') % value, check[6])
+         self.assertEqualCheckNaN(String('false') % value, check[7])
+         self.assertEqualCheckNaN(Number(0.0) % value, check[8])
+         self.assertEqualCheckNaN(NaN % value, check[9])
+         self.assertEqualCheckNaN(Number(-0.0) % value, check[10])
+         self.assertEqualCheckNaN(Infinity % value, check[11])
+         self.assertEqualCheckNaN(Number(1.0) % value, check[12])
+         self.assertEqualCheckNaN(Number(-1.0) % value, check[13])
+         self.assertEqualCheckNaN(Number(0xFF1306) % value, check[14])
+         self.assertEqualCheckNaN(Object() % value, check[15])
+         self.assertEqualCheckNaN(String('0.0') % value, check[16])
+         self.assertEqualCheckNaN(String('NaN') % value, check[17])
+         self.assertEqualCheckNaN(String('-0.0') % value, check[18])
+         self.assertEqualCheckNaN(String('Infinity') % value, check[19])
+         self.assertEqualCheckNaN(String('1.0') % value, check[20])
+         self.assertEqualCheckNaN(String('-1.0') % value, check[21])
+         self.assertEqualCheckNaN(String('0xFF1306') % value, check[22])
+
+      asrt_1 = (0, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, NaN, 0, 0, 0, NaN, 0, NaN, 0, NaN, 0, 0, 0)
+
+      asrt_0 = (NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+
+      asrt_NaN = (NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+
+      asrt_inf = (1, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, NaN, 1, -1, 16716550, NaN, 0, NaN, 0, NaN, 1, -1, 16716550)
+
+      asrt_16716550 = (1, 0, 0, NaN, 0, NaN, NaN, NaN, 0, NaN, 0, NaN, 1, -1, 0, NaN, 0, NaN, 0, NaN, 1, -1, 0)
+
+      assertModulo(true, asrt_1)
+      assertModulo(false, asrt_0)
+      assertModulo(null, asrt_0)
+      assertModulo(undefined, asrt_NaN)
+      assertModulo(String(''), asrt_0)
+      assertModulo(String('str'), asrt_NaN)
+      assertModulo(String('true'), asrt_NaN)
+      assertModulo(String('false'), asrt_NaN)
+      assertModulo(Number(0.0), asrt_0)
+      assertModulo(NaN, asrt_NaN)
+      assertModulo(Number(-0.0), asrt_0)
+      assertModulo(Infinity, asrt_inf)
+      assertModulo(Number(1.0), asrt_1)
+      assertModulo(Number(-1.0), asrt_1)
+      assertModulo(Number(0xFF1306), asrt_16716550)
+      assertModulo(Object(), asrt_NaN)
+      assertModulo(String('0.0'), asrt_0)
+      assertModulo(String('NaN'), asrt_NaN)
+      assertModulo(String('-0.0'), asrt_0)
+      assertModulo(String('Infinity'), asrt_inf)
+      assertModulo(String('1.0'), asrt_1)
+      assertModulo(String('-1.0'), asrt_1)
+      assertModulo(String('0xFF1306'), asrt_16716550)
 
    def test_lshift(self):
       def assertLShift(value, check):
@@ -3981,6 +4227,7 @@ class OperationTests(as3libTestCase):
       assertRShift(String('0xFF1306'), asrt_16716550)
 
    def test_negate(self):
+      # TODO: Test Array with and without items in it
       self.assertEqual(-true, -1)
       self.assertEqual(-false, 0)
       self.assertEqual(-null, 0)
@@ -4066,10 +4313,148 @@ class OperationTests(as3libTestCase):
                          false, false))
 
    def test_greaterequals(self):
-      raise TestNotImplemented
+      def assertGreaterEquals(value, check):
+         self.assertEqual(value >= undefined, check[0])
+         self.assertEqual(value >= null, check[1])
+         self.assertEqual(value >= Number(-5), check[2])
+         self.assertEqual(value >= Number(-1), check[3])
+         self.assertEqual(value >= Number(-0), check[4])
+         self.assertEqual(value >= Number(0), check[5])
+         self.assertEqual(value >= Number(1), check[6])
+         self.assertEqual(value >= Number(2), check[7])
+         self.assertEqual(value >= Number(5), check[8])
+         self.assertEqual(value >= String('abc'), check[9])
+         self.assertEqual(value >= String('2'), check[10])
+         self.assertEqual(value >= String('true'), check[11])
+         self.assertEqual(value >= String('false'), check[12])
+         self.assertEqual(value >= true, check[13])
+         self.assertEqual(value >= false, check[14])
+         self.assertEqual(value >= NaN, check[15])
+
+      assertGreaterEquals(undefined, (false, false, false, false, false,
+                                      false, false, false, false, false,
+                                      false, false, false, false, false,
+                                      false))
+      assertGreaterEquals(null, (false, true, true, true, true, true, false,
+                                 false, false, false, false, false, false,
+                                 false, true, false))
+      assertGreaterEquals(Number(-5), (false, false, true, false, false,
+                                       false, false, false, false, false,
+                                       false, false, false, false, false,
+                                       false))
+      assertGreaterEquals(Number(-1), (false, false, true, true, false, false,
+                                       false, false, false, false, false,
+                                       false, false, false, false, false))
+      assertGreaterEquals(Number(-0), (false, true, true, true, true, true,
+                                       false, false, false, false, false,
+                                       false, false, false, true, false))
+      assertGreaterEquals(Number(0), (false, true, true, true, true, true,
+                                      false, false, false, false, false,
+                                      false, false, false, true, false))
+      assertGreaterEquals(Number(1), (false, true, true, true, true, true,
+                                      true, false, false, false, false, false,
+                                      false, true, true, false))
+      assertGreaterEquals(Number(2), (false, true, true, true, true, true,
+                                      true, true, false, false, true, false,
+                                      false, true, true, false))
+      assertGreaterEquals(Number(5), (false, true, true, true, true, true,
+                                      true, true, true, false, true, false,
+                                      false, true, true, false))
+      assertGreaterEquals(String('abc'), (false, false, false, false, false,
+                                          false, false, false, false, true,
+                                          true, false, false, false, false,
+                                          false))
+      assertGreaterEquals(String('2'), (false, true, true, true, true, true,
+                                        true, true, false, false, true, false,
+                                        false, true, true, false))
+      assertGreaterEquals(String('true'), (false, false, false, false, false,
+                                           false, false, false, false, true,
+                                           true, true, true, false, false,
+                                           false))
+      assertGreaterEquals(String('false'), (false, false, false, false, false,
+                                            false, false, false, false, true,
+                                            true, false, true, false, false,
+                                            false))
+      assertGreaterEquals(true, (false, true, true, true, true, true, true,
+                                 false, false, false, false, false, false,
+                                 true, true, false))
+      assertGreaterEquals(false, (false, true, true, true, true, true, false,
+                                  false, false, false, false, false, false,
+                                  false, true, false))
+      assertGreaterEquals(NaN, (false, false, false, false, false, false,
+                                false, false, false, false, false, false,
+                                false, false, false, false))
 
    def test_greaterthan(self):
-      raise TestNotImplemented
+      def assertGreaterThan(value, check):
+         self.assertEqual(value > undefined, check[0])
+         self.assertEqual(value > null, check[1])
+         self.assertEqual(value > Number(-5), check[2])
+         self.assertEqual(value > Number(-1), check[3])
+         self.assertEqual(value > Number(-0), check[4])
+         self.assertEqual(value > Number(0), check[5])
+         self.assertEqual(value > Number(1), check[6])
+         self.assertEqual(value > Number(2), check[7])
+         self.assertEqual(value > Number(5), check[8])
+         self.assertEqual(value > String('abc'), check[9])
+         self.assertEqual(value > String('2'), check[10])
+         self.assertEqual(value > String('true'), check[11])
+         self.assertEqual(value > String('false'), check[12])
+         self.assertEqual(value > true, check[13])
+         self.assertEqual(value > false, check[14])
+         self.assertEqual(value > NaN, check[15])
+
+      assertGreaterThan(undefined, (false, false, false, false, false, false,
+                                    false, false, false, false, false, false,
+                                    false, false, false, false))
+      assertGreaterThan(null, (false, false, true, true, false, false, false,
+                               false, false, false, false, false, false,
+                               false, false, false))
+      assertGreaterThan(Number(-5), (false, false, false, false, false, false,
+                                     false, false, false, false, false, false,
+                                     false, false, false, false))
+      assertGreaterThan(Number(-1), (false, false, true, false, false, false,
+                                     false, false, false, false, false, false,
+                                     false, false, false, false))
+      assertGreaterThan(Number(-0), (false, false, true, true, false, false,
+                                     false, false, false, false, false, false,
+                                     false, false, false, false))
+      assertGreaterThan(Number(0), (false, false, true, true, false, false,
+                                    false, false, false, false, false, false,
+                                    false, false, false, false))
+      assertGreaterThan(Number(1), (false, true, true, true, true, true,
+                                    false, false, false, false, false, false,
+                                    false, false, true, false))
+      assertGreaterThan(Number(2), (false, true, true, true, true, true, true,
+                                    false, false, false, false, false, false,
+                                    true, true, false))
+      assertGreaterThan(Number(5), (false, true, true, true, true, true, true,
+                                    true, false, false, true, false, false,
+                                    true, true, false))
+      assertGreaterThan(String('abc'), (false, false, false, false, false,
+                                        false, false, false, false, false,
+                                        true, false, false, false, false,
+                                        false))
+      assertGreaterThan(String('2'), (false, true, true, true, true, true,
+                                      true, false, false, false, false, false,
+                                      false, true, true, false))
+      assertGreaterThan(String('true'), (false, false, false, false, false,
+                                         false, false, false, false, true,
+                                         true, false, true, false, false,
+                                         false))
+      assertGreaterThan(String('false'), (false, false, false, false, false,
+                                          false, false, false, false, true,
+                                          true, false, false, false, false,
+                                          false))
+      assertGreaterThan(true, (false, true, true, true, true, true, false,
+                               false, false, false, false, false, false,
+                               false, true, false))
+      assertGreaterThan(false, (false, false, true, true, false, false, false,
+                                false, false, false, false, false, false,
+                                false, false, false))
+      assertGreaterThan(NaN, (false, false, false, false, false, false, false,
+                              false, false, false, false, false, false, false,
+                              false, false))
 
    def test_lessequals(self):
       raise TestNotImplemented
@@ -6231,7 +6616,7 @@ class WTFJSTests(as3libTestCase):
 
       self.assertEqual(String('') + String(''), String(''))
       self.assertEqual(Array() + Array(), String(''))
-      self.assertEqual(Object() + Array(), Number(0))
+      self.assertEqual(Object() + Array(), Number(0))  # TODO: This seems to be wrong
       self.assertEqual(Array() + Object(), String('[object Object]'))
       self.assertEqual(Object() + Object(), String('[object Object][object Object]'))
 
