@@ -1,4 +1,4 @@
-from as3lib import Array, Boolean, int, metaclasses
+from as3lib import Array, Boolean, int, metaclasses, null, Object, String
 from copy import copy
 
 
@@ -151,7 +151,7 @@ class Event(_AS3_BASEEVENT):
    _INTERNAL_allowedTypes = {'activate', 'added', 'addedToStage', 'browerZoomChange', 'cancel', 'change', 'channelMessage', 'channelState', 'clear', 'close', 'closing', 'complete', 'connect', 'context3DCreate', 'copy', 'cut', 'deactivate', 'displaying', 'enterFrame', 'exitFrame', 'exiting', 'frameConstructed', 'frameLabel', 'fullscreen', 'htmlBoundsChange', 'htmlDOMInitialize', 'htmlRender', 'id3', 'init', 'locationChange', 'mouseLeave', 'networkChange', 'open', 'paste', 'preparing', 'removed', 'removeFromStage', 'render', 'resize', 'scroll', 'select', 'selectAll', 'soundComplete', 'standardErrorClose', 'standardInputClose', 'standardOutputClose', 'suspend', 'tabChildrenChange', 'tabEnableChange', 'tabIndexChange', 'textInteractionModeChange', 'textureReady', 'unload', 'userIdle', 'userPresent', 'videoFrame', 'workerState'}
 
 
-class EventDispatcher:
+class EventDispatcher(Object):
    # TODO: Implement priority, weakReference
 
    def __init__(self, target: IEventDispatcher = None):
@@ -949,7 +949,32 @@ class StageVideoEvent:...
 class StatusEvent:...
 
 
-class StorageVolumeChangeEvent:...
+class StorageVolumeChangeEvent(_AS3_BASEEVENT):
+   STORAGE_VOLUME_MOUNT = String('storageVolumeMount')
+   STORAGE_VOLUME_UNMOUNT = String('storageVolumeUnmount')
+
+   @property
+   def rootDirectory(self):
+      if self.type == STORAGE_VOLUME_UNMOUNT:
+         return null
+      raise NotImplementedError
+
+   @property
+   def storageVolume(self):
+      if self.type == STORAGE_VOLUME_UNMOUNT:
+         return null
+      raise NotImplementedError
+
+   def __init__(self, type, bubbles=False, cancelable=False, path = null, volume = null):
+      super().__init__(type, bubbles, cancelable)
+      self._path = path
+      self._volume = volume
+
+   def clone(self):
+      return StorageVolumeChangeEvent(self.type, self.bubbles, self.cancelable, self.path, self.volume)
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class SyncEvent:...
