@@ -1,4 +1,5 @@
-from as3lib import Array, Boolean, int, metaclasses, null, Object, String
+from as3lib import (Array, as3state, Boolean, Error, false, int, metaclasses,
+                    Number, null, Object, String, true, uint)
 from copy import copy
 
 
@@ -28,16 +29,16 @@ class _AS3_BASEEVENT:
    def type(self):
       return self._type
 
-   def __init__(self, type, bubbles=False, cancelable=False):
+   def __init__(self, type, bubbles=false, cancelable=false):
       if type not in self._INTERNAL_allowedTypes:
          raise Exception('Provided event type is not valid for this object')
-      self._type = type
-      self._bubbles = bubbles
-      self._cancelable = cancelable
-      self._currentTarget = None
-      self._target = None
-      self._eventPhase = None
-      self._preventDefault = False
+      self._type = String(type)
+      self._bubbles = Boolean(bubbles)
+      self._cancelable = Boolean(cancelable)
+      self._currentTarget = null
+      self._target = null
+      self._eventPhase = null
+      self._preventDefault = false
 
    def __eq__(self, value):
       return self.type == value
@@ -49,14 +50,14 @@ class _AS3_BASEEVENT:
       return copy(self)
 
    def formatToString(self, className, *arguements):
-      return ''.join(['[', className] + [f' {i}={getattr(self, i)}' for i in arguements] + [']'])
+      return String(''.join(['[', className] + [f' {i}={getattr(self, i)}' for i in arguements] + [']']))
 
    def isDefaultPrevented(self):
       return self._preventDefault
 
    def preventDefault(self):
       if self.cancelable:
-         self._preventDefault = True
+         self._preventDefault = true
 
    def stopImmediatePropagation(self):
       raise NotImplementedError
@@ -154,21 +155,25 @@ class Event(_AS3_BASEEVENT):
 class EventDispatcher(Object):
    # TODO: Implement priority, weakReference
 
-   def __init__(self, target: IEventDispatcher = None):
+   def __init__(self, target: IEventDispatcher = null):
       # TODO: Implement target
       self._events = {}
       self._eventsCapture = {}
 
-   def addEventListener(self, type: str, listener, useCapture: Boolean = False, priority: int = 0, useWeakReference: Boolean = False):
+   def addEventListener(self, type: String, listener, useCapture: Boolean = false, priority: int = 0, useWeakReference: Boolean = false):
       # TODO: Add error
       # TODO: Implement priority
-      if useCapture is False:
-         if self._events.get(type) is None:
+      type = String(type)
+      useCapture = Boolean(useCapture)
+      priority = int(priority)
+      useWeakReference = Boolean(useWeakReference)
+      if useCapture == false:
+         if type not in self._events:
             self._events[type] = [listener]
          elif listener not in self._events[type]:
             self._events[type].append(listener)
       else:
-         if self._eventsCapture.get(type) is None:
+         if type not in self._eventsCapture:
             self._eventsCapture[type] = [listener]
          elif listener not in self._eventsCapture[type]:
             self._eventsCapture[type].append(listener)
@@ -184,24 +189,27 @@ class EventDispatcher(Object):
          return True
       return False
 
-   def hasEventListener(self, type):
-      return self._events.get(type) is not None or self._eventsCapture.get(type) is not None
+   def hasEventListener(self, type: String):
+      type = String(type)
+      return type in self._events.get(type) or type in self._eventsCapture
 
-   def removeEventListener(self, type: str, listener, useCapture: Boolean = False):
-      if useCapture is False:
-         if self._events.get(type) is not None:
+   def removeEventListener(self, type: String, listener, useCapture: Boolean = false):
+      type = String(type)
+      useCapture = Boolean(useCapture)
+      if useCapture == false:
+         if type in self._events:
             try:
                self._events[type].remove(listener)
             except Exception:
                pass
       else:
-         if self._eventsCapture.get(type) is not None:
+         if type in self._eventsCapture:
             try:
                self._eventsCapture[type].remove(listener)
             except Exception:
                pass
 
-   def willTrigger(self, type: str):
+   def willTrigger(self, type: String):
       raise NotImplementedError
 
 
@@ -216,10 +224,11 @@ class TextEvent(_AS3_BASEEVENT):
 
    @text.setter
    def text(self, value):
-      self._text = value
+      self._text = String(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, text=''):
-      self._text = text
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, text: String = ''):
+      self.text = text
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -234,8 +243,9 @@ class ErrorEvent(TextEvent):
    def errorID(self):
       return self._errorID
 
-   def __init__(self, type, bubbles=False, cancelable=False, text='', id=0):
-      self._errorID = id
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, text: String = '', id: int = 0):
+      self._errorID = int(id)
       super().__init__(type, bubbles, cancelable, text)
 
    def toString(self):
@@ -252,7 +262,7 @@ class AccelerometerEvent(_AS3_BASEEVENT):
 
    @accelerationX.setter
    def accelerationX(self, value):
-      self._accelX = value
+      self._accelX = Number(value)
 
    @property
    def accelerationY(self):
@@ -260,7 +270,7 @@ class AccelerometerEvent(_AS3_BASEEVENT):
 
    @accelerationY.setter
    def accelerationY(self, value):
-      self._accelY = value
+      self._accelY = Number(value)
 
    @property
    def accelerationZ(self):
@@ -268,7 +278,7 @@ class AccelerometerEvent(_AS3_BASEEVENT):
 
    @accelerationZ.setter
    def accelerationZ(self, value):
-      self._accelZ = value
+      self._accelZ = Number(value)
 
    @property
    def timestamp(self):
@@ -276,13 +286,16 @@ class AccelerometerEvent(_AS3_BASEEVENT):
 
    @timestamp.setter
    def timestamp(self, value):
-      self._timestamp = value
+      self._timestamp = Number(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, timestamp=0, accelerationX=0, accelerationY=0, accelerationZ=0):
-      self._accelX = accelerationX
-      self._accelY = accelerationY
-      self._accelZ = accelerationZ
-      self._timestamp = timestamp
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, timestamp: Number = 0,
+                accelerationX: Number = 0, accelerationY: Number = 0,
+                accelerationZ: Number = 0):
+      self.accelX = accelerationX
+      self.accelY = accelerationY
+      self.accelZ = accelerationZ
+      self.timestamp = timestamp
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -299,10 +312,11 @@ class ActivityEvent(_AS3_BASEEVENT):
 
    @activating.setter
    def activating(self, value):
-      self._activating = value
+      self._activating = Boolean(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, activating=False):
-      self._activating = activating
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, activating: Boolean = false):
+      self.activating = activating
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -321,9 +335,11 @@ class AsyncErrorEvent(ErrorEvent):
    def error(self, value):
       self._error = value
 
-   def __init__(self, type, bubbles=False, cancelable=False, text='', error=None):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, text: String = '',
+                error: Error = null):
       self._error = error
-      id = 0 if error is None else error.errorID
+      id = 0 if error is null else error.errorID
       super().__init__(type, bubbles, cancelable, text, id)
 
    def toString(self):
@@ -338,8 +354,9 @@ class AudioOutputChangeEvent(_AS3_BASEEVENT):
    def reason(self):
       return self._reason
 
-   def __init__(self, type, bubbles=False, cancelable=False, reason=None):
-      self._reason = reason
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, reason: String = null):
+      self._reason = String(reason)
 
 
 class AVDictionaryDataEvent(_AS3_BASEEVENT):
@@ -355,9 +372,11 @@ class AVDictionaryDataEvent(_AS3_BASEEVENT):
    def time(self):
       return self._time
 
-   def __init__(self, type, bubbles=False, cancelable=False, init_dictionary=None, init_dataTime=0):
-      self._dictionary = {} if init_dictionary is None else init_dictionary
-      self._time = init_dataTime
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, init_dictionary = null,
+                init_dataTime: number = 0):
+      self._dictionary = {} if init_dictionary is null else init_dictionary
+      self._time = Number(init_dataTime)
       super().__init__(type, bubbles, cancelable)
 
 
@@ -379,16 +398,18 @@ class AVHTTPStatusEvent(_AS3_BASEEVENT):
 
    @responseUrl.setter
    def responseUrl(self, value):
-      self._responseUrl = value
+      self._responseUrl = String(value)
 
    @property
    def status(self):
       return self._status
 
-   def __init__(self, type, bubbles=False, cancelable=False, status=0, responseUrl=None, responseHeaders=None):
-      self._status = status
-      self._responseUrl = responseUrl
-      self._responseHeaders = responseHeaders
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, status: int = 0,
+                responseUrl: String = null, responseHeaders: Array = null):
+      self._status = int(status)
+      self.responseUrl = responseUrl
+      self.responseHeaders = responseHeaders
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -403,8 +424,9 @@ class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
    def userData(self):
       return self._userData
 
-   def __init__(self, type, bubbles=False, cancelable=False, userData=0):
-      self._userData = userData
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, userData: int = 0):
+      self._userData = int(userData)
       super().__init__(type, bubbles, cancelable)
 
 
@@ -432,12 +454,14 @@ class BrowserInvokeEvent(_AS3_BASEEVENT):
    def securityDomain(self):
       return self._securityDomain
 
-   def __init__(self, type, bubbles, cancelable, arguements, sandboxType, securityDomain, isHTTPS):
+   def __init__(self, type: String, bubbles: Boolean, cancelable: Boolean,
+                arguements: Array, sandboxType: String,
+                securityDomain: String, isHTTPS: Boolean):
       self._arguements = arguements
-      self._isHTTPS = isHTTPS
-      self._isUserEvent = False
-      self._sandboxType = sandboxType
-      self._securityDomain = securityDomain
+      self._isHTTPS = Boolean(isHTTPS)
+      self._isUserEvent = false
+      self._sandboxType = String(sandboxType)
+      self._securityDomain = String(securityDomain)
       super().__init__(type, bubbles, cancelable)
 
 
@@ -452,13 +476,15 @@ class ContextMenuEvent(_AS3_BASEEVENT):
 
    @property
    def isMouseTargetInaccessible(self):
-      return self._mTarget is None
+      return self._mTarget is null
 
    @property
    def mouseTarget(self):
       return self._mTarget
 
-   def __init__(self, type, bubbles=False, cancelable=False, mouseTarget=None, contextMenuOwner=None):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, mouseTarget = null,
+                contextMenuOwner = null):
       self._cmOwner = contextMenuOwner
       self._mTarget = mouseTarget
       super().__init__(type, bubbles, cancelable)
@@ -478,10 +504,11 @@ class DataEvent(TextEvent):
 
    @data.setter
    def data(self, value):
-      self._data = value
+      self._data = String(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, data=''):
-      self._data = data
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, data: String = ''):
+      self.data = data
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -543,8 +570,9 @@ class FileListEvent(_AS3_BASEEVENT):
    def files(self, value):
       self._files = value
 
-   def __init__(self, type, bubbles=False, cancelable=False, files=None):
-      self._files = Array() if files is None else files
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, files: Array = null):
+      self.files = Array() if files is null else files
       super().__init__(type, bubbles, cancelable)
 
 
@@ -562,7 +590,7 @@ class FocusEvent(_AS3_BASEEVENT):
 
    @direction.setter
    def direction(self, value):
-      self._direction = value
+      self._direction = String(value)
 
    @property
    def isRelatedObjectInaccessible(self):
@@ -578,7 +606,7 @@ class FocusEvent(_AS3_BASEEVENT):
 
    @keyCode.setter
    def keyCode(self, value):
-      self._keyCode = value
+      self._keyCode = uint(value)
 
    @property
    def relatedObject(self):
@@ -594,13 +622,16 @@ class FocusEvent(_AS3_BASEEVENT):
 
    @shiftKey.setter
    def shiftKey(self, value):
-      self._shiftKey = value
+      self._shiftKey = Boolean(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, relatedObject=None, shiftKey=False, keyCode=0, direction='none'):
-      self._direction = direction
-      self._keyCode = keyCode
-      self._relatedObject = relatedObject
-      self._shiftKey = shiftKey
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, relatedObject = null,
+                shiftKey: Boolean = false, keyCode: uint = 0,
+                direction: String = 'none'):
+      self.direction = direction
+      self.keyCode = keyCode
+      self.relatedObject = relatedObject
+      self.shiftKey = shiftKey
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -620,9 +651,11 @@ class FullScreenEvent(ActivityEvent):
    def interactive(self):
       return self._interactive
 
-   def __init__(self, type, bubbles=False, cancelable=False, fullScreen=False, interactive=False):
-      self._fullscreen = fullScreen
-      self._interactive = interactive
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, fullScreen: Boolean = false,
+                interactive: Boolean = false):
+      self._fullscreen = Boolean(fullScreen)
+      self._interactive = Boolean(interactive)
       super().__init__(type, bubbles, cancelable, False)
 
    def toString(self):
@@ -659,7 +692,7 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
 
    @redirected.setter
    def redirected(self, value):
-      self._redirected = value
+      self._redirected = Boolean(value)
 
    @property
    def responseHeaders(self):
@@ -681,11 +714,13 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
    def status(self):
       return self._status
 
-   def __init__(self, type, bubbles=False, cancelable=False, status=0, redirected=False):
-      self._status = status
-      self._redirected = redirected
-      self._responseHeaders = Array()
-      self._responseURL = ''
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, status: int = 0,
+                redirected: Boolean = false):
+      self._status = int(status)
+      self.redirected = redirected
+      self.responseHeaders = Array()
+      self.responseURL = String('')
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -720,7 +755,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @altKey.setter
    def altKey(self, value):
-      self._altKey = value
+      self._altKey = Boolean(value)
 
    @property
    def charCode(self):
@@ -728,7 +763,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @charCode.setter
    def charCode(self, value):
-      self._charCode = value
+      self._charCode = uint(value)
 
    @property
    def commandKey(self):
@@ -736,7 +771,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @commandKey.setter
    def commandKey(self, value):
-      self._commandKey = value
+      self._commandKey = Boolean(value)
 
    @property
    def controlKey(self):
@@ -744,11 +779,14 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @controlKey.setter
    def controlKey(self, value):
-      self._controlKey = value
+      self._controlKey = Boolean(value)
 
    @property
    def ctrlKey(self):  # TODO
       raise NotImplementedError
+      #if as3state.platform == 'Darwin':
+      #   return self.commandKey or self.controlKey
+      #return self.controlKey
 
    @ctrlKey.setter
    def ctrlKey(self, value):
@@ -760,7 +798,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @keyCode.setter
    def keyCode(self, value):
-      self._keyCode = value
+      self._keyCode = uint(value)
 
    @property
    def keyLocation(self):
@@ -768,7 +806,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @keyLocation.setter
    def keyLocation(self, value):
-      self._keyLocation = value
+      self._keyLocation = uint(value)
 
    @property
    def shiftKey(self):
@@ -776,17 +814,23 @@ class KeyboardEvent(_AS3_BASEEVENT):
 
    @shiftKey.setter
    def shiftKey(self, value):
-      self._shiftKey = value
+      self._shiftKey = Boolean(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, charCodeValue=0, keyCodeValue=0, keyLocationValue=0, ctrlKeyValue=False, altKeyValue=False, shiftKeyValue=False, controlKeyValue=False, commandKeyValue=False):
-      self._altKey = altKeyValue
-      self._charCode = charCodeValue
-      self._commandKey = commandKeyValue
-      self._controlKey = controlKeyValue
-      self._ctrlKey = ctrlKeyValue
-      self._keyCode = keyCodeValue
-      self._keyLocation = keyLocationValue
-      self._shiftKey = shiftKeyValue
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, charCodeValue: uint = 0,
+                keyCodeValue: uint = 0, keyLocationValue: uint = 0,
+                ctrlKeyValue: Boolean = false, altKeyValue: Boolean = false,
+                shiftKeyValue: Boolean = false,
+                controlKeyValue: Boolean = false,
+                commandKeyValue: Boolean = false):
+      self.altKey = altKeyValue
+      self.charCode = charCodeValue
+      self.commandKey = commandKeyValue
+      self._controlKey = controlKeyValue  # TODO
+      self.ctrlKey = ctrlKeyValue
+      self.keyCode = keyCodeValue
+      self.keyLocation = keyLocationValue
+      self.shiftKey = shiftKeyValue
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -837,12 +881,13 @@ class PermissionEvent(_AS3_BASEEVENT):
    def status(self):
       return self._status
 
-   def __init__(self, type, bubbles=False, cancelable=False, status='denied'):
-      self._status = status
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, status: String = 'denied'):
+      self._status = String(status)
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
-      return f'[PermissionEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} permission= status={self.status}]'
+      return String(f'[PermissionEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} permission= status={self.status}]')
 
 
 class PressAndTapGestureEvent:...
@@ -862,7 +907,7 @@ class ProgressEvent(_AS3_BASEEVENT):
 
    @bytesLoaded.setter
    def bytesLoaded(self, value):
-      self._bytesLoaded = value
+      self._bytesLoaded = Number(value)
 
    @property
    def bytesTotal(self):
@@ -870,11 +915,13 @@ class ProgressEvent(_AS3_BASEEVENT):
 
    @bytesTotal.setter
    def bytesTotal(self, value):
-      self._bytesTotal = value
+      self._bytesTotal = Number(value)
 
-   def __init__(self, type, bubbles=False, cancelable=False, bytesLoaded=0, bytesTotal=0):
-      self._bytesLoaded = bytesLoaded
-      self._bytesTotal = bytesTotal
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, bytesLoaded: Number = 0,
+                bytesTotal: Number = 0):
+      self.bytesLoaded = bytesLoaded
+      self.bytesTotal = bytesTotal
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -931,9 +978,11 @@ class StageOrientationEvent(_AS3_BASEEVENT):
    def beforeOrientation(self):
       return self._beforeOrientation
 
-   def __init__(self, type, bubbles=False, cancelable=False, beforeOrientation=None, afterOrientation=None):
-      self._afterOrientation = afterOrientation
-      self._beforeOrientation = beforeOrientation
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, beforeOrientation: String = null,
+                afterOrientation: String = null):
+      self._afterOrientation = String(afterOrientation)
+      self._beforeOrientation = String(beforeOrientation)
       super().__init__(type, bubbles, cancelable)
       
    def toString(self):
@@ -965,7 +1014,8 @@ class StorageVolumeChangeEvent(_AS3_BASEEVENT):
          return null
       raise NotImplementedError
 
-   def __init__(self, type, bubbles=False, cancelable=False, path = null, volume = null):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, path = null, volume = null):
       super().__init__(type, bubbles, cancelable)
       self._path = path
       self._volume = volume
@@ -992,9 +1042,11 @@ class ThrottleEvent(_AS3_BASEEVENT):
    def targetFrameRate(self):
       return self._targetFrameRate
 
-   def __init__(self, type, bubbles=False, cancelable=False, state=None, targetFrameRate=0):
-      self._state = state
-      self._targetFrameRate = targetFrameRate
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, state: String = null,
+                targetFrameRate: Number = 0):
+      self._state = String(state)
+      self._targetFrameRate = Number(targetFrameRate)
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
@@ -1012,7 +1064,8 @@ class TimerEvent(_AS3_BASEEVENT):
    TIMER_COMPLETE = 'timerComplete'  # bubbles=False, cancelable=False
    _INTERNAL_allowedTypes = {'timer', 'timerComplete'}
 
-   def __init__(self, type, bubbles=False, cancelable=False):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false):
       super().__init__(type, bubbles, cancelable)
 
    def toString(self):
