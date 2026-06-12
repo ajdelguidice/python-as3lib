@@ -231,6 +231,9 @@ class TextEvent(_AS3_BASEEVENT):
       self.text = text
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return TextEvent(self.type, self.bubbles, self.cancelable, self.text)
+
    def toString(self):
       return self.formatToString('TextEvent', 'type', 'bubbles', 'cancelable', 'text')
 
@@ -247,6 +250,10 @@ class ErrorEvent(TextEvent):
                 cancelable: Boolean = false, text: String = '', id: int = 0):
       self._errorID = int(id)
       super().__init__(type, bubbles, cancelable, text)
+
+   def clone(self):
+      return ErrorEvent(self.type, self.bubbles, self.cancelable, self.text,
+                        self.errorID)
 
    def toString(self):
       return self.formatToString('ErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
@@ -292,11 +299,16 @@ class AccelerometerEvent(_AS3_BASEEVENT):
                 cancelable: Boolean = false, timestamp: Number = 0,
                 accelerationX: Number = 0, accelerationY: Number = 0,
                 accelerationZ: Number = 0):
-      self.accelX = accelerationX
-      self.accelY = accelerationY
-      self.accelZ = accelerationZ
+      self.accelerationX = accelerationX
+      self.accelerationY = accelerationY
+      self.accelerationZ = accelerationZ
       self.timestamp = timestamp
       super().__init__(type, bubbles, cancelable)
+
+   def clone(self):
+      return AccelerometerEvent(self.type, self.bubbles, self.cancelable,
+                                self.timestamp, self.accelerationX,
+                                self.accelerationY, self.accelerationZ)
 
    def toString(self):
       return self.formatToString('AccelerometerEvent', 'type', 'bubbles', 'cancelable', 'timestamp', 'accelerationX', 'accelerationY', 'accelerationZ')
@@ -318,6 +330,10 @@ class ActivityEvent(_AS3_BASEEVENT):
                 cancelable: Boolean = false, activating: Boolean = false):
       self.activating = activating
       super().__init__(type, bubbles, cancelable)
+
+   def clone(self):
+      return ActivityEvent(self.type, self.bubbles, self.cancelable,
+                           self.activating)
 
    def toString(self):
       return self.formatToString('ActivityEvent', 'type', 'bubbles', 'cancelable', 'activating')
@@ -341,6 +357,10 @@ class AsyncErrorEvent(ErrorEvent):
       self._error = error
       id = 0 if error is null else error.errorID
       super().__init__(type, bubbles, cancelable, text, id)
+
+   def clone(self):
+      return AsyncErrorEvent(self.type, self.bubbles, self.cancelable, self.text,
+                       self.error)
 
    def toString(self):
       return self.formatToString('AsyncErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'error', 'errorID')
@@ -374,7 +394,7 @@ class AVDictionaryDataEvent(_AS3_BASEEVENT):
 
    def __init__(self, type: String, bubbles: Boolean = false,
                 cancelable: Boolean = false, init_dictionary = null,
-                init_dataTime: number = 0):
+                init_dataTime: Number = 0):
       self._dictionary = {} if init_dictionary is null else init_dictionary
       self._time = Number(init_dataTime)
       super().__init__(type, bubbles, cancelable)
@@ -412,6 +432,11 @@ class AVHTTPStatusEvent(_AS3_BASEEVENT):
       self.responseHeaders = responseHeaders
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return AVHTTPStatusEvent(self.type, self.bubbles, self.cancelable,
+                               self.status, self.responseUrl,
+                               self.responseHeaders)
+
    def toString(self):
       return self.formatToString('AVHTTPStatusEvent', 'type', 'bubbles', 'cancelable', 'status')
 
@@ -435,7 +460,7 @@ class BrowserInvokeEvent(_AS3_BASEEVENT):
    _INTERNAL_allowedTypes = {'browserInvoke',}
 
    @property
-   def arguements(self):
+   def arguments(self):
       return self._arguements
 
    @property
@@ -455,14 +480,19 @@ class BrowserInvokeEvent(_AS3_BASEEVENT):
       return self._securityDomain
 
    def __init__(self, type: String, bubbles: Boolean, cancelable: Boolean,
-                arguements: Array, sandboxType: String,
+                arguments: Array, sandboxType: String,
                 securityDomain: String, isHTTPS: Boolean):
-      self._arguements = arguements
+      self._arguments = arguments
       self._isHTTPS = Boolean(isHTTPS)
       self._isUserEvent = false
       self._sandboxType = String(sandboxType)
       self._securityDomain = String(securityDomain)
       super().__init__(type, bubbles, cancelable)
+
+   def clone(self):
+      return BrowserInvokeEvent(self.type, self.bubbles, self.cancelable,
+                                self.arguments, self.sandboxType,
+                                self.securityDomain, self.isHTTPS)
 
 
 class ContextMenuEvent(_AS3_BASEEVENT):
@@ -489,6 +519,10 @@ class ContextMenuEvent(_AS3_BASEEVENT):
       self._mTarget = mouseTarget
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return ContextMenuEvent(self.type, self.bubbles, self.cancelable,
+                              self.mouseTarget, self.contextMenuOwner)
+
    def toString(self):
       return self.formatToString('ContextMenuEvent', 'type', 'bubbles', 'cancelable', 'mouseTarget', 'isMouseTargetInaccessible', 'contextMenuOwner')
 
@@ -511,17 +545,177 @@ class DataEvent(TextEvent):
       self.data = data
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return DataEvent(self.type, self.bubbles, self.cancelable, self.data)
+
    def toString(self):
       return self.formatToString('DataEvent', 'type', 'bubbles', 'cancelable', 'data')
 
 
-class DatagramSocketDataEvent:...
+class DatagramSocketDataEvent(_AS3_BASEEVENT):
+   DATA = 'data'
+   _INTERNAL_allowedTypes = {'data',}
+
+   @property
+   def data(self):
+      return self._data
+
+   @data.setter
+   def data(self, value):
+      raise NotImplementedError
+
+   @property
+   def dstAddress(self):
+      return self._dstAddress
+
+   @dstAddress.setter
+   def dstAddress(self, value):
+      self._dstAddress = String(value)
+
+   @property
+   def dstPort(self):
+      return self._dstPort
+
+   @dstPort.setter
+   def dstPort(self, value):
+      self._dstPort = int(value)
+
+   @property
+   def srcAddress(self):
+      return self._srcAddress
+
+   @srcAddress.setter
+   def srcAddress(self, value):
+      self._srcAddress = String(value)
+
+   @property
+   def srcPort(self):
+      return self._srcPort
+
+   @srcPort.setter
+   def srcPort(self, value):
+      self._srcPort = int(value)
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, srcAddress: String = '',
+                srcPort: int = 0, dstAddress: String = '', dstPort: int = 0,
+                data = null):
+      super().__init__(type, bubbles, cancelable)
+      self.srcAddress = srcAddress
+      self.srcPort = srcPort
+      self.dstAddress = dstAddress
+      self.dstPort = dstPort
+      self._data = data
+
+   def clone(self):
+      return DatagramSocketDataEvent(self.type, self.bubbles, self.cancelable,
+                                     self.srcAddress, self.srcPort,
+                                     self.dstAddress, self.dstPort, self.data)
+
+   def toString(self):
+      return self.formatToString('DatagramSocketDataEvent', 'type', 'bubbles',
+                                 'cancelable', 'srcAddress', 'srcPort',
+                                 'dstAddress', 'dstPort', 'data')
 
 
-class DeviceRotationEvent:...
+class DeviceRotationEvent(_AS3_BASEEVENT):
+   UPDATE = 'update'
+   _INTERNAL_allowedTypes = {'update',}
+
+   @property
+   def pitch(self):
+      return self._pitch
+
+   @pitch.setter
+   def pitch(self, value):
+      self._pitch = Number(value)
+
+   @property
+   def quaternion(self):
+      return self._quaternion
+
+   @quaternion.setter
+   def quaternion(self, value):
+      raise NotImplementedError
+
+   @property
+   def roll(self):
+      return self._roll
+
+   @roll.setter
+   def roll(self, value):
+      self._roll = Number(value)
+
+   @property
+   def timestamp(self):
+      return self._timestamp
+
+   @timestamp.setter
+   def timestamp(self, value):
+      self._timestamp = Number(value)
+
+   @property
+   def yaw(self):
+      return self._yaw
+
+   @yaw.setter
+   def yaw(self, value):
+      self._yaw = Number(value)
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, timestamp: Number = 0, roll: Number = 0, pitch: Number = 0, yaw: Number = 0, quaternion: Array = null):
+      super().__init__(type, bubbles, cancelable)
+      self.timestamp = timestamp
+      self.pitch = pitch
+      self.roll = roll
+      self.yaw = yaw
+      self._quaternion = quaternion
+
+   def clone(self):
+      return DeviceRotationEvent(self.type, self.bubbles, self.cancelable,
+                                 self.timestamp, self.roll, self.pitch,
+                                 self.yaw, self.quaternion)
+
+   def toString(self):
+      return self.formatToString('DeviceRotationEvent', 'type', 'bubbles',
+                                 'cancelable', 'timestamp', 'roll', 'pitch',
+                                 'yaw', 'quaternion')
 
 
-class DNSResolverEvent:...
+class DNSResolverEvent(_AS3_BASEEVENT):
+   LOOKUP = 'lookup'
+   _INTERNAL_allowedTypes = {'lookup',}
+
+   @property
+   def host(self):
+      return self._host
+
+   @host.setter
+   def host(self, value):
+      self._host = String(value)
+
+   @property
+   def resourceRecords(self):
+      return self._resourceRecords
+
+   @resourceRecords.setter
+   def resourceRecords(self, value):
+      raise NotImplementedError
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, host: String = '',
+                resourceRecords: Array = null):
+      super().__init__(type, bubbles, cancelable)
+      self.host = host
+      self._resourceRecords = resourceRecords
+
+   def clone(self):
+      return DNSResolverEvent(self.type, self.bubbles, self.cancelable,
+                              self.host, self.resourceRecords)
+
+   def toString(self):
+      return self.formatToString('DNSResolverEvent', 'type', 'bubbles',
+                                 'cancelable', 'host', 'resourceRecords')
 
 
 class DRMAuthenticateEvent:...
@@ -634,6 +828,11 @@ class FocusEvent(_AS3_BASEEVENT):
       self.shiftKey = shiftKey
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return FocusEvent(self.type, self.bubbles, self.cancelable,
+                       self.relatedObject, self.shiftKey, self.keyCode,
+                       self.direction)
+
    def toString(self):
       return self.formatToString('FocusEvent', 'type', 'bubbles', 'cancelable', 'relatedObject', 'shiftKey', 'keyCode')
 
@@ -656,19 +855,151 @@ class FullScreenEvent(ActivityEvent):
                 interactive: Boolean = false):
       self._fullscreen = Boolean(fullScreen)
       self._interactive = Boolean(interactive)
-      super().__init__(type, bubbles, cancelable, False)
+      super().__init__(type, bubbles, cancelable, false)
+
+   def clone(self):
+      return FullScreenEventEvent(self.type, self.bubbles, self.cancelable,
+                                  self.fullScreen, self.interactive)
 
    def toString(self):
       return self.formatToString('FullScreenEvent', 'type', 'bubbles', 'cancelable', 'activating')
 
 
-class GameInputEvent:...
+class GameInputEvent(ActivityEvent):
+   DEVICE_ADDED = 'deviceAdded'
+   DEVICE_REMOVED = 'deviceRemoved'
+   DEVICE_UNUSABLE = 'deviceUnusable'
+   _INTERNAL_allowedTypes = {'deviceAdded', 'deviceRemoved', 'deviceUnusable'}
+
+   @property
+   def device(self):
+      return self._device
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, device = null):
+      super().__init__(type, bubbles, cancelable)
+      self._device = device
 
 
-class GeolocationEvent:...
+
+class GeolocationEvent(_AS3_BASEEVENT):
+   UPDATE = 'update'
+   _INTERNAL_allowedTypes = {'update',}
+
+   @property
+   def altitude(self):
+      return self._altitude
+
+   @altitude.setter
+   def altitude(self, value):
+      self._altitude = Number(value)
+
+   @property
+   def heading(self):
+      return self._heading
+
+   @heading.setter
+   def heading(self, value):
+      self._heading = Number(value)
+
+   @property
+   def horizontalAccuracy(self):
+      return self._horizontalAccuracy
+
+   @horizontalAccuracy.setter
+   def horizontalAccuracy(self, value):
+      self._horizontalAccuracy = Number(value)
+
+   @property
+   def latitude(self):
+      return self._latitude
+
+   @latitude.setter
+   def latitude(self, value):
+      self._latitude = Number(value)
+
+   @property
+   def longitude(self):
+      return self._longitude
+
+   @longitude.setter
+   def longitude(self, value):
+      self._longitude = Number(value)
+
+   @property
+   def speed(self):
+      return self._speed
+
+   @speed.setter
+   def speed(self, value):
+      self._speed = Number(value)
+
+   @property
+   def timestamp(self):
+      return self._timestamp
+
+   @timestamp.setter
+   def timestamp(self, value):
+      self._timestamp = Number(value)
+
+   @property
+   def verticalAccuracy(self):
+      return self._verticalAccuracy
+
+   @verticalAccuracy.setter
+   def verticalAccuracy(self, value):
+      self._verticalAccuracy = Number(value)
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, latitude: Number = 0,
+                lonitude: Number = 0, altitude: Number = 0,
+                hAccuracy: Number = 0, vAccuracy: Number = 0,
+                speed: Number = 0, heading: Number = 0,
+                timestamp: Number = 0):
+      super().__init__(type, bubbles, cancelable)
+      self.latitude = latitude
+      self.longitude = longitude
+      self.altitude = altitude
+      self.horizontalAccuracy = hAccuracy
+      self.verticalAccuracy = vAccuracy
+      self.speed = speed
+      self.heading = heading
+      self.timestamp = timestamp
+
+   def clone(self):
+      return GeolocationEvent(self.type, self.bubbles, self.cancelable,
+                              self.latitude, self.longitude, self.altitude,
+                              self.horizontalAccuracy, self.verticalAccuracy,
+                              self.speed, self.heading, self.timestamp)
+
+   def toString(self):
+      return self.formatToString('GeolocationEvent', 'type', 'bubbles',
+                                 'cancelable', 'latitude', 'longitude',
+                                 'altitude', 'horizontalAccuracy',
+                                 'verticalAccuracy', 'speed', 'heading',
+                                 'timestamp')
 
 
-class GestureEvent:...
+class GestureEvent(_AS3_BASEEVENT):
+   GESTURE_TWO_FINGER_TAP = 'gestureTwoFingerTap'
+   _INTERNAL_allowedTypes = {'gestureTwoFingerTap',}
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, phase: String = null,
+                localX: Number = 0, localY: Number = 0,
+                ctrlKey: Boolean = false, altKey: Boolean = false,
+                commandKey: Boolean = false, controlKey: Boolean = false):
+      super().__init__(type, bubbles, cancelable)
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
+
+   def updateAfterEvent(self):
+      raise NotImplementedError
 
 
 class GesturePhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -678,7 +1009,31 @@ class GesturePhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    UPDATE = 'update'
 
 
-class HTMLUncaughtScriptExceptionEvent:...
+class HTMLUncaughtScriptExceptionEvent(_AS3_BASEEVENT):
+   UNCAUGHT_SCRIPT_EXCEPTION = ''  # TODO
+
+   @property
+   def exceptionValue(self):
+      return self._exceptionValue
+
+   @exceptionValue.setter
+   def exceptionValue(self, value):
+      self._exceptionValue = value
+
+   @property
+   def stackTrace(self):
+      return self._stackTrace
+
+   @stackTrace.setter
+   def stackTrace(self, value):
+      raise NotImplementedError
+
+   def __init__(self, exceptionValue):  # TODO
+      super().__init__('', false, false)
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
 
 
 class HTTPStatusEvent(_AS3_BASEEVENT):
@@ -723,14 +1078,69 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
       self.responseURL = String('')
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return HTTPStatusEvent(self.type, self.bubbles, self.cancelable,
+                             self.status, self.redirected)
+
    def toString(self):
       return self.formatToString('HTTPStatusEvent', 'type', 'bubbles', 'cancelable', 'status')
 
 
-class IMEEvent:...
+class IMEEvent(TextEvent):
+   IME_COMPOSITION = 'imeComposition'
+   IME_START_COMPOSITION = 'imeStartComposition'
+   _INTERNAL_allowedTypes = {'imeComposition', 'imeStartComposition'}
+
+   @property
+   def imeClient(self):
+      return self._imeClient
+
+   @imeClient.setter
+   def imeClient(self, value):
+      self._imeClient = value
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, text: String = '',
+                imeClient = null):
+      super().__init__(type, bubbles, cancelable, text)
+      self.imeClient = imeClient
+
+   def clone(self):
+      return IMEEvent(self.type, self.bubbles, self.cancelable, self.text,
+                      self.imeClient)
+
+   def toString(self):
+      return self.formatToString('IMEEvent', 'type', 'bubbles', 'cancelable',
+                                 'text')  # imeClient
 
 
-class InvokeEvent:...
+class InvokeEvent(_AS3_BASEEVENT):
+   INVOKE = 'invoke'
+   _INTERNAL_allowedTypes = {'invoke',}
+
+   @property
+   def arguments(self):
+      return self._argv
+
+   @property
+   def currentDirectory(self):
+      return self._dir
+
+   @property
+   def reason(self):
+      return self._reason
+
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, dir = null, argv: Array = null,
+                reason: String = 'standard'):
+      super().__init__(type, bubbles, cancelable)
+      self._dir = dir
+      self._argv = argv
+      self._reason = reason
+
+   def clone(self):
+      return InvokeEvent(self.type, self.bubbles, self.cancelable,
+                         self.currentDirectory, self.arguements, self.reason)
 
 
 class IOErrorEvent(ErrorEvent):
@@ -739,6 +1149,10 @@ class IOErrorEvent(ErrorEvent):
    STANDARD_INPUT_IO_ERROR = 'standardInputIoError'
    STANDARD_OUTPUT_IO_ERROR = 'standardOutputIoError'
    _INTERNAL_allowedTypes = {'ioError', 'standardErrorIoError', 'standardInputIoError', 'standardOutputIoError'}
+
+   def clone(self):
+      return IOErrorEvent(self.type, self.bubbles, self.cancelable, self.text,
+                          self.errorID)
 
    def toString(self):
       return self.formatToString('IOErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
@@ -833,43 +1247,141 @@ class KeyboardEvent(_AS3_BASEEVENT):
       self.shiftKey = shiftKeyValue
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return KeyboardEvent(self.type, self.bubbles, self.cancelable,
+                           self.charCode, self.keyCode, self.keyLocation,
+                           self.ctrlKey, self.altKey, self.shiftKey,
+                           self.controlKey, self.commandKey)
+
    def toString(self):
       return self.formatToString('KeyboardEvent', 'type', 'bubbles', 'cancelable', 'altKey', 'charCode', 'commandKey', 'controlKey', 'ctrlKey', 'keyCode', 'keyLocation', 'shiftKey')
 
-   def updateAfterEvent(self):...
+   def updateAfterEvent(self):
+      raise NotImplementedError
 
 
-class LocationChangeEvent:...
+class LocationChangeEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class MediaEvent:...
+class MediaEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class MouseEvent:...
+class MouseEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
+
+   def updateAfterEvent(self):
+      raise NotImplementedError
 
 
-class NativeDragEvent:...
+class NativeDragEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NativeProcessExitEvent:...
+class NativeProcessExitEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NativeWindowBoundsEvent:...
+class NativeWindowBoundsEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NativeWindowDisplayStateEvent:...
+class NativeWindowDisplayStateEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NetDataEvent:...
+class NetDataEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NetMonitorEvent:...
+class NetMonitorEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class NetStatusEvent:...
+class NetStatusEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class OutputProgressEvent:...
+class OutputProgressEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class PermissionEvent(_AS3_BASEEVENT):
@@ -886,11 +1398,22 @@ class PermissionEvent(_AS3_BASEEVENT):
       self._status = String(status)
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return PermissionEvent(self.type, self.bubbles, self.cancelable, self.status)
+
    def toString(self):
       return String(f'[PermissionEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} permission= status={self.status}]')
 
 
-class PressAndTapGestureEvent:...
+class PressAndTapGestureEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class ProgressEvent(_AS3_BASEEVENT):
@@ -924,6 +1447,10 @@ class ProgressEvent(_AS3_BASEEVENT):
       self.bytesTotal = bytesTotal
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return ProgressEvent(self.type, self.bubbles, self.cancelable,
+                           self.bytesLoaded, self.bytesTotal)
+
    def toString(self):
       return self.formatToString('ProgressEvent', 'type', 'bubbles', 'cancelable', 'bytesLoaded', 'bytesTotal')
 
@@ -931,27 +1458,71 @@ class ProgressEvent(_AS3_BASEEVENT):
 class RemoteNotificationEvent:...
 
 
-class SampleDataEvent:...
+class SampleDataEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class ScreenMouseEvent:...
+class ScreenMouseEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class SecurityErrorEvent(ErrorEvent):
    SECURITY_ERROR = 'securityError'
    _INTERNAL_allowedTypes = {'securityError',}
 
+   def clone(self):
+      return SecurityErrorEvent(self.type, self.bubbles, self.cancelable,
+                                self.text, self.errorID)
+
    def toString(self):
       return self.formatToString('SecurityErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
-class ServerSocketConnectEvent:...
+class ServerSocketConnectEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class ShaderEvent:...
+class ShaderEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class SoftKeyboardEvent:...
+class SoftKeyboardEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class SoftKeyboardTrigger(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -959,10 +1530,23 @@ class SoftKeyboardTrigger(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    USER_TRIGGERED = 'userTriggered'
 
 
-class SQLEvent:...
+class SQLEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class SQLUpdateEvent:...
+class SQLUpdateEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
 
 
 class StageOrientationEvent(_AS3_BASEEVENT):
@@ -984,6 +1568,11 @@ class StageOrientationEvent(_AS3_BASEEVENT):
       self._afterOrientation = String(afterOrientation)
       self._beforeOrientation = String(beforeOrientation)
       super().__init__(type, bubbles, cancelable)
+
+   def clone(self):
+      return StageOrientationEvent(self.type, self.bubbles, self.cancelable,
+                                   self.beforeOrientation,
+                                   self.afterOrientation)
       
    def toString(self):
       raise NotImplementedError
@@ -995,7 +1584,15 @@ class StageVideoAvailabilityEvent:...
 class StageVideoEvent:...
 
 
-class StatusEvent:...
+class StatusEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class StorageVolumeChangeEvent(_AS3_BASEEVENT):
@@ -1027,7 +1624,15 @@ class StorageVolumeChangeEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class SyncEvent:...
+class SyncEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class ThrottleEvent(_AS3_BASEEVENT):
@@ -1049,6 +1654,10 @@ class ThrottleEvent(_AS3_BASEEVENT):
       self._targetFrameRate = Number(targetFrameRate)
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return PermissionEvent(self.type, self.bubbles, self.cancelable,
+                             self.state, self.targetFrameRate)
+
    def toString(self):
       return self.formatToString('ThrottleEvent', 'type', 'bubbles', 'cancelable', 'state', 'targetFrameRate')
 
@@ -1068,6 +1677,9 @@ class TimerEvent(_AS3_BASEEVENT):
                 cancelable: Boolean = false):
       super().__init__(type, bubbles, cancelable)
 
+   def clone(self):
+      return TimerEvent(self.type, self.bubbles, self.cancelable)
+
    def toString(self):
       return self.formatToString('TimerEvent', 'type', 'bubbles', 'cancelable')
 
@@ -1075,16 +1687,52 @@ class TimerEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class TouchEvent:...
+class TouchEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def getSamples(self):
+      raise NotImplementedError
+
+   def isToolButtonDown(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
+
+   def updateAfterEvent(self):
+      raise NotImplementedError
 
 
-class TouchEventIntent:...
+class TouchEventIntent(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+   ERASER = 'eraser'
+   PEN = 'pen'
+   UNKNOWN = 'unknown'
 
 
-class TransformGestureEvent:...
+class TransformGestureEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
-class UncaughtErrorEvent:...
+class UncaughtErrorEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
 
 
 class UncaughtErrorEvents:...
@@ -1096,4 +1744,12 @@ class VideoEvent:...
 class VideoTextureEvent:...
 
 
-class VsyncStateChangeAvailabilityEvent:...
+class VsyncStateChangeAvailabilityEvent:
+   def __init__(self):
+      raise NotImplementedError
+
+   def clone(self):
+      raise NotImplementedError
+
+   def toString(self):
+      raise NotImplementedError
