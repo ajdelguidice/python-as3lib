@@ -1,4 +1,5 @@
-from as3lib import metaclasses
+from as3lib import (Boolean, false, int, metaclasses, null, Number, Object,
+                    String, true, uint)
 from as3lib.flash.events import ErrorEvent, Event
 
 
@@ -25,15 +26,22 @@ class ListEvent(Event):
    def rowIndex(self):
       return self._rowIndex
 
-   def __init__(self, type, bubbles=False, cancelable=False, columnIndex=-1, rowIndex=-1, index=-1, item=None):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, columnIndex: int = -1,
+                rowIndex: int = -1, index: int = -1, item: Object = null):
       super().__init__(type, bubbles, cancelable)
-      self._columnIndex = columnIndex
-      self._index = index
+      self._columnIndex = int(columnIndex)
+      self._rowIndex = int(rowIndex)
+      self._index = int(index)
       self._item = item
-      self._rowIndex = rowIndex
+
+   def clone(self):
+      return ListEvent(self.type, self.bubbles, self.cancelable,
+                       self.columnIndex, self.rowIndex, self.index, self.item)
 
    def toString(self):
-      return self.formatToString('ListEvent', 'type', 'bubbles', 'cancelable', 'columnIndex', 'rowIndex')
+      return self.formatToString('ListEvent', 'type', 'bubbles', 'cancelable',
+                                 'columnIndex', 'rowIndex')
 
 
 class ColorPickerEvent(Event):
@@ -46,9 +54,12 @@ class ColorPickerEvent(Event):
    def color(self):
       return self._color
 
-   def __init__(self, type, color):
-      super().__init__(type, True, True)
-      self._color = color
+   def __init__(self, type: String, color: uint):
+      super().__init__(type, true, true)
+      self._color = uint(color)
+
+   def clone(self):
+      return ColorPickerEvent(self.type, self.color)
 
    def toString(self):
       return self.formatToString('ColorPickerEvent', 'type', 'bubbles', 'cancelable', 'color')
@@ -63,6 +74,13 @@ class ComponentEvent(Event):
    RESIZE = 'resize'  # bubbles=False, cancelable=False
    SHOW = 'show'  # bubbles=False, cancelable=False
 
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false):
+      super().__init__(type, bubbles, cancelable)
+
+   def clone(self):
+      return ComponentEvent(self.type, self.bubbles, self.cancelable)
+
    def toString(self):
       return self.formatToString('ComponentEvent', 'type', 'bubbles', 'cancelable')
 
@@ -73,26 +91,31 @@ class DataChangeEvent(Event):
 
    @property
    def changeType(self):
-      return
+      return self._changeType
 
    @property
    def endIndex(self):
-      return
+      return self._endIndex
 
    @property
    def items(self):
-      return
+      return self._items
 
    @property
    def startIndex(self):
-      return
+      return self._startIndex
 
-   def __init__(self, eventType, changeType, items, startIndex=-1, endIndex=-1):
-      super().__init__(eventType, False, False)
-      self._changeType = changeType
-      self._endIndex = endIndex
-      self._items = items
-      self._startIndex = startIndex
+   def __init__(self, eventType: String, changeType: String, items: Array,
+                startIndex: int = -1, endIndex: int = -1):
+      super().__init__(eventType, false, false)
+      self._changeType = String(changeType)
+      self._items = items  # TODO: Coerce to Array
+      self._startIndex = int(startIndex)
+      self._endIndex = int(endIndex)
+
+   def clone(self):
+      return DataChangeEvent(self.type, self.changeType, self.items,
+                             self.startIndex, self.endIndex)
 
    def toString(self):
       return self.formatToString('DataChangeEvent', 'type', 'changeType', 'startIndex', 'endIndex', 'bubbles', 'cancelable')
@@ -124,7 +147,7 @@ class DataGridEvent(ListEvent):
 
    @dataField.setter
    def dataField(self, value):
-      self._dataField = value
+      self._dataField = String(value)
 
    @property
    def itemRenderer(self):
@@ -134,14 +157,24 @@ class DataGridEvent(ListEvent):
    def reason(self):
       return self._reason
 
-   def __init__(self, type, bubbles=False, cancelable=False, columnIndex=-1, rowIndex=-1, itemRenderer=None, dataField=None, reason=None):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, columnIndex: int = -1,
+                rowIndex: int = -1, itemRenderer: Object = null,
+                dataField: String = null, reason: String = null):
       super().__init__(type, bubbles, cancelable, columnIndex, rowIndex)
-      self._dataField = dataField
       self._itemRenderer = itemRenderer
-      self._reason = reason
+      self._dataField = String(dataField)
+      self._reason = String(reason)
+
+   def clone(self):
+      return DataGridEvent(self.type, self.bubbles, self.cancelable,
+                           self.columnIndex self.rowIndex, self.itemRenderer,
+                           self.dataField, self.reason)
 
    def toString(self):
-      return self.formatToString('DataGridEvent', 'type', 'bubbles', 'cancelable', 'columnIndex', 'rowIndex', 'itemRenderer', 'dataField', 'reason')
+      return self.formatToString('DataGridEvent', 'type', 'bubbles',
+                                 'cancelable', 'columnIndex', 'rowIndex',
+                                 'itemRenderer', 'dataField', 'reason')
 
 
 class DataGridEventReason(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -175,12 +208,16 @@ class RSLErrorEvent(ErrorEvent):
    def rslsTotal(self):
       return self._rslsTotal
 
-   def __init__(self, type, bubbles=False, cancelable=False, rslsLoaded=0, rslsFailed=0, rslsTotal=0, failedURLs=None):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, rslsLoaded: int = 0,
+                rslsFailed: int = 0, rslsTotal: int = 0,
+                failedURLs: Array = null):
       super().__init__(type, bubbles, cancelable)
-      self._failedURLs = failedURLs
-      self._rslsFailed = rslsFailed
-      self._rslsLoaded = rslsLoaded
-      self._rslsTotal = rslsTotal
+      # TODO: Coerce to Array
+      self._rslsLoaded = int(rslsLoaded)
+      self._rslsFailed = int(rslsFailed)
+      self._rslsTotal = int(rslsTotal)
+      self._failedURLs = Array() if failedURLs is null else failedURLs
 
 
 class RSLEvent(Event):
@@ -207,13 +244,16 @@ class RSLEvent(Event):
    def rslsTotal(self):
       return self._rslsTotal
 
-   def __init__(self, type, bubbles=False, cancelable=False, rslsLoaded=0, rslsFailed=0, rslsTotal=0, bytesLoaded=0, bytesTotal=0):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false, rslsLoaded: int = 0,
+                rslsFailed: int = 0, rslsTotal: int = 0, bytesLoaded: int = 0,
+                bytesTotal: int = 0):
       super().__init__(type, bubbles, cancelable)
-      self._bytesLoaded = bytesLoaded
-      self._bytesTotal = bytesTotal
-      self._rslsFailed = rslsFailed
-      self._rslsLoaded = rslsLoaded
-      self._rslsTotal = rslsTotal
+      self._rslsLoaded = int(rslsLoaded)
+      self._rslsFailed = int(rslsFailed)
+      self._rslsTotal = int(rslsTotal)
+      self._bytesLoaded = int(bytesLoaded)
+      self._bytesTotal = int(bytesTotal)
 
 
 class ScrollEvent(Event):
@@ -231,14 +271,19 @@ class ScrollEvent(Event):
    def position(self):
       return self._position
 
-   def __init__(self, direction, delta, position):
-      super().__init__('scroll', False, False)
-      self._delta = delta
-      self._direction = direction
-      self._position = position
+   def __init__(self, direction: String, delta: Number, position: Number):
+      super().__init__('scroll', false, false)
+      self._direction = String(direction)
+      self._delta = Number(delta)
+      self._position = Number(position)
+
+   def clone(self):
+      return ScrollEvent(self.direction, self.delta, self.position)
 
    def toString(self):
-      return self.formatToString('ScrollEvent', 'type', 'bubbles', 'cancelable', 'direction', 'delta', 'position')
+      return self.formatToString('ScrollEvent', 'type', 'bubbles',
+                                 'cancelable', 'direction', 'delta',
+                                 'position')
 
 
 class SliderEvent(Event):
@@ -263,15 +308,22 @@ class SliderEvent(Event):
    def value(self):
       return self._value
 
-   def __init__(self, type, value, clickTarget, triggerEvent, keyCode=0):
-      super().__init__(type, False, False)
-      self._clickTarget = clickTarget
-      self._keyCode = keyCode
-      self._triggerEvent = triggerEvent
-      self._value = value
+   def __init__(self, type: String, value: Number, clickTarget: String,
+                triggerEvent: String, keyCode: int = 0):
+      super().__init__(type, false, false)
+      self._value = Number(value)
+      self._clickTarget = String(clickTarget)
+      self._triggerEvent = String(triggerEvent)
+      self._keyCode = int(keyCode)
+
+   def clone(self):
+      return SliderEvent(self.type, self.value, self.clickTarget,
+                         self.triggerEvent, self.keyCode)
 
    def toString(self):
-      return self.formatToString('SliderEvent', 'type', 'value', 'bubbles', 'cancelable', 'keyCode', 'triggerEvent', 'clickTarget')
+      return self.formatToString('SliderEvent', 'type', 'value', 'bubbles',
+                                 'cancelable', 'keyCode', 'triggerEvent',
+                                 'clickTarget')
 
 
 class SliderEventClickTarget(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
