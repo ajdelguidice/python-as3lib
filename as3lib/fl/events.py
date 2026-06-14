@@ -8,7 +8,6 @@ class ListEvent(_AS3_BASEEVENT):
    ITEM_DOUBLE_CLICK = 'itemDoubleClick'
    ITEM_ROLL_OUT = 'itemRollOut'
    ITEM_ROLL_OVER = 'itemRollOver'
-   _INTERNAL_allowedTypes = {'itemClick', 'itemDoubleClick', 'itemRollOut', 'itemRollOver'}
 
    @property
    def columnIndex(self):
@@ -42,7 +41,6 @@ class ColorPickerEvent(_AS3_BASEEVENT):
    ENTER = 'enter'
    ITEM_ROLL_OUT = 'itemRollOut'
    ITEM_ROLL_OVER = 'itemRollOver'
-   _INTERNAL_allowedTypes = {'change', 'enter', 'itemRollOut', 'itemRollOver'}
 
    @property
    def color(self):
@@ -64,7 +62,6 @@ class ComponentEvent(_AS3_BASEEVENT):
    MOVE = 'move'  # bubbles=False, cancelable=False
    RESIZE = 'resize'  # bubbles=False, cancelable=False
    SHOW = 'show'  # bubbles=False, cancelable=False
-   _INTERNAL_allowedTypes = {'buttonDown', 'enter', 'hide', 'labelChange', 'move', 'resize', 'show'}
 
    def toString(self):
       return self.formatToString('ComponentEvent', 'type', 'bubbles', 'cancelable')
@@ -73,7 +70,6 @@ class ComponentEvent(_AS3_BASEEVENT):
 class DataChangeEvent(_AS3_BASEEVENT):
    DATA_CHANGE = 'dataChange'
    PRE_DATA_CHANGE = 'preDataChange'
-   _INTERNAL_allowedTypes = {'dataChange', 'preDataChange'}
 
    @property
    def changeType(self):
@@ -121,7 +117,6 @@ class DataGridEvent(ListEvent):
    ITEM_EDIT_END = 'itemEditEnd'
    ITEM_FOCUS_IN = 'itemFocusIn'
    ITEM_FOCUS_OUT = 'itemFocusOut'
-   _INTERNAL_allowedTypes = {'columnStretch', 'headerRelease', 'itemEditBegin', 'itemEditBeginning', 'itemEditEnd', 'itemFocusIn', 'itemFocusOut'}
 
    @property
    def dataField(self):
@@ -163,7 +158,6 @@ class InteractionInputType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 class RSLErrorEvent(ErrorEvent):
    RSL_LOAD_FAILED = 'rslLoadFailed'
-   _INTERNAL_allowedTypes = {'rslLoadFailed', }
 
    @property
    def failedURLs(self):
@@ -192,7 +186,6 @@ class RSLErrorEvent(ErrorEvent):
 class RSLEvent(_AS3_BASEEVENT):
    RSL_LOAD_COMPLETE = 'rslLoadComplete'
    RSL_PROGRESS = 'rslProgress'
-   _INTERNAL_allowedTypes = {'rslLoadComplete', 'rslProgress'}
 
    @property
    def bytesLoaded(self):
@@ -225,7 +218,6 @@ class RSLEvent(_AS3_BASEEVENT):
 
 class ScrollEvent(_AS3_BASEEVENT):
    SCROLL = 'scroll'
-   _INTERNAL_allowedTypes = {'scroll', }
 
    @property
    def delta(self):
@@ -254,7 +246,6 @@ class SliderEvent(_AS3_BASEEVENT):
    THUMB_DRAG = 'thumbDrag'
    THUMB_PRESS = 'thumbPress'
    THUMB_RELEASE = 'thumbRelease'
-   _INTERNAL_allowedTypes = {'change', 'thumbDrag', 'thumbPress', 'thumbRelease'}
 
    @property
    def clickTarget(self):
