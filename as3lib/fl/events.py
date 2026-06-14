@@ -1,9 +1,9 @@
 from as3lib import metaclasses
-from as3lib.flash.events import _AS3_BASEEVENT, ErrorEvent
+from as3lib.flash.events import ErrorEvent, Event
 
 
 # Classes
-class ListEvent(_AS3_BASEEVENT):
+class ListEvent(Event):
    ITEM_CLICK = 'itemClick'
    ITEM_DOUBLE_CLICK = 'itemDoubleClick'
    ITEM_ROLL_OUT = 'itemRollOut'
@@ -36,7 +36,7 @@ class ListEvent(_AS3_BASEEVENT):
       return self.formatToString('ListEvent', 'type', 'bubbles', 'cancelable', 'columnIndex', 'rowIndex')
 
 
-class ColorPickerEvent(_AS3_BASEEVENT):
+class ColorPickerEvent(Event):
    CHANGE = 'change'
    ENTER = 'enter'
    ITEM_ROLL_OUT = 'itemRollOut'
@@ -54,7 +54,7 @@ class ColorPickerEvent(_AS3_BASEEVENT):
       return self.formatToString('ColorPickerEvent', 'type', 'bubbles', 'cancelable', 'color')
 
 
-class ComponentEvent(_AS3_BASEEVENT):
+class ComponentEvent(Event):
    BUTTON_DOWN = 'buttonDown'  # bubbles=False, cancelable=False
    ENTER = 'enter'  # bubbles=False, cancelable=False
    HIDE = 'hide'  # bubbles=False, cancelable=False
@@ -67,7 +67,7 @@ class ComponentEvent(_AS3_BASEEVENT):
       return self.formatToString('ComponentEvent', 'type', 'bubbles', 'cancelable')
 
 
-class DataChangeEvent(_AS3_BASEEVENT):
+class DataChangeEvent(Event):
    DATA_CHANGE = 'dataChange'
    PRE_DATA_CHANGE = 'preDataChange'
 
@@ -183,7 +183,7 @@ class RSLErrorEvent(ErrorEvent):
       self._rslsTotal = rslsTotal
 
 
-class RSLEvent(_AS3_BASEEVENT):
+class RSLEvent(Event):
    RSL_LOAD_COMPLETE = 'rslLoadComplete'
    RSL_PROGRESS = 'rslProgress'
 
@@ -216,7 +216,7 @@ class RSLEvent(_AS3_BASEEVENT):
       self._rslsTotal = rslsTotal
 
 
-class ScrollEvent(_AS3_BASEEVENT):
+class ScrollEvent(Event):
    SCROLL = 'scroll'
 
    @property
@@ -241,7 +241,7 @@ class ScrollEvent(_AS3_BASEEVENT):
       return self.formatToString('ScrollEvent', 'type', 'bubbles', 'cancelable', 'direction', 'delta', 'position')
 
 
-class SliderEvent(_AS3_BASEEVENT):
+class SliderEvent(Event):
    CHANGE = 'change'
    THUMB_DRAG = 'thumbDrag'
    THUMB_PRESS = 'thumbPress'
