@@ -27,10 +27,88 @@ def _HELPER_GetEventConstants(cls):
    return consts
 
 
-# BaseEvent
-# TODO: Find a way to combine _AS3_BASEEVENT with Event without polluting
-#       child classes with inherited constants
-class _AS3_BASEEVENT:
+# Interfaces
+class IEventDispatcher:
+   def __init__(self):
+      self.eventobjects = {}
+
+   def addEventListener(self, type, listener, useCapture=False, priority=0, useWeakReference=False):
+      raise NotImplementedError
+
+   def dispatchEvent(self, event):
+      raise NotImplementedError
+
+   def hasEventListener(self, type):
+      raise NotImplementedError
+
+   def removeEventListener(self, type, listener, useCapture=False):
+      raise NotImplementedError
+
+   def willTrigger(self, type):
+      raise NotImplementedError
+
+
+# Classes
+class Event(Object):
+   # TODO: Find a way to not pollute children with constants
+   ACTIVATE = 'activate'  # bubbles=False, cancelable=False
+   ADDED = 'added'  # bubbles=True, cancelable=False
+   ADDED_TO_STAGE = 'addedToStage'  # bubbles=False, cancelable=False
+   BROWSER_ZOOM_CHANGE = 'browerZoomChange'  # bubbles=False, cancelable=False
+   CANCEL = 'cancel'  # bubbles=False, cancelable=False
+   CHANGE = 'change'  # bubbles=True, cancelable=False
+   CHANNEL_MESSAGE = 'channelMessage'  # bubbles=False, cancelable=False
+   CHANNEL_STATE = 'channelState'  # bubbles=False, cancelable=False
+   CLEAR = 'clear'  # bubbles=False, cancelable=False
+   CLOSE = 'close'  # bubbles=False, cancelable=False
+   CLOSING = 'closing'  # bubbles=False, cancelable=True
+   COMPLETE = 'complete'  # bubbles=False, cancelable=False
+   CONNECT = 'connect'  # bubbles=False, cancelable=False
+   CONTEXT3D_CREATE = 'context3DCreate'  # ?
+   COPY = 'copy'  # bubbles=False, cancelable=False
+   CUT = 'cut'  # bubbles=False, cancelable=False
+   DEACTIVATE = 'deactivate'  # bubbles=False, cancelable=False
+   DISPLAYING = 'displaying'  # bubbles=False, cancelable=False
+   ENTER_FRAME = 'enterFrame'  # bubbles=False, cancelable=False
+   EXIT_FRAME = 'exitFrame'  # bubbles=False, cancelable=False
+   EXITING = 'exiting'  # bubbles=False, cancelable=True
+   FRAME_CONSTRUCTED = 'frameConstructed'  # bubbles=False, cancelable=False
+   FRAME_LABEL = 'frameLabel'  # bubbles=False, cancelable=False
+   FULLSCREEN = 'fullscreen'  # bubbles=False, cancelable=False
+   HTML_BOUNDS_CHANGE = 'htmlBoundsChange'  # bubbles=False, cancelable=False
+   HTML_DOM_INITIALIZE = 'htmlDOMInitialize'  # bubbles=False, cancelable=False
+   HTML_RENDER = 'htmlRender'  # bubbles=False, cancelable=False
+   ID3 = 'id3'  # bubbles=False, cancelable=False
+   INIT = 'init'  # bubbles=False, cancelable=False
+   LOCATION_CHANGE = 'locationChange'  # bubbles=False, cancelable=False
+   MOUSE_LEAVE = 'mouseLeave'  # bubbles=False, cancelable=False
+   NETWORK_CHANGE = 'networkChange'  # bubbles=False, cancelable=False
+   OPEN = 'open'  # bubbles=False, cancelable=False
+   PASTE = 'paste'  # bubbles=(platformDependant), cancelable=False
+   PREPARING = 'preparing'  # bubbles=False, cancelable=False
+   REMOVED = 'removed'  # bubbles=True, cancelable=False
+   REMOVED_FROM_STAGE = 'removeFromStage'  # bubbles=False, cancelable=False
+   RENDER = 'render'  # bubbles=False, cancelable=False
+   RESIZE = 'resize'  # bubbles=False, cancelable=False
+   SCROLL = 'scroll'  # bubbles=False, cancelable=False
+   SELECT = 'select'  # bubbles=False, cancelable=False
+   SELECT_ALL = 'selectAll'  # bubbles=False, cancelable=False
+   SOUND_COMPLETE = 'soundComplete'  # bubbles=False, cancelable=False
+   STANDARD_ERROR_CLOSE = 'standardErrorClose'  # bubbles=False, cancelable=False
+   STANDARD_INPUT_CLOSE = 'standardInputClose'  # bubbles=False, cancelable=False
+   STANDARD_OUTPUT_CLOSE = 'standardOutputClose'  # bubbles=False, cancelable=False
+   SUSPEND = 'suspend'  # bubbles=False, cancelable=False
+   TAB_CHILDREN_CHANGE = 'tabChildrenChange'  # bubbles=True, cancelable=False
+   TAB_ENABLE_CHANGE = 'tabEnableChange'  # bubbles=True, cancelable=False
+   TAB_INDEX_CHANGE = 'tabIndexChange'  # bubbles=True, cancelable=False
+   TEXT_INTERACTION_MODE_CHANGE = 'textInteractionModeChange'  # bubbles=False, cancelable=False
+   TEXTURE_READY = 'textureReady'  # ?
+   UNLOAD = 'unload'  # bubbles=False, cancelable=False
+   USER_IDLE = 'userIdle'  # bubbles=False, cancelable=False
+   USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
+   VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
+   WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
+
    @property
    def bubbles(self):
       return self._bubbles
@@ -95,88 +173,6 @@ class _AS3_BASEEVENT:
       return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
 
 
-# Interfaces
-class IEventDispatcher:
-   def __init__(self):
-      self.eventobjects = {}
-
-   def addEventListener(self, type, listener, useCapture=False, priority=0, useWeakReference=False):
-      raise NotImplementedError
-
-   def dispatchEvent(self, event):
-      raise NotImplementedError
-
-   def hasEventListener(self, type):
-      raise NotImplementedError
-
-   def removeEventListener(self, type, listener, useCapture=False):
-      raise NotImplementedError
-
-   def willTrigger(self, type):
-      raise NotImplementedError
-
-
-# Classes
-class Event(_AS3_BASEEVENT):
-   ACTIVATE = 'activate'  # bubbles=False, cancelable=False
-   ADDED = 'added'  # bubbles=True, cancelable=False
-   ADDED_TO_STAGE = 'addedToStage'  # bubbles=False, cancelable=False
-   BROWSER_ZOOM_CHANGE = 'browerZoomChange'  # bubbles=False, cancelable=False
-   CANCEL = 'cancel'  # bubbles=False, cancelable=False
-   CHANGE = 'change'  # bubbles=True, cancelable=False
-   CHANNEL_MESSAGE = 'channelMessage'  # bubbles=False, cancelable=False
-   CHANNEL_STATE = 'channelState'  # bubbles=False, cancelable=False
-   CLEAR = 'clear'  # bubbles=False, cancelable=False
-   CLOSE = 'close'  # bubbles=False, cancelable=False
-   CLOSING = 'closing'  # bubbles=False, cancelable=True
-   COMPLETE = 'complete'  # bubbles=False, cancelable=False
-   CONNECT = 'connect'  # bubbles=False, cancelable=False
-   CONTEXT3D_CREATE = 'context3DCreate'  # ?
-   COPY = 'copy'  # bubbles=False, cancelable=False
-   CUT = 'cut'  # bubbles=False, cancelable=False
-   DEACTIVATE = 'deactivate'  # bubbles=False, cancelable=False
-   DISPLAYING = 'displaying'  # bubbles=False, cancelable=False
-   ENTER_FRAME = 'enterFrame'  # bubbles=False, cancelable=False
-   EXIT_FRAME = 'exitFrame'  # bubbles=False, cancelable=False
-   EXITING = 'exiting'  # bubbles=False, cancelable=True
-   FRAME_CONSTRUCTED = 'frameConstructed'  # bubbles=False, cancelable=False
-   FRAME_LABEL = 'frameLabel'  # bubbles=False, cancelable=False
-   FULLSCREEN = 'fullscreen'  # bubbles=False, cancelable=False
-   HTML_BOUNDS_CHANGE = 'htmlBoundsChange'  # bubbles=False, cancelable=False
-   HTML_DOM_INITIALIZE = 'htmlDOMInitialize'  # bubbles=False, cancelable=False
-   HTML_RENDER = 'htmlRender'  # bubbles=False, cancelable=False
-   ID3 = 'id3'  # bubbles=False, cancelable=False
-   INIT = 'init'  # bubbles=False, cancelable=False
-   LOCATION_CHANGE = 'locationChange'  # bubbles=False, cancelable=False
-   MOUSE_LEAVE = 'mouseLeave'  # bubbles=False, cancelable=False
-   NETWORK_CHANGE = 'networkChange'  # bubbles=False, cancelable=False
-   OPEN = 'open'  # bubbles=False, cancelable=False
-   PASTE = 'paste'  # bubbles=(platformDependant), cancelable=False
-   PREPARING = 'preparing'  # bubbles=False, cancelable=False
-   REMOVED = 'removed'  # bubbles=True, cancelable=False
-   REMOVED_FROM_STAGE = 'removeFromStage'  # bubbles=False, cancelable=False
-   RENDER = 'render'  # bubbles=False, cancelable=False
-   RESIZE = 'resize'  # bubbles=False, cancelable=False
-   SCROLL = 'scroll'  # bubbles=False, cancelable=False
-   SELECT = 'select'  # bubbles=False, cancelable=False
-   SELECT_ALL = 'selectAll'  # bubbles=False, cancelable=False
-   SOUND_COMPLETE = 'soundComplete'  # bubbles=False, cancelable=False
-   STANDARD_ERROR_CLOSE = 'standardErrorClose'  # bubbles=False, cancelable=False
-   STANDARD_INPUT_CLOSE = 'standardInputClose'  # bubbles=False, cancelable=False
-   STANDARD_OUTPUT_CLOSE = 'standardOutputClose'  # bubbles=False, cancelable=False
-   SUSPEND = 'suspend'  # bubbles=False, cancelable=False
-   TAB_CHILDREN_CHANGE = 'tabChildrenChange'  # bubbles=True, cancelable=False
-   TAB_ENABLE_CHANGE = 'tabEnableChange'  # bubbles=True, cancelable=False
-   TAB_INDEX_CHANGE = 'tabIndexChange'  # bubbles=True, cancelable=False
-   TEXT_INTERACTION_MODE_CHANGE = 'textInteractionModeChange'  # bubbles=False, cancelable=False
-   TEXTURE_READY = 'textureReady'  # ?
-   UNLOAD = 'unload'  # bubbles=False, cancelable=False
-   USER_IDLE = 'userIdle'  # bubbles=False, cancelable=False
-   USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
-   VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
-   WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
-
-
 class EventDispatcher(Object):
    # TODO: Implement priority, weakReference
 
@@ -238,7 +234,7 @@ class EventDispatcher(Object):
       raise NotImplementedError
 
 
-class TextEvent(_AS3_BASEEVENT):
+class TextEvent(Event):
    LINK = 'link'  # bubbles=True, cancelable=False
    TEXT_INPUT = 'textInput'  # bubbles=True, cancelable=True
 
@@ -282,7 +278,7 @@ class ErrorEvent(TextEvent):
       return self.formatToString('ErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
-class AccelerometerEvent(_AS3_BASEEVENT):
+class AccelerometerEvent(Event):
    UPDATE = 'update'
 
    @property
@@ -336,7 +332,7 @@ class AccelerometerEvent(_AS3_BASEEVENT):
       return self.formatToString('AccelerometerEvent', 'type', 'bubbles', 'cancelable', 'timestamp', 'accelerationX', 'accelerationY', 'accelerationZ')
 
 
-class ActivityEvent(_AS3_BASEEVENT):
+class ActivityEvent(Event):
    ACTIVITY = 'activity'
 
    @property
@@ -386,7 +382,7 @@ class AsyncErrorEvent(ErrorEvent):
       return self.formatToString('AsyncErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'error', 'errorID')
 
 
-class AudioOutputChangeEvent(_AS3_BASEEVENT):
+class AudioOutputChangeEvent(Event):
    AUDIO_OUTPUT_CHANGE = 'audioOutputChange'
 
    @property
@@ -399,7 +395,7 @@ class AudioOutputChangeEvent(_AS3_BASEEVENT):
       self._reason = String(reason)
 
 
-class AVDictionaryDataEvent(_AS3_BASEEVENT):
+class AVDictionaryDataEvent(Event):
    # TODO: Make _dictionary init as a flash.utils.Dictionary object
    AV_DICTIONARY_DATA = 'avDictionaryData'
 
@@ -419,7 +415,7 @@ class AVDictionaryDataEvent(_AS3_BASEEVENT):
       self._time = Number(init_dataTime)
 
 
-class AVHTTPStatusEvent(_AS3_BASEEVENT):
+class AVHTTPStatusEvent(Event):
    AV_HTTP_RESPONSE_STATUS = 'avHttpResponseStatus'
 
    @property
@@ -459,7 +455,7 @@ class AVHTTPStatusEvent(_AS3_BASEEVENT):
       return self.formatToString('AVHTTPStatusEvent', 'type', 'bubbles', 'cancelable', 'status')
 
 
-class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
+class AVPauseAtPeriodEndEvent(Event):
    AV_PAUSE_AT_PERIOD_END = 'avPauseAtPeriodEnd'
 
    @property
@@ -472,7 +468,7 @@ class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
       self._userData = int(userData)
 
 
-class BrowserInvokeEvent(_AS3_BASEEVENT):
+class BrowserInvokeEvent(Event):
    BROWSER_INVOKE = 'browserInvoke'
 
    @property
@@ -511,7 +507,7 @@ class BrowserInvokeEvent(_AS3_BASEEVENT):
                                 self.securityDomain, self.isHTTPS)
 
 
-class ContextMenuEvent(_AS3_BASEEVENT):
+class ContextMenuEvent(Event):
    MENU_ITEM_SELECT = 'menuItemSelect'
    MENU_SELECT = 'menuSelect'
 
@@ -566,7 +562,7 @@ class DataEvent(TextEvent):
       return self.formatToString('DataEvent', 'type', 'bubbles', 'cancelable', 'data')
 
 
-class DatagramSocketDataEvent(_AS3_BASEEVENT):
+class DatagramSocketDataEvent(Event):
    DATA = 'data'
 
    @property
@@ -631,7 +627,7 @@ class DatagramSocketDataEvent(_AS3_BASEEVENT):
                                  'dstAddress', 'dstPort', 'data')
 
 
-class DeviceRotationEvent(_AS3_BASEEVENT):
+class DeviceRotationEvent(Event):
    UPDATE = 'update'
 
    @property
@@ -694,7 +690,7 @@ class DeviceRotationEvent(_AS3_BASEEVENT):
                                  'yaw', 'quaternion')
 
 
-class DNSResolverEvent(_AS3_BASEEVENT):
+class DNSResolverEvent(Event):
    LOOKUP = 'lookup'
 
    @property
@@ -762,7 +758,7 @@ class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    CAPTURING_PHASE = 1
 
 
-class FileListEvent(_AS3_BASEEVENT):
+class FileListEvent(Event):
    DIRECTORY_LISTING = 'directoryListing'
    SELECT_MULTIPLE = 'selectMultiple'
 
@@ -780,7 +776,7 @@ class FileListEvent(_AS3_BASEEVENT):
       self.files = Array() if files is null else files
 
 
-class FocusEvent(_AS3_BASEEVENT):
+class FocusEvent(Event):
    # TODO: Implement isRelatedObjectInaccessible
    FOCUS_IN = 'focusIn'
    FOCUS_OUT = 'focusOut'
@@ -889,7 +885,7 @@ class GameInputEvent(ActivityEvent):
 
 
 
-class GeolocationEvent(_AS3_BASEEVENT):
+class GeolocationEvent(Event):
    UPDATE = 'update'
 
    @property
@@ -986,7 +982,7 @@ class GeolocationEvent(_AS3_BASEEVENT):
                                  'timestamp')
 
 
-class GestureEvent(_AS3_BASEEVENT):
+class GestureEvent(Event):
    # TODO
    GESTURE_TWO_FINGER_TAP = 'gestureTwoFingerTap'
 
@@ -1015,7 +1011,7 @@ class GesturePhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    UPDATE = 'update'
 
 
-class HTMLUncaughtScriptExceptionEvent(_AS3_BASEEVENT):
+class HTMLUncaughtScriptExceptionEvent(Event):
    UNCAUGHT_SCRIPT_EXCEPTION = ''  # TODO
 
    @property
@@ -1042,7 +1038,7 @@ class HTMLUncaughtScriptExceptionEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class HTTPStatusEvent(_AS3_BASEEVENT):
+class HTTPStatusEvent(Event):
    HTTP_RESPONSE_STATUS = 'httpResponseStatus'
    HTTP_STATUS = 'httpStatus'
 
@@ -1118,7 +1114,7 @@ class IMEEvent(TextEvent):
                                  'text')  # imeClient
 
 
-class InvokeEvent(_AS3_BASEEVENT):
+class InvokeEvent(Event):
    INVOKE = 'invoke'
 
    @property
@@ -1160,7 +1156,7 @@ class IOErrorEvent(ErrorEvent):
       return self.formatToString('IOErrorEvent', 'type', 'bubbles', 'cancelable', 'text', 'errorID')
 
 
-class KeyboardEvent(_AS3_BASEEVENT):
+class KeyboardEvent(Event):
    KEY_DOWN = 'keyDown'
    KEY_UP = 'keyUp'
 
@@ -1261,7 +1257,7 @@ class KeyboardEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class LocationChangeEvent(_AS3_BASEEVENT):
+class LocationChangeEvent(Event):
    LOCATION_CHANGE = 'locationChange'
    LOCATION_CHANGING = 'locationChanging'
 
@@ -1400,7 +1396,7 @@ class OutputProgressEvent:
       raise NotImplementedError
 
 
-class PermissionEvent(_AS3_BASEEVENT):
+class PermissionEvent(Event):
    # TODO: figure out where permission information is stored
    PERMISSION_STATUS = 'permissionStatus'
 
@@ -1431,7 +1427,7 @@ class PressAndTapGestureEvent:
       raise NotImplementedError
 
 
-class ProgressEvent(_AS3_BASEEVENT):
+class ProgressEvent(Event):
    PROGRESS = 'progress'
    SOCKET_DATA = 'socketData'
    STANDARD_ERROR_DATA = 'standardErrorData'
@@ -1594,7 +1590,7 @@ class SQLEvent:
       return SQLEvent(self.type, self.bubbles, self.cancelable)
 
 
-class SQLUpdateEvent(_AS3_BASEEVENT):
+class SQLUpdateEvent(Event):
    DELETE = 'delete'
    INSERT = 'insert'
    UPDATE = 'update'
@@ -1619,7 +1615,7 @@ class SQLUpdateEvent(_AS3_BASEEVENT):
                             self.table, self.rowID)
 
 
-class StageOrientationEvent(_AS3_BASEEVENT):
+class StageOrientationEvent(Event):
    ORIENTATION_CHANGE = 'orientationChange'
    ORIENTATION_CHANGING = 'orientationChanging'
 
@@ -1647,7 +1643,7 @@ class StageOrientationEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class StageVideoAvailabilityEvent(_AS3_BASEEVENT):
+class StageVideoAvailabilityEvent(Event):
    driver = ''  # TODO
    reason = ''  # TODO
    STAGE_VIDEO_AVAILABILITY = 'stageVideoAvailability'
@@ -1662,7 +1658,7 @@ class StageVideoAvailabilityEvent(_AS3_BASEEVENT):
       self._availability = String(availability)
 
 
-class StageVideoEvent(_AS3_BASEEVENT):
+class StageVideoEvent(Event):
    codecInfo = ''  # TODO
    RENDER_STATE = 'renderState'
    RENDER_STATUS_ACCELERATED = 'accelerated'
@@ -1685,7 +1681,7 @@ class StageVideoEvent(_AS3_BASEEVENT):
       self._status = String(status)
 
 
-class StatusEvent(_AS3_BASEEVENT):
+class StatusEvent(Event):
    STATUS = 'status'
 
    @property
@@ -1720,7 +1716,7 @@ class StatusEvent(_AS3_BASEEVENT):
                                  'cancelable', 'code', 'level')
 
 
-class StorageVolumeChangeEvent(_AS3_BASEEVENT):
+class StorageVolumeChangeEvent(Event):
    STORAGE_VOLUME_MOUNT = String('storageVolumeMount')
    STORAGE_VOLUME_UNMOUNT = String('storageVolumeUnmount')
 
@@ -1749,7 +1745,7 @@ class StorageVolumeChangeEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class SyncEvent(_AS3_BASEEVENT):
+class SyncEvent(Event):
    SYNC = 'sync'
 
    @property
@@ -1773,7 +1769,7 @@ class SyncEvent(_AS3_BASEEVENT):
       return f'[SynceEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} list={self.changeList}]'
 
 
-class ThrottleEvent(_AS3_BASEEVENT):
+class ThrottleEvent(Event):
    THROTTLE = 'throttle'
 
    @property
@@ -1805,7 +1801,7 @@ class ThrottleType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    THROTTLE = 'throttle'
 
 
-class TimerEvent(_AS3_BASEEVENT):
+class TimerEvent(Event):
    TIMER = 'timer'  # bubbles=False, cancelable=False
    TIMER_COMPLETE = 'timerComplete'  # bubbles=False, cancelable=False
 
@@ -1823,7 +1819,7 @@ class TimerEvent(_AS3_BASEEVENT):
       raise NotImplementedError
 
 
-class TouchEvent(_AS3_BASEEVENT):
+class TouchEvent(Event):
    def __init__(self):
       raise NotImplementedError
 
@@ -1886,7 +1882,7 @@ class UncaughtErrorEvents(EventDispatcher):
       raise NotImplementedError
 
 
-class VideoEvent(_AS3_BASEEVENT):
+class VideoEvent(Event):
    codecInfo = String()  # TODO
    RENDER_STATE = 'renderState'
    RENDER_STATUS_ACCELERATED = 'accelerated'
@@ -1904,7 +1900,7 @@ class VideoEvent(_AS3_BASEEVENT):
 
 
 
-class VideoTextureEvent(_AS3_BASEEVENT):
+class VideoTextureEvent(Event):
    RENDER_STATE = 'renderState'
 
    @property
