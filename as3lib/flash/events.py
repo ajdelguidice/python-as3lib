@@ -4,6 +4,29 @@ from as3lib.flash.errors import SQLError
 from copy import copy
 
 
+_ERRCONSTAllowedChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+                         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                         'U', 'V', 'W', 'X', 'Y', 'Z', '_', '0', '1', '2',
+                         '3', '4', '5', '6', '7', '8', '9'}
+
+
+def _HELPER_GetEventConstants(cls):
+   # TODO: Make child classes able to have the same constants defined as the
+   #       parents
+   consts = set()
+   for i in (i for i in dir(cls) if not i.startswith('_')):
+      valid = True
+      for j in i:
+         if j not in _ERRCONSTAllowedChars:
+            valid = False
+            break
+      if valid:
+         consts.add(getattr(cls, i))
+   if cls.__base__ != object:
+      return consts - _HELPER_GetEventConstants(cls.__base__)
+   return consts
+
+
 # BaseEvent
 # TODO: Find a way to combine _AS3_BASEEVENT with Event without polluting
 #       child classes with inherited constants
@@ -33,7 +56,7 @@ class _AS3_BASEEVENT:
       return self._type
 
    def __init__(self, type, bubbles=false, cancelable=false):
-      if type not in self._INTERNAL_allowedTypes:
+      if type not in _HELPER_GetEventConstants(self.__class__):
          raise Exception('Provided event type is not valid for this object')
       self._type = String(type)
       self._bubbles = Boolean(bubbles)
@@ -152,7 +175,6 @@ class Event(_AS3_BASEEVENT):
    USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
    VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
    WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
-   _INTERNAL_allowedTypes = {'activate', 'added', 'addedToStage', 'browerZoomChange', 'cancel', 'change', 'channelMessage', 'channelState', 'clear', 'close', 'closing', 'complete', 'connect', 'context3DCreate', 'copy', 'cut', 'deactivate', 'displaying', 'enterFrame', 'exitFrame', 'exiting', 'frameConstructed', 'frameLabel', 'fullscreen', 'htmlBoundsChange', 'htmlDOMInitialize', 'htmlRender', 'id3', 'init', 'locationChange', 'mouseLeave', 'networkChange', 'open', 'paste', 'preparing', 'removed', 'removeFromStage', 'render', 'resize', 'scroll', 'select', 'selectAll', 'soundComplete', 'standardErrorClose', 'standardInputClose', 'standardOutputClose', 'suspend', 'tabChildrenChange', 'tabEnableChange', 'tabIndexChange', 'textInteractionModeChange', 'textureReady', 'unload', 'userIdle', 'userPresent', 'videoFrame', 'workerState'}
 
 
 class EventDispatcher(Object):
@@ -219,7 +241,6 @@ class EventDispatcher(Object):
 class TextEvent(_AS3_BASEEVENT):
    LINK = 'link'  # bubbles=True, cancelable=False
    TEXT_INPUT = 'textInput'  # bubbles=True, cancelable=True
-   _INTERNAL_allowedTypes = {'link', 'textInput'}
 
    @property
    def text(self):
@@ -243,7 +264,6 @@ class TextEvent(_AS3_BASEEVENT):
 
 class ErrorEvent(TextEvent):
    ERROR = 'error'
-   _INTERNAL_allowedTypes = {'error',}
 
    @property
    def errorID(self):
@@ -264,7 +284,6 @@ class ErrorEvent(TextEvent):
 
 class AccelerometerEvent(_AS3_BASEEVENT):
    UPDATE = 'update'
-   _INTERNAL_allowedTypes = {'update',}
 
    @property
    def accelerationX(self):
@@ -319,7 +338,6 @@ class AccelerometerEvent(_AS3_BASEEVENT):
 
 class ActivityEvent(_AS3_BASEEVENT):
    ACTIVITY = 'activity'
-   _INTERNAL_allowedTypes = {'activity',}
 
    @property
    def activating(self):
@@ -344,7 +362,6 @@ class ActivityEvent(_AS3_BASEEVENT):
 
 class AsyncErrorEvent(ErrorEvent):
    ASYNC_ERROR = 'asyncError'
-   _INTERNAL_allowedTypes = {'asyncError',}
 
    @property
    def error(self):
@@ -371,7 +388,6 @@ class AsyncErrorEvent(ErrorEvent):
 
 class AudioOutputChangeEvent(_AS3_BASEEVENT):
    AUDIO_OUTPUT_CHANGE = 'audioOutputChange'
-   _INTERNAL_allowedTypes = {'audioOutputChange',}
 
    @property
    def reason(self):
@@ -386,7 +402,6 @@ class AudioOutputChangeEvent(_AS3_BASEEVENT):
 class AVDictionaryDataEvent(_AS3_BASEEVENT):
    # TODO: Make _dictionary init as a flash.utils.Dictionary object
    AV_DICTIONARY_DATA = 'avDictionaryData'
-   _INTERNAL_allowedTypes = {'avDictionaryData',}
 
    @property
    def dictionary(self):
@@ -406,7 +421,6 @@ class AVDictionaryDataEvent(_AS3_BASEEVENT):
 
 class AVHTTPStatusEvent(_AS3_BASEEVENT):
    AV_HTTP_RESPONSE_STATUS = 'avHttpResponseStatus'
-   _INTERNAL_allowedTypes = {'avHttpResponseStatus',}
 
    @property
    def responseHeaders(self):
@@ -447,7 +461,6 @@ class AVHTTPStatusEvent(_AS3_BASEEVENT):
 
 class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
    AV_PAUSE_AT_PERIOD_END = 'avPauseAtPeriodEnd'
-   _INTERNAL_allowedTypes = {'avPauseAtPeriodEnd',}
 
    @property
    def userData(self):
@@ -461,7 +474,6 @@ class AVPauseAtPeriodEndEvent(_AS3_BASEEVENT):
 
 class BrowserInvokeEvent(_AS3_BASEEVENT):
    BROWSER_INVOKE = 'browserInvoke'
-   _INTERNAL_allowedTypes = {'browserInvoke',}
 
    @property
    def arguments(self):
@@ -502,7 +514,6 @@ class BrowserInvokeEvent(_AS3_BASEEVENT):
 class ContextMenuEvent(_AS3_BASEEVENT):
    MENU_ITEM_SELECT = 'menuItemSelect'
    MENU_SELECT = 'menuSelect'
-   _INTERNAL_allowedTypes = {'menuItemSelect', 'menuSelect'}
 
    @property
    def contextMenuOwner(self):
@@ -534,7 +545,6 @@ class ContextMenuEvent(_AS3_BASEEVENT):
 class DataEvent(TextEvent):
    DATA = 'data'
    UPLOAD_COMPLETE_DATA = 'uploadCompleteData'
-   _INTERNAL_allowedTypes = {'data', 'uploadCompleteData'}
 
    @property
    def data(self):
@@ -558,7 +568,6 @@ class DataEvent(TextEvent):
 
 class DatagramSocketDataEvent(_AS3_BASEEVENT):
    DATA = 'data'
-   _INTERNAL_allowedTypes = {'data',}
 
    @property
    def data(self):
@@ -624,7 +633,6 @@ class DatagramSocketDataEvent(_AS3_BASEEVENT):
 
 class DeviceRotationEvent(_AS3_BASEEVENT):
    UPDATE = 'update'
-   _INTERNAL_allowedTypes = {'update',}
 
    @property
    def pitch(self):
@@ -688,7 +696,6 @@ class DeviceRotationEvent(_AS3_BASEEVENT):
 
 class DNSResolverEvent(_AS3_BASEEVENT):
    LOOKUP = 'lookup'
-   _INTERNAL_allowedTypes = {'lookup',}
 
    @property
    def host(self):
@@ -758,7 +765,6 @@ class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 class FileListEvent(_AS3_BASEEVENT):
    DIRECTORY_LISTING = 'directoryListing'
    SELECT_MULTIPLE = 'selectMultiple'
-   _INTERNAL_allowedTypes = {'directoryListing', 'selectMultiple'}
 
    @property
    def files(self):
@@ -780,7 +786,6 @@ class FocusEvent(_AS3_BASEEVENT):
    FOCUS_OUT = 'focusOut'
    KEY_FOCUS_CHANGE = 'keyFocusChange'
    MOUSE_FOCUS_CHANGE = 'mouseFocusChange'
-   _INTERNAL_allowedTypes = {'focusIn', 'focusOut', 'keyFocusChange', 'mouseFocusChange'}
 
    @property
    def direction(self):
@@ -844,7 +849,6 @@ class FocusEvent(_AS3_BASEEVENT):
 class FullScreenEvent(ActivityEvent):
    FULL_SCREEN = 'fullScreen'
    FULL_SCREEN_INTERACTIVE_ACCEPTED = 'fullScreenInteractiveAccepted'
-   _INTERNAL_allowedTypes = {'fullScreen', 'fullScreenInteractiveAccepted'}
 
    @property
    def fullScreen(self):
@@ -873,7 +877,6 @@ class GameInputEvent(ActivityEvent):
    DEVICE_ADDED = 'deviceAdded'
    DEVICE_REMOVED = 'deviceRemoved'
    DEVICE_UNUSABLE = 'deviceUnusable'
-   _INTERNAL_allowedTypes = {'deviceAdded', 'deviceRemoved', 'deviceUnusable'}
 
    @property
    def device(self):
@@ -888,7 +891,6 @@ class GameInputEvent(ActivityEvent):
 
 class GeolocationEvent(_AS3_BASEEVENT):
    UPDATE = 'update'
-   _INTERNAL_allowedTypes = {'update',}
 
    @property
    def altitude(self):
@@ -987,7 +989,6 @@ class GeolocationEvent(_AS3_BASEEVENT):
 class GestureEvent(_AS3_BASEEVENT):
    # TODO
    GESTURE_TWO_FINGER_TAP = 'gestureTwoFingerTap'
-   _INTERNAL_allowedTypes = {'gestureTwoFingerTap',}
 
    def __init__(self, type: String, bubbles: Boolean = false,
                 cancelable: Boolean = false, phase: String = null,
@@ -1044,7 +1045,6 @@ class HTMLUncaughtScriptExceptionEvent(_AS3_BASEEVENT):
 class HTTPStatusEvent(_AS3_BASEEVENT):
    HTTP_RESPONSE_STATUS = 'httpResponseStatus'
    HTTP_STATUS = 'httpStatus'
-   _INTERNAL_allowedTypes = {'httpResponseStatus', 'httpStatus'}
 
    @property
    def redirected(self):
@@ -1094,7 +1094,6 @@ class HTTPStatusEvent(_AS3_BASEEVENT):
 class IMEEvent(TextEvent):
    IME_COMPOSITION = 'imeComposition'
    IME_START_COMPOSITION = 'imeStartComposition'
-   _INTERNAL_allowedTypes = {'imeComposition', 'imeStartComposition'}
 
    @property
    def imeClient(self):
@@ -1121,7 +1120,6 @@ class IMEEvent(TextEvent):
 
 class InvokeEvent(_AS3_BASEEVENT):
    INVOKE = 'invoke'
-   _INTERNAL_allowedTypes = {'invoke',}
 
    @property
    def arguments(self):
@@ -1153,7 +1151,6 @@ class IOErrorEvent(ErrorEvent):
    STANDARD_ERROR_IO_ERROR = 'standardErrorIoError'
    STANDARD_INPUT_IO_ERROR = 'standardInputIoError'
    STANDARD_OUTPUT_IO_ERROR = 'standardOutputIoError'
-   _INTERNAL_allowedTypes = {'ioError', 'standardErrorIoError', 'standardInputIoError', 'standardOutputIoError'}
 
    def clone(self):
       return IOErrorEvent(self.type, self.bubbles, self.cancelable, self.text,
@@ -1166,7 +1163,6 @@ class IOErrorEvent(ErrorEvent):
 class KeyboardEvent(_AS3_BASEEVENT):
    KEY_DOWN = 'keyDown'
    KEY_UP = 'keyUp'
-   _INTERNAL_allowedTypes = {'keyDown', 'keyUp'}
 
    @property
    def altKey(self):
@@ -1268,7 +1264,6 @@ class KeyboardEvent(_AS3_BASEEVENT):
 class LocationChangeEvent(_AS3_BASEEVENT):
    LOCATION_CHANGE = 'locationChange'
    LOCATION_CHANGING = 'locationChanging'
-   _INTERNAL_allowedTypes = {'locationChange', 'locationChanging'}
 
    @property
    def location(self):
@@ -1408,7 +1403,6 @@ class OutputProgressEvent:
 class PermissionEvent(_AS3_BASEEVENT):
    # TODO: figure out where permission information is stored
    PERMISSION_STATUS = 'permissionStatus'
-   _INTERNAL_allowedTypes = {'permissionStatus',}
 
    @property
    def status(self):
@@ -1443,7 +1437,6 @@ class ProgressEvent(_AS3_BASEEVENT):
    STANDARD_ERROR_DATA = 'standardErrorData'
    STANDARD_INPUT_PROGRESS = 'standardInputProgress'
    STANDARD_OUTPUT_DATA = 'standardOutputData'
-   _INTERNAL_allowedTypes = {'progress', 'socketData', 'standardErrorData', 'standardInputProgress', 'standardOutputData'}
 
    @property
    def bytesLoaded(self):
@@ -1503,7 +1496,6 @@ class ScreenMouseEvent:
 
 class SecurityErrorEvent(ErrorEvent):
    SECURITY_ERROR = 'securityError'
-   _INTERNAL_allowedTypes = {'securityError',}
 
    def clone(self):
       return SecurityErrorEvent(self.type, self.bubbles, self.cancelable,
@@ -1553,7 +1545,6 @@ class SoftKeyboardTrigger(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 class SQLErrorEvent(ErrorEvent):
    ERROR = 'error'
-   _INTERNAL_allowedTypes = {'error'}
 
    @property
    def error(self):
@@ -1594,11 +1585,6 @@ class SQLEvent:
    ROLLBACK_TO_SAVEPOINT = 'rollbackToSavepoint'
    SCHEMA = 'schema'
    SET_SAVEPOINT = 'setSavepoint'
-   _INTERNAL_allowedTypes = {'analyze', 'attach', 'begin', 'cancel', 'close',
-                             'commit', 'compact', 'deanalyze', 'detach',
-                             'open', 'reencrypt', 'releaseSavepoint',
-                             'result', 'rollback', 'rollbackToSavepoint',
-                             'schema', 'setSavepoint'}
 
    def __init__(self, type: String, bubbles: Boolean = false,
                 cancelable: Boolean = false):
@@ -1612,7 +1598,6 @@ class SQLUpdateEvent(_AS3_BASEEVENT):
    DELETE = 'delete'
    INSERT = 'insert'
    UPDATE = 'update'
-   _INTERNAL_allowedTypes = {'delete', 'insert', 'update'}
 
    @property
    def rowID(self):
@@ -1637,7 +1622,6 @@ class SQLUpdateEvent(_AS3_BASEEVENT):
 class StageOrientationEvent(_AS3_BASEEVENT):
    ORIENTATION_CHANGE = 'orientationChange'
    ORIENTATION_CHANGING = 'orientationChanging'
-   _INTERNAL_allowedTypes = {'orientationChange', 'orientationChanging'}
 
    @property
    def afterOrientation(self):
@@ -1667,7 +1651,6 @@ class StageVideoAvailabilityEvent(_AS3_BASEEVENT):
    driver = ''  # TODO
    reason = ''  # TODO
    STAGE_VIDEO_AVAILABILITY = 'stageVideoAvailability'
-   _INTERNAL_allowedTypes = {'stageVideoAvailability',}
 
    @property
    def availability(self):
@@ -1685,8 +1668,6 @@ class StageVideoEvent(_AS3_BASEEVENT):
    RENDER_STATUS_ACCELERATED = 'accelerated'
    RENDER_STATUS_SOFTWARE = 'software'
    RENDER_STATUS_UNAVAILABLE = 'unavailable'
-   _INTERNAL_allowedTypes = {'renderState', 'accelerated', 'software',
-                             'unavailable'}
 
    @property
    def colorSpace(self):
@@ -1706,7 +1687,6 @@ class StageVideoEvent(_AS3_BASEEVENT):
 
 class StatusEvent(_AS3_BASEEVENT):
    STATUS = 'status'
-   _INTERNAL_allowedTypes = {'status',}
 
    @property
    def code(self):
@@ -1743,7 +1723,6 @@ class StatusEvent(_AS3_BASEEVENT):
 class StorageVolumeChangeEvent(_AS3_BASEEVENT):
    STORAGE_VOLUME_MOUNT = String('storageVolumeMount')
    STORAGE_VOLUME_UNMOUNT = String('storageVolumeUnmount')
-   _INTERNAL_allowedTypes = {'storageVolumeMount', 'storageVolumeUnmount'}
 
    @property
    def rootDirectory(self):
@@ -1772,7 +1751,6 @@ class StorageVolumeChangeEvent(_AS3_BASEEVENT):
 
 class SyncEvent(_AS3_BASEEVENT):
    SYNC = 'sync'
-   _INTERNAL_allowedTypes = {'sync',}
 
    @property
    def changeList(self):
@@ -1797,7 +1775,6 @@ class SyncEvent(_AS3_BASEEVENT):
 
 class ThrottleEvent(_AS3_BASEEVENT):
    THROTTLE = 'throttle'
-   _INTERNAL_allowedTypes = {'throttle',}
 
    @property
    def state(self):
@@ -1831,7 +1808,6 @@ class ThrottleType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 class TimerEvent(_AS3_BASEEVENT):
    TIMER = 'timer'  # bubbles=False, cancelable=False
    TIMER_COMPLETE = 'timerComplete'  # bubbles=False, cancelable=False
-   _INTERNAL_allowedTypes = {'timer', 'timerComplete'}
 
    def __init__(self, type: String, bubbles: Boolean = false,
                 cancelable: Boolean = false):
@@ -1886,7 +1862,6 @@ class TransformGestureEvent(GestureEvent):
 
 class UncaughtErrorEvent(ErrorEvent):
    UNCAUGHT_ERROR = 'uncaughtError'
-   _INTERNAL_allowedTypes = {'uncaughtError',}
 
    @property
    def error(self):
@@ -1917,8 +1892,6 @@ class VideoEvent(_AS3_BASEEVENT):
    RENDER_STATUS_ACCELERATED = 'accelerated'
    RENDER_STATUS_SOFTWARE = 'software'
    RENDER_STATUS_UNAVAILABLE = 'unavailable'
-   _INTERNAL_allowedTypes = {'renderState', 'accelerated', 'software',
-                             'unavailable'}
 
    @property
    def status(self):
@@ -1933,7 +1906,6 @@ class VideoEvent(_AS3_BASEEVENT):
 
 class VideoTextureEvent(_AS3_BASEEVENT):
    RENDER_STATE = 'renderState'
-   _INTERNAL_allowedTypes = {'renderState',}
 
    @property
    def colorSpace(self):
@@ -1953,7 +1925,6 @@ class VideoTextureEvent(_AS3_BASEEVENT):
 
 class VsyncStateChangeAvailabilityEvent:
    VSYNC_STATE_CHANGE_AVAILABILITY = 'vSyncStateChangeAvailability'
-   _INTERNAL_allowedTypes = {'vSyncStateChangeAvailability',}
 
    @property
    def available(self):
