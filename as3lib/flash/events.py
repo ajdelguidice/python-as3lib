@@ -1,7 +1,6 @@
 from as3lib import (Array, as3state, Boolean, Error, false, int, metaclasses,
                     Number, null, Object, String, true, TypeError, uint)
 from as3lib.flash.errors import SQLError
-from copy import copy
 
 
 _ERRCONSTAllowedChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
@@ -133,7 +132,8 @@ class Event(Object):
    def type(self):
       return self._type
 
-   def __init__(self, type, bubbles=false, cancelable=false):
+   def __init__(self, type: String, bubbles: Boolean = false,
+                cancelable: Boolean = false):
       if type not in _HELPER_GetEventConstants(self.__class__):
          raise Exception('Provided event type is not valid for this object')
       self._type = String(type)
@@ -144,14 +144,8 @@ class Event(Object):
       self._eventPhase = null
       self._preventDefault = false
 
-   def __eq__(self, value):
-      return self.type == value
-
-   def __str__(self):
-      return self.toString()
-
    def clone(self):
-      return copy(self)
+      return Event(self.type, self.bubbles, self.cancelable)
 
    def formatToString(self, className, *arguements):
       return String(''.join(['[', className] + [f' {i}={getattr(self, i)}' for i in arguements] + [']']))
