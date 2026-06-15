@@ -38,17 +38,25 @@ def sm_x11():
    '''
    Gets and returns screen width, screen height, refresh rate, and color depth on x11
    '''
+   width = None
+   height = None
+   rr = None
+   depth = None
    for option in check_output(('xrandr', '--current')).decode('utf-8').split('\n'):
       if '*' in option:
          for i in option.split(' '):
             if i != '' and '*' in i:
-               rr = i.strip('*+')
+               rr = float(i.strip('*+'))
                break
          break
-   depth = check_output('xwininfo -root | grep Depth', shell=True).decode('utf-8').split(':')[1].strip(' \n')
-   width = check_output('xwininfo -root | grep Width', shell=True).decode('utf-8').split(':')[1].strip(' \n')
-   height = check_output('xwininfo -root | grep Height', shell=True).decode('utf-8').split(':')[1].strip(' \n')
-   return int(width), int(height), float(rr), int(depth)
+   for i in check_output(('xwininfo', '-root')).decode('utf-8').split('\n'):
+      if 'Depth' in i:
+         depth = int(i.split(':')[1].strip())
+      if 'Width' in i:
+         width = int(i.split(':')[1].strip())
+      if 'Height' in i:
+         height = int(i.split(':')[1].strip())
+   return width, height, rr, depth
 
 
 def sm_wayland():
