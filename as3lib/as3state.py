@@ -11,6 +11,12 @@ pythonversion = None  # version of python currently running
 startTime = None  # logs start time for flash.utils.getTimer
 nativeApplication = None  # The native application instance for the running application
 
+# Main file header information (Default values are placeholders)
+swfVersion = 44
+frameRate = 30
+viewportWidth = 200
+viewportHeight = 200
+
 # Global config
 _cfg = None  # DO NOT EDIT THIS. This is for determining if the config needs to be saved.
 hasDependencies = False
@@ -31,9 +37,6 @@ MaxWarningsReached = False  # If the maximum number of warnings has been reached
 defaultTraceFilePath_Flash = None  # Default file path for trace output in flash
 appdatadirectory = None  # The path to the application specific data directory (must be set by the application, should not be set by other libraries)
 prototypes = {}  # Each class needs a global default instance of itself. Store it here
-
-# flash.display
-frameRate = 30
 
 # flash.filesystem
 separator = None

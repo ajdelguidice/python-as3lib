@@ -216,6 +216,22 @@ def setDataDirectory(dir_: str):
    as3state.appdatadirectory = dir_
 
 
+def setHeaderInfo(swfVersion, frameRate, viewportWidth, viewportHeight):
+   # TODO: Make a custom module loader to do this. This would require piping
+   #       the program into as3lib instead of just importing it.
+   #       ex: python -m as3lib <program>
+   """
+   Temporary function. Used to set the values found in the swf header.
+
+   This function should only be used by the main script as only one set of
+   values can be stored.
+   """
+   as3state.swfVersion = swfVersion
+   as3state.frameRate = frameRate
+   as3state.viewportWidth = viewportWidth
+   as3state.viewportHeight = viewportHeight
+
+
 __all__ = (
    'true',
    'false',
@@ -274,5 +290,6 @@ __all__ = (
    'EnableDebug',
    'DisableDebug',
    'isValidDirectory',
-   'setDataDirectory'
+   'setDataDirectory',
+   'setHeaderInfo'
 )
