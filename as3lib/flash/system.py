@@ -91,11 +91,13 @@ class Capabilities:
 
    @property
    def screenResolutionX():
-      return as3state.width
+      # Initial width of the display frame
+      return NotImplementedError
 
    @property
    def screenResolutionY():
-      return as3state.height
+      # Initial height of the display frame
+      return NotImplementedError
 
    #serverString
    #supports32BitProcesses
