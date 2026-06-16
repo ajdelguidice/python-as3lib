@@ -915,6 +915,7 @@ class itkRoot(tkinter.Toplevel):
       tkinter.Tk window.
    '''
    def __init__(self, **kwargs):
+      # TODO: Set max/min size
       self._id = next(_windowID)
       self._startwidth = kwargs.pop('defaultWidth', kwargs.pop('width'))
       self._startheight = kwargs.pop('defaultHeight', kwargs.pop('height'))
@@ -934,8 +935,7 @@ class itkRoot(tkinter.Toplevel):
       self._fontmult = 100
       self.geometry(f'{self._startwidth}x{self._startheight}')
       self.title(self._title)
-      if as3state.width not in {-1, None} and as3state.height not in {-1, None}:
-         self.maxsize(as3state.width, as3state.height)
+      #self.maxsize(<width>, <height>)
       self.bind('<Configure>', self.doResize)
       self.bind('<Escape>', self.outfullscreen)
       self.icon = ico

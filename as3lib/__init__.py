@@ -52,11 +52,7 @@ def sm_x11():
    for i in check_output(('xwininfo', '-root')).decode('utf-8').split('\n'):
       if 'Depth' in i:
          depth = int(i.split(':')[1].strip())
-      if 'Width' in i:
-         width = int(i.split(':')[1].strip())
-      if 'Height' in i:
-         height = int(i.split(':')[1].strip())
-   return width, height, rr, depth
+   return rr, depth
 
 
 def sm_wayland():
@@ -64,29 +60,26 @@ def sm_wayland():
 
 
 def sm_windows():
-   import ctypes
-   width = int(ctypes.windll.user32.GetSystemMetrics(0))
-   height = int(ctypes.windll.user32.GetSystemMetrics(1))
    try:
       import win32api
    except ModuleNotFoundError:
       print('Warning: Windows requirement "pywin32" not found. Using default screen parameters.')
-      return width, height, 60.0, 16
+      return 60.0, 16
    settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   return width, height, float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
+   return float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
 
 
 def sm_darwin():
    as3state.initerror.append('Platform/Darwin: Fetching screen properties is not implemented.')
-   return 1600, 900, 60.0, 16  # Placeholder
+   return 60.0, 16  # Placeholder
 
 
 def setScreenProperties(func):
    try:
       temp = func()
    except:
-      temp = (1600, 900, 60.0, 16)
-   as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth = temp
+      temp = (60.0, 16)
+   as3state.refreshrate, as3state.colordepth = temp
 
 
 # Initialise as3lib
@@ -129,7 +122,7 @@ if not as3state.initdone:
 
    # Ensure that at least something is loaded if values fail to load
    # This is a fix for the case where platform is not valid AND the display config values are missing
-   if None in {as3state.width, as3state.height, as3state.refreshrate, as3state.colordepth}:
+   if None in {as3state.refreshrate, as3state.colordepth}:
       setScreenProperties(None)
 
    # Load the config

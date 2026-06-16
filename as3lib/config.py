@@ -140,8 +140,6 @@ def Load():
             'NoClearWarningNumber': int(tempmm.get('NoClearWarningNumber', 0))
          },
          'display': {
-            'screenwidth': int(tempdis.get('screenwidth', 0)),
-            'screenheight': int(tempdis.get('screenheight', 0)),
             'refreshrate': float(tempdis.get('refreshrate', 0)),
             'colordepth': int(tempdis.get('colordepth', 0))
          }
@@ -162,8 +160,6 @@ def Load():
             'NoClearWarningNumber': 0
          },
          'display': {
-            'screenwidth': 0,
-            'screenheight': 0,
             'refreshrate': 0,
             'colordepth': 0
          }
@@ -205,8 +201,6 @@ def Load():
          with open(wlcfgpath, 'r') as f:
             wlcfg.read_file(f)
          cfg['display'] = {
-            'screenwidth': wlcfg.getint('Screen', 'screenwidth', fallback=0),
-            'screenheight': wlcfg.getint('Screen', 'screenheight', fallback=0),
             'refreshrate': wlcfg.getfloat('Screen', 'refreshrate', fallback=0),
             'colordepth': wlcfg.getint('Screen', 'colordepth', fallback=0)
          }
@@ -231,8 +225,6 @@ def Load():
                'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
             },
             'display': {
-               'screenwidth': oldcfg.getint('wayland', 'screenwidth', fallback=0),
-               'screenheight': oldcfg.getint('wayland', 'screenheight', fallback=0),
                'refreshrate': oldcfg.getfloat('wayland', 'refreshrate', fallback=0),
                'colordepth': oldcfg.getint('wayland', 'colordepth', fallback=0)
             }
@@ -257,10 +249,6 @@ def Load():
       tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
    tmpd = cfg['display']
-   if tmpd['screenwidth']:
-      as3state.width = tmpd['screenwidth']
-   if tmpd['screenheight']:
-      as3state.height = tmpd['screenheight']
    if tmpd['refreshrate']:
       as3state.refreshrate = tmpd['refreshrate']
    if tmpd['colordepth']:
@@ -284,8 +272,6 @@ def Save(saveAnyways: bool = False):
          'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
       },
       'display': {
-         'screenwidth': as3state.width,
-         'screenheight': as3state.height,
          'refreshrate': as3state.refreshrate,
          'colordepth': as3state.colordepth
       }
