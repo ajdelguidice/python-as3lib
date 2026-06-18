@@ -1,4 +1,5 @@
-from as3lib import as3state, int, metaclasses, Number
+from as3lib import as3state, Boolean, false, int, metaclasses, Number, true
+from as3lib.helpers import staticproperty
 from functools import cache
 import platform
 import sys
@@ -10,114 +11,183 @@ class ApplicationDomain:...
 class Capabilities:
    # TODO: get actual values
    # TODO: document changes from original
-   def _propTrue():
-      return True
 
-   def _propFalse():
-      return False
+   @staticproperty
+   def avHardwareDisable(cls):
+      # This is not needed so it is always True
+      return true
 
-   avHardwareDisable = property(fget=_propTrue)  # This is not needed so it is always True
-
-   @property
+   @staticproperty
    @cache
-   def cpuAddressSize():  # returns 32 (32bit system) or 64 (64bit system)
+   def cpuAddressSize(cls):  # returns 32 (32bit system) or 64 (64bit system)
       return Number(platform.architecture()[0][:-3])
 
-   @property
+   @staticproperty
    @cache
-   def cpuArchitecture():  # returns 'PowerPC','x86','SPARC',or 'ARM'
+   def cpuArchitecture(cls):  # returns 'PowerPC','x86','SPARC',or 'ARM'
       if platform.machine() in {'x86', 'x86_64', 'AMD64'}:
-         return 'x86'
+         return String('x86')
       if platform.machine() == 'PowerPC':
-         return 'PowerPC'
+         return String('PowerPC')
       if platform.machine() in {'ARM', 'ARM64'}:
-         return 'ARM'
+         return String('ARM')
 
-   #hasAccessibility
+   @staticproperty
+   def hasAccessibility(cls):
+      return false  # TODO: Placeholder
 
-   hasAudio = property(fget=_propTrue)
+   @staticproperty
+   def hasAudio(cls):
+      raise NotImplementedError
 
-   #hasAudioEncoder
-   #hasEmbeddedVideo
-   #hasIME
-   #hasMP3
-   #hasPrinting
-   #hasScreenBroadcast
-   #hasScreenPlayback
-   #hasStreamingAudio
-   #hasStreamingVideo
-   #hasTLS
-   #hasVideoEncoder
+   @staticproperty
+   def hasAudioEncoder(cls):
+      raise NotImplementedError
 
-   @property
-   def isDebugger():
+   @staticproperty
+   def hasEmbeddedVideo(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasIME(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasMP3(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasPrinting(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasScreenBroadcast(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasScreenPlayback(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasStreamingAudio(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasStreamingVideo(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasTLS(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def hasVideoEncoder(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def isDebugger(cls):
       return as3state.as3DebugEnable
 
-   isEmbeddedInAcrobat = property(fget=_propFalse)  # Always false because this is irelavant
+   @staticproperty
+   def isEmbeddedInAcrobat(cls):
+      # Always false because this is irelavant
+      return false
 
-   #language
-   #languages
-   #localFileReadDisable
+   @staticproperty
+   def language(cls):
+      raise NotImplementedError
 
-   @property
+   @staticproperty
+   def languages(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def localFileReadDisable(cls):
+      raise NotImplementedError
+
+   @staticproperty
    @cache
-   def manufacturer():
+   def manufacturer(cls):
       if as3state.platform == 'Windows':
-         return 'Adobe Windows'
+         return String('Adobe Windows')
       if as3state.platform == 'Linux':
-         return 'Adobe Linux'
+         return String('Adobe Linux')
       if as3state.platform == 'Darwin':
-         return 'Adobe Macintosh'
+         return String('Adobe Macintosh')
 
-   #maxLevelIDC
+   @staticproperty
+   def maxLevelIDC(cls):
+      raise NotImplementedError
 
-   @property
+   @staticproperty
    @cache
-   def os():
+   def os(cls):
       # TODO: add others
-      if as3state.platform == 'Windows':...
+      if as3state.platform == 'Windows':
+         raise NotImplementedError
       if as3state.platform == 'Linux':
-         return f'Linux {platform.release()}'
-      if as3state.platform == 'Darwin':...
+         return String(f'Linux {platform.release()}')
+      if as3state.platform == 'Darwin':
+         raise NotImplementedError
 
-   #pixelAspectRatio
+   @staticproperty
+   def pixelAspectRatio(cls):
+      raise NotImplementedError
 
    @property
    def playerType():
-      return 'StandAlone'
+      return String('StandAlone')
 
-   #screenColor
-   #screenDPI
+   @staticproperty
+   def screenColor(cls):
+      raise NotImplementedError
 
-   @property
-   def screenResolutionX():
+   @staticproperty
+   def screenDPI(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def screenResolutionX(cls):
       # Initial width of the display frame
-      return NotImplementedError
+      return Number(as3lib.viewportWidth)
 
-   @property
-   def screenResolutionY():
+   @staticproperty
+   def screenResolutionY(cls):
       # Initial height of the display frame
-      return NotImplementedError
+      return Number(as3lib.viewportHeight)
 
-   #serverString
-   #supports32BitProcesses
-   #supports64BitProcesses
-   #touchscreenType
+   @staticproperty
+   def serverString(cls):
+      raise NotImplementedError
 
-   @property
+   @staticproperty
+   def supports32BitProcesses(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def supports64BitProcesses(cls):
+      raise NotImplementedError
+
+   @staticproperty
+   def touchscreenType(cls):
+      raise NotImplementedError
+
+   @staticproperty
    @cache
-   def version():
+   def version(cls):
       tempfv = as3state.flashVersion
       if as3state.platform == 'Windows':
-         return f'Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
+         return String(f'Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}')
       if as3state.platform == 'Linux':
-         return f'LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
+         return String(f'LNX {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}')
       if as3state.platform == 'Darwin':
-         return f'MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
+         return String(f'MAC {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}')
       if as3state.platform == 'Android':
-         return f'AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}'
+         return String(f'AND {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}')
 
-   def hasMultiChannelAudio(type: str):...
+   @staticmethod
+   def hasMultiChannelAudio(type: str):
+      raise NotImplementedError
 
 
 def fscommand(command, args=''):
