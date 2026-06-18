@@ -42,6 +42,26 @@ class textObject(StringIO):
    def get(self):
       return self.getvalue()
 
+#-----------------------------------------------------------------------------
+# https://www.py4u.org/blog/python-static-class-property-set-get/
+class staticproperty:
+   def __init__(self, fget):
+      self.fget = fget
+
+   def __get__(self, instance, owner):
+      return self.fget(owner)
+
+   def setter(self, fset):
+      self.fset = fset
+      return self
+
+   def __set__(self, instance, value):
+      if not hasattr(self, 'fset'):
+         raise AttributeError("can't set attribute")
+      cls = instance.__class__ if instance is not None else self.__objclass__
+      self.fset(cls, value)
+#-----------------------------------------------------------------------------
+
 
 def isChildClass(obj, cls):
    '''
