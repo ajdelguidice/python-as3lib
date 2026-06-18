@@ -34,54 +34,6 @@ def traceFilePath_Flash(sysverOverride: tuple = None):
       return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
 
 
-def sm_x11():
-   '''
-   Gets and returns screen width, screen height, refresh rate, and color depth on x11
-   '''
-   width = None
-   height = None
-   rr = None
-   depth = None
-   for option in check_output(('xrandr', '--current')).decode('utf-8').split('\n'):
-      if '*' in option:
-         for i in option.split(' '):
-            if i != '' and '*' in i:
-               rr = float(i.strip('*+'))
-               break
-         break
-   for i in check_output(('xwininfo', '-root')).decode('utf-8').split('\n'):
-      if 'Depth' in i:
-         depth = int(i.split(':')[1].strip())
-   return rr, depth
-
-
-def sm_wayland():
-   return sm_x11()  # Only works on XWayland
-
-
-def sm_windows():
-   try:
-      import win32api
-   except ModuleNotFoundError:
-      print('Warning: Windows requirement "pywin32" not found. Using default screen parameters.')
-      return 60.0, 16
-   settings = win32api.EnumDisplaySettings(win32api.EnumDisplayDevices().DeviceName, -1)
-   return float(getattr(settings, 'DisplayFrequency')), int(getattr(settings, 'BitsPerPel'))
-
-
-def sm_darwin():
-   as3state.initerror.append('Platform/Darwin: Fetching screen properties is not implemented.')
-   return 60.0, 16  # Placeholder
-
-
-def setScreenProperties(func):
-   try:
-      temp = func()
-   except:
-      temp = (60.0, 16)
-   as3state.refreshrate, as3state.colordepth = temp
-
-
 # Initialise as3lib
 if as3state.startTime is None:
    from miniamf import util
@@ -104,26 +56,15 @@ if not as3state.initdone:
 
    if as3state.platform == 'Linux':
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
-      if as3state.displayserver == 'x11':
-         setScreenProperties(sm_x11)
-      elif as3state.displayserver == 'wayland':
-         setScreenProperties(sm_wayland)
-      else:
+      if as3state.displayserver not in {'x11', 'wayland'}:
          as3state.initerror.append(f'Platform/Linux: Session type "{as3state.displayserver}" not supported.')
-   elif as3state.platform == 'Windows':
-      setScreenProperties(sm_windows)
+   elif as3state.platform == 'Windows':...
    elif as3state.platform == 'Darwin':
       as3state.initerror.append('Platform/Darwin: This library is untested on the current platform and is missing some features.')
-      setScreenProperties(sm_darwin)
    elif as3state.platform == '':
       as3state.initerror.append('Could not determine current platform.')
    else:
       as3state.initerror.append(f'Platform/{as3state.platform}: Not supported')
-
-   # Ensure that at least something is loaded if values fail to load
-   # This is a fix for the case where platform is not valid AND the display config values are missing
-   if None in {as3state.refreshrate, as3state.colordepth}:
-      setScreenProperties(None)
 
    # Load the config
    config.Load()
@@ -202,11 +143,11 @@ as3state.nativeApplication = NativeApplication()
 
 # Library state setting functions
 def EnableDebug():
-   as3state.as3DebugEnable = True
+   as3state.as3DebugEnable = true
 
 
 def DisableDebug():
-   as3state.as3DebugEnable = False
+   as3state.as3DebugEnable = false
 
 
 def setDataDirectory(dir_: str):

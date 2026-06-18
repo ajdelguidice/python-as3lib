@@ -24,13 +24,6 @@ Windows specific<br>
 > PyLaucher
 > <br> <a href="https://pypi.org/project/pywin32/">pywin32</a>
 
-Unix specific<br>
-> a posix compatible shell
-> <br> grep
-> <br> which
-> <br> xwininfo
-> <br> xrandr
-
 This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, datetime, os, pwd (unix), pathlib, configparser, webbrowser, typing, tomllib
 
 ## Config Files

@@ -82,14 +82,7 @@ def _dependencyCheck():
    from importlib.util import find_spec
    from subprocess import check_output
    hasDeps = True
-   if as3state.platform == 'Linux':
-      # Running on Wayland is done through XWayland so these are needed there too
-      if check_output(('which', 'xwininfo')).decode('utf-8').startswith('which: no'):
-         as3state.initerror.append('Dependencies/Linux: "xwininfo" not found')
-         hasDeps = False
-      if check_output(('which', 'xrandr')).decode('utf-8').startswith('which: no'):
-         as3state.initerror.append('Dependencies/Linux: "xrandr" not found')
-         hasDeps = False
+   if as3state.platform == 'Linux':...
    elif as3state.platform == 'Windows':
       if find_spec('win32api') is None:
          as3state.initerror.append('Dependencies/Python: "pywin32" not found')
@@ -138,10 +131,6 @@ def Load():
             'TraceOutputFileName': str(tempmm.get('TraceOutputFileName', '')),
             'ClearLogsOnStartup': bool(tempmm.get('ClearLogsOnStartup', True)),
             'NoClearWarningNumber': int(tempmm.get('NoClearWarningNumber', 0))
-         },
-         'display': {
-            'refreshrate': float(tempdis.get('refreshrate', 0)),
-            'colordepth': int(tempdis.get('colordepth', 0))
          }
       }
    else:
@@ -158,10 +147,6 @@ def Load():
             'TraceOutputFileName': '',
             'ClearLogsOnStartup': True,
             'NoClearWarningNumber': 0
-         },
-         'display': {
-            'refreshrate': 0,
-            'colordepth': 0
          }
       }
       modified = True
@@ -197,15 +182,7 @@ def Load():
          }
          del mmcfg
       if wlcfgpath.exists():
-         wlcfg = ConfigParser()
-         with open(wlcfgpath, 'r') as f:
-            wlcfg.read_file(f)
-         cfg['display'] = {
-            'refreshrate': wlcfg.getfloat('Screen', 'refreshrate', fallback=0),
-            'colordepth': wlcfg.getint('Screen', 'colordepth', fallback=0)
-         }
          wlcfgpath.unlink(missing_ok=True)
-         del wlcfg
       if oldcfgpath.exists():
          oldcfg = ConfigParser()
          with open(oldcfgpath, 'r') as f:
@@ -223,10 +200,6 @@ def Load():
                'TraceOutputFileName': oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback=''),
                'ClearLogsOnStartup': oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1,
                'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
-            },
-            'display': {
-               'refreshrate': oldcfg.getfloat('wayland', 'refreshrate', fallback=0),
-               'colordepth': oldcfg.getint('wayland', 'colordepth', fallback=0)
             }
          }
          oldcfgpath.unlink(missing_ok=True)
@@ -248,11 +221,6 @@ def Load():
       print('as3lib: Using defualt TraceOutputFileName')
       tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
    as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
-   tmpd = cfg['display']
-   if tmpd['refreshrate']:
-      as3state.refreshrate = tmpd['refreshrate']
-   if tmpd['colordepth']:
-      as3state.colordepth = tmpd['colordepth']
    Save(modified)
 
 
@@ -270,10 +238,6 @@ def Save(saveAnyways: bool = False):
          'TraceOutputFileName': as3state.TraceOutputFileName,
          'ClearLogsOnStartup': as3state.ClearLogsOnStartup,
          'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
-      },
-      'display': {
-         'refreshrate': as3state.refreshrate,
-         'colordepth': as3state.colordepth
       }
    }
    if saveAnyways or as3state._cfg != tempcfg:
