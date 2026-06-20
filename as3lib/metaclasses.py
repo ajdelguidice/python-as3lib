@@ -41,7 +41,7 @@ class _AS3_CONSTANTSOBJECT(type):
       return cls.toString()
 
    def toString(cls):
-      return f'{cls.__name__}({", ".join(f"{k}={v}" for k,v in cls.__dict__.items() if not k.startswith("__"))})'
+      return f'{cls.__name__}({", ".join(f"{k}={v}" for k, v in cls.__dict__.items() if not k.startswith("__"))})'
 
    def valueOf(cls):
       return cls

@@ -85,7 +85,8 @@ class Darwin:
       if event.num == 3:
          return 'Middle'
 
-   def tkeventToJavascriptKeycode(event):...
+   def tkeventToJavascriptKeycode(event):
+      ...
 
 
 if as3state.platform == 'Linux':

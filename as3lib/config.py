@@ -80,14 +80,15 @@ class TOML:
 
 def _dependencyCheck():
    from importlib.util import find_spec
-   from subprocess import check_output
    hasDeps = True
-   if as3state.platform == 'Linux':...
+   if as3state.platform == 'Linux':
+      ...
    elif as3state.platform == 'Windows':
       if find_spec('win32api') is None:
          as3state.initerror.append('Dependencies/Python: "pywin32" not found')
          hasDeps = False
-   elif as3state.platform == 'Darwin':...
+   elif as3state.platform == 'Darwin':
+      ...
    if find_spec('numpy') is None:  # https://pypi.org/project/numpy
       as3state.initerror.append('Dependencies/Python: "numpy" not found')
       hasDeps = False
@@ -117,7 +118,6 @@ def Load():
          temp = tomllib.load(f)
       as3state._cfg = temp
       tempmm = temp.get('mm.cfg', {})
-      tempdis = temp.get('display', {})
       cfg = {
          'version': int(temp.get('version', __version__)),
          'migrateOldConfig': bool(temp.get('migrateOldConfig', False)),
@@ -155,7 +155,7 @@ def Load():
       import configparser
       try:
          UNNAMED_SECTION = configparser.UNNAMED_SECTION
-      except:  # Python < 3.13 compatibility
+      except Exception:  # Python < 3.13 compatibility
          no_unnamed_section = True
          UNNAMED_SECTION = 'UNNAMED_SECTION'
       ConfigParser = configparser.ConfigParser

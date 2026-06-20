@@ -42,6 +42,7 @@ class textObject(StringIO):
    def get(self):
       return self.getvalue()
 
+
 #-----------------------------------------------------------------------------
 # https://www.py4u.org/blog/python-static-class-property-set-get/
 class staticproperty:
