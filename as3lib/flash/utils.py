@@ -10,345 +10,347 @@ from threading import Timer as timedExec
 
 
 def _INTERVAL_ID_GEN():
-   i = 0
-   while True:
-      yield i
-      i += 1
+    i = 0
+    while True:
+        yield i
+        i += 1
 
 
 _NEW_INTERVAL_ID = _INTERVAL_ID_GEN()
 
 
 def clearInterval(id):
-   as3state.intervals[id].stop()
+    as3state.intervals[id].stop()
 
 
 def clearTimeout(id):
-   as3state.intervals[id].stop()
+    as3state.intervals[id].stop()
 
 
 def describeType(value):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
 def escapeMultiByte(value):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
 def getDefinitionByName(name):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
 def getQualifiedClassName(value):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
 def getQualifiedSuperclassName(value):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
 def getTimer():
-   return int(util.utcnow().timestamp()) * 1000 - as3state.startTime
+    return int(util.utcnow().timestamp()) * 1000 - as3state.startTime
 
 
 class _INTERVAL_TIMER:
-   def __init__(self, delay, function, args, id):
-      self.delay = delay/1000
-      self.func = function
-      self.func_args = args
-      self.id = id
-      as3state.intervals[id] = self
-      self.start()
+    def __init__(self, delay, function, args, id):
+        self.delay = delay/1000
+        self.func = function
+        self.func_args = args
+        self.id = id
+        as3state.intervals[id] = self
+        self.start()
 
-   def _tick(self):
-      del self._timer
-      self.start()
-      self.func(*self.func_args)
+    def _tick(self):
+        del self._timer
+        self.start()
+        self.func(*self.func_args)
 
-   def start(self):
-      self._timer = timedExec(self.delay, self._tick)
-      self._timer.start()
+    def start(self):
+        self._timer = timedExec(self.delay, self._tick)
+        self._timer.start()
 
-   def stop(self):
-      self._timer.cancel()
-      del as3state.intervals[self.id]
+    def stop(self):
+        self._timer.cancel()
+        del as3state.intervals[self.id]
       
 
 def setInterval(closure: callable, delay, *arguements):
-   # Can't use the python id here because it can be over the limit of a uint
-   id = next(_NEW_INTERVAL_ID)
-   _INTERVAL_TIMER(uint(delay), closure, arguements, id)
-   return id
+    # Can't use the python id here because it can be over the limit of a uint
+    id = next(_NEW_INTERVAL_ID)
+    _INTERVAL_TIMER(uint(delay), closure, arguements, id)
+    return id
 
 
 class _TIMEOUT_TIMER(_INTERVAL_TIMER):
-   def _tick(self):
-      self.func(*self.func_args)
-      del as3state.intervals[self.id]
+    def _tick(self):
+        self.func(*self.func_args)
+        del as3state.intervals[self.id]
 
 
 def setTimeout(closure: callable, delay, *arguements):
-   id = next(_NEW_INTERVAL_ID)
-   _TIMEOUT_TIMER(uint(delay), closure, arguements, id)
-   return id
+    id = next(_NEW_INTERVAL_ID)
+    _TIMEOUT_TIMER(uint(delay), closure, arguements, id)
+    return id
 
 
 def unescapeMultiByte(value):
-   raise NotImplementedError
+    raise NotImplementedError
 
 
-class IDataInput:...
+class IDataInput:
+    ...
 
 
-class IDataOutput:...
+class IDataOutput:
+    ...
 
 
 class ByteArray(_ByteArray):
-   defaultObjectEncoding = 3  # This can be set globally
+    defaultObjectEncoding = 3  # This can be set globally
 
-   @property
-   def bytesAvailable(self):
-      return self.remaining()
+    @property
+    def bytesAvailable(self):
+        return self.remaining()
 
-   @property
-   def endian(self):
-      return super().endian
+    @property
+    def endian(self):
+        return super().endian
 
-   @endian.setter
-   def endian(self, endian):
-      super().endian = endian
+    @endian.setter
+    def endian(self, endian):
+        super().endian = endian
 
-   @property
-   def length(self):
-      return len(self)
+    @property
+    def length(self):
+        return len(self)
 
-   @length.setter
-   def length(self, value: int):
-      raise NotImplementedError
+    @length.setter
+    def length(self, value: int):
+        raise NotImplementedError
 
-   @property
-   def position(self):
-      return self.tell()
+    @property
+    def position(self):
+        return self.tell()
 
-   @position.setter
-   def position(self, value):
-      self.seek(value)
+    @position.setter
+    def position(self, value):
+        self.seek(value)
 
-   @property
-   def shareable(self):
-      return self.__sharable
+    @property
+    def shareable(self):
+        return self.__sharable
 
-   @shareable.setter
-   def shareable(self, value: bool):
-      self.__sharable = value
+    @shareable.setter
+    def shareable(self, value: bool):
+        self.__sharable = value
 
-   def __init__(self, data=None):
-      super().__init__(data)
-      self.objectEncoding = ByteArray.defaultObjectEncoding  # This currently does nothing
+    def __init__(self, data=None):
+        super().__init__(data)
+        self.objectEncoding = ByteArray.defaultObjectEncoding  # This currently does nothing
 
-   def __repr__(self):
-      return f'ByteArray({self.getvalue()})'
+    def __repr__(self):
+        return f'ByteArray({self.getvalue()})'
 
-   def atomicCompareAndSwapIntAt(self, byteIndex: int, expectedValue: int, newValue: int):
-      if byteIndex % 4 != 0 or byteIndex < 0:
-         raise ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
-      raise NotImplementedError
+    def atomicCompareAndSwapIntAt(self, byteIndex: int, expectedValue: int, newValue: int):
+        if byteIndex % 4 != 0 or byteIndex < 0:
+            raise ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
+        raise NotImplementedError
 
-   def atomicCompareAndSwapLength(self, expectedLength: int, newLength: int):
-      '''
-      In a single atomic operation, compares this byte array's length with a provided value and, if they match, changes the length of this byte array.
+    def atomicCompareAndSwapLength(self, expectedLength: int, newLength: int):
+        '''
+        In a single atomic operation, compares this byte array's length with a provided value and, if they match, changes the length of this byte array.
 
-      This method is intended to be used with a byte array whose underlying memory is shared between multiple workers (the ByteArray instance's shareable property is true). It does the following:
+        This method is intended to be used with a byte array whose underlying memory is shared between multiple workers (the ByteArray instance's shareable property is true). It does the following:
 
-         1) Reads the integer length property of the ByteArray instance
-         2) Compares the length to the value passed in the expectedLength argument
-         3) If the two values are equal, it changes the byte array's length to the value passed as the newLength parameter, either growing or shrinking the size of the byte array
-         4) Otherwise, the byte array is not changed
+            1) Reads the integer length property of the ByteArray instance
+            2) Compares the length to the value passed in the expectedLength argument
+            3) If the two values are equal, it changes the byte array's length to the value passed as the newLength parameter, either growing or shrinking the size of the byte array
+            4) Otherwise, the byte array is not changed
 
-      All these steps are performed in one atomic hardware transaction. This guarantees that no operations from other workers make changes to the contents of the byte array during the compare-and-resize operation.
+        All these steps are performed in one atomic hardware transaction. This guarantees that no operations from other workers make changes to the contents of the byte array during the compare-and-resize operation.
 
-      Parameters
-         expectedLength:int — the expected value of the ByteArray's length property. If the specified value and the actual value match, the byte array's length is changed.
-         newLength:int — the new length value for the byte array if the comparison succeeds
-      Returns
-         int — the previous length value of the ByteArray, regardless of whether or not it changed
-      '''
-      oldlen = self.length
-      if self.length == expectedLength:
-         self.length = newLength
-      return oldlen
+        Parameters
+            expectedLength:int — the expected value of the ByteArray's length property. If the specified value and the actual value match, the byte array's length is changed.
+            newLength:int — the new length value for the byte array if the comparison succeeds
+        Returns
+            int — the previous length value of the ByteArray, regardless of whether or not it changed
+        '''
+        oldlen = self.length
+        if self.length == expectedLength:
+            self.length = newLength
+        return oldlen
 
-   def clear(self):
-      'Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance.'
-      self.truncate(0)
+    def clear(self):
+        'Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance.'
+        self.truncate(0)
 
-   def compress(self, algorithm: str):
-      if algorithm != 'zlib':
-         raise NotImplementedError('The underlying stream currently only supports zlib compression.')
-      self.compressed = True
+    def compress(self, algorithm: str):
+        if algorithm != 'zlib':
+            raise NotImplementedError('The underlying stream currently only supports zlib compression.')
+        self.compressed = True
 
-   def deflate():
-      raise NotImplementedError
+    def deflate():
+        raise NotImplementedError
 
-   def inflate():
-      raise NotImplementedError
+    def inflate():
+        raise NotImplementedError
 
-   def readBytes(self, bytes: ByteArray, offset=0, length=0):
-      bytes.seek(offset)
-      bytes.write(self.read(length))
+    def readBytes(self, bytes: ByteArray, offset=0, length=0):
+        bytes.seek(offset)
+        bytes.write(self.read(length))
 
-   def toJSON(self, k: str):
-      '''
-      Provides an overridable method for customizing the JSON encoding of values in an ByteArray object.
+    def toJSON(self, k: str):
+        '''
+        Provides an overridable method for customizing the JSON encoding of values in an ByteArray object.
 
-      The JSON.stringify() method looks for a toJSON() method on each object that it traverses. If the toJSON() method is found, JSON.stringify() calls it for each value it encounters, passing in the key that is paired with the value.
+        The JSON.stringify() method looks for a toJSON() method on each object that it traverses. If the toJSON() method is found, JSON.stringify() calls it for each value it encounters, passing in the key that is paired with the value.
 
-      ByteArray provides a default implementation of toJSON() that simply returns the name of the class. Because the content of any ByteArray requires interpretation, clients that wish to export ByteArray objects to JSON must provide their own implementation. You can do so by redefining the toJSON() method on the class prototype.
+        ByteArray provides a default implementation of toJSON() that simply returns the name of the class. Because the content of any ByteArray requires interpretation, clients that wish to export ByteArray objects to JSON must provide their own implementation. You can do so by redefining the toJSON() method on the class prototype.
 
-      The toJSON() method can return a value of any type. If it returns an object, stringify() recurses into that object. If toJSON() returns a string, stringify() does not recurse and continues its traversal.
+        The toJSON() method can return a value of any type. If it returns an object, stringify() recurses into that object. If toJSON() returns a string, stringify() does not recurse and continues its traversal.
 
-      Parameters
-         k:String — The key of a key/value pair that JSON.stringify() has encountered in its traversal of this object
+        Parameters
+            k:String — The key of a key/value pair that JSON.stringify() has encountered in its traversal of this object
 
-      Returns
-         * — The class name string.
-      '''
-      return 'ByteArray'
+        Returns
+            * — The class name string.
+        '''
+        return 'ByteArray'
 
-   def toString(self):
-      raise NotImplementedError
+    def toString(self):
+        raise NotImplementedError
 
-   def uncompress(self, algorithm: str):
-      if algorithm != 'zlib':
-         raise NotImplementedError('The underlying stream currently only supports zlib compression.')
-      self.compressed = False
+    def uncompress(self, algorithm: str):
+        if algorithm != 'zlib':
+            raise NotImplementedError('The underlying stream currently only supports zlib compression.')
+        self.compressed = False
 
-   def writeBytes(self, bytes: ByteArray, offset=0, length=0):
-      startpos = bytes.tell()
-      bytes.seek(offset)
-      self.write(bytes.read(length))
-      bytes.seek(startpos)  # !I don't know if it is supposed to do this
+    def writeBytes(self, bytes: ByteArray, offset=0, length=0):
+        startpos = bytes.tell()
+        bytes.seek(offset)
+        self.write(bytes.read(length))
+        bytes.seek(startpos)  # !I don't know if it is supposed to do this
 
 
 class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-   DEFLATE = 'deflate'
-   LZMA = 'lzma'
-   ZLIB = 'zlib'
+    DEFLATE = 'deflate'
+    LZMA = 'lzma'
+    ZLIB = 'zlib'
 
 
 class Dictionary(Object):
-   # TODO: weak keys
-   def __init__(self, weakKeys: Boolean = False):
-      if weakKeys:
-         raise NotImplementedError
-      self._useWeakKeys = weakKeys
-      self._dict = {}
-      # The weak keys must be in a separate dict because string keys are never
-      # weak.
-      self._weakDict = None  # TODO
+    # TODO: weak keys
+    def __init__(self, weakKeys: Boolean = False):
+        if weakKeys:
+            raise NotImplementedError
+        self._useWeakKeys = weakKeys
+        self._dict = {}
+        # The weak keys must be in a separate dict because string keys are never
+        # weak.
+        self._weakDict = None  # TODO
 
-   def _canCoerce(self, obj):
-      if isinstance(obj, (int, uint, Number, Boolean, str, bool, builtins.int, float)) or obj is undefined or obj is null:
-         return True
-      return False
+    def _canCoerce(self, obj):
+        if isinstance(obj, (int, uint, Number, Boolean, str, bool, builtins.int, float)) or obj is undefined or obj is null:
+            return True
+        return False
 
-   def _getKey(self, item):
-      if self._canCoerce(item):
-         return str(item)
-      return item
+    def _getKey(self, item):
+        if self._canCoerce(item):
+            return str(item)
+        return item
 
-   def __getitem__(self, item):
-      return self._dict.get(self._getKey(item))
+    def __getitem__(self, item):
+        return self._dict.get(self._getKey(item))
 
-   def __setitem__(self, item, value):
-      self._dict[self._getKey(item)] = value
+    def __setitem__(self, item, value):
+        self._dict[self._getKey(item)] = value
 
-   def __delitem__(self, item):
-      del self._dict[self._getKey(item)]
+    def __delitem__(self, item):
+        del self._dict[self._getKey(item)]
 
-   def __contains__(self, item):
-      return self._getKey(item) in self._dict
+    def __contains__(self, item):
+        return self._getKey(item) in self._dict
 
-   def __iter__(self):
-      return iter(list(self._dict.keys()))
+    def __iter__(self):
+        return iter(list(self._dict.keys()))
 
-   def __each__(self):
-      return self._dict.values()
+    def __each__(self):
+        return self._dict.values()
 
-   def toJSON(self, k: str):
-      return 'Dictionary'
+    def toJSON(self, k: str):
+        return 'Dictionary'
 
 
 class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-   BIG_ENDIAN = 'bigEndian'
-   LITTLE_ENDIAN = 'littleEndian'
+    BIG_ENDIAN = 'bigEndian'
+    LITTLE_ENDIAN = 'littleEndian'
 
 
 class Timer(EventDispatcher):
-   @property
-   def currentCount(self):
-      return self._currentCount
+    @property
+    def currentCount(self):
+        return self._currentCount
 
-   @property
-   def delay(self):
-      return self._delay
+    @property
+    def delay(self):
+        return self._delay
 
-   @delay.setter
-   def delay(self, number_ms: Number):
-      if self.running:
-         self.stop()
-         self._delay = number_ms
-         self.start()
-      else:
-         self._delay = number_ms
+    @delay.setter
+    def delay(self, number_ms: Number):
+        if self.running:
+            self.stop()
+            self._delay = number_ms
+            self.start()
+        else:
+            self._delay = number_ms
 
-   @property
-   def repeatCount(self):
-      return self._repeatCount
+    @property
+    def repeatCount(self):
+        return self._repeatCount
 
-   @repeatCount.setter
-   def repeatCount(self, number: Int):
-      # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
-      if number <= self._currentCount:
-         self.stop()
-      self._repeatCount = number
+    @repeatCount.setter
+    def repeatCount(self, number: Int):
+        # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
+        if number <= self._currentCount:
+            self.stop()
+        self._repeatCount = number
 
-   @property
-   def running(self):
-      return self._running
+    @property
+    def running(self):
+        return self._running
 
-   def _TimerTick(self):
-      self._currentCount += 1
-      if self.currentCount >= self.repeatCount and self.repeatCount != 0:
-         self.dispatchEvent(TimerEvent('timer'))
-         self.dispatchEvent(TimerEvent('timerComplete'))
-      else:
-         del self._timer
-         self._timer = timedExec(self.delay/1000, self._TimerTick)
-         self._timer.start()
-         self.dispatchEvent(TimerEvent('timer'))
+    def _TimerTick(self):
+        self._currentCount += 1
+        if self.currentCount >= self.repeatCount and self.repeatCount != 0:
+            self.dispatchEvent(TimerEvent('timer'))
+            self.dispatchEvent(TimerEvent('timerComplete'))
+        else:
+            del self._timer
+            self._timer = timedExec(self.delay/1000, self._TimerTick)
+            self._timer.start()
+            self.dispatchEvent(TimerEvent('timer'))
 
-   def __init__(self, delay: Number, repeatCount: Int = 0):
-      super().__init__()
-      self._currentCount = 0
-      if delay < 0:
-         raise Error()
-      self._delay = delay
-      self._repeatCount = repeatCount
-      self._running = False
+    def __init__(self, delay: Number, repeatCount: Int = 0):
+        super().__init__()
+        self._currentCount = 0
+        if delay < 0:
+            raise Error()
+        self._delay = delay
+        self._repeatCount = repeatCount
+        self._running = False
 
-   def reset(self):
-      self.stop()
-      self._currentCount = 0
+    def reset(self):
+        self.stop()
+        self._currentCount = 0
 
-   def start(self):
-      if not self.running and (self.currentCount < self.repeatCount or self.repeatCount == 0):
-         self._timer = timedExec(self.delay/1000, self._TimerTick)
-         self._running = True
-         self._timer.start()
+    def start(self):
+        if not self.running and (self.currentCount < self.repeatCount or self.repeatCount == 0):
+            self._timer = timedExec(self.delay/1000, self._TimerTick)
+            self._running = True
+            self._timer.start()
 
-   def stop(self):
-      if self.running:
-         self._timer.cancel()
-         del self._timer
-         self._running = False
+    def stop(self):
+        if self.running:
+            self._timer.cancel()
+            del self._timer
+            self._running = False
