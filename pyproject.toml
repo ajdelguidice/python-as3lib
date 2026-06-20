@@ -42,9 +42,13 @@ version = {attr = "as3lib.as3state.__version__"}
 
 [tool.tox]
 requires = ["tox"]
-env_list = ["py313", "py310"]
+env_list = ["py3", "py313", "py310"]
 
 [tool.tox.env_run_base]
 runner = "uv-venv-runner"
-deps = ["flake8", "tomli"]
-commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles,as3lib/flash","--indent-size","3","--ignore","E501,E226"], ["python","-m","unittest","discover","as3lib/tests"]]
+deps = ["tomli"]
+commands = [["python","-m","unittest","discover","as3lib/tests"]]
+
+[tool.tox.env.py3]
+deps = ["flake8"]
+commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles","--indent-size","3","--ignore","E501,E226"]]
