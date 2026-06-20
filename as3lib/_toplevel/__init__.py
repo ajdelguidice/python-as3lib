@@ -10,7 +10,7 @@ import re as regex
 import traceback
 from warnings import warn
 
-from as3lib._toplevel.trace import errorTrace, trace
+from as3lib._toplevel.trace import errorTrace
 
 
 # Internal Constants
@@ -44,6 +44,8 @@ def _exponentFixNum(value):  # Number
 
 
 _base_digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+
+
 def _as_base(num, radix):  # int
    if num == 0:
       return '0'
@@ -290,7 +292,7 @@ class Object:
       #if hasattr(thisValue, '_is_nan') and thisValue._is_nan() or hasattr(thisValue, 'hex') and thisValue.hex() == 'nan' or isinstance(value, (str, String)):
       #   return self.toString().concat(value)
       #return Number(thisValue + valueNum)
-      return String(self.toString()) + value
+      return self.toString().concat(value)
 
    def __sub__(self, value):
       return Number(_as3lib_GetNumValueFromObject(self) - _as3lib_GetNumValueFromObject(value))
@@ -1656,7 +1658,7 @@ class String(str, Object):
    def replace(self, pattern, repl):
       raise NotImplementedError
 
-   def search(self, pattern = undefined):
+   def search(self, pattern: Object = undefined):
       if pattern is undefined or pattern is null:
          return -1
       raise NotImplementedError
@@ -1717,16 +1719,16 @@ class String(str, Object):
       return self[startIndex:endIndex]
 
    def toLocaleLowerCase(self):
-      return self.lower()
+      return String(self.lower())
 
    def toLocaleUpperCase(self):
-      return self.upper()
+      return String(self.upper())
 
    def toLowerCase(self):
-      return self.lower()
+      return String(self.lower())
 
    def toUpperCase(self):
-      return self.upper()
+      return String(self.upper())
 
    def toString(self):
       return self
@@ -2462,19 +2464,17 @@ class XML(Object):
       self._namespace = ns
 
    @staticmethod
-   def setSettings(rest = null):
-      if rest is null:
-         rest = XML.defaultSettings()
+   def setSettings(**rest):
       if 'ignoreComments' in rest:
-         XML.ignoreComments = rest.ignoreComments
+         XML.ignoreComments = rest['ignoreComments']
       if 'ignoreProcessingInstructions' in rest:
-         XML.ignoreProcessingInstructions = rest.ignoreProcessingInstructions
+         XML.ignoreProcessingInstructions = rest['ignoreProcessingInstructions']
       if 'ignoreWhitespace' in rest:
-         XML.ignoreWhitespace = rest.ignoreWhitespace
+         XML.ignoreWhitespace = rest['ignoreWhitespace']
       if 'prettyIndent' in rest:
-         XML.prettyIndent = rest.prettyIndent
+         XML.prettyIndent = rest['prettyIndent']
       if 'prettyPrinting' in rest:
-         XML.prettyPrinting = rest.prettyPrinting
+         XML.prettyPrinting = rest['prettyPrinting']
 
    @staticmethod
    def settings():
@@ -2654,11 +2654,11 @@ def each(iterable):
 def stricteq(obj1, obj2):
    if isinstance(obj1, Number) and obj1._is_nan() and isinstance(obj2, Number) and obj2._is_nan():
       return true
-   return Boolean(type(obj1) == type(obj2) and obj1 == obj2)
+   return Boolean(type(obj1) is type(obj2) and obj1 == obj2)
 
 
 def strictne(obj1, obj2):
-   return Boolean(type(obj1) != type(obj2) or obj1 != obj2)
+   return Boolean(type(obj1) is not type(obj2) or obj1 != obj2)
 
 
 # Helpers
