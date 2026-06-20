@@ -1,6 +1,7 @@
 from as3lib import (as3state, ArgumentError, Array, false, int, metaclasses,
                     null, true)
 from as3lib.flash.events import EventDispatcher, InvokeEvent
+from as3lib.helpers import staticproperty
 import tkinter
 
 
@@ -81,8 +82,8 @@ class NativeApplication(EventDispatcher):
     def menu(self, value):
         raise NotImplementedError
 
-    @property
-    def nativeApplication(self=None):  # TODO: Make static
+    @staticproperty
+    def nativeApplication(cls):
         return as3state.nativeApplication
 
     @property
