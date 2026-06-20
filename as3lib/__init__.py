@@ -6,7 +6,6 @@ from functools import partial
 from miniamf import add_type
 from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
 from pathlib import Path
-from subprocess import check_output
 
 
 # Helper functions
@@ -58,7 +57,8 @@ if not as3state.initdone:
       as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
       if as3state.displayserver not in {'x11', 'wayland'}:
          as3state.initerror.append(f'Platform/Linux: Session type "{as3state.displayserver}" not supported.')
-   elif as3state.platform == 'Windows':...
+   elif as3state.platform == 'Windows':
+      ...
    elif as3state.platform == 'Darwin':
       as3state.initerror.append('Platform/Darwin: This library is untested on the current platform and is missing some features.')
    elif as3state.platform == '':
@@ -143,11 +143,11 @@ as3state.nativeApplication = NativeApplication()
 
 # Library state setting functions
 def EnableDebug():
-   as3state.as3DebugEnable = true
+   as3state.as3DebugEnable = True
 
 
 def DisableDebug():
-   as3state.as3DebugEnable = false
+   as3state.as3DebugEnable = False
 
 
 def setDataDirectory(dir_: str):
