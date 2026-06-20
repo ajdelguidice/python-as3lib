@@ -2,9 +2,10 @@ from __future__ import annotations
 import as3lib as as3
 from as3lib import (Array, ArgumentError, as3state, Boolean, false,
                     metaclasses, null, Object, String, true)
+import as3lib.keyConversions as keyConv
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
-from as3lib.flash.events import Event, EventDispatcher
+from as3lib.flash.events import Event, EventDispatcher, KeyboardEvent
 from as3lib.flash.geom import Point, Rectangle, Vector3D
 import tkinter
 
@@ -401,6 +402,19 @@ class InteractiveObject(DisplayObject):
    @tabIndex.setter
    def tabIndex(self, value):
       self._tabIndex = value
+
+   def _TOOLKITKEYDOWNEVENTHANDLER(self, event):
+      # TODO: Bind function to toolkit key_down event
+      # TODO: Convert toolkit key_down event into flash key_down event
+      # TODO: Fill in the placeholder values
+      # NOTE: cancelable in AIR but not in flash player
+      self.dispatchEvent(KeyboardEvent('keyDown', true, true, 'charCode', 'keyCode', 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
+
+   def _TOOLKITKEYUPEVENTHANDLER(self, event):
+      # TODO: Bind function to toolkit key_up event
+      # TODO: Convert toolkit key_up event into flash key_up event
+      # TODO: Fill in the placeholder values
+      self.dispatchEvent(KeyboardEvent('keyUp', true, false, 'charCode', 'keyCode', 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
 
    def __init__(self):
       super().__init__()
@@ -1371,14 +1385,10 @@ class Scene:...
 class SceneMode:...
 
 
-class Screen:...
+class Screen(EventDispatcher):...
 
 
-class ScreenMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-   colorDepth = as3state.colordepth
-   height = as3state.height
-   refreshRate = as3state.refreshrate
-   width = as3state.width
+class ScreenMode(Object):...
 
 
 class Shader:...
