@@ -1,8 +1,10 @@
-from as3lib import Array, as3state, metaclasses
+from as3lib import Array, Boolean, as3state, metaclasses, Object, String
+from as3lib.flash.events import EventDispatcher
+from as3lib.flash.net import FileReference
 from subprocess import CalledProcessError, check_output
 
 
-class File:
+class File(FileReference):
    # applicationDirectory
    # applicationStorageDirectory
    # cacheDirectory
@@ -28,10 +30,8 @@ class File:
       # TODO: detect url path
       # TODO: convert path to native path and url
       # TODO: Throw exception ArguementError if path is invalid
+      super().__init__()
       self._filepath = path
-
-   def __str__(self):
-      return self.toString()
 
    def browseForDirectory():
       raise NotImplementedError
@@ -142,10 +142,169 @@ class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
    WRITE = "write"
 
 
-class FileStream:...
+class FileStream(EventDispatcher):
+   @property
+   def bytesAvailable(self):
+      raise NotImplementedError
+
+   @property
+   def endian(self):
+      raise NotImplementedError
+
+   @endian.setter
+   def endian(self, value):
+      raise NotImplementedError
+
+   @property
+   def objectEncoding(self):
+      raise NotImplementedError
+
+   @objectEncoding.setter
+   def objectEncoding(self, value):
+      raise NotImplementedError
+
+   @property
+   def position(self):
+      raise NotImplementedError
+
+   @position.setter
+   def position(self, value):
+      raise NotImplementedError
+
+   @property
+   def readAhead(self):
+      raise NotImplementedError
+
+   @readAhead.setter
+   def readAhead(self, value):
+      raise NotImplementedError
+
+   def __init__(self):
+      raise NotImplementedError
+
+   def close(self):
+      raise NotImplementedError
+
+   def open(self, file, fileMode):
+      raise NotImplementedError
+
+   def openAsync(self, file, fileMode):
+      raise NotImplementedError
+
+   def readBoolean(self):
+      raise NotImplementedError
+
+   def readByte(self):
+      raise NotImplementedError
+
+   def readBytes(self, bytes, offset=0, length=0):
+      raise NotImplementedError
+
+   def readDouble(self):
+      raise NotImplementedError
+
+   def readFloat(self):
+      raise NotImplementedError
+
+   def readInt(self):
+      raise NotImplementedError
+
+   def readMultiByte(self, length, charSet):
+      raise NotImplementedError
+
+   def readObject(self):
+      raise NotImplementedError
+
+   def readShort(self):
+      raise NotImplementedError
+
+   def readUnsignedByte(self):
+      raise NotImplementedError
+
+   def readUnsignedInt(self):
+      raise NotImplementedError
+
+   def readUnsignedShort(self):
+      raise NotImplementedError
+
+   def readUTF(self):
+      raise NotImplementedError
+
+   def readUTFBytes(self, length):
+      raise NotImplementedError
+
+   def truncate(self):
+      raise NotImplementedError
+
+   def writeBoolean(self, value):
+      raise NotImplementedError
+
+   def writeByte(self, value):
+      raise NotImplementedError
+
+   def writeBytes(self, bytes, offset=0, length=0):
+      raise NotImplementedError
+
+   def writeDouble(self, value):
+      raise NotImplementedError
+
+   def writeFloat(self, value):
+      raise NotImplementedError
+
+   def writeInt(self, value):
+      raise NotImplementedError
+
+   def writeMultiByte(self, value, charSet):
+      raise NotImplementedError
+
+   def writeObject(self, object):
+      raise NotImplementedError
+
+   def writeShort(self, value):
+      raise NotImplementedError
+
+   def writeUnsignedInt(self, value):
+      raise NotImplementedError
+
+   def writeUTF(self, value):
+      raise NotImplementedError
+
+   def writeUTFBytes(self, value):
+      raise NotImplementedError
 
 
-class StorageVolume:...
+class StorageVolume(Object):
+   @property
+   def drive(self):
+      raise NotImplementedError
+
+   @property
+   def fileSystemType(self):
+      raise NotImplementedError
+
+   @property
+   def isRemoveable(self):
+      raise NotImplementedError
+
+   @property
+   def isWritable(self):
+      raise NotImplementedError
+
+   @property
+   def name(self):
+      raise NotImplementedError
+
+   @property
+   def rootDirectory(self):
+      raise NotImplementedError
+
+   def __init__(self, rootDirPath: File, name: String, writable: Boolean,
+                removeable: Boolean, fileSysType: String, drive: String):
+      raise NotImplementedError
 
 
-class StorageVolumeInfo:...
+class StorageVolumeInfo(EventDispatcher):
+   # isSupported
+   # storageVolumeInfo
+   def getStorageVolumes(self):
+      raise NotImplementedError
