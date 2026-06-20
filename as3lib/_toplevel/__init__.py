@@ -467,7 +467,7 @@ class Array(list, Object):
       for i in range(len(self)):
          callback(self[i], i, self)
 
-   def indexOf(self, searchElement, fromIndex: builtins.int | int = 0):
+   def indexOf(self, searchElement, fromIndex: int = 0):
       if fromIndex < 0:
          fromIndex = 0
       for i in range(fromIndex, len(self)):
@@ -475,12 +475,12 @@ class Array(list, Object):
             return i
       return -1
 
-   def insertAt(self, index: builtins.int | int, element):
+   def insertAt(self, index: int, element):
       self.insert(index, element)
 
    @staticmethod
-   def _join(o, sep=None):
-      if sep is None or sep is undefined:
+   def _join(o, sep=undefined):
+      if sep is undefined:
          s = ','
       elif hasattr(sep, 'toString'):
          s = sep.toString()
@@ -496,11 +496,11 @@ class Array(list, Object):
                out.write(s)
          return String(out.getvalue())
 
-   def join(self, sep: str = ','):
+   def join(self, sep: String = ','):
       return Array._join(self, sep)
 
-   def lastIndexOf(self, searchElement, fromIndex: builtins.int | int = None):
-      if fromIndex is None:
+   def lastIndexOf(self, searchElement, fromIndex: int = null):
+      if fromIndex is null:
          fromIndex = len(self)
       elif fromIndex < 0:
          raise RangeError(f'Array.lastIndexOf; fromIndex can not negative. got {fromIndex}')
@@ -528,7 +528,7 @@ class Array(list, Object):
    def shift(self):
       return super().pop(0)
 
-   def slice(self, startIndex: builtins.int | int = 0, endIndex: builtins.int | int = 99*10^99):
+   def slice(self, startIndex: int = 0, endIndex: int = 99*10^99):
       if startIndex < 0:
          startIndex = len(self)+startIndex
       if endIndex < 0:
@@ -1643,10 +1643,10 @@ class String(str, Object):
    def fromCharCode(*charCodes):
       raise NotImplementedError
 
-   def indexOf(self, val, startIndex: builtins.int | int = 0):
+   def indexOf(self, val, startIndex: int = 0):
       return self.find(String(val), startIndex)
 
-   def lastIndexOf(self, val, startIndex: builtins.int | int = 0x7fffffff):
+   def lastIndexOf(self, val, startIndex: int = 0x7fffffff):
       return self.rfind(String(val), startIndex)
 
    def localeCompare(self, other, *values):
