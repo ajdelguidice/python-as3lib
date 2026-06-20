@@ -4,94 +4,119 @@ from as3lib import Object
 from . import engine, ime
 
 
-class AntiAliasType:...
+class AntiAliasType:
+    ...
 
 
-class AutoCapitalize:...
+class AutoCapitalize:
+    ...
 
 
-class CSMSettings:...
+class CSMSettings:
+    ...
 
 
 class Font(Object):
-   def __init__(self):
-      # From the swf files that I've seen, flash seems to register the font without a manual call to registerFont. I'm unsure if it is done here.
-      Font.registerFont(self)
+    def __init__(self):
+        # From the swf files that I've seen, flash seems to register the font without a manual call to registerFont. I'm unsure if it is done here.
+        Font.registerFont(self)
 
-   @staticmethod
-   def enumerateFonts(enumerateDeviceFonts=False):...
+    @staticmethod
+    def enumerateFonts(enumerateDeviceFonts=False):
+        raise NotImplementedError
 
-   def hasGlyphs(self, str):...
+    def hasGlyphs(self, str):
+        raise NotImplementedError
 
-   @staticmethod
-   def registerFont(font):...
+    @staticmethod
+    def registerFont(font):
+        raise NotImplementedError
 
 
 class FontStyle(_AS3_CONSTANTSOBJECT):
-   BOLD = 'bold'
-   BOLD_ITALIC = 'boldItalic'
-   ITALIC = 'italic'
-   REGULAR = 'regular'
+    BOLD = 'bold'
+    BOLD_ITALIC = 'boldItalic'
+    ITALIC = 'italic'
+    REGULAR = 'regular'
 
 
 class FontType(_AS3_CONSTANTSOBJECT):
-   DEVICE = 'device'
-   EMBEDDED = 'embedded'
-   EMBEDDED_CFF = 'embeddedCFF'
+    DEVICE = 'device'
+    EMBEDDED = 'embedded'
+    EMBEDDED_CFF = 'embeddedCFF'
 
 
-class GridFitType:...
+class GridFitType:
+    ...
 
 
-class ReturnKeyLabel:...
+class ReturnKeyLabel:
+    ...
 
 
-class SoftKeyboardType:...
+class SoftKeyboardType:
+    ...
 
 
-class StageText:...
+class StageText:
+    ...
 
 
-class StageTextClearButtonMode:...
+class StageTextClearButtonMode:
+    ...
 
 
-class StageTextInitOptions:...
+class StageTextInitOptions:
+    ...
 
 
-class StaticText:...
+class StaticText:
+    ...
 
 
-class StyleSheet:...
+class StyleSheet:
+    ...
 
 
-class TextColorType:...
+class TextColorType:
+    ...
 
 
-class TextDisplayMode:...
+class TextDisplayMode:
+    ...
 
 
-class TextField:...
+class TextField:
+    ...
 
 
-class TextFieldAutoSize:...
+class TextFieldAutoSize:
+    ...
 
 
-class TextFieldType:...
+class TextFieldType:
+    ...
 
 
-class TextFormat:...
+class TextFormat:
+    ...
 
 
-class TextFormatAlign:...
+class TextFormatAlign:
+    ...
 
 
-class TextInteractionMode:...
+class TextInteractionMode:
+    ...
 
 
-class TextLineMetrics:...
+class TextLineMetrics:
+    ...
 
 
-class TextRenderer:...
+class TextRenderer:
+    ...
 
 
-class TextSnapshot:...
+class TextSnapshot:
+    ...
