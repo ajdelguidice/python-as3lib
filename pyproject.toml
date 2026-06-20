@@ -32,7 +32,7 @@ windows = ["pywin32"]
 Homepage = "https://github.com/ajdelguidice/python-as3lib"
 
 [tool.setuptools]
-packages = ["as3lib"]
+packages = ["as3lib", "as3lib._toplevel", "as3lib.cfail", "as3lib.com", "as3lib.fl", "as3lib.flash", "as3lib.flash.text", "as3lib.tests", "as3lib.tests.flash"]
 ext-modules = [
     {name = "as3lib.cmath", sources = ["sourcecode/cmath.c"]},
 ]
