@@ -1,12 +1,10 @@
 from __future__ import annotations
-import as3lib as as3
 from as3lib import (Array, ArgumentError, as3state, Boolean, false,
                     metaclasses, null, Object, String, true)
-import as3lib.keyConversions as keyConv
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher, KeyboardEvent
-from as3lib.flash.geom import Point, Rectangle, Vector3D
+from as3lib.flash.geom import Matrix, Point, Rectangle, Vector3D
 import tkinter
 
 
@@ -454,7 +452,8 @@ class DisplayObjectContainer(InteractiveObject):
     def tabChildren(self, value):
         if value != self._tabChilren:
             raise NotImplementedError
-            for i in self._children:...  # TODO: Set tabbing behavior
+            for i in self._children:
+                ...  # TODO: Set tabbing behavior
         self._tabChilren = value
 
     @property
@@ -560,10 +559,10 @@ class Sprite(DisplayObjectContainer):
         self._hitArea = None  # self is used as hit area if this is not set
         self._useHandCursor = True
 
-    def startDrag(self, lockCenter=False, bounds: Rectangle=None):
+    def startDrag(self, lockCenter=False, bounds: Rectangle = None):
         raise NotImplementedError
 
-    def startTouchDrag(self, touchPointID, lockCenter=False, bounds: Rectangle=None):
+    def startTouchDrag(self, touchPointID, lockCenter=False, bounds: Rectangle = None):
         raise NotImplementedError
 
     def stopDrag(self):
@@ -688,7 +687,7 @@ class Graphics(Object):
     def beginGradientFill(self, type, colors, alphas, ratios, matrix: Matrix = None, spreadMethod='pad', interpolationMethod='rgb', focalPointRatio=0):
         raise NotImplementedError
 
-    def beginShaderFill(self, shader: Shager, matrix: Matrix = None):
+    def beginShaderFill(self, shader: Shader, matrix: Matrix = None):
         raise NotImplementedError
 
     def clear(self):
@@ -730,7 +729,7 @@ class Graphics(Object):
     def lineGradientStyle(self, type, colors, alphas, ratios, matrix: Matrix = None, spreadMethod='pad', interpolationMethod='rgb', focalPointRatio=0):
         raise NotImplementedError
 
-    def lineShaderStyle(self, shader: Shager, matrix: Matrix = None):
+    def lineShaderStyle(self, shader: Shader, matrix: Matrix = None):
         raise NotImplementedError
 
     def lineStyle(self, thickness, color=0, alpha=1.0, pixelHinting=False, scaleMode='normal', caps=None, joints=None, miterLimit=3):
