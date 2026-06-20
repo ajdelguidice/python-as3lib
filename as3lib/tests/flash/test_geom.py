@@ -1,5 +1,6 @@
 from as3lib import (ArgumentError, false, Infinity, Math, NaN, null, Number,
-                    Object, RangeError, true, TypeError, undefined, Vector)
+                    Object, RangeError, true, String, TypeError, undefined,
+                    Vector)
 from as3lib.flash.display import Sprite, MovieClip
 from as3lib.flash.geom import (ColorTransform, Matrix, Matrix3D,
                                PerspectiveProjection, Point, Rectangle,
@@ -86,47 +87,46 @@ class ColorTransformTests(as3libTestCase):
       ct = ColorTransform(1,1,1,1,255,25,0,0)
       self.assertEqual(ct.toString(), "(redMultiplier=1, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=255, greenOffset=25, blueOffset=0, alphaOffset=0)")
 
-   """
-   trace("Bad concat");
-   var ct = new flash.geom.ColorTransform(1,1,1,1,255,255,255,255);
-   ct.concat();
-   trace(ct);
-   for(var x in flash.geom.ColorTransform.prototype)
-   {
-      trace(x);
-   }
-   trace("Large values");
-   var ct = new flash.geom.ColorTransform();
-   ct.redMultiplier = 8589934592;
-   trace(ct);
-   trace("Strange values");
-   ct.redMultiplier = "Test123";
-   ct.greenOffset = 1000;
-   trace(ct);
-   var ct = new flash.geom.ColorTransform();
-   var n = 36893488147419103000;
-   ct.rgb = n;
-   trace(ct);
+   def test_badConcat(self):
+      ct = ColorTransform(1, 1, 1, 1, 255, 255, 255, 255)
+      ct.concat()
+      self.assertColorTransform(ct, 1, 1, 1, 1, 255, 255, 255, 255)
+      """
+      for(var x in flash.geom.ColorTransform.prototype)
+      {
+         trace(x);
+      }
 
-   Bad concat
-   (redMultiplier=1, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=255, greenOffset=255, blueOffset=255, alphaOffset=255)
-   toString
-   concat
-   rgb
-   blueOffset
-   greenOffset
-   redOffset
-   alphaOffset
-   blueMultiplier
-   greenMultiplier
-   redMultiplier
-   alphaMultiplier
-   Large values
-   (redMultiplier=8589934592, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=0, greenOffset=0, blueOffset=0, alphaOffset=0)
-   Strange values
-   (redMultiplier=NaN, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=0, greenOffset=1000, blueOffset=0, alphaOffset=0)
-   (redMultiplier=0, greenMultiplier=0, blueMultiplier=0, alphaMultiplier=1, redOffset=0, greenOffset=0, blueOffset=0, alphaOffset=0)
-   """
+
+      toString
+      concat
+      rgb
+      blueOffset
+      greenOffset
+      redOffset
+      alphaOffset
+      blueMultiplier
+      greenMultiplier
+      redMultiplier
+      alphaMultiplier
+      """
+
+   def test_largeValues(self):
+      ct = ColorTransform()
+      ct.redMultiplier = 8589934592
+      self.assertColorTransform(ct, 8589934592, 1, 1, 1, 0, 0, 0, 0)
+
+   def test_strangeValues(self):
+      ct = ColorTransform()
+      ct.redMultiplier = String('Test123')
+      ct.greenOffset = 1000
+      self.assertNaN(ct.redMultiplier)
+      self.assertEqual(ct.greenOffset, 1000)
+
+      ct = ColorTransform()
+      n = Number(36893488147419103000)
+      ct.color = n
+      self.assertColorTransform(ct, 0, 0, 0, 1, 0, 0, 0, 0)
 
 
 class MatrixTests(as3libTestCase):
@@ -1641,7 +1641,7 @@ class TransformTests(as3libTestCase):
          self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
       def test3D(self):
-         sprite3D = Sprite()
+         sprite2D = Sprite()
 
          # sprite3D: set identity matrix3D
          mat3D = Matrix3D()
