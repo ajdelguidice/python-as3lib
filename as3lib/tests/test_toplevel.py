@@ -12,7 +12,7 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
 from as3lib.flash.errors import (EOFError, IllegalOperationError,
                                  InvalidSWFError, IOError, MemoryError,
                                  ScriptTimeoutError, StackOverflowError)
-from as3lib.flash.utils import setTimeout
+from as3lib.flash.utils import ByteArray, setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
 # TODO: Clear prototypes after every test
 
@@ -6282,6 +6282,9 @@ class VectorTests(as3libTestCase):
    def test_class(self):
       raise TestNotImplemented
 
+   def test_class_call(self):
+      raise TestNotImplemented
+
    def test_coercion(self):
       raise TestNotImplemented
 
@@ -6475,6 +6478,33 @@ class VectorTests(as3libTestCase):
    def test_filter(self):
       raise TestNotImplemented
 
+   def test_holes(self):
+      raise TestNotImplemented
+
+   def test_indexOf(self):
+      raise TestNotImplemented
+
+   def test_insertAt(self):
+      raise TestNotImplemented
+
+   def test_int_access(self):
+      raise TestNotImplemented
+
+   def test_int_delete(self):
+      raise TestNotImplemented
+
+   def test_join(self):
+      raise TestNotImplemented
+
+   def test_lastIndexOf(self):
+      raise TestNotImplemented
+
+   def test_legacy(self):
+      raise TestNotImplemented
+
+   def test_map(self):
+      raise TestNotImplemented
+
    def test_null_callback(self):
       # TODO: Make sure this is correct
       v = Vector.int()
@@ -6484,6 +6514,42 @@ class VectorTests(as3libTestCase):
       self.assertEqual(v.forEach(null), undefined)
       self.assertEqual(v.map(null), 0)
       self.assertFalse(v.some(null))
+
+   def test_object_final(self):
+      raise TestNotImplemented
+
+   def test_object_toString(self):
+      raise TestNotImplemented
+
+   def test_pushpop(self):
+      raise TestNotImplemented
+
+   def test_reborrow_bug(self):
+      raise TestNotImplemented
+
+   def test_removeAt(self):
+      raise TestNotImplemented
+
+   def test_reverse(self):
+      raise TestNotImplemented
+
+   def test_shiftunshift(self):
+      raise TestNotImplemented
+
+   def test_slice(self):
+      raise TestNotImplemented
+
+   def test_sort(self):
+      raise TestNotImplemented
+
+   def test_splice(self):
+      raise TestNotImplemented
+
+   def test_splice_fixed_bug_compat(self):
+      raise TestNotImplemented
+
+   def test_toString(self):
+      raise TestNotImplemented
 
 
 class WTFJSTests(as3libTestCase):
@@ -6639,8 +6705,7 @@ class WTFJSTests(as3libTestCase):
       self.assertLess(Math.max(), Math.min())
 
    def test_infinite_timeout(self):
-      # This will execute immediately because Infinity does not fit into a
-      # 32bit uint
+      # This will execute immediately because Infinity casts to uint 0
       # TODO: console.log
       # setTimeout(() => console.log("called"), Infinity)
       # TODO: Make this an assert
@@ -6648,4 +6713,338 @@ class WTFJSTests(as3libTestCase):
 
 
 class XMLTests(as3libTestCase):
-   ...
+   def assertXMLList(self, xmllist, check, length=null):
+      if length is not null:
+         self.assertEqual(xmllist.length(), length)
+      for i, item in enumerate(check):
+         if xmllist[i] != item:
+            self.fail('Index %i; Expected "%r", got "%r"' % (i, item, xmllist[i]))
+
+   def test_abstract_equality(self):
+      raise TestNotImplemented
+
+   def test_advanced(self):
+      raise TestNotImplemented
+
+   def test_appendChild(self):
+      raise TestNotImplemented
+
+   def test_appendChild_swf_v21(self):
+      raise TestNotImplemented
+
+   def test_as_attribute(self):
+      raise TestNotImplemented
+
+   def test_attribute(self):
+      raise TestNotImplemented
+
+   def test_attribute_name(self):
+      raise TestNotImplemented
+
+   def test_basic(self):
+      raise TestNotImplemented
+
+   def test_child(self):
+      xml = XML("<x><foo>foo1</foo><bar>bar1</bar><foo>foo2</foo></x>")
+      self.assertEqual(xml.child('foo').length(), 2)
+      self.assertEqual(xml.child('bar').length(), 1)
+      self.assertEqual(xml.child('XXXXX').length(), 0)
+      self.assertEqual(xml.child('*').length(), 3)
+
+      raise TestNotImplemented
+
+      #for each (var child in xml.child("foo")) {
+      #trace('child("foo") toString: '  + child.toString());
+      #}
+      # => 'foo1', 'foo2'
+      #for each (var child in xml.child("bar")) {
+      #trace('child("bar") toString: '  + child.toString());
+      #}
+      # => 'bar1'
+      #for each (var child in xml.child("*")) {
+      #trace('child("*") toString: '  + child.toString());
+      #}
+      # => 'foo1', 'bar1', 'foo2'
+
+      nested = XML("<x><a b='c'><b>bbb</b></a></x>")
+      self.assertEqual(nested.child("a").length(), 1)
+      self.assertEqual(nested.child("b").length(), 0)
+
+      #for each (var child in nested.child("a")) {
+      #trace('child("a").@b: '  + child.@b);
+      #}
+      # => 'c'
+      #for each (var child in nested.child("b")) {
+      #trace('child("b") toString: '  + child.toString());
+      #}
+      # =>
+
+      complex = XML('<xml>\n<a>\n   <b>a1-b1</b><b>a1-b2</b>\n</a>\n<a>\n   <b>a2-b</b>\n   <c>a2-c</c>\n</a>\n<a/>\n</xml>')
+      xml_list = XMLList(complex.a)
+
+      self.assertEqual(xml_list.child("b").length(), 3)
+      self.assertEqual(xml_list.child("c").length(), 1)
+      self.assertEqual(xml_list.child("unknown").length(), 0)
+
+      # TODO: Check these
+      self.assertXMLList(xml_list.child("b"), ('<b>a1-b1</b>', '<b>a1-b2</b>', '<b>a2-b</b>'))
+      self.assertXMLList(xml_list.child("c"), ['a2-c'])
+      self.assertXMLList(xml_list.child("unknown"), [], 0)
+
+      #attrs = XML('<xml hello="world" foo="bar" />')
+      #trace('attrs.child("@unknown"):', attrs.child("@unknown"))
+      # =>
+      #trace('attrs.child("@hello"):', attrs.child("@hello"))
+      # => 'world'
+      #trace('attrs.child("@foo"):', attrs.child("@foo"))
+      # => 'bar'
+      #trace('attrs.child("@*"):', attrs.child("@*"))
+      # => 'worldbar'
+
+   def test_childIndex(self):
+      xml = XML('<xml>Test<a attr="123">a</a><b><x/>b</b></xml>')
+
+      self.assertEqual(xml.childIndex(), -1)
+      self.assertEqual(xml.children()[0].childIndex(), 0)
+      self.assertEqual(xml.a.childIndex(), 1)
+      self.assertEqual(xml.b.childIndex(), 2)
+      self.assertEqual(xml.b.x.childIndex(), 0)
+      self.assertEqual(xml.b.children()[1].childIndex(), 1)
+
+      raise TestNotImplemented
+      # self.assertEqual(xml.a.@attr.childIndex(), -1)
+
+   def test_children(self):
+      raise TestNotImplemented
+
+   def test_class_call(self):
+      raise TestNotImplemented
+
+   def test_contains(self):
+      raise TestNotImplemented
+
+   def test_copy(self):
+      start_pretty_print = XML.prettyPrinting
+      XML.prettyPrinting = false
+
+      xml = XML('<xml>\n<a test="it">a</a>\n<b>\n   <c>c1</c><c>c2</c>\n</b>\n</xml>')
+
+      a_copy = xml.a[0].copy()
+      self.assertNotStrictEQ(xml.a[0], a_copy)
+      self.assertEqual(a_copy.parent(), undefined)
+      self.assertEqual(a_copy.toXMLString(), '<a test="it">a</a>')
+
+      raise TestNotImplemented
+      trace("a_copy.attributes():", a_copy.attributes())
+      # => 'it'
+      #trace("a_copy.attributes()[0].parent():", a_copy.attributes()[0].parent())
+      # => a
+      self.assertStrictEQ(a_copy.attributes()[0].parent(), a_copy)
+
+      b_copy = xml.b[0].copy()
+      self.assertNotStrictEQ(xml.b[0], b_copy)
+      self.assertEqual(b_copy.parent(), undefined)
+      self.assertEqual(b_copy.toXMLString(), '<b><c>c1</c><c>c2</c></b>')
+
+      #trace("b_copy.c[0].parent():", b_copy.c[0].parent());
+      # => <b><c>c1</c><c>c2</c></b>
+      self.assertStrictEQ(b_copy.c[0].parent(), b_copy)
+
+      c_copy = xml.b.c.copy()
+      self.assertNotStrictEQ(xml.b.c, c_copy)
+      self.assertEqual(c_copy.toXMLString(), '<c>c1</c>\n<c>c2</c>')
+      self.assertEqual(c_copy[0].parent(), undefined)
+      self.assertEqual(c_copy[1].parent(), undefined)
+      trace("c_copy[0][0]", c_copy[0][0])
+      # => c1
+      self.assertNotStrictEQ(c_copy[0][0], xml.b.c[0][0])
+
+      XML.prettyPrinting = start_pretty_print
+
+   def test_constructor_from_string(self):
+      start_pretty_print = XML.prettyPrinting
+      XML.prettyPrinting = false
+
+      byteArray = ByteArray()
+      byteArray.writeUTFBytes('<foo><bar>test</bar></foo>')
+      byteArray.position = 0
+
+      self.assertEqual(XML(byteArray).bar, 'test')
+
+      objWithToString = Object()
+      objWithToString.toString = lambda: String('<foo><bar>test</bar></foo>')
+      self.assertEqual(XML(objWithToString).bar, 'test')
+
+      raise TestNotImplemented
+
+      #var xmlObj = <outer/>
+      #var xmlCopy = new XML(xmlObj);
+      #var xmlCast = XML(xmlObj);
+      #trace("xmlCopy().toXMLString(): " + xmlCopy.toXMLString());
+      #trace("xmlObj === xmlCopy: " + (xmlObj === xmlCopy));
+      #trace("xmlObj === xmlCast: " + (xmlObj === xmlCast));
+
+
+      #var listFromSingle = XMLList(xmlObj);
+      #trace("listFromSingle[0] === xmlObj: " + (listFromSingle[0] === xmlObj));
+      #var newListFromSingle = new XMLList(xmlObj);
+      #trace("newListFromSingle[0] === xmlObj: " + (newListFromSingle[0] === xmlObj));
+      #trace("new XMLList(listFromSingle) === listFromSingle: " + (new XMLList(listFromSingle) === listFromSingle));
+
+      emptyList = XMLList()
+      # TODO: Make sure that these two are actually empty strings
+      self.assertEqual(emptyList.toString(), '')
+      self.assertEqual(emptyList.toXMLString(), '')
+
+      try:
+         XML(emptyList)
+      except Exception as e:
+         trace("Caught error: " + e)
+         trace(e.errorID)
+      # => Caught error: TypeError: Error #1088: The markup in the document following the root element must be well-formed.
+      # => 1088
+
+      #var singleList = new XMLList("<outer><inner>Hello</inner><second>World</second></outer>");
+      #var xmlFromSingle = XML(singleList);
+      #trace("xmlFromSingle === singleList[0]: " + (xmlFromSingle === singleList[0]));
+      # => true
+      #var newXMLFromSingle = new XML(singleList);
+      #trace("newXMLFromSingle === singleList[0]: " + (newXMLFromSingle === singleList[0]));
+      # => false
+
+
+      multiList = XMLList("<first>Hello</first><second>World</second>")
+
+      #var castCopy = XMLList(multiList);
+      #var ctorCopy = new XMLList(multiList);
+
+      #trace("castCopy equal: " + (multiList === castCopy));
+      # => true
+      #trace("ctorCopy equal: " + (multiList === ctorCopy));
+      # => false
+
+      try:
+         XML(multiList)
+      except Exception as e:
+         trace("Caught error: " + e)
+         trace(e.errorID)
+      # => Caught error: TypeError: Error #1088: The markup in the document following the root element must be well-formed.
+      # => 1088
+
+      try:
+         trace(XML("<Hello<"))
+      except Exception as e:
+         trace("Caught parsing error: " + e)
+         trace(e.errorID)
+      # => Caught parsing error: TypeError: Error #1090: XML parser failure: element is malformed.
+      # => 1090
+
+      XML.prettyPrinting = start_pretty_print
+
+   def test_delete(self):
+      raise TestNotImplemented
+
+   def test_descendants(self):
+      raise TestNotImplemented
+
+   def test_elements(self):
+      raise TestNotImplemented
+
+   def test_equals_namespace_check(self):
+      raise TestNotImplemented
+
+   def test_getDescendants_qname(self):
+      raise TestNotImplemented
+
+   def test_has_property_via_in(self):
+      raise TestNotImplemented
+
+   def test_hasOwnProperty(self):
+      raise TestNotImplemented
+
+   def test_ignore_white(self):
+      raise TestNotImplemented
+
+   def test_length(self):
+      xml = XML('<a></a>')
+      xml2 = XML('<b><e/><e/><e/><e/><f/></b>')
+
+      self.assertEqual(xml.length(), 1)
+      self.assertEqual(xml2.length(), 1)
+
+   def test_list_as_attribute(self):
+      raise TestNotImplemented
+
+   def test_list_concat(self):
+      raise TestNotImplemented
+
+   def test_list_enumerate(self):
+      raise MethodNotImplemented('prototype')
+      raise TestNotImplemented
+      XMLList.prototype.ghi = String("value")
+      for i in XMLList("<abc/><def/>"):
+         trace("key: " + i)
+         # => 0, 1, 'ghi'
+
+   def test_methods_settings(self):
+      raise TestNotImplemented
+
+   def test_mismatched_tag(self):
+      raise TestNotImplemented
+
+   def test_namespace(self):
+      raise TestNotImplemented
+
+   def test_namespace_methods(self):
+      raise TestNotImplemented
+
+   def test_namespaced_property(self):
+      raise TestNotImplemented
+
+   def test_no_namespace(self):
+      raise TestNotImplemented
+
+   def test_nodekind(self):
+      raise TestNotImplemented
+
+   def test_normalize(self):
+      raise TestNotImplemented
+
+   def test_notification_bubbling(self):
+      raise TestNotImplemented
+
+   def test_parent(self):
+      raise TestNotImplemented
+
+   def test_set_children(self):
+      raise TestNotImplemented
+
+   def test_set_name(self):
+      raise TestNotImplemented
+
+   def test_settings(self):
+      raise TestNotImplemented
+
+   def test_simple_complex_content(self):
+      raise TestNotImplemented
+
+   def test_socket(self):
+      raise TestNotImplemented
+
+   def test_text(self):
+      raise TestNotImplemented
+
+   def test_toString(self):
+      raise TestNotImplemented
+
+   def test_toString_namespace(self):
+      raise TestNotImplemented
+
+   def test_unescaping(self):
+      raise TestNotImplemented
+
+   def test_weird_ignores(self):
+      raise TestNotImplemented
+
+   def test_wildcard(self):
+      raise TestNotImplemented
