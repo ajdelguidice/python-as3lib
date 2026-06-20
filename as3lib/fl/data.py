@@ -1,4 +1,4 @@
-from as3lib import null, Object, uint
+from as3lib import null, Object, String, uint
 from as3lib.flash.events import EventDispatcher
 
 

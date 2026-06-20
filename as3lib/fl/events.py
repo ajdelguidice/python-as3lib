@@ -1,5 +1,5 @@
-from as3lib import (Boolean, false, int, metaclasses, null, Number, Object,
-                    String, true, uint)
+from as3lib import (Array, Boolean, false, int, metaclasses, null, Number,
+                    Object, String, true, uint)
 from as3lib.flash.events import ErrorEvent, Event
 
 
@@ -173,7 +173,7 @@ class DataGridEvent(ListEvent):
 
     def clone(self):
         return DataGridEvent(self.type, self.bubbles, self.cancelable,
-                             self.columnIndex self.rowIndex,
+                             self.columnIndex, self.rowIndex,
                              self.itemRenderer, self.dataField, self.reason)
 
     def toString(self):

@@ -212,14 +212,12 @@ class RadioButton(LabelButton):
         super().__init__()
         self._value = null
 
-
     def drawFocus(self, focused: Boolean):
         raise NotImplementedError
 
     @staticmethod
     def getStyleDefinition():
         raise NotImplementedError
-
 
 
 class RadioButtonGroup(EventDispatcher):
@@ -320,10 +318,8 @@ class listClasses:
     class CellRenderer(LabelButton):
         ...
 
-
     class ImageCell(CellRenderer):
         ...
-
 
     class ListData(Object):
         @property
@@ -358,7 +354,6 @@ class listClasses:
             self._index = uint(index)
             self._row = uint(row)
             self._col = uint(col)
-
 
     class TileListData(ListData):
         @property
