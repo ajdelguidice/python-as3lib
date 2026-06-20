@@ -1,5 +1,5 @@
-from as3lib import (ArgumentError, Array, as3state, Error, metaclasses,
-                    ReferenceError, TypeError)
+from as3lib import (ArgumentError, Array, as3state, Error, metaclasses, null,
+                    ReferenceError, String, TypeError)
 from as3lib.flash import utils
 from as3lib.flash.events import Event, EventDispatcher
 import miniamf
@@ -31,17 +31,17 @@ def sendToURL(request):
 class DatagramSocket:...
 
 
-class FileFilter:
-   def __init__(self, description: str, extension: str, macType: str = None):
-      self.description = description
-      self.extension = extension
-      self.macType = macType
+class FileFilter(Object):
+   def __init__(self, description: String, extension: String, macType: String = null):
+      self.description = String(description)
+      self.extension = String(extension)
+      self.macType = null if macType is null else String(macType)
 
    def extensionsToArray(self):
       return Array(*self.extension.split(';'))
 
    def macTypeToArray(self):
-      if self.macType is not None:
+      if self.macType is not null:
          return Array(*self.macType.split(';'))
 
    def toTkTuple(self):
@@ -164,7 +164,17 @@ class FileReference(EventDispatcher):
       raise NotImplementedError
 
 
-class FileReferenceList:...
+class FileReferenceList(EventDispatcher):
+   @property
+   def fileList(self):
+      return self._fileList
+
+   def __init__(self):
+      super().__init__()
+      self._fileList = Array()
+
+   def browse(self, typeFilter = null):
+      raise NotImplemented
 
 
 class GroupSpecifier:...
