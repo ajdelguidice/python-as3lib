@@ -8,7 +8,6 @@ from miniamf.amf3 import ByteArray as _ByteArray
 from threading import Timer as timedExec
 
 
-
 def _INTERVAL_ID_GEN():
     i = 0
     while True:
@@ -72,7 +71,7 @@ class _INTERVAL_TIMER:
     def stop(self):
         self._timer.cancel()
         del as3state.intervals[self.id]
-      
+
 
 def setInterval(closure: callable, delay, *arguements):
     # Can't use the python id here because it can be over the limit of a uint
@@ -153,7 +152,7 @@ class ByteArray(_ByteArray):
 
     def atomicCompareAndSwapIntAt(self, byteIndex: int, expectedValue: int, newValue: int):
         if byteIndex % 4 != 0 or byteIndex < 0:
-            raise ArguementError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
+            raise ArgumentError('ByteArray.atomicCompareAndSwapIntAt; byteIndex must be a multiple of 4 and can not be negative.')
         raise NotImplementedError
 
     def atomicCompareAndSwapLength(self, expectedLength: int, newLength: int):
@@ -309,7 +308,7 @@ class Timer(EventDispatcher):
         return self._repeatCount
 
     @repeatCount.setter
-    def repeatCount(self, number: Int):
+    def repeatCount(self, number: int):
         # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
         if number <= self._currentCount:
             self.stop()
@@ -330,7 +329,7 @@ class Timer(EventDispatcher):
             self._timer.start()
             self.dispatchEvent(TimerEvent('timer'))
 
-    def __init__(self, delay: Number, repeatCount: Int = 0):
+    def __init__(self, delay: Number, repeatCount: int = 0):
         super().__init__()
         self._currentCount = 0
         if delay < 0:

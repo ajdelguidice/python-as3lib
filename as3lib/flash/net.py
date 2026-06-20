@@ -1,5 +1,5 @@
 from as3lib import (ArgumentError, Array, as3state, Error, metaclasses, null,
-                    ReferenceError, String, TypeError)
+                    Object, ReferenceError, String, TypeError)
 from as3lib.flash import utils
 from as3lib.flash.events import Event, EventDispatcher
 import miniamf
@@ -175,7 +175,7 @@ class FileReferenceList(EventDispatcher):
         self._fileList = Array()
 
     def browse(self, typeFilter = null):
-        raise NotImplemented
+        raise NotImplementedError
 
 
 class GroupSpecifier:

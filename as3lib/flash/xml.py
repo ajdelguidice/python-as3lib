@@ -1,4 +1,4 @@
-from as3lib import Array, Boolean, false, Object, true
+from as3lib import Array, Boolean, false, null, Object
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 
 
@@ -110,7 +110,7 @@ class XMLNode(Object):
     def hasChildNodes(self):
         return Boolean(self._cNodes.length)
 
-    def insertBefore(self, nodem before):
+    def insertBefore(self, node, before):
         raise NotImplementedError
 
     def removeNode(self):

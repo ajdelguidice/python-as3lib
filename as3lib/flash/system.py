@@ -1,4 +1,4 @@
-from as3lib import as3state, Boolean, false, int, metaclasses, Number, true
+from as3lib import as3state, false, int, metaclasses, Number, String, true
 from as3lib.helpers import staticproperty
 from functools import cache
 import platform
@@ -150,12 +150,12 @@ class Capabilities:
     @staticproperty
     def screenResolutionX(cls):
         # Initial width of the display frame
-        return Number(as3lib.viewportWidth)
+        return Number(as3state.viewportWidth)
 
     @staticproperty
     def screenResolutionY(cls):
         # Initial height of the display frame
-        return Number(as3lib.viewportHeight)
+        return Number(as3state.viewportHeight)
 
     @staticproperty
     def serverString(cls):
@@ -192,21 +192,7 @@ class Capabilities:
 
 
 def fscommand(command, args=''):
-    '''
-    This is a simplified version of fscommand and does not do everything it should
-    '''
-    if command == 'quit':
-        ...
-    elif command == 'fullscreen':
-        ...
-    elif command == 'allowscale':
-        ...
-    elif command == 'showmenu':
-        ...
-    elif command == 'exec':
-        ...
-    elif command == 'trapallkeys':
-        ...
+    raise NotImplementedError
 
 
 class ImageDecodingPolicy(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
@@ -267,20 +253,26 @@ class System:
     #totalMemoryNumber
     #useCodePage
 
-    def disposeXML():...
+    def disposeXML():
+        raise NotImplementedError
 
     def exit(code: int = 0):
         sys.exit(int(code))
 
-    def gc():...
+    def gc():
+        raise NotImplementedError
 
-    def pause():...
+    def pause():
+        raise NotImplementedError
 
-    def pauseForGCIfCollectionImminent():...
+    def pauseForGCIfCollectionImminent():
+        raise NotImplementedError
 
-    def resume():...
+    def resume():
+        raise NotImplementedError
 
-    def setClipboard():...
+    def setClipboard():
+        raise NotImplementedError
 
 
 class SystemUpdater:

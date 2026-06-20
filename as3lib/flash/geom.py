@@ -1,6 +1,6 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import (each, false, Math, null, Number, Object, TypeError, true,
-                    uint, undefined, Vector)
+from as3lib import (Boolean, each, false, Math, null, Number, Object,
+                    TypeError, true, uint, undefined, Vector)
 from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
@@ -85,7 +85,11 @@ class ColorTransform(Object):
     def redOffset(self, value):
         self._redO = Number(value)
 
-    def __init__(self, redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0, redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):
+    def __init__(self, redMultiplier: Number = 1.0,
+                 greenMultiplier: Number = 1.0, blueMultiplier: Number = 1.0,
+                 alphaMultiplier: Number = 1.0, redOffset: Number = 0,
+                 greenOffset: Number = 0, blueOffset: Number = 0,
+                 alphaOffset: Number = 0):
         self.redMultiplier = redMultiplier
         self.greenMultiplier = greenMultiplier
         self.blueMultiplier = blueMultiplier
@@ -327,7 +331,7 @@ class Matrix3D:
 
     def _identity(self):
         # TODO: Should be Vector.<Number>
-        return Vector.Number([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1])
+        return Vector.Number([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 
     def __init__(self, v = null):
         if not (isinstance(v, Vector) or v is null):
@@ -337,7 +341,7 @@ class Matrix3D:
         else:
             self._data = self._identity()
 
-    def append(self, lhs:Matrix3D):
+    def append(self, lhs: Matrix3D):
         raise NotImplementedError
 
     def appendRotation(self, degrees, axis, pivotPoint=null):
@@ -353,10 +357,10 @@ class Matrix3D:
         # TODO: Find a better way to clone this data
         return Matrix3D(Vector.Number(list(each(self.rawData))))
 
-    def copyColumnFrom(self, column, vector3D:Vector3D):
+    def copyColumnFrom(self, column, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyColumnTo(self, column, vector3D:Vector3D):
+    def copyColumnTo(self, column, vector3D: Vector3D):
         raise NotImplementedError
 
     def copyFrom(self, sourceMatrix3D):
@@ -368,10 +372,10 @@ class Matrix3D:
     def copyRawDataTo(self, vector, index=0, transpose=False):
         raise NotImplementedError
 
-    def copyRowFrom(self, row, vector3D:Vector3D):
+    def copyRowFrom(self, row, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyRowTo(self, row, vector3D:Vector3D):
+    def copyRowTo(self, row, vector3D: Vector3D):
         raise NotImplementedError
 
     def copyToMatrix(self, dest):
@@ -380,26 +384,26 @@ class Matrix3D:
     def decompose(self, orientationStyle = 'eulerAngles'):
         raise NotImplementedError
 
-    def deltaTransformVector(self, v:Vector3D):
+    def deltaTransformVector(self, v: Vector3D):
         raise NotImplementedError
 
     def identity(self):
         self._data = self._identity()
 
     @staticmethod
-    def interpolate(thisMat:Matrix3D, toMat:Matrix3D, percent):
+    def interpolate(thisMat: Matrix3D, toMat: Matrix3D, percent):
         raise NotImplementedError
 
-    def interpolateTo(self, toMat:Matrix3D, percent):
+    def interpolateTo(self, toMat: Matrix3D, percent):
         raise NotImplementedError
 
     def invert(self):
         raise NotImplementedError
 
-    def pointAt(self, pos:Vector3D, at: Vector3D = null, up: Vecto3D = null):
+    def pointAt(self, pos: Vector3D, at: Vector3D = null, up: Vector3D = null):
         raise NotImplementedError
 
-    def prepend(self, rhs:Matrix3D):
+    def prepend(self, rhs: Matrix3D):
         raise NotImplementedError
 
     def prependRotation(self, degrees, axis, pivotPoint=null):
@@ -414,7 +418,7 @@ class Matrix3D:
     def recompose(self, components, orientationStyle = 'eulerAngles'):
         raise NotImplementedError
 
-    def transformVector(self, v:Vector3D):
+    def transformVector(self, v: Vector3D):
         raise NotImplementedError
 
     def transformVectors(self, vin, vout):
@@ -466,7 +470,6 @@ class PerspectiveProjection(Object):
 
     def toMatrix3D(self):
         raise NotImplementedError
-
 
 
 class Point(Object):
@@ -773,15 +776,15 @@ class Transform(Object):
 
 class Utils3D(Object):
     @staticmethod
-    def pointTowards(percent:Number, mat:Matrix3D, pos:Vector3D, at:Vector3D=null, up:Vector3D=null) -> Matrix3D:
+    def pointTowards(percent: Number, mat: Matrix3D, pos: Vector3D, at: Vector3D = null, up: Vector3D = null) -> Matrix3D:
         raise NotImplementedError
 
     @staticmethod
-    def projectVector(m:Matrix3D, v:Vector3D) -> Vector3D:
+    def projectVector(m: Matrix3D, v: Vector3D) -> Vector3D:
         raise NotImplementedError
 
     @staticmethod
-    def projectVectors(m:Matrix3D, verts:Vector, projectedVerts:Vector, uvts:Vector) -> None:
+    def projectVectors(m: Matrix3D, verts: Vector, projectedVerts: Vector, uvts: Vector) -> None:
         raise NotImplementedError
 
 
@@ -874,7 +877,7 @@ class Vector3D(Object):
         self.y += a.y
         self.z += a.z
 
-    def nearEquals(self, toCompare: Vector3D, tolerance, allFour=False):
+    def nearEquals(self, toCompare: Vector3D, tolerance: Number, allFour: Boolean = false):
         # TODO: allFour
         # NOTE: Can't use math.isclose here because it doesn't function the same
         if allFour:

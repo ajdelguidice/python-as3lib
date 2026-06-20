@@ -1,8 +1,7 @@
 from __future__ import annotations
-from as3lib import keyConversions, metaclasses, Object
+from as3lib import Error, metaclasses, Object
 from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
 from as3lib.flash.events import ContextMenuEvent
-import tkinter
 
 
 class ContextMenu(NativeMenu):
