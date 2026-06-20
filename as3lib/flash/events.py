@@ -109,6 +109,11 @@ class Event(Object):
    WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
 
    @property
+   def _propagation(self):
+      # 0 - continue, 1 - stop, 2 - stopimmediate
+      return self._propagationState
+
+   @property
    def bubbles(self):
       return self._bubbles
 
@@ -134,8 +139,6 @@ class Event(Object):
 
    def __init__(self, type: String, bubbles: Boolean = false,
                 cancelable: Boolean = false):
-      if type not in _HELPER_GetEventConstants(self.__class__):
-         raise Exception('Provided event type is not valid for this object')
       self._type = String(type)
       self._bubbles = Boolean(bubbles)
       self._cancelable = Boolean(cancelable)
@@ -143,6 +146,7 @@ class Event(Object):
       self._target = null
       self._eventPhase = null
       self._preventDefault = false
+      self._propagationState = 0
 
    def clone(self):
       return Event(self.type, self.bubbles, self.cancelable)
@@ -158,10 +162,10 @@ class Event(Object):
          self._preventDefault = true
 
    def stopImmediatePropagation(self):
-      raise NotImplementedError
+      self._propagationState = 2
 
    def stopPropagation(self):
-      raise NotImplementedError
+      self._propagationState = 1
 
    def toString(self):
       return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
@@ -171,9 +175,9 @@ class EventDispatcher(Object):
    # TODO: Implement priority, weakReference
 
    def __init__(self, target: IEventDispatcher = null):
-      # TODO: Implement target
       self._events = {}
       self._eventsCapture = {}
+      self._target = self if target is null else target
 
    def addEventListener(self, type: String, listener, useCapture: Boolean = false, priority: int = 0, useWeakReference: Boolean = false):
       # TODO: Add error
@@ -196,17 +200,28 @@ class EventDispatcher(Object):
    def dispatchEvent(self, event):
       # TODO: Implement useCapture
       # TODO: Implement bubbles
-      if not event.isDefaultPrevented() and event.type in self._events:
+      # TODO: stopPropagation
+      if event.isDefaultPrevented() or event.type not in self._events:
+         return false
+      event._currentTarget = self  # TODO: Make sure that this is correct
+      if event.target is null:
+         event._target = self._target
+         e = event  # TODO: Make sure that this is correct
+      else:
          e = event.clone()
-         e._target = self
-         for i in self._events[event.type]:
-            i(e)
-         return True
-      return False
+      for i in self._events.get(event.type, set()):
+         i(e)
+         if e.isDefaultPrevented():
+            return false
+         if e._propagation == 2:  # Stop Immediate
+            # TODO: Make sure this is correct
+            break
+      return true
 
    def hasEventListener(self, type: String):
       type = String(type)
-      return type in self._events.get(type) or type in self._eventsCapture
+      return (type in self._events and len(self._events[type]) or
+              type in self._eventsCapture and len(self._eventsCapture[type]))
 
    def removeEventListener(self, type: String, listener, useCapture: Boolean = false):
       type = String(type)
@@ -225,7 +240,8 @@ class EventDispatcher(Object):
                pass
 
    def willTrigger(self, type: String):
-      raise NotImplementedError
+      # TODO: Also check ancestors
+      return self.hasEventListener(type)
 
 
 class TextEvent(Event):
