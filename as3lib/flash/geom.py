@@ -95,7 +95,9 @@ class ColorTransform(Object):
       self.blueOffset = blueOffset
       self.alphaOffset = alphaOffset
 
-   def concat(self, second: ColorTransform):
+   def concat(self, second: ColorTransform = null):
+      if second is null:
+         return
       raise NotImplementedError
 
    def toString(self):
