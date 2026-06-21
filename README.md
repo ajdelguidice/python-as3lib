@@ -7,7 +7,7 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 - If you want to run an swf files, use <a href="https://ruffle.rs">ruffle</a> instead.
 - Some stuff will be impossible to implement in python because <a href="https://docs.python.org/3/glossary.html#term-global-interpreter-lock">python is a fish</a>.
 - Undocumented things can not be implemented unless I am informed about them.
-- Versions of this library before 0.0.6 are broken on windows.
+- Versions of this library before 6 are broken on windows.
 - Use of multiple displays has not been tested yet.
 - interface_tk is a testing module, it does not function like actionscript and is only there to work things out. Do not expect consistency between versions and do not expect it to be kept around.
 - The toplevel module is now deprecated and only remains for backwards compatibility. Import the library instead.
@@ -24,17 +24,15 @@ Windows specific<br>
 > PyLaucher
 > <br> <a href="https://pypi.org/project/pywin32/">pywin32</a>
 
-This library also makes use of the following python builtin modules: tkinter, re, math, io, platform, subprocess, random, datetime, os, pwd (unix), pathlib, configparser, webbrowser, typing, tomllib
-
 ## Config Files
 
-<b>&lt;library-directory&gt;/as3lib.toml</b> - This library's config file. This includes mm.cfg and wayland.cfg that were included in previous versions. Old config files will only be migrated if this file does not exist or if "migrateOldConfig" is set to true.
+<b>&lt;library-directory&gt;/as3lib.toml</b> - This library's config file. This includes mm.cfg. Old config files will only be migrated if this file does not exist or if "migrateOldConfig" is set to true. Setting "migrateOldConfig" to true will overwrite the values in this config file with the ones found in the old config files.
 
-<b>&lt;library-directory&gt;/mm.cfg</b> - Migration path for adobe flash player <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a>. Only used on first run or if migrateOldConfig is true in as3lib.toml.
+<b>&lt;library-directory&gt;/mm.cfg</b> - Migration path for adobe flash player <a href="https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html">mm.cfg</a>. Only used on first run or if "migrateOldConfig" is true in as3lib.toml.
 
-<b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - The config file used by version 0.0.11.
+<b><u>DEPRECATED</u> &lt;library-directory&gt;/as3lib.cfg</b> - The config file used by version 11.
 
-<b><u>DEPRECATED</u> &lt;library-directory&gt;/wayland.cfg</b> - Generated on versions before 0.0.11 to hold the values that can not be fetched automatically on wayland (linux). Now integrated into as3lib.toml.
+<b><u>DEPRECATED</u> &lt;library-directory&gt;/wayland.cfg</b> - Generated on versions before 11 to hold the values that can not be fetched automatically on wayland (linux).
 
 ## License
 
