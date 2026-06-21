@@ -1,12 +1,19 @@
-from as3lib import (ArgumentError, Array, delete, each, false, null, Object,
-                    true, String, TypeError, undefined)
+from as3lib import (ArgumentError, Array, delete, each, false, Infinity, NaN,
+                    null, Number, Object, true, String, TypeError, undefined)
 from as3lib.flash.errors import EOFError, IOError
 from as3lib.flash.events import TimerEvent
+from as3lib.flash.geom import Point
 from as3lib.flash.utils import ByteArray, Dictionary, Timer
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
 class ByteArrayTests(as3libTestCase):
+    def setUp(self):
+        self.defEncode = ByteArray.defaultObjectEncoding
+
+    def tearDown(self):
+        ByteArray.defaultObjectEncoding = self.defEncode
+
     def assertAtStart(self, ba):
         self.assertEqual(ba.position, 0)
 
@@ -111,10 +118,23 @@ class ByteArrayTests(as3libTestCase):
         ba.readMultiByte(0, 'utf-8')
         self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, 'utf-8')
 
+    def test_method_serialization(self):
+        p = Point(4.5, 5.5)
+        b = ByteArray()
+        b.writeObject(p)
+        self.assertEqual(b.length, 25)
+        trace(b.length)
+
     def test_oom(self):
         # This is not supposed to fail
         b = ByteArray()
         b.length = 0xFFFFFFFF
+
+    def test_readobject_amf0(self):
+        raise TestNotImplemented
+
+    def test_readobject_amf3(self):
+        raise TestNotImplemented
 
     def test_readUTFBytes_bom(self):
         ba = ByteArray()
@@ -163,6 +183,84 @@ class ByteArrayTests(as3libTestCase):
         text = ba.readUTF()
         self.assertEqual(text, 'Text')
         self.assertEqual(len(text), 4)
+
+    def test_serialization(self):
+        raise TestNotImplemented
+
+    def test_string_null(self):
+        raise TestNotImplemented
+
+    def test_toString(self):
+        ba = ByteArray()
+        ba.writeUTFBytes(String('\uFEFFabc'))
+
+        self.assertEqual(ba.toString(), 'abc')
+        self.assertEqual(ba.toString().length, 3)
+        self.assertEqual(ba.position, 6)
+
+        ba.position = 0
+        self.assertEqual(ba.position, 0)
+        self.assertEqual(ba.toString(), 'abc')
+        self.assertEqual(ba.toString().length, 3)
+        self.assertEqual(ba.position, 0)
+
+        # Verify BOM was written.
+        self.assertEqual(ba.readUnsignedByte().toString(16), 'ef')
+        self.assertEqual(ba.readUnsignedByte().toString(16), 'bb')
+        self.assertEqual(ba.readUnsignedByte().toString(16), 'bf')
+
+        ba2 = ByteArray()
+        ba2.writeUTFBytes(String("hello"))
+        ba2.writeByte(0x00)
+        ba2.writeUTFBytes(String("world"))
+
+        # Flash's trace seems to strip \u0000, but the length is correct.
+        # trace("ba2.toString():", ba2.toString());
+        self.assertEqual(ba2.toString().length, 11)
+        self.assertEqual(ba2.position, 11)
+
+        ba2.position = 0
+        self.assertEqual(ba2.position, 0)
+        # trace("ba2.toString():", ba2.toString());
+        self.assertEqual(ba2.toString().length, 11)
+        self.assertEqual(ba2.position, 0)
+
+    def test_utf16(self):
+        raise TestNotImplemented
+
+    def test_writeObject(self):
+        def assert_readObject(value):
+            ba = ByteArray()
+            ba.writeObject(value)
+            ba.position = 0
+            self.assertEqual(ba.readObject(), value)
+
+        TESTS = Array(
+            undefined,
+            null,
+            false,
+            true,
+            Number(4),
+            Number(4.5),
+            Infinity,
+            -Infinity,
+            NaN,
+            String("test")
+        )
+
+        def runTests():
+            for var in each(TESTS):
+                assert_readObject(var)
+
+            assert_readObject(TESTS)
+
+        # AMF3 TESTS
+        ByteArray.defaultObjectEncoding = 3
+        runTests()
+
+        # AMF0 TESTS
+        ByteArray.defaultObjectEncoding = 0
+        runTests()
 
 
 class DictionaryTests(as3libTestCase):
