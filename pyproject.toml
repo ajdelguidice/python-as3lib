@@ -43,9 +43,11 @@ env_list = ["py3", "py313", "py310"]
 
 [tool.tox.env_run_base]
 runner = "uv-venv-runner"
-deps = ["tomli"]
 commands = [["python","-m","unittest","discover","as3lib/tests"]]
 
 [tool.tox.env.py3]
 deps = ["flake8"]
-commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles","--indent-size","3","--ignore","E501,E226"]]
+commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles","--ignore","E501,E226"]]
+
+[tool.tox.env.py310]
+deps = ["tomli"]
