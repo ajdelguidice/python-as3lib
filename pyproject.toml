@@ -25,9 +25,6 @@ dependencies = [
     "as3lib-miniAMF"
 ]
 
-[project.optional-dependencies]
-windows = ["pywin32"]
-
 [project.urls]
 Homepage = "https://github.com/ajdelguidice/python-as3lib"
 

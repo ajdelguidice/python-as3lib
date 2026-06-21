@@ -22,7 +22,6 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 
 Windows specific<br>
 > PyLaucher
-> <br> <a href="https://pypi.org/project/pywin32/">pywin32</a>
 
 ## Config Files
 

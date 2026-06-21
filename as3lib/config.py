@@ -84,9 +84,7 @@ def _dependencyCheck():
     if as3state.platform == 'Linux':
         ...
     elif as3state.platform == 'Windows':
-        if find_spec('win32api') is None:
-            as3state.initerror.append('Dependencies/Python: "pywin32" not found')
-            hasDeps = False
+        ...
     elif as3state.platform == 'Darwin':
         ...
     if find_spec('numpy') is None:  # https://pypi.org/project/numpy
