@@ -404,12 +404,13 @@ class DictionaryTests(as3libTestCase):
         a[a] = a
 
         asrt1 = ('1.123', '1234567', '13', a, firstKey, key2, key3, 'false',
-                'foo', 'key', 'key3', key4, 'key4', 'null', 'true',
-                'undefined')
+                 'foo', 'key', 'key3', key4, 'key4', 'null', 'true',
+                 'undefined')
         asrt2 = ('23', '6', 'Key3 False Value', 'Key3 True Value',
-                'Key4 False Value', 'Key4 True Value', 'Testing', 'The value',
-                a, "no I haven't", 'stringy false', 'stringy true',
-                'this is perfectly acceptable', true, 'uh huh...', 'yeah sure')
+                 'Key4 False Value', 'Key4 True Value', 'Testing',
+                 'The value', a, "no I haven't", 'stringy false',
+                 'stringy true', 'this is perfectly acceptable', true,
+                 'uh huh...', 'yeah sure')
 
         self.assertIterSorted(a, asrt1)
         self.assertEachSorted(a, asrt2)

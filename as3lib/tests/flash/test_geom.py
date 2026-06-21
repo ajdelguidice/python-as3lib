@@ -11,9 +11,9 @@ from as3lib.tests import as3libTestCase, TestNotImplemented
 class ColorTransformTests(as3libTestCase):
     # NOTE: rgb property seems to be the same as color
     def assertColorTransform(self, ct, redMultiplier, greenMultiplier,
-                                blueMultiplier, alphaMultiplier, redOffset,
-                                greenOffset, blueOffset, alphaOffset,
-                                color = None):
+                             blueMultiplier, alphaMultiplier, redOffset,
+                             greenOffset, blueOffset, alphaOffset,
+                             color = None):
         self.assertEqual(ct.redMultiplier, redMultiplier)
         self.assertEqual(ct.greenMultiplier, greenMultiplier)
         self.assertEqual(ct.blueMultiplier, blueMultiplier)
@@ -84,7 +84,7 @@ class ColorTransformTests(as3libTestCase):
         self.assertEqual(ct.blueOffset, 123)
 
     def test_toString(self):
-        ct = ColorTransform(1,1,1,1,255,25,0,0)
+        ct = ColorTransform(1, 1, 1, 1, 255, 25, 0, 0)
         self.assertEqual(ct.toString(), "(redMultiplier=1, greenMultiplier=1, blueMultiplier=1, alphaMultiplier=1, redOffset=255, greenOffset=25, blueOffset=0, alphaOffset=0)")
 
     def test_badConcat(self):
@@ -893,7 +893,7 @@ class Matrix3DTests(as3libTestCase):
 
         vecsOutFixedTooSmall = Vector.Number(4, True)
         self.assertRaises(RangeError, m.transformVector, vecs,
-                            vecsOutFixedTooSmall)
+                          vecsOutFixedTooSmall)
 
         self.assertRaises(TypeError, m.transformVectors, null, vecsOut)
         self.assertRaises(TypeError, m.transformVectors, vecs, null)
@@ -1260,8 +1260,8 @@ class RectangleTests(as3libTestCase):
                  (Infinity, 6, Infinity, 1, Point(1, Infinity), Point(6, Infinity), 5, 7, Point(5, 7), 1, Infinity))
         self.tryValues("y", numberValues, check)
 
-        pointValues = (Point(0,0), Point(-100,-200), Point(100,200),
-                       Point(Infinity,Infinity), Point(NaN,NaN))
+        pointValues = (Point(0, 0), Point(-100, -200), Point(100, 200),
+                       Point(Infinity, Infinity), Point(NaN, NaN))
         check = ((0, 6, 10, 0, Point(0, 0), Point(6, 10), 6, 10, Point(6, 10), 0, 0),
                  (-200, 6, 10, -100, Point(-100, -200), Point(6, 10), 106, 210, Point(106, 210), -100, -200),
                  (200, 6, 10, 100, Point(100, 200), Point(6, 10), -94, -190, Point(-94, -190), 100, 200),
@@ -1350,7 +1350,7 @@ class RectangleTests(as3libTestCase):
         for h in range(len(rectList)):
             #dump(rectList[h], "rect")
             for i in range(len(argsList)):
-                #Reset, just to make sure we aren't leaking state
+                # Reset, just to make sure we aren't leaking state
                 rect = rectList[h].clone()
 
                 args = argsList[i]
@@ -1376,7 +1376,7 @@ class RectangleTests(as3libTestCase):
         for h in range(len(rectList)):
             #dump(rectList[h], "rect")
             for i in range(len(argsList)):
-                #Reset, just to make sure we aren't leaking state
+                # Reset, just to make sure we aren't leaking state
                 rect = rectList[h].clone()
                 args = argsList[i]
                 ck = check[h][i]
@@ -1646,22 +1646,22 @@ class TransformTests(as3libTestCase):
             self.c.assertMatrix(mat2D, 2, 3, 4, 5, 6, 7)
 
         def test3D(self):
-            sprite2D = Sprite()
+            sprite3D = Sprite()
 
             # sprite3D: set identity matrix3D
             mat3D = Matrix3D()
             mat3D.identity()
             sprite3D.transform.matrix3D = mat3D
-            self.c.assertEqual(sprite2D.transform.matrix, null)
+            self.c.assertEqual(sprite3D.transform.matrix, null)
             asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
-            self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+            self.c.assertMatrix3D(sprite3D.transform.matrix3D, asrt)
             self.c.assertMatrix3D(mat3D, asrt)
 
             # sprite3D: update mat3D
             # RUFFLE: FIXME: values shouldn't be zero (0) for test coverage. Unsupported now.
             v = Vector.Number([2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1])
             mat3D.copyFrom(Matrix3D(v))
-            self.c.assertEqual(sprite2D.transform.matrix, null)
+            self.c.assertEqual(sprite3D.transform.matrix, null)
             # RUFFLE: FIXME: mat3D update should be applied to transform.matrix3D immediately
             # trace("sprite3D.transform.matrix3D.rawData", sprite3D.transform.matrix3D.rawData);
             asrt = (2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1)
@@ -1669,28 +1669,28 @@ class TransformTests(as3libTestCase):
 
             # sprite3D: .matrix3D = mat3D
             sprite3D.transform.matrix3D = mat3D
-            self.c.assertEqual(sprite2D.transform.matrix, null)
-            self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+            self.c.assertEqual(sprite3D.transform.matrix, null)
+            self.c.assertMatrix3D(sprite3D.transform.matrix3D, asrt)
             self.c.assertMatrix3D(mat3D, asrt)
 
             # sprite3D: .matrix = null
-            self.c.assertEqual(sprite2D.transform.matrix, null)
-            self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+            self.c.assertEqual(sprite3D.transform.matrix, null)
+            self.c.assertMatrix3D(sprite3D.transform.matrix3D, asrt)
             self.c.assertMatrix3D(mat3D, asrt)
 
             # sprite3D: set x = 30, y = 50
             sprite3D.x = 30
             sprite3D.y = 50
-            self.c.assertEqual(sprite2D.transform.matrix, null)
+            self.c.assertEqual(sprite3D.transform.matrix, null)
             asrt = (2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 30, 50, 0, 1)
-            self.c.assertMatrix3D(sprite2D.transform.matrix3D, asrt)
+            self.c.assertMatrix3D(sprite3D.transform.matrix3D, asrt)
             # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
             # trace("mat3D.rawData", mat3D.rawData);
 
             # sprite3D: .matrix3D = null
             sprite3D.transform.matrix3D = null
-            self.c.assertMatrix(sprite2D.transform.matrix, 1, 0, 0, 1, 0, 0)
-            self.c.assertEqual(sprite2D.transform.matrix3D, null)
+            self.c.assertMatrix(sprite3D.transform.matrix, 1, 0, 0, 1, 0, 0)
+            self.c.assertEqual(sprite3D.transform.matrix3D, null)
             # RUFFLE: FIXME: mat3D.rawData should be updated by sprite3D x/y update.
             # trace("mat3D.rawData", mat3D.rawData)
 
