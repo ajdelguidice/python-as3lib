@@ -239,20 +239,16 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
         self['foreground'] = self._bg
         self.updateText()
 
-    def processText(self, text):
+    def processText(self):
         '''
         An overridable method to control text preprocessing.
 
-        This method should:
-            1) Set self._text. This is what is returned by the text property and
-                is used by the default implementation of this method to check
-                whether the text has been modified.
-            2) Set self._textCache to the processed text. This is the text that is
-                actually displayed.
+        Use self.text as the unmodified text and return the processed text.
+
+        This method is called every time text changes and should not be called
+        directly.
         '''
-        if self._text != text:
-            self._text = text
-            self._textCache = text.replace('\t', '    ')
+        return self.text.replace('\t', '    ')
 
     @property
     def text(self):
@@ -260,7 +256,9 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
 
     @text.setter
     def text(self, text):
-        self.processText(text)
+        if self.text != text:
+            self._text = text
+            self._textCache = self.processText()
         self.updateText()
 
     @property
@@ -330,11 +328,11 @@ class itkNotebook(itkBaseWidget, Notebook):
         super().__init__(Notebook, master, **kwargs)
 
     def update(self):
-        if not (self._x is None or self._y is None or self._width is None or self._height is None):
+        if None in {self._x, self._y, self._width, self._height}:
+            self.pack(expand=True)
+        else:
             nm = self._window.mult
             self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
-        else:
-            self.pack(expand=True)
 
     updateBackground = _nullFunc
     updateText = _nullFunc
