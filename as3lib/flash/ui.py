@@ -1,5 +1,5 @@
 from __future__ import annotations
-from as3lib import Error, metaclasses, Object
+from as3lib import Error, Object
 from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
 from as3lib.flash.events import ContextMenuEvent
 
@@ -329,7 +329,7 @@ class Mouse:
     ...
 
 
-class MouseCursor(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class MouseCursor(Object):
     ARROW = 'arrow'
     AUTO = 'auto'
     BUTTON = 'button'

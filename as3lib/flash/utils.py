@@ -1,6 +1,6 @@
 from __future__ import annotations
-from as3lib import (ArgumentError, as3state, Boolean, Error, int, metaclasses,
-                    null, Number, Object, uint, undefined)
+from as3lib import (ArgumentError, as3state, Boolean, Error, false, int, null,
+                    Number, Object, true, uint, undefined)
 from as3lib.flash.events import EventDispatcher, TimerEvent
 import builtins
 from miniamf import util
@@ -231,7 +231,7 @@ class ByteArray(_ByteArray):
         bytes.seek(startpos)  # !I don't know if it is supposed to do this
 
 
-class CompressionAlgorithm(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class CompressionAlgorithm(Object):
     DEFLATE = 'deflate'
     LZMA = 'lzma'
     ZLIB = 'zlib'
@@ -280,7 +280,7 @@ class Dictionary(Object):
         return 'Dictionary'
 
 
-class Endian(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class Endian(Object):
     BIG_ENDIAN = 'bigEndian'
     LITTLE_ENDIAN = 'littleEndian'
 
