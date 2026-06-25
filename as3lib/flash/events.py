@@ -1,5 +1,5 @@
-from as3lib import (Array, as3state, Boolean, Error, false, int, metaclasses,
-                    Number, null, Object, String, true, TypeError, uint)
+from as3lib import (Array, as3state, Boolean, Error, false, int, NaN, Number,
+                    null, Object, String, true, TypeError, uint)
 from as3lib.flash.errors import SQLError
 from as3lib.flash.geom import Rectangle
 
@@ -51,63 +51,63 @@ class IEventDispatcher:
 # Classes
 class Event(Object):
     # TODO: Find a way to not pollute children with constants
-    ACTIVATE = 'activate'  # bubbles=False, cancelable=False
-    ADDED = 'added'  # bubbles=True, cancelable=False
-    ADDED_TO_STAGE = 'addedToStage'  # bubbles=False, cancelable=False
-    BROWSER_ZOOM_CHANGE = 'browerZoomChange'  # bubbles=False, cancelable=False
-    CANCEL = 'cancel'  # bubbles=False, cancelable=False
-    CHANGE = 'change'  # bubbles=True, cancelable=False
-    CHANNEL_MESSAGE = 'channelMessage'  # bubbles=False, cancelable=False
-    CHANNEL_STATE = 'channelState'  # bubbles=False, cancelable=False
-    CLEAR = 'clear'  # bubbles=False, cancelable=False
-    CLOSE = 'close'  # bubbles=False, cancelable=False
-    CLOSING = 'closing'  # bubbles=False, cancelable=True
-    COMPLETE = 'complete'  # bubbles=False, cancelable=False
-    CONNECT = 'connect'  # bubbles=False, cancelable=False
-    CONTEXT3D_CREATE = 'context3DCreate'  # ?
-    COPY = 'copy'  # bubbles=False, cancelable=False
-    CUT = 'cut'  # bubbles=False, cancelable=False
-    DEACTIVATE = 'deactivate'  # bubbles=False, cancelable=False
-    DISPLAYING = 'displaying'  # bubbles=False, cancelable=False
-    ENTER_FRAME = 'enterFrame'  # bubbles=False, cancelable=False
-    EXIT_FRAME = 'exitFrame'  # bubbles=False, cancelable=False
-    EXITING = 'exiting'  # bubbles=False, cancelable=True
-    FRAME_CONSTRUCTED = 'frameConstructed'  # bubbles=False, cancelable=False
-    FRAME_LABEL = 'frameLabel'  # bubbles=False, cancelable=False
-    FULLSCREEN = 'fullscreen'  # bubbles=False, cancelable=False
-    HTML_BOUNDS_CHANGE = 'htmlBoundsChange'  # bubbles=False, cancelable=False
-    HTML_DOM_INITIALIZE = 'htmlDOMInitialize'  # bubbles=False, cancelable=False
-    HTML_RENDER = 'htmlRender'  # bubbles=False, cancelable=False
-    ID3 = 'id3'  # bubbles=False, cancelable=False
-    INIT = 'init'  # bubbles=False, cancelable=False
-    LOCATION_CHANGE = 'locationChange'  # bubbles=False, cancelable=False
-    MOUSE_LEAVE = 'mouseLeave'  # bubbles=False, cancelable=False
-    NETWORK_CHANGE = 'networkChange'  # bubbles=False, cancelable=False
-    OPEN = 'open'  # bubbles=False, cancelable=False
-    PASTE = 'paste'  # bubbles=(platformDependant), cancelable=False
-    PREPARING = 'preparing'  # bubbles=False, cancelable=False
-    REMOVED = 'removed'  # bubbles=True, cancelable=False
-    REMOVED_FROM_STAGE = 'removeFromStage'  # bubbles=False, cancelable=False
-    RENDER = 'render'  # bubbles=False, cancelable=False
-    RESIZE = 'resize'  # bubbles=False, cancelable=False
-    SCROLL = 'scroll'  # bubbles=False, cancelable=False
-    SELECT = 'select'  # bubbles=False, cancelable=False
-    SELECT_ALL = 'selectAll'  # bubbles=False, cancelable=False
-    SOUND_COMPLETE = 'soundComplete'  # bubbles=False, cancelable=False
-    STANDARD_ERROR_CLOSE = 'standardErrorClose'  # bubbles=False, cancelable=False
-    STANDARD_INPUT_CLOSE = 'standardInputClose'  # bubbles=False, cancelable=False
-    STANDARD_OUTPUT_CLOSE = 'standardOutputClose'  # bubbles=False, cancelable=False
-    SUSPEND = 'suspend'  # bubbles=False, cancelable=False
-    TAB_CHILDREN_CHANGE = 'tabChildrenChange'  # bubbles=True, cancelable=False
-    TAB_ENABLE_CHANGE = 'tabEnableChange'  # bubbles=True, cancelable=False
-    TAB_INDEX_CHANGE = 'tabIndexChange'  # bubbles=True, cancelable=False
-    TEXT_INTERACTION_MODE_CHANGE = 'textInteractionModeChange'  # bubbles=False, cancelable=False
-    TEXTURE_READY = 'textureReady'  # ?
-    UNLOAD = 'unload'  # bubbles=False, cancelable=False
-    USER_IDLE = 'userIdle'  # bubbles=False, cancelable=False
-    USER_PRESENT = 'userPresent'  # bubbles=False, cancelable=False
-    VIDEO_FRAME = 'videoFrame'  # bubbles=False, cancelable=False
-    WORKER_STATE = 'workerState'  # bubbles=False, cancelable=False
+    ACTIVATE = String('activate')
+    ADDED = String('added')
+    ADDED_TO_STAGE = String('addedToStage')
+    BROWSER_ZOOM_CHANGE = String('browerZoomChange')
+    CANCEL = String('cancel')
+    CHANGE = String('change')
+    CHANNEL_MESSAGE = String('channelMessage')
+    CHANNEL_STATE = String('channelState')
+    CLEAR = String('clear')
+    CLOSE = String('close')
+    CLOSING = String('closing')
+    COMPLETE = String('complete')
+    CONNECT = String('connect')
+    CONTEXT3D_CREATE = String('context3DCreate')
+    COPY = String('copy')
+    CUT = String('cut')
+    DEACTIVATE = String('deactivate')
+    DISPLAYING = String('displaying')
+    ENTER_FRAME = String('enterFrame')
+    EXIT_FRAME = String('exitFrame')
+    EXITING = String('exiting')
+    FRAME_CONSTRUCTED = String('frameConstructed')
+    FRAME_LABEL = String('frameLabel')
+    FULLSCREEN = String('fullscreen')
+    HTML_BOUNDS_CHANGE = String('htmlBoundsChange')
+    HTML_DOM_INITIALIZE = String('htmlDOMInitialize')
+    HTML_RENDER = String('htmlRender')
+    ID3 = String('id3')
+    INIT = String('init')
+    LOCATION_CHANGE = String('locationChange')
+    MOUSE_LEAVE = String('mouseLeave')
+    NETWORK_CHANGE = String('networkChange')
+    OPEN = String('open')
+    PASTE = String('paste')
+    PREPARING = String('preparing')
+    REMOVED = String('removed')
+    REMOVED_FROM_STAGE = String('removeFromStage')
+    RENDER = String('render')
+    RESIZE = String('resize')
+    SCROLL = String('scroll')
+    SELECT = String('select')
+    SELECT_ALL = String('selectAll')
+    SOUND_COMPLETE = String('soundComplete')
+    STANDARD_ERROR_CLOSE = String('standardErrorClose')
+    STANDARD_INPUT_CLOSE = String('standardInputClose')
+    STANDARD_OUTPUT_CLOSE = String('standardOutputClose')
+    SUSPEND = String('suspend')
+    TAB_CHILDREN_CHANGE = String('tabChildrenChange')
+    TAB_ENABLE_CHANGE = String('tabEnableChange')
+    TAB_INDEX_CHANGE = String('tabIndexChange')
+    TEXT_INTERACTION_MODE_CHANGE = String('textInteractionModeChange')
+    TEXTURE_READY = String('textureReady')
+    UNLOAD = String('unload')
+    USER_IDLE = String('userIdle')
+    USER_PRESENT = String('userPresent')
+    VIDEO_FRAME = String('videoFrame')
+    WORKER_STATE = String('workerState')
 
     @property
     def _propagation(self):
@@ -145,7 +145,7 @@ class Event(Object):
         self._cancelable = Boolean(cancelable)
         self._currentTarget = null
         self._target = null
-        self._eventPhase = 2
+        self._eventPhase = uint(2)
         self._preventDefault = false
         self._propagationState = 0
         self._eventDispatched = false
@@ -254,8 +254,8 @@ class EventDispatcher(Object):
 
 
 class TextEvent(Event):
-    LINK = 'link'  # bubbles=True, cancelable=False
-    TEXT_INPUT = 'textInput'  # bubbles=True, cancelable=True
+    LINK = String('link')
+    TEXT_INPUT = String('textInput')
 
     @property
     def text(self):
@@ -279,7 +279,7 @@ class TextEvent(Event):
 
 
 class ErrorEvent(TextEvent):
-    ERROR = 'error'
+    ERROR = String('error')
 
     @property
     def errorID(self):
@@ -300,7 +300,7 @@ class ErrorEvent(TextEvent):
 
 
 class AccelerometerEvent(Event):
-    UPDATE = 'update'
+    UPDATE = String('update')
 
     @property
     def accelerationX(self):
@@ -356,7 +356,7 @@ class AccelerometerEvent(Event):
 
 
 class ActivityEvent(Event):
-    ACTIVITY = 'activity'
+    ACTIVITY = String('activity')
 
     @property
     def activating(self):
@@ -381,7 +381,7 @@ class ActivityEvent(Event):
 
 
 class AsyncErrorEvent(ErrorEvent):
-    ASYNC_ERROR = 'asyncError'
+    ASYNC_ERROR = String('asyncError')
 
     @property
     def error(self):
@@ -408,7 +408,7 @@ class AsyncErrorEvent(ErrorEvent):
 
 
 class AudioOutputChangeEvent(Event):
-    AUDIO_OUTPUT_CHANGE = 'audioOutputChange'
+    AUDIO_OUTPUT_CHANGE = String('audioOutputChange')
 
     @property
     def reason(self):
@@ -422,7 +422,7 @@ class AudioOutputChangeEvent(Event):
 
 class AVDictionaryDataEvent(Event):
     # TODO: Make _dictionary init as a flash.utils.Dictionary object
-    AV_DICTIONARY_DATA = 'avDictionaryData'
+    AV_DICTIONARY_DATA = String('avDictionaryData')
 
     @property
     def dictionary(self):
@@ -441,7 +441,7 @@ class AVDictionaryDataEvent(Event):
 
 
 class AVHTTPStatusEvent(Event):
-    AV_HTTP_RESPONSE_STATUS = 'avHttpResponseStatus'
+    AV_HTTP_RESPONSE_STATUS = String('avHttpResponseStatus')
 
     @property
     def responseHeaders(self):
@@ -482,7 +482,7 @@ class AVHTTPStatusEvent(Event):
 
 
 class AVPauseAtPeriodEndEvent(Event):
-    AV_PAUSE_AT_PERIOD_END = 'avPauseAtPeriodEnd'
+    AV_PAUSE_AT_PERIOD_END = String('avPauseAtPeriodEnd')
 
     @property
     def userData(self):
@@ -495,7 +495,7 @@ class AVPauseAtPeriodEndEvent(Event):
 
 
 class BrowserInvokeEvent(Event):
-    BROWSER_INVOKE = 'browserInvoke'
+    BROWSER_INVOKE = String('browserInvoke')
 
     @property
     def arguments(self):
@@ -534,8 +534,8 @@ class BrowserInvokeEvent(Event):
 
 
 class ContextMenuEvent(Event):
-    MENU_ITEM_SELECT = 'menuItemSelect'
-    MENU_SELECT = 'menuSelect'
+    MENU_ITEM_SELECT = String('menuItemSelect')
+    MENU_SELECT = String('menuSelect')
 
     @property
     def contextMenuOwner(self):
@@ -568,8 +568,8 @@ class ContextMenuEvent(Event):
 
 
 class DataEvent(TextEvent):
-    DATA = 'data'
-    UPLOAD_COMPLETE_DATA = 'uploadCompleteData'
+    DATA = String('data')
+    UPLOAD_COMPLETE_DATA = String('uploadCompleteData')
 
     @property
     def data(self):
@@ -593,7 +593,7 @@ class DataEvent(TextEvent):
 
 
 class DatagramSocketDataEvent(Event):
-    DATA = 'data'
+    DATA = String('data')
 
     @property
     def data(self):
@@ -659,7 +659,7 @@ class DatagramSocketDataEvent(Event):
 
 
 class DeviceRotationEvent(Event):
-    UPDATE = 'update'
+    UPDATE = String('update')
 
     @property
     def pitch(self):
@@ -724,7 +724,7 @@ class DeviceRotationEvent(Event):
 
 
 class DNSResolverEvent(Event):
-    LOOKUP = 'lookup'
+    LOOKUP = String('lookup')
 
     @property
     def host(self):
@@ -794,15 +794,15 @@ class DRMStatusEvent:
     ...
 
 
-class EventPhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-    AT_TARGET = 2
-    BUBBLING_PHASE = 3
-    CAPTURING_PHASE = 1
+class EventPhase(Object):
+    AT_TARGET = uint(2)
+    BUBBLING_PHASE = uint(3)
+    CAPTURING_PHASE = uint(1)
 
 
 class FileListEvent(Event):
-    DIRECTORY_LISTING = 'directoryListing'
-    SELECT_MULTIPLE = 'selectMultiple'
+    DIRECTORY_LISTING = String('directoryListing')
+    SELECT_MULTIPLE = String('selectMultiple')
 
     @property
     def files(self):
@@ -819,11 +819,10 @@ class FileListEvent(Event):
 
 
 class FocusEvent(Event):
-    # TODO: Implement isRelatedObjectInaccessible
-    FOCUS_IN = 'focusIn'
-    FOCUS_OUT = 'focusOut'
-    KEY_FOCUS_CHANGE = 'keyFocusChange'
-    MOUSE_FOCUS_CHANGE = 'mouseFocusChange'
+    FOCUS_IN = String('focusIn')
+    FOCUS_OUT = String('focusOut')
+    KEY_FOCUS_CHANGE = String('keyFocusChange')
+    MOUSE_FOCUS_CHANGE = String('mouseFocusChange')
 
     @property
     def direction(self):
@@ -887,8 +886,8 @@ class FocusEvent(Event):
 
 
 class FullScreenEvent(ActivityEvent):
-    FULL_SCREEN = 'fullScreen'
-    FULL_SCREEN_INTERACTIVE_ACCEPTED = 'fullScreenInteractiveAccepted'
+    FULL_SCREEN = String('fullScreen')
+    FULL_SCREEN_INTERACTIVE_ACCEPTED = String('fullScreenInteractiveAccepted')
 
     @property
     def fullScreen(self):
@@ -915,9 +914,9 @@ class FullScreenEvent(ActivityEvent):
 
 
 class GameInputEvent(ActivityEvent):
-    DEVICE_ADDED = 'deviceAdded'
-    DEVICE_REMOVED = 'deviceRemoved'
-    DEVICE_UNUSABLE = 'deviceUnusable'
+    DEVICE_ADDED = String('deviceAdded')
+    DEVICE_REMOVED = String('deviceRemoved')
+    DEVICE_UNUSABLE = String('deviceUnusable')
 
     @property
     def device(self):
@@ -930,7 +929,7 @@ class GameInputEvent(ActivityEvent):
 
 
 class GeolocationEvent(Event):
-    UPDATE = 'update'
+    UPDATE = String('update')
 
     @property
     def altitude(self):
@@ -1028,7 +1027,7 @@ class GeolocationEvent(Event):
 
 
 class GestureEvent(Event):
-    GESTURE_TWO_FINGER_TAP = 'gestureTwoFingerTap'
+    GESTURE_TWO_FINGER_TAP = String('gestureTwoFingerTap')
 
     @property
     def altKey(self):
@@ -1134,11 +1133,11 @@ class GestureEvent(Event):
         raise NotImplementedError
 
 
-class GesturePhase(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-    ALL = 'all'
-    BEGIN = 'begin'
-    END = 'end'
-    UPDATE = 'update'
+class GesturePhase(Object):
+    ALL = String('all')
+    BEGIN = String('begin')
+    END = String('end')
+    UPDATE = String('update')
 
 
 class HTMLUncaughtScriptExceptionEvent(Event):
@@ -1169,8 +1168,8 @@ class HTMLUncaughtScriptExceptionEvent(Event):
 
 
 class HTTPStatusEvent(Event):
-    HTTP_RESPONSE_STATUS = 'httpResponseStatus'
-    HTTP_STATUS = 'httpStatus'
+    HTTP_RESPONSE_STATUS = String('httpResponseStatus')
+    HTTP_STATUS = String('httpStatus')
 
     @property
     def redirected(self):
@@ -1219,8 +1218,8 @@ class HTTPStatusEvent(Event):
 
 
 class IMEEvent(TextEvent):
-    IME_COMPOSITION = 'imeComposition'
-    IME_START_COMPOSITION = 'imeStartComposition'
+    IME_COMPOSITION = String('imeComposition')
+    IME_START_COMPOSITION = String('imeStartComposition')
 
     @property
     def imeClient(self):
@@ -1246,7 +1245,7 @@ class IMEEvent(TextEvent):
 
 
 class InvokeEvent(Event):
-    INVOKE = 'invoke'
+    INVOKE = String('invoke')
 
     @property
     def arguments(self):
@@ -1275,10 +1274,10 @@ class InvokeEvent(Event):
 
 
 class IOErrorEvent(ErrorEvent):
-    IO_ERROR = 'ioError'
-    STANDARD_ERROR_IO_ERROR = 'standardErrorIoError'
-    STANDARD_INPUT_IO_ERROR = 'standardInputIoError'
-    STANDARD_OUTPUT_IO_ERROR = 'standardOutputIoError'
+    IO_ERROR = String('ioError')
+    STANDARD_ERROR_IO_ERROR = String('standardErrorIoError')
+    STANDARD_INPUT_IO_ERROR = String('standardInputIoError')
+    STANDARD_OUTPUT_IO_ERROR = String('standardOutputIoError')
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false, text: String = '', id: int = 0):
@@ -1294,8 +1293,8 @@ class IOErrorEvent(ErrorEvent):
 
 
 class KeyboardEvent(Event):
-    KEY_DOWN = 'keyDown'
-    KEY_UP = 'keyUp'
+    KEY_DOWN = String('keyDown')
+    KEY_UP = String('keyUp')
 
     @property
     def altKey(self):
@@ -1398,8 +1397,8 @@ class KeyboardEvent(Event):
 
 
 class LocationChangeEvent(Event):
-    LOCATION_CHANGE = 'locationChange'
-    LOCATION_CHANGING = 'locationChanging'
+    LOCATION_CHANGE = String('locationChange')
+    LOCATION_CHANGING = String('locationChanging')
 
     @property
     def location(self):
@@ -1441,7 +1440,7 @@ class MediaEvent(Event):
 
     def toString(self):
         return self.formatToString('MediaEvent', 'type', 'bubbles',
-                                   'cancelable', 'data'))
+                                   'cancelable', 'data')
 
 
 class MouseEvent(Event):
@@ -1615,13 +1614,13 @@ class MouseEvent(Event):
 
 
 class NativeDragEvent(MouseEvent):
-    NATIVE_DRAG_COMPLETE =  String('')
-    NATIVE_DRAG_DROP = String('')
-    NATIVE_DRAG_ENTER = String('')
-    NATIVE_DRAG_EXIT = String('')
-    NATIVE_DRAG_OVER = String('')
-    NATIVE_DRAG_START = String('')
-    NATIVE_DRAG_UPDATE = String('')
+    NATIVE_DRAG_COMPLETE =  String('nativeDragComplete')
+    NATIVE_DRAG_DROP = String('nativeDragDrop')
+    NATIVE_DRAG_ENTER = String('nativeDragEnter')
+    NATIVE_DRAG_EXIT = String('nativeDragExit')
+    NATIVE_DRAG_OVER = String('nativeDragOver')
+    NATIVE_DRAG_START = String('nativeDragStart')
+    NATIVE_DRAG_UPDATE = String('nativeDragUpdate')
 
     @property
     def allowedActions(self):
@@ -1729,7 +1728,7 @@ class NativeWindowBoundsEvent(Event):
                                        self.afterBounds)
 
     def toString(self):
-        return f'[NativeWindowBoundsEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} previousDisplayState={self.beforeBounds} currentDisplayState={self.afterBounds}]'
+        return String(f'[NativeWindowBoundsEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} previousDisplayState={self.beforeBounds} currentDisplayState={self.afterBounds}]')
 
 
 class NativeWindowDisplayStateEvent(Event):
@@ -1873,7 +1872,7 @@ class OutputProgressEvent(Event):
 
 class PermissionEvent(Event):
     # TODO: figure out where permission information is stored
-    PERMISSION_STATUS = 'permissionStatus'
+    PERMISSION_STATUS = String('permissionStatus')
 
     @property
     def status(self):
@@ -1945,11 +1944,11 @@ class PressAndTapGestureEvent(GestureEvent):
 
 
 class ProgressEvent(Event):
-    PROGRESS = 'progress'
-    SOCKET_DATA = 'socketData'
-    STANDARD_ERROR_DATA = 'standardErrorData'
-    STANDARD_INPUT_PROGRESS = 'standardInputProgress'
-    STANDARD_OUTPUT_DATA = 'standardOutputData'
+    PROGRESS = String('progress')
+    SOCKET_DATA = String('socketData')
+    STANDARD_ERROR_DATA = String('standardErrorData')
+    STANDARD_INPUT_PROGRESS = String('standardInputProgress')
+    STANDARD_OUTPUT_DATA = String('standardOutputData')
 
     @property
     def bytesLoaded(self):
@@ -1984,7 +1983,7 @@ class ProgressEvent(Event):
 
 
 class RemoteNotificationEvent(Event):
-    NOTIFICATION + String('notification')
+    NOTIFICATION = String('notification')
     TOKEN = String('token')
 
     @property
@@ -2079,7 +2078,7 @@ class ScreenMouseEvent(MouseEvent):
 
 
 class SecurityErrorEvent(ErrorEvent):
-    SECURITY_ERROR = 'securityError'
+    SECURITY_ERROR = String('securityError')
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false, text: String = '', id: int = 0):
@@ -2195,13 +2194,13 @@ class SoftKeyboardEvent(Event):
         raise NotImplementedError
 
 
-class SoftKeyboardTrigger(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-    CONTENT_TRIGGERED = 'contentTriggered'
-    USER_TRIGGERED = 'userTriggered'
+class SoftKeyboardTrigger(Object):
+    CONTENT_TRIGGERED = String('contentTriggered')
+    USER_TRIGGERED = String('userTriggered')
 
 
 class SQLErrorEvent(ErrorEvent):
-    ERROR = 'error'
+    ERROR = String('error')
 
     @property
     def error(self):
@@ -2225,23 +2224,23 @@ class SQLErrorEvent(ErrorEvent):
 
 
 class SQLEvent(Event):
-    ANALYZE = 'analyze'
-    ATTACH = 'attach'
-    BEGIN = 'begin'
-    CANCEL = 'cancel'
-    CLOSE = 'close'
-    COMMIT = 'commit'
-    COMPACT = 'compact'
-    DEANALYZE = 'deanalyze'
-    DETACH = 'detach'
-    OPEN = 'open'
-    REENCRYPT = 'reencrypt'
-    RELEASE_SAVEPOINT = 'releaseSavepoint'
-    RESULT = 'result'
-    ROLLBACK = 'rollback'
-    ROLLBACK_TO_SAVEPOINT = 'rollbackToSavepoint'
-    SCHEMA = 'schema'
-    SET_SAVEPOINT = 'setSavepoint'
+    ANALYZE = String('analyze')
+    ATTACH = String('attach')
+    BEGIN = String('begin')
+    CANCEL = String('cancel')
+    CLOSE = String('close')
+    COMMIT = String('commit')
+    COMPACT = String('compact')
+    DEANALYZE = String('deanalyze')
+    DETACH = String('detach')
+    OPEN = String('open')
+    REENCRYPT = String('reencrypt')
+    RELEASE_SAVEPOINT = String('releaseSavepoint')
+    RESULT = String('result')
+    ROLLBACK = String('rollback')
+    ROLLBACK_TO_SAVEPOINT = String('rollbackToSavepoint')
+    SCHEMA = String('schema')
+    SET_SAVEPOINT = String('setSavepoint')
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false):
@@ -2252,9 +2251,9 @@ class SQLEvent(Event):
 
 
 class SQLUpdateEvent(Event):
-    DELETE = 'delete'
-    INSERT = 'insert'
-    UPDATE = 'update'
+    DELETE = String('delete')
+    INSERT = String('insert')
+    UPDATE = String('update')
 
     @property
     def rowID(self):
@@ -2277,8 +2276,8 @@ class SQLUpdateEvent(Event):
 
 
 class StageOrientationEvent(Event):
-    ORIENTATION_CHANGE = 'orientationChange'
-    ORIENTATION_CHANGING = 'orientationChanging'
+    ORIENTATION_CHANGE = String('orientationChange')
+    ORIENTATION_CHANGING = String('orientationChanging')
 
     @property
     def afterOrientation(self):
@@ -2308,7 +2307,7 @@ class StageOrientationEvent(Event):
 class StageVideoAvailabilityEvent(Event):
     driver = ''  # TODO
     reason = ''  # TODO
-    STAGE_VIDEO_AVAILABILITY = 'stageVideoAvailability'
+    STAGE_VIDEO_AVAILABILITY = String('stageVideoAvailability')
 
     @property
     def availability(self):
@@ -2322,10 +2321,10 @@ class StageVideoAvailabilityEvent(Event):
 
 class StageVideoEvent(Event):
     codecInfo = ''  # TODO
-    RENDER_STATE = 'renderState'
-    RENDER_STATUS_ACCELERATED = 'accelerated'
-    RENDER_STATUS_SOFTWARE = 'software'
-    RENDER_STATUS_UNAVAILABLE = 'unavailable'
+    RENDER_STATE = String('renderState')
+    RENDER_STATUS_ACCELERATED = String('accelerated')
+    RENDER_STATUS_SOFTWARE = String('software')
+    RENDER_STATUS_UNAVAILABLE = String('unavailable')
 
     @property
     def colorSpace(self):
@@ -2344,7 +2343,7 @@ class StageVideoEvent(Event):
 
 
 class StatusEvent(Event):
-    STATUS = 'status'
+    STATUS = String('status')
 
     @property
     def code(self):
@@ -2410,7 +2409,7 @@ class StorageVolumeChangeEvent(Event):
 
 
 class SyncEvent(Event):
-    SYNC = 'sync'
+    SYNC = String('sync')
 
     @property
     def changeList(self):
@@ -2430,11 +2429,11 @@ class SyncEvent(Event):
                          self.changeList)
 
     def toString(self):
-        return f'[SynceEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} list={self.changeList}]'
+        return String(f'[SynceEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} list={self.changeList}]')
 
 
 class ThrottleEvent(Event):
-    THROTTLE = 'throttle'
+    THROTTLE = String('throttle')
 
     @property
     def state(self):
@@ -2460,15 +2459,15 @@ class ThrottleEvent(Event):
                                    'cancelable', 'state', 'targetFrameRate')
 
 
-class ThrottleType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-    PAUSE = 'pause'
-    RESUME = 'resume'
-    THROTTLE = 'throttle'
+class ThrottleType(Object):
+    PAUSE = String('pause')
+    RESUME = String('resume')
+    THROTTLE = String('throttle')
 
 
 class TimerEvent(Event):
-    TIMER = 'timer'  # bubbles=False, cancelable=False
-    TIMER_COMPLETE = 'timerComplete'  # bubbles=False, cancelable=False
+    TIMER = String('timer')
+    TIMER_COMPLETE = String('timerComplete')
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false):
@@ -2505,10 +2504,10 @@ class TouchEvent(Event):
         raise NotImplementedError
 
 
-class TouchEventIntent(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
-    ERASER = 'eraser'
-    PEN = 'pen'
-    UNKNOWN = 'unknown'
+class TouchEventIntent(Object):
+    ERASER = String('eraser')
+    PEN = String('pen')
+    UNKNOWN = String('unknown')
 
 
 class TransformGestureEvent(GestureEvent):
@@ -2529,7 +2528,7 @@ class TransformGestureEvent(GestureEvent):
 
 
 class UncaughtErrorEvent(ErrorEvent):
-    UNCAUGHT_ERROR = 'uncaughtError'
+    UNCAUGHT_ERROR = String('uncaughtError')
 
     @property
     def error(self):
@@ -2556,10 +2555,10 @@ class UncaughtErrorEvents(EventDispatcher):
 
 class VideoEvent(Event):
     codecInfo = String()  # TODO
-    RENDER_STATE = 'renderState'
-    RENDER_STATUS_ACCELERATED = 'accelerated'
-    RENDER_STATUS_SOFTWARE = 'software'
-    RENDER_STATUS_UNAVAILABLE = 'unavailable'
+    RENDER_STATE = String('renderState')
+    RENDER_STATUS_ACCELERATED = String('accelerated')
+    RENDER_STATUS_SOFTWARE = String('software')
+    RENDER_STATUS_UNAVAILABLE = String('unavailable')
 
     @property
     def status(self):
@@ -2572,7 +2571,7 @@ class VideoEvent(Event):
 
 
 class VideoTextureEvent(Event):
-    RENDER_STATE = 'renderState'
+    RENDER_STATE = String('renderState')
 
     @property
     def colorSpace(self):
@@ -2591,7 +2590,7 @@ class VideoTextureEvent(Event):
 
 
 class VsyncStateChangeAvailabilityEvent:
-    VSYNC_STATE_CHANGE_AVAILABILITY = 'vSyncStateChangeAvailability'
+    VSYNC_STATE_CHANGE_AVAILABILITY = String('vSyncStateChangeAvailability')
 
     @property
     def available(self):
