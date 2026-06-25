@@ -1,5 +1,5 @@
 from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
-                    Error, EvalError, Int, JSON, Math, Namespace, Number,
+                    Error, EvalError, int, JSON, Math, Namespace, Number,
                     Object, QName, RangeError, ReferenceError, RegExp,
                     SecurityError, String, SyntaxError, TypeError, uint,
                     URIError, Vector, VerifyError, XML, XMLList, decodeURI,
@@ -7,4 +7,5 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     isFinite, isNaN, isXMLName, parseFloat, parseInt, trace,
                     unescape)
 from warnings import warn
+Int = int
 warn('The as3lib.toplevel module is deprecated. Import as3lib instead.', DeprecationWarning)

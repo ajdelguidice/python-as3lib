@@ -99,7 +99,6 @@ from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
                         encodeURIComponent, escape, isFinite, isNaN,
                         isXMLName, parseFloat, parseInt, unescape, delete,
                         each, stricteq, strictne)
-Int = int  # Backwards compatibility
 
 
 # Set up miniamf type adapters
