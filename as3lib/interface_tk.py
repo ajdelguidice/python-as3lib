@@ -239,16 +239,16 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
         self['foreground'] = self._bg
         self.updateText()
 
-    def processText(self):
+    def processText(self, text):
         '''
         An overridable method to control text preprocessing.
 
-        Use self.text as the unmodified text and return the processed text.
+        Receives unformatted text as an arguement and returns the processed text.
 
         This method is called every time text changes and should not be called
         directly.
         '''
-        return self.text.replace('\t', '    ')
+        return text.replace('\t', '    ')
 
     @property
     def text(self):
@@ -258,7 +258,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
     def text(self, text):
         if self.text != text:
             self._text = text
-            self._textCache = self.processText()
+            self._textCache = self.processText(text)
         self.updateText()
 
     @property
