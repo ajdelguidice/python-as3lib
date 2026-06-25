@@ -1,5 +1,5 @@
-from as3lib import (as3state, ArgumentError, Array, false, int, metaclasses,
-                    null, true)
+from as3lib import (as3state, ArgumentError, Array, false, int, null, Object,
+                    true)
 from as3lib.flash.events import EventDispatcher, InvokeEvent
 from as3lib.helpers import staticproperty
 import tkinter
@@ -35,7 +35,7 @@ class InteractiveIcon:
     ...
 
 
-class InvokeEventReason(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class InvokeEventReason(Object):
     LOGIN = 'login'
     NOTIFICATION = 'notification'
     OPEN_URL = 'openUrl'

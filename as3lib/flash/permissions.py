@@ -1,7 +1,7 @@
-from as3lib import metaclasses
+from as3lib import Object
 
 
-class PermissionStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class PermissionStatus(Object):
     DENIED = 'denied'
     GRANTED = 'granted'
     ONLY_WHEN_IN_USE = 'onlyWhenInUse'
