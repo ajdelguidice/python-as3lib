@@ -1,10 +1,9 @@
 # Temporary interface to help figure things out. A bit slow when too many things are defined.
-import as3lib as as3
 try:
     from as3lib import cmath
 except Exception:
     from as3lib.cfail import cmath
-from as3lib import as3state, Error
+from as3lib import as3state, Error, isXMLName, trace
 from io import BytesIO
 import PIL
 import tkinter
@@ -831,24 +830,31 @@ class itkDisplay(itkFrame):
 
 
 class itkImage:
+    __slots__ = ('_window', '_data', 'img', '_size')
     def __init__(self, window, data, size):
         self._window = window
-        self._data = data
+        self._data = BytesIO(data)
         self.img = ''
         if size is None:
-            size = PIL.Image.open(BytesIO(data)).size
-        self._size = [size[0], size[1]]
+            with PIL.Image.open(self._data) as img:
+                size = img.size
+                self._size = (size[0], size[1])
+        else:
+            self._size = (size[0], size[1])
+        self.resize()
 
     def resize(self, *e):
         nm = self._window.mult
-        img = PIL.Image.open(BytesIO(self._data))
-        img.thumbnail((self._size[0]*nm, self._size[1]*nm))
-        self.img = PIL.ImageTk.PhotoImage(img)
+        with PIL.Image.open(self._data) as img:
+            img.thumbnail((self._size[0]*nm, self._size[1]*nm))
+            self.img = PIL.ImageTk.PhotoImage(img)
 
 
 class itkBlankImage:
-    img = ''
-    __init__ = _nullFunc
+    __slots__ = ('img')
+    def __init__(self):
+        self.img = ''
+
     resize = _nullFunc
 
 
@@ -1039,9 +1045,9 @@ class itkRoot(tkinter.Toplevel):
         self.geometry(f'{self.width}x{value}')
 
     def addWidget(self, widget, master: str, name: str, **kwargs):
-        if not as3.isXMLName(master):
+        if not isXMLName(master):
             raise Error('interface_tk.window.addWidget; Invalid Master')
-        if not as3.isXMLName(name):
+        if not isXMLName(name):
             raise Error('interface_tk.window.addWidget; Invalid Name')
         self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
         self._children[name].resize()
@@ -1072,7 +1078,6 @@ class itkRoot(tkinter.Toplevel):
         if name == '':
             raise Error('interface_tk.window.addImage; image_name can not be empty string')
         self.images[name] = itkImage(self, data, size)
-        self.images[name].resize()
 
     def addImageLabel(self, master: str, name: str, **kwargs):
         self.addWidget(itkImageLabel, master, name, **kwargs)
@@ -1175,7 +1180,7 @@ class itkRoot(tkinter.Toplevel):
         elif h is not None:
             self.minsize(int((self._startwidth*h)/self._startheight), h)
         else:
-            as3.trace('Invalid type')
+            trace('Invalid type')
 
     def mainloop(self):
         raise Error('interface_tk.window.mainloop; Can not run mainloop on a child window.')
