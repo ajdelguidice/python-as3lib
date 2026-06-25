@@ -1018,9 +1018,12 @@ class itkRoot(tkinter.Toplevel):
 
     @mult.setter
     def mult(self, value):
-        self._fontmult = value*100
-        self._mult = value
-        self.resizeChildren()
+        if self._mult == value:
+            self._children['display'].update()
+        else:
+            self._fontmult = value*100
+            self._mult = value
+            self.resizeChildren()
 
     @property
     def fontmult(self):
@@ -1155,12 +1158,9 @@ class itkRoot(tkinter.Toplevel):
         return {i: self.getChildAttribute(child, i) for i in args}
 
     def doResize(self, event):
-        if event.widget == self:
-            mult = cmath.calculate(self.width, self.height, self._startwidth, self._startheight)
-            if mult == self.mult:
-                self._children['display'].update()
-            else:
-                self.mult = mult
+        if event.widget != self:
+            return
+        self.mult = cmath.calculate(self.width, self.height, self._startwidth, self._startheight)
 
     def minimumSize(self, **kwargs):
         '''
