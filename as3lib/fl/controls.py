@@ -1,6 +1,6 @@
 from __future__ import annotations  # allow forward references
-from as3lib import (Array, Boolean, false, int, metaclasses, null, Object,
-                    String, true, uint)
+from as3lib import (Array, Boolean, false, int, null, Object, String, true,
+                    uint)
 from as3lib.fl.core import UIComponent
 from as3lib.fl.containers import BaseScrollPane
 from as3lib.fl.events import ComponentEvent
@@ -8,7 +8,7 @@ from as3lib.flash.events import EventDispatcher
 from as3lib.flash.text import TextField
 
 
-class ButtonLabelPlacement(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ButtonLabelPlacement(Object):
     BOTTOM = 'bottom'
     LEFT = 'left'
     RIGHT = 'right'
@@ -146,12 +146,12 @@ class ProgressBar(UIComponent):
     ...
 
 
-class ProgressBarDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ProgressBarDirection(Object):
     LEFT = 'left'
     RIGHT = 'right'
 
 
-class ProgressBarMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ProgressBarMode(Object):
     EVENT = 'event'
     MANUAL = 'manual'
     POLLED = 'polled'
@@ -278,12 +278,12 @@ class ScrollBar(UIComponent):
     ...
 
 
-class ScrollBarDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ScrollBarDirection(Object):
     HORIZONTAL = 'horizontal'
     VERTICAL = 'vertical'
 
 
-class ScrollPolicy(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ScrollPolicy(Object):
     AUTO = 'auto'
     OFF = 'off'
     ON = 'on'
@@ -293,7 +293,7 @@ class Slider(UIComponent):
     ...
 
 
-class SliderDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SliderDirection(Object):
     HORIZONTAL = 'horizonal'
     VERTICAL = 'vertical'
 
