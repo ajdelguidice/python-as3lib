@@ -1,5 +1,4 @@
 from __future__ import annotations
-from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 from as3lib import Object
 from . import engine, ime
 
@@ -33,14 +32,14 @@ class Font(Object):
         raise NotImplementedError
 
 
-class FontStyle(_AS3_CONSTANTSOBJECT):
+class FontStyle(Object):
     BOLD = 'bold'
     BOLD_ITALIC = 'boldItalic'
     ITALIC = 'italic'
     REGULAR = 'regular'
 
 
-class FontType(_AS3_CONSTANTSOBJECT):
+class FontType(Object):
     DEVICE = 'device'
     EMBEDDED = 'embedded'
     EMBEDDED_CFF = 'embeddedCFF'
