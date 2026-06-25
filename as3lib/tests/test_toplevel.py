@@ -1,19 +1,20 @@
 # Most of these test cases are based on ones made by the ruffle.rs project
 # https://github.com/ruffle-rs/ruffle
 
-import as3lib
 from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     delete, encodeURI, encodeURIComponent, Error, escape,
-                    EvalError, false, Infinity, JSON, Math, Namespace, NaN,
-                    null, Number, Object, QName, RangeError, ReferenceError,
-                    RegExp, SecurityError, String, SyntaxError, true,
-                    TypeError, uint, undefined, unescape, URIError, Vector,
-                    VerifyError, XML, XMLList)
+                    EvalError, false, Infinity, int, isFinite, isNaN, JSON,
+                    Math, Namespace, NaN, null, Number, Object, parseFloat,
+                    parseInt, QName, RangeError, ReferenceError, RegExp,
+                    SecurityError, String, SyntaxError, true, TypeError, uint,
+                    undefined, unescape, URIError, Vector, VerifyError, XML,
+                    XMLList)
 from as3lib.flash.errors import (EOFError, IllegalOperationError,
                                  InvalidSWFError, IOError, MemoryError,
                                  ScriptTimeoutError, StackOverflowError)
 from as3lib.flash.utils import ByteArray, setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
+import builtins
 # TODO: Clear prototypes after every test
 
 
@@ -569,7 +570,7 @@ class ArrayTests(as3libTestCase):
         # A simple deterministic PRNG; namely, Xorshift.
         def _rng():
             # TODO: This implementation seems wrong
-            rngState = as3lib.Int(0x12345678)
+            rngState = int(0x12345678)
             while True:
                 rngState ^= rngState << 13
                 rngState ^= rngState >> 17
@@ -1359,7 +1360,7 @@ class DateTests(as3libTestCase):
 
     def assertParsed(self, string, useUTC, *args):
         milliseconds = Date.parse(string)
-        if as3lib.isNaN(milliseconds) or milliseconds is None:
+        if isNaN(milliseconds) or milliseconds is None:
             self.fail('Date.parse returned NaN')
         newdate = Date(milliseconds)
         if useUTC:
@@ -1369,7 +1370,7 @@ class DateTests(as3libTestCase):
 
     def assertNotParsed(self, string):
         milliseconds = Date.parse(string)
-        if not as3lib.isNaN(milliseconds) and milliseconds is not None:
+        if not isNaN(milliseconds) and milliseconds is not None:
             self.fail('Date.parse returned valid date when it wasn\'t supposed to')
 
     def test_timestamp(self):
@@ -1604,219 +1605,219 @@ class FunctionTests(as3libTestCase):
         self.assertEscape(escape, asrt)
 
     def test_isfinite(self):
-        self.assertTrue(as3lib.isFinite(true))
-        self.assertTrue(as3lib.isFinite(false))
-        self.assertTrue(as3lib.isFinite(Number(10.0)))
-        self.assertTrue(as3lib.isFinite(10.0))
-        self.assertTrue(as3lib.isFinite(Number(-10.0)))
-        self.assertTrue(as3lib.isFinite(-10.0))
-        self.assertTrue(as3lib.isFinite(Number(0.0)))
-        self.assertTrue(as3lib.isFinite(0.0))
-        self.assertFalse(as3lib.isFinite(NaN))
-        self.assertFalse(as3lib.isFinite(Infinity))
-        self.assertFalse(as3lib.isFinite(-Infinity))
-        self.assertTrue(as3lib.isFinite(String('')))
-        self.assertTrue(as3lib.isFinite(''))
-        self.assertFalse(as3lib.isFinite(String('hello')))
-        self.assertFalse(as3lib.isFinite('hello'))
-        self.assertTrue(as3lib.isFinite(String(' ')))
-        self.assertTrue(as3lib.isFinite(' '))
-        self.assertTrue(as3lib.isFinite(String('  5  ')))
-        self.assertTrue(as3lib.isFinite('  5  '))
-        self.assertTrue(as3lib.isFinite(String('0')))
-        self.assertTrue(as3lib.isFinite('0'))
-        self.assertFalse(as3lib.isFinite(String('NaN')))
-        self.assertFalse(as3lib.isFinite('NaN'))
-        self.assertFalse(as3lib.isFinite(String('Infinity')))
-        self.assertFalse(as3lib.isFinite('Infinity'))
-        self.assertFalse(as3lib.isFinite(String('-Infinity')))
-        self.assertFalse(as3lib.isFinite('-Infinity'))
-        self.assertFalse(as3lib.isFinite(String('100a')))
-        self.assertFalse(as3lib.isFinite('100a'))
-        self.assertTrue(as3lib.isFinite(String('0x10')))
-        self.assertTrue(as3lib.isFinite('0x10'))
-        self.assertFalse(as3lib.isFinite(String('0xhello')))
-        self.assertFalse(as3lib.isFinite('0xhello'))
-        self.assertTrue(as3lib.isFinite(String('0x1999999981ffffff')))
-        self.assertTrue(as3lib.isFinite('0x1999999981ffffff'))
-        self.assertFalse(as3lib.isFinite(String('0xUIXUIDFKHJDF012345678')))
-        self.assertFalse(as3lib.isFinite('0xUIXUIDFKHJDF012345678'))
-        self.assertTrue(as3lib.isFinite(String('123e-1')))
-        self.assertTrue(as3lib.isFinite('123e-1'))
-        self.assertFalse(as3lib.isFinite())
+        self.assertTrue(isFinite(true))
+        self.assertTrue(isFinite(false))
+        self.assertTrue(isFinite(Number(10.0)))
+        self.assertTrue(isFinite(10.0))
+        self.assertTrue(isFinite(Number(-10.0)))
+        self.assertTrue(isFinite(-10.0))
+        self.assertTrue(isFinite(Number(0.0)))
+        self.assertTrue(isFinite(0.0))
+        self.assertFalse(isFinite(NaN))
+        self.assertFalse(isFinite(Infinity))
+        self.assertFalse(isFinite(-Infinity))
+        self.assertTrue(isFinite(String('')))
+        self.assertTrue(isFinite(''))
+        self.assertFalse(isFinite(String('hello')))
+        self.assertFalse(isFinite('hello'))
+        self.assertTrue(isFinite(String(' ')))
+        self.assertTrue(isFinite(' '))
+        self.assertTrue(isFinite(String('  5  ')))
+        self.assertTrue(isFinite('  5  '))
+        self.assertTrue(isFinite(String('0')))
+        self.assertTrue(isFinite('0'))
+        self.assertFalse(isFinite(String('NaN')))
+        self.assertFalse(isFinite('NaN'))
+        self.assertFalse(isFinite(String('Infinity')))
+        self.assertFalse(isFinite('Infinity'))
+        self.assertFalse(isFinite(String('-Infinity')))
+        self.assertFalse(isFinite('-Infinity'))
+        self.assertFalse(isFinite(String('100a')))
+        self.assertFalse(isFinite('100a'))
+        self.assertTrue(isFinite(String('0x10')))
+        self.assertTrue(isFinite('0x10'))
+        self.assertFalse(isFinite(String('0xhello')))
+        self.assertFalse(isFinite('0xhello'))
+        self.assertTrue(isFinite(String('0x1999999981ffffff')))
+        self.assertTrue(isFinite('0x1999999981ffffff'))
+        self.assertFalse(isFinite(String('0xUIXUIDFKHJDF012345678')))
+        self.assertFalse(isFinite('0xUIXUIDFKHJDF012345678'))
+        self.assertTrue(isFinite(String('123e-1')))
+        self.assertTrue(isFinite('123e-1'))
+        self.assertFalse(isFinite())
 
     def test_isNaN(self):
-        self.assertFalse(as3lib.isNaN(true))
-        self.assertFalse(as3lib.isNaN(false))
-        self.assertFalse(as3lib.isNaN(Number(10.0)))
-        self.assertFalse(as3lib.isNaN(Number(-10.0)))
-        self.assertFalse(as3lib.isNaN(Number(0.0)))
-        self.assertTrue(as3lib.isNaN(NaN))
-        self.assertFalse(as3lib.isNaN(Infinity))
-        self.assertFalse(as3lib.isNaN(-Infinity))
-        self.assertFalse(as3lib.isNaN(''))
-        self.assertTrue(as3lib.isNaN('hello'))
-        self.assertFalse(as3lib.isNaN(' '))
-        self.assertFalse(as3lib.isNaN('  5  '))
-        self.assertFalse(as3lib.isNaN('0'))
-        self.assertTrue(as3lib.isNaN("NaN"))
-        self.assertFalse(as3lib.isNaN('Infinity'))
-        self.assertFalse(as3lib.isNaN('-Infinity'))
-        self.assertTrue(as3lib.isNaN('100a'))
-        self.assertFalse(as3lib.isNaN('0x10'))
-        self.assertTrue(as3lib.isNaN('0xhello'))
-        self.assertFalse(as3lib.isNaN('0x1999999981ffffff'))
-        self.assertTrue(as3lib.isNaN('0xUIXUIDFKHJDF012345678'))
-        self.assertFalse(as3lib.isNaN('123e-1'))
-        self.assertTrue(as3lib.isNaN())
+        self.assertFalse(isNaN(true))
+        self.assertFalse(isNaN(false))
+        self.assertFalse(isNaN(Number(10.0)))
+        self.assertFalse(isNaN(Number(-10.0)))
+        self.assertFalse(isNaN(Number(0.0)))
+        self.assertTrue(isNaN(NaN))
+        self.assertFalse(isNaN(Infinity))
+        self.assertFalse(isNaN(-Infinity))
+        self.assertFalse(isNaN(''))
+        self.assertTrue(isNaN('hello'))
+        self.assertFalse(isNaN(' '))
+        self.assertFalse(isNaN('  5  '))
+        self.assertFalse(isNaN('0'))
+        self.assertTrue(isNaN("NaN"))
+        self.assertFalse(isNaN('Infinity'))
+        self.assertFalse(isNaN('-Infinity'))
+        self.assertTrue(isNaN('100a'))
+        self.assertFalse(isNaN('0x10'))
+        self.assertTrue(isNaN('0xhello'))
+        self.assertFalse(isNaN('0x1999999981ffffff'))
+        self.assertTrue(isNaN('0xUIXUIDFKHJDF012345678'))
+        self.assertFalse(isNaN('123e-1'))
+        self.assertTrue(isNaN())
 
     def test_parseFloat(self):
-        self.assertNaN(as3lib.parseFloat())
+        self.assertNaN(parseFloat())
 
         # integer
-        self.assertEqual(as3lib.parseFloat('12345'), Number(12345))
+        self.assertEqual(parseFloat('12345'), Number(12345))
 
         # decimal point
-        self.assertEqual(as3lib.parseFloat('012345.67890'), Number(012345.6789))
+        self.assertEqual(parseFloat('012345.67890'), Number(012345.6789))
 
         # ignore leading/trailing whitespace
-        self.assertEqual(as3lib.parseFloat(" \t\r\n99999.99999\t\r\n      "), Number(99999.99999))
+        self.assertEqual(parseFloat(" \t\r\n99999.99999\t\r\n      "), Number(99999.99999))
 
         # long numbers (more than 15 digits)
-        self.assertEqual(as3lib.parseFloat('-22222222222222222'), Number(-22222222222222224))
-        self.assertEqual(as3lib.parseFloat('-22222222.222222222'), Number(-22222222.222222224))
+        self.assertEqual(parseFloat('-22222222222222222'), Number(-22222222222222224))
+        self.assertEqual(parseFloat('-22222222.222222222'), Number(-22222222.222222224))
 
         # subnormal number
-        self.assertEqual(as3lib.parseFloat('.0000000000000000000000005').toString(), '4.999999999999999e-25')
+        self.assertEqual(parseFloat('.0000000000000000000000005').toString(), '4.999999999999999e-25')
 
         # ignore trailing garbage
-        self.assertEqual(as3lib.parseFloat("0000.12345GIBBERISH"), Number(0.12345))
+        self.assertEqual(parseFloat("0000.12345GIBBERISH"), Number(0.12345))
 
         # exponent
-        self.assertEqual(as3lib.parseFloat("9e99999"), Infinity)
-        self.assertEqual(as3lib.parseFloat("+100e-100").toString(), '0.999999999999999e-98')
-        self.assertEqual(as3lib.parseFloat("-123.234E+66").toString(), '-1.23234e+68')
-        self.assertEqual(as3lib.parseFloat(".2E20E1"), Number(20000000000000000000))
-        self.assertEqual(as3lib.parseFloat("-034.1+e20"), Number(-34.1))
-        self.assertEqual(as3lib.parseFloat("10e"), Number(10))
-        self.assertNaN(as3lib.parseFloat("e10"))
-        self.assertNaN(as3lib.parseFloat("10e-"))
+        self.assertEqual(parseFloat("9e99999"), Infinity)
+        self.assertEqual(parseFloat("+100e-100").toString(), '0.999999999999999e-98')
+        self.assertEqual(parseFloat("-123.234E+66").toString(), '-1.23234e+68')
+        self.assertEqual(parseFloat(".2E20E1"), Number(20000000000000000000))
+        self.assertEqual(parseFloat("-034.1+e20"), Number(-34.1))
+        self.assertEqual(parseFloat("10e"), Number(10))
+        self.assertNaN(parseFloat("e10"))
+        self.assertNaN(parseFloat("10e-"))
 
         # exponent overflow
-        self.assertEqual(as3lib.parseFloat("1e4294967297"), Number(10))
-        self.assertEqual(as3lib.parseFloat("1e2147483648"), Number(0))
-        self.assertEqual(as3lib.parseFloat("1e-2147483648"), Number(0))
+        self.assertEqual(parseFloat("1e4294967297"), Number(10))
+        self.assertEqual(parseFloat("1e2147483648"), Number(0))
+        self.assertEqual(parseFloat("1e-2147483648"), Number(0))
 
         # multiple dots
-        self.assertEqual(as3lib.parseFloat("1.2345.678"), Number(1.2345))
-        self.assertEqual(as3lib.parseFloat("1.2345.6e50"), Number(1.2345))
+        self.assertEqual(parseFloat("1.2345.678"), Number(1.2345))
+        self.assertEqual(parseFloat("1.2345.6e50"), Number(1.2345))
 
         # infinity
-        self.assertEqual(as3lib.parseFloat('Infinity'), Infinity)
-        self.assertEqual(as3lib.parseFloat('-Infinity'), -Infinity)
-        self.assertEqual(as3lib.parseFloat('+Infinity'), Infinity)
-        self.assertNaN(as3lib.parseFloat('Infinitya'))
-        self.assertEqual(as3lib.parseFloat('Infinity   a'), Infinity)
-        self.assertEqual(as3lib.parseFloat(".   Infinity"), Infinity)
-        self.assertEqual(as3lib.parseFloat("e10   Infinity"), Infinity)
-        self.assertEqual(as3lib.parseFloat(".e10   Infinity"), Infinity)
-        self.assertEqual(as3lib.parseFloat("1   Infinity"), Number(1))
+        self.assertEqual(parseFloat('Infinity'), Infinity)
+        self.assertEqual(parseFloat('-Infinity'), -Infinity)
+        self.assertEqual(parseFloat('+Infinity'), Infinity)
+        self.assertNaN(parseFloat('Infinitya'))
+        self.assertEqual(parseFloat('Infinity   a'), Infinity)
+        self.assertEqual(parseFloat(".   Infinity"), Infinity)
+        self.assertEqual(parseFloat("e10   Infinity"), Infinity)
+        self.assertEqual(parseFloat(".e10   Infinity"), Infinity)
+        self.assertEqual(parseFloat("1   Infinity"), Number(1))
 
         # invalid strings
-        self.assertNaN(as3lib.parseFloat("BADBAD"))
-        self.assertNaN(as3lib.parseFloat(''))
-        self.assertNaN(as3lib.parseFloat('-'))
-        self.assertEqual(as3lib.parseFloat('0xff'), Number(0))
-        self.assertNaN(as3lib.parseFloat(String.fromCharCode(305)))
+        self.assertNaN(parseFloat("BADBAD"))
+        self.assertNaN(parseFloat(''))
+        self.assertNaN(parseFloat('-'))
+        self.assertEqual(parseFloat('0xff'), Number(0))
+        self.assertNaN(parseFloat(String.fromCharCode(305)))
 
         # non-string inputs
         #  Booleans
-        self.assertNaN(as3lib.parseFloat(true))
+        self.assertNaN(parseFloat(true))
         #  Numbers
-        self.assertEqual(as3lib.parseFloat(1.2), Number(1.2))
+        self.assertEqual(parseFloat(1.2), Number(1.2))
         #  Infinity objects
-        self.assertEqual(as3lib.parseFloat(Infinity), Infinity)
+        self.assertEqual(parseFloat(Infinity), Infinity)
         #  Function that returns a string
-        self.assertEqual(as3lib.parseFloat(lambda: '5'), Number(5))
+        self.assertEqual(parseFloat(lambda: '5'), Number(5))
         #  Class with toString method
 
         class C:
             def toString():
                 return '6'
 
-        self.assertEqual(as3lib.parseFloat(C()), Number(6))
+        self.assertEqual(parseFloat(C()), Number(6))
 
     def test_parseInt(self):
-        self.assertNaN(as3lib.parseInt())
-        self.assertNaN(as3lib.parseInt(undefined))
-        self.assertEqual(as3lib.parseInt(undefined, 32), as3lib.Int(785077))
-        self.assertEqual(as3lib.parseInt('undefined', 32), 33790067563981)
-        self.assertNaN(as3lib.parseInt(''))
-        self.assertEqual(as3lib.parseInt('123'), as3lib.Int(123))
-        self.assertEqual(as3lib.parseInt('100', 10), as3lib.Int(100))
-        self.assertEqual(as3lib.parseInt('100', 0), as3lib.Int(100))
-        self.assertNaN(as3lib.parseInt('100', 1))
-        self.assertEqual(as3lib.parseInt('100', 2), as3lib.Int(4))
-        self.assertEqual(as3lib.parseInt('100', 36), as3lib.Int(1296))
-        self.assertNaN(as3lib.parseInt('100', 37))
-        self.assertNaN(as3lib.parseInt('100', -1))
-        self.assertEqual(as3lib.parseInt('100', Object()), as3lib.Int(100))
-        self.assertNaN(as3lib.parseInt('100', true))
-        self.assertEqual(as3lib.parseInt('100', false), as3lib.Int(100))
-        self.assertEqual(as3lib.parseInt('100', NaN), as3lib.Int(100))
-        self.assertEqual(as3lib.parseInt('100', undefined), as3lib.Int(100))
-        self.assertEqual(as3lib.parseInt('0x123'), as3lib.Int(291))
-        self.assertEqual(as3lib.parseInt('0xabc'), as3lib.Int(2748))
-        self.assertEqual(as3lib.parseInt('010'), as3lib.Int(2))
-        self.assertEqual(as3lib.parseInt('-0100'), as3lib.Int(-100))
-        self.assertEqual(as3lib.parseInt('-0100z'), as3lib.Int(-100))
-        self.assertNaN(as3lib.parseInt('0x+0X100'))
+        self.assertNaN(parseInt())
+        self.assertNaN(parseInt(undefined))
+        self.assertEqual(parseInt(undefined, 32), int(785077))
+        self.assertEqual(parseInt('undefined', 32), int(33790067563981))
+        self.assertNaN(parseInt(''))
+        self.assertEqual(parseInt('123'), int(123))
+        self.assertEqual(parseInt('100', 10), int(100))
+        self.assertEqual(parseInt('100', 0), int(100))
+        self.assertNaN(parseInt('100', 1))
+        self.assertEqual(parseInt('100', 2), int(4))
+        self.assertEqual(parseInt('100', 36), int(1296))
+        self.assertNaN(parseInt('100', 37))
+        self.assertNaN(parseInt('100', -1))
+        self.assertEqual(parseInt('100', Object()), int(100))
+        self.assertNaN(parseInt('100', true))
+        self.assertEqual(parseInt('100', false), int(100))
+        self.assertEqual(parseInt('100', NaN), int(100))
+        self.assertEqual(parseInt('100', undefined), int(100))
+        self.assertEqual(parseInt('0x123'), int(291))
+        self.assertEqual(parseInt('0xabc'), int(2748))
+        self.assertEqual(parseInt('010'), int(2))
+        self.assertEqual(parseInt('-0100'), int(-100))
+        self.assertEqual(parseInt('-0100z'), int(-100))
+        self.assertNaN(parseInt('0x+0X100'))
         n = 123
-        self.assertEqual(as3lib.parseInt(n), as3lib.Int(123))
-        self.assertEqual(as3lib.parseInt(123, 32), as3lib.Int(1091))
-        self.assertNaN(as3lib.parseInt('++1'))
-        self.assertEqual(as3lib.parseInt('0x100', 36), as3lib.Int(1540944))
-        self.assertEqual(as3lib.parseInt(' 0x100', 36), as3lib.Int(1540944))
-        self.assertEqual(as3lib.parseInt('0y100', 36), as3lib.Int(1597600))
-        self.assertEqual(as3lib.parseInt(' 0y100', 36), as3lib.Int(1597600))
-        self.assertEqual(as3lib.parseInt('-0x100', 36), as3lib.Int(-1540944))
-        self.assertEqual(as3lib.parseInt(' -0x100', 36), as3lib.Int(-1540944))
-        self.assertEqual(as3lib.parseInt('-0y100', 36), as3lib.Int(-1597600))
-        self.assertEqual(as3lib.parseInt(' -0y100', 36), as3lib.Int(-1597600))
-        self.assertEqual(as3lib.parseInt('-0x100'), as3lib.Int(-256))
-        self.assertNaN(as3lib.parseInt('0x-100'))
-        self.assertNaN(as3lib.parseInt(' 0x-100'))
-        self.assertNaN(as3lib.parseInt('0x -100'))
-        self.assertEqual(as3lib.parseInt('-0100'), as3lib.Int(-100))
-        self.assertEqual(as3lib.parseInt('0-100'), as3lib.Int(0))
-        self.assertEqual(as3lib.parseInt('+0x123', 33), as3lib.Int(0))
-        self.assertEqual(as3lib.parseInt('+0x123', 34), as3lib.Int(1298259))
-        self.assertEqual(as3lib.parseInt('0'), as3lib.Int(0))
-        self.assertEqual(as3lib.parseInt(' 0'), as3lib.Int(0))
-        self.assertEqual(as3lib.parseInt(' 0 '), as3lib.Int(0))
-        self.assertEqual(as3lib.parseInt('077'), as3lib.Int(77))
-        self.assertEqual(as3lib.parseInt('  077'), as3lib.Int(77))
-        self.assertEqual(as3lib.parseInt('  077  '), as3lib.Int(77))
-        self.assertEqual(as3lib.parseInt('  -077'), as3lib.Int(-77))
-        self.assertEqual(as3lib.parseInt('077 '), as3lib.Int(77))
-        self.assertEqual(as3lib.parseInt('11', 2), as3lib.Int(3))
-        self.assertEqual(as3lib.parseInt('11', 3), as3lib.Int(4))
-        self.assertEqual(as3lib.parseInt('11', 3.8), as3lib.Int(4))
-        self.assertEqual(as3lib.parseInt('0x12'), as3lib.Int(18))
-        self.assertEqual(as3lib.parseInt('0x12', 16), as3lib.Int(18))
-        self.assertEqual(as3lib.parseInt('0x12', 16.1), as3lib.Int(18))
-        self.assertEqual(as3lib.parseInt('0x12', NaN), as3lib.Int(18))
-        self.assertNaN(as3lib.parseInt('0x  '))
-        self.assertNaN(as3lib.parseInt('0x'))
-        self.assertNaN(as3lib.parseInt('0x  ', 16))
-        self.assertNaN(as3lib.parseInt('0x', 16))
-        self.assertEqual(as3lib.parseInt('12aaa'), as3lib.Int(12))
-        self.assertEqual(as3lib.parseInt("100000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
-        self.assertEqual(as3lib.parseInt("0x1000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
-        self.assertNaN(as3lib.parseInt(String.fromCharCode(305)))
-        self.assertEqual(as3lib.parseInt(String.fromCharCode(0x2000) + "123"), as3lib.Int(123))
+        self.assertEqual(parseInt(n), int(123))
+        self.assertEqual(parseInt(123, 32), int(1091))
+        self.assertNaN(parseInt('++1'))
+        self.assertEqual(parseInt('0x100', 36), int(1540944))
+        self.assertEqual(parseInt(' 0x100', 36), int(1540944))
+        self.assertEqual(parseInt('0y100', 36), int(1597600))
+        self.assertEqual(parseInt(' 0y100', 36), int(1597600))
+        self.assertEqual(parseInt('-0x100', 36), int(-1540944))
+        self.assertEqual(parseInt(' -0x100', 36), int(-1540944))
+        self.assertEqual(parseInt('-0y100', 36), int(-1597600))
+        self.assertEqual(parseInt(' -0y100', 36), int(-1597600))
+        self.assertEqual(parseInt('-0x100'), int(-256))
+        self.assertNaN(parseInt('0x-100'))
+        self.assertNaN(parseInt(' 0x-100'))
+        self.assertNaN(parseInt('0x -100'))
+        self.assertEqual(parseInt('-0100'), int(-100))
+        self.assertEqual(parseInt('0-100'), int(0))
+        self.assertEqual(parseInt('+0x123', 33), int(0))
+        self.assertEqual(parseInt('+0x123', 34), int(1298259))
+        self.assertEqual(parseInt('0'), int(0))
+        self.assertEqual(parseInt(' 0'), int(0))
+        self.assertEqual(parseInt(' 0 '), int(0))
+        self.assertEqual(parseInt('077'), int(77))
+        self.assertEqual(parseInt('  077'), int(77))
+        self.assertEqual(parseInt('  077  '), int(77))
+        self.assertEqual(parseInt('  -077'), int(-77))
+        self.assertEqual(parseInt('077 '), int(77))
+        self.assertEqual(parseInt('11', 2), int(3))
+        self.assertEqual(parseInt('11', 3), int(4))
+        self.assertEqual(parseInt('11', 3.8), int(4))
+        self.assertEqual(parseInt('0x12'), int(18))
+        self.assertEqual(parseInt('0x12', 16), int(18))
+        self.assertEqual(parseInt('0x12', 16.1), int(18))
+        self.assertEqual(parseInt('0x12', NaN), int(18))
+        self.assertNaN(parseInt('0x  '))
+        self.assertNaN(parseInt('0x'))
+        self.assertNaN(parseInt('0x  ', 16))
+        self.assertNaN(parseInt('0x', 16))
+        self.assertEqual(parseInt('12aaa'), int(12))
+        self.assertEqual(parseInt("100000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
+        self.assertEqual(parseInt("0x1000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "00000000000000000000000000000000000000000000000000000000000000000000" + "000000000000000"), Infinity)
+        self.assertNaN(parseInt(String.fromCharCode(305)))
+        self.assertEqual(parseInt(String.fromCharCode(0x2000) + "123"), int(123))
 
-        self.assertEqual(as3lib.parseInt('1.2315e2'), as3lib.Int(123))
+        self.assertEqual(parseInt('1.2315e2'), int(123))
 
     def test_trace(self):
         raise TestNotImplemented
@@ -2000,86 +2001,86 @@ class NumberTestsBase(as3libTestCase):
 
 class intTests(NumberTestsBase):
     def test_constructor(self):
-        self.assertEqual(as3lib.Int(), 0)
-        self.assertEqual(as3lib.Int(true), 1)
-        self.assertEqual(as3lib.Int(True), 1)
-        self.assertEqual(as3lib.Int(false), 0)
-        self.assertEqual(as3lib.Int(False), 0)
-        self.assertEqual(as3lib.Int(null), 0)
-        self.assertEqual(as3lib.Int(undefined), 0)
+        self.assertEqual(int(), 0)
+        self.assertEqual(int(true), 1)
+        self.assertEqual(int(True), 1)
+        self.assertEqual(int(false), 0)
+        self.assertEqual(int(False), 0)
+        self.assertEqual(int(null), 0)
+        self.assertEqual(int(undefined), 0)
 
-        self.assertEqual(as3lib.Int(String('')), 0)
-        self.assertEqual(as3lib.Int(''), 0)
-        self.assertEqual(as3lib.Int(String('str')), 0)
-        self.assertEqual(as3lib.Int('str'), 0)
-        self.assertEqual(as3lib.Int(String('true')), 0)
-        self.assertEqual(as3lib.Int('true'), 0)
-        self.assertEqual(as3lib.Int(String('false')), 0)
-        self.assertEqual(as3lib.Int('false'), 0)
+        self.assertEqual(int(String('')), 0)
+        self.assertEqual(int(''), 0)
+        self.assertEqual(int(String('str')), 0)
+        self.assertEqual(int('str'), 0)
+        self.assertEqual(int(String('true')), 0)
+        self.assertEqual(int('true'), 0)
+        self.assertEqual(int(String('false')), 0)
+        self.assertEqual(int('false'), 0)
 
-        self.assertEqual(as3lib.Int(Number(0.0)), 0)
-        self.assertEqual(as3lib.Int(0.0), 0)
-        self.assertEqual(as3lib.Int(NaN), 0)
-        self.assertEqual(as3lib.Int(Number(-0.0)), 0)
-        self.assertEqual(as3lib.Int(-0.0), 0)
-        self.assertEqual(as3lib.Int(Infinity), 0)
-        self.assertEqual(as3lib.Int(Number(1.0)), 1)
-        self.assertEqual(as3lib.Int(1.0), 1)
-        self.assertEqual(as3lib.Int(Number(-1.0)), -1)
-        self.assertEqual(as3lib.Int(-1.0), -1)
+        self.assertEqual(int(Number(0.0)), 0)
+        self.assertEqual(int(0.0), 0)
+        self.assertEqual(int(NaN), 0)
+        self.assertEqual(int(Number(-0.0)), 0)
+        self.assertEqual(int(-0.0), 0)
+        self.assertEqual(int(Infinity), 0)
+        self.assertEqual(int(Number(1.0)), 1)
+        self.assertEqual(int(1.0), 1)
+        self.assertEqual(int(Number(-1.0)), -1)
+        self.assertEqual(int(-1.0), -1)
 
-        self.assertEqual(as3lib.Int(0xFF1306), 16716550)
-        self.assertEqual(as3lib.Int(1.2315e2), 123)
-        self.assertEqual(as3lib.Int(0x7FFFFFFF), 2147483647)
-        self.assertEqual(as3lib.Int(0x80000000), -2147483648)
-        self.assertEqual(as3lib.Int(0x80000001), -2147483647)
-        self.assertEqual(as3lib.Int(0x180000001), -2147483647)
-        self.assertEqual(as3lib.Int(0x100000001), 1)
-        self.assertEqual(as3lib.Int(-0x7FFFFFFF), -2147483647)
-        self.assertEqual(as3lib.Int(-0x80000000), -2147483648)
-        self.assertEqual(as3lib.Int(-0x80000001), 2147483647)
-        self.assertEqual(as3lib.Int(-0x180000001), 2147483647)
-        self.assertEqual(as3lib.Int(-0x100000001), -1)
+        self.assertEqual(int(0xFF1306), 16716550)
+        self.assertEqual(int(1.2315e2), 123)
+        self.assertEqual(int(0x7FFFFFFF), 2147483647)
+        self.assertEqual(int(0x80000000), -2147483648)
+        self.assertEqual(int(0x80000001), -2147483647)
+        self.assertEqual(int(0x180000001), -2147483647)
+        self.assertEqual(int(0x100000001), 1)
+        self.assertEqual(int(-0x7FFFFFFF), -2147483647)
+        self.assertEqual(int(-0x80000000), -2147483648)
+        self.assertEqual(int(-0x80000001), 2147483647)
+        self.assertEqual(int(-0x180000001), 2147483647)
+        self.assertEqual(int(-0x100000001), -1)
 
         # Parse Tests
-        self.assertEqual(as3lib.Int(String('0.0')), 0)
-        self.assertEqual(as3lib.Int('0.0'), 0)
-        self.assertEqual(as3lib.Int(String('NaN')), 0)
-        self.assertEqual(as3lib.Int('NaN'), 0)
-        self.assertEqual(as3lib.Int(String('-0.0')), 0)
-        self.assertEqual(as3lib.Int('-0.0'), 0)
-        self.assertEqual(as3lib.Int(String('Infinity')), 0)
-        self.assertEqual(as3lib.Int('Infinity'), 0)
-        self.assertEqual(as3lib.Int(String('1.0')), 1)
-        self.assertEqual(as3lib.Int('1.0'), 1)
-        self.assertEqual(as3lib.Int(String('-1.0')), -1)
-        self.assertEqual(as3lib.Int('-1.0'), -1)
-        self.assertEqual(as3lib.Int(String('0xFF1306')), 16716550)
-        self.assertEqual(as3lib.Int('0xFF1306'), 16716550)
-        self.assertEqual(as3lib.Int(String('1.2315e2')), 123)
-        self.assertEqual(as3lib.Int('1.2315e2'), 123)
-        self.assertEqual(as3lib.Int(String('0x7FFFFFFF')), 2147483647)
-        self.assertEqual(as3lib.Int('0x7FFFFFFF'), 2147483647)
-        self.assertEqual(as3lib.Int(String('0x80000000')), -2147483648)
-        self.assertEqual(as3lib.Int('0x80000000'), -2147483648)
-        self.assertEqual(as3lib.Int(String('0x80000001')), -2147483647)
-        self.assertEqual(as3lib.Int('0x80000001'), -2147483647)
-        self.assertEqual(as3lib.Int(String('0x180000001')), -2147483647)
-        self.assertEqual(as3lib.Int('0x180000001'), -2147483647)
-        self.assertEqual(as3lib.Int(String('0x100000001')), 1)
-        self.assertEqual(as3lib.Int('0x100000001'), 1)
-        self.assertEqual(as3lib.Int(String('-0x7FFFFFFF')), -2147483647)
-        self.assertEqual(as3lib.Int('-0x7FFFFFFF'), -2147483647)
-        self.assertEqual(as3lib.Int(String('-0x80000000')), -2147483648)
-        self.assertEqual(as3lib.Int('-0x80000000'), -2147483648)
-        self.assertEqual(as3lib.Int(String('-0x80000001')), 2147483647)
-        self.assertEqual(as3lib.Int('-0x80000001'), 2147483647)
-        self.assertEqual(as3lib.Int(String('-0x180000001')), 2147483647)
-        self.assertEqual(as3lib.Int('-0x180000001'), 2147483647)
-        self.assertEqual(as3lib.Int(String('-0x100000001')), -1)
-        self.assertEqual(as3lib.Int('-0x100000001'), -1)
+        self.assertEqual(int(String('0.0')), 0)
+        self.assertEqual(int('0.0'), 0)
+        self.assertEqual(int(String('NaN')), 0)
+        self.assertEqual(int('NaN'), 0)
+        self.assertEqual(int(String('-0.0')), 0)
+        self.assertEqual(int('-0.0'), 0)
+        self.assertEqual(int(String('Infinity')), 0)
+        self.assertEqual(int('Infinity'), 0)
+        self.assertEqual(int(String('1.0')), 1)
+        self.assertEqual(int('1.0'), 1)
+        self.assertEqual(int(String('-1.0')), -1)
+        self.assertEqual(int('-1.0'), -1)
+        self.assertEqual(int(String('0xFF1306')), 16716550)
+        self.assertEqual(int('0xFF1306'), 16716550)
+        self.assertEqual(int(String('1.2315e2')), 123)
+        self.assertEqual(int('1.2315e2'), 123)
+        self.assertEqual(int(String('0x7FFFFFFF')), 2147483647)
+        self.assertEqual(int('0x7FFFFFFF'), 2147483647)
+        self.assertEqual(int(String('0x80000000')), -2147483648)
+        self.assertEqual(int('0x80000000'), -2147483648)
+        self.assertEqual(int(String('0x80000001')), -2147483647)
+        self.assertEqual(int('0x80000001'), -2147483647)
+        self.assertEqual(int(String('0x180000001')), -2147483647)
+        self.assertEqual(int('0x180000001'), -2147483647)
+        self.assertEqual(int(String('0x100000001')), 1)
+        self.assertEqual(int('0x100000001'), 1)
+        self.assertEqual(int(String('-0x7FFFFFFF')), -2147483647)
+        self.assertEqual(int('-0x7FFFFFFF'), -2147483647)
+        self.assertEqual(int(String('-0x80000000')), -2147483648)
+        self.assertEqual(int('-0x80000000'), -2147483648)
+        self.assertEqual(int(String('-0x80000001')), 2147483647)
+        self.assertEqual(int('-0x80000001'), 2147483647)
+        self.assertEqual(int(String('-0x180000001')), 2147483647)
+        self.assertEqual(int('-0x180000001'), 2147483647)
+        self.assertEqual(int(String('-0x100000001')), -1)
+        self.assertEqual(int('-0x100000001'), -1)
 
-        self.assertEqual(as3lib.Int(Object()), 0)
+        self.assertEqual(int(Object()), 0)
 
     def test_edge_cases(self):
         raise TestNotImplemented
@@ -2091,15 +2092,15 @@ class intTests(NumberTestsBase):
         # 2026-01-06T18:24:19.825446Z  INFO avm_trace: int
 
         # Int overflow => Number
-        self.assertType(as3lib.Int(268435454), as3lib.Int)
-        self.assertType(as3lib.Int(268435454 + 1), as3lib.Int)
-        self.assertType(as3lib.Int(268435454 + 2), Number)
+        self.assertType(int(268435454), int)
+        self.assertType(int(268435454 + 1), int)
+        self.assertType(int(268435454 + 2), Number)
 
         # Int underflow => Number
-        self.assertType(as3lib.Int(-268435454), as3lib.Int)
-        self.assertType(as3lib.Int(-268435454 - 1), as3lib.Int)
-        self.assertType(as3lib.Int(-268435454 - 2), as3lib.Int)
-        self.assertType(as3lib.Int(-268435454 - 3), Number)
+        self.assertType(int(-268435454), int)
+        self.assertType(int(-268435454 - 1), int)
+        self.assertType(int(-268435454 - 2), int)
+        self.assertType(int(-268435454 - 3), Number)
 
         # properties declared 'uint' don't underflow at 0
         self.assertEqual(Array().length - 1, -1)
@@ -2121,7 +2122,7 @@ class intTests(NumberTestsBase):
 
     def assertToExponential(self, value, check):
         # null/0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
-        val = as3lib.Int(value)
+        val = int(value)
         self._assertToExponential(val, check)
 
     def test_toExponential(self):
@@ -2276,7 +2277,7 @@ class intTests(NumberTestsBase):
 
     def assertToFixed(self, value, check):
         # null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
-        val = as3lib.Int(value)
+        val = int(value)
         self._assertToFixed(val, check)
 
     def test_toFixed(self):
@@ -2436,7 +2437,7 @@ class intTests(NumberTestsBase):
         self.assertToFixed('-0x100000001', asrt_n1)
 
     def assertToPrecision(self, value, check):
-        val = as3lib.Int(value)
+        val = int(value)
         self._assertToPrecision(val, check)
 
     def test_toPrecision(self):
@@ -2583,7 +2584,7 @@ class intTests(NumberTestsBase):
 
     def assertToString(self, value, check):
         # 2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
-        val = as3lib.Int(value)
+        val = int(value)
         self._assertToString(val, check)
 
     def test_toString(self):
@@ -2801,8 +2802,8 @@ class JSONTests(as3libTestCase):
 
         # Parse with custom reviver
         def func(k, v):
-            if isinstance(v, (as3lib.Int, int)):
-                return as3lib.String('custom')
+            if isinstance(v, (int, builtins.int)):
+                return String('custom')
             return v
 
         parsed = JSON.parse(INPUT, func)
@@ -4250,8 +4251,8 @@ class OperationTests(as3libTestCase):
         self.assertNaN(-NaN)
         self.assertEqual(--Number(0.0), 0)
         self.assertEqual(-Infinity, Number.NEGATIVE_INFINITY)
-        self.assertEqual(-Number(1.0), as3lib.Int(-1))
-        self.assertEqual(--Number(1.0), as3lib.Int(1))
+        self.assertEqual(-Number(1.0), int(-1))
+        self.assertEqual(--Number(1.0), int(1))
         self.assertNaN(-Object())
 
     def test_equals(self):
@@ -4480,20 +4481,20 @@ class OperationTests(as3libTestCase):
 
     def test_ifeq(self):
         # TODO: Make these use if statements
-        self.assertEqual(as3lib.Int(2), String('2'))
-        self.assertEqual(as3lib.Int(2), as3lib.Int(2))
-        self.assertNotEqual(as3lib.Int(2), as3lib.Int(5))
+        self.assertEqual(int(2), String('2'))
+        self.assertEqual(int(2), int(2))
+        self.assertNotEqual(int(2), int(5))
         self.assertEqual(true, true)
         self.assertEqual(false, false)
         self.assertEqual(true, false)
-        self.assertEqual(as3lib.Int(1), true)
-        self.assertEqual(as3lib.Int(0), false)
+        self.assertEqual(int(1), true)
+        self.assertEqual(int(0), false)
         self.assertEqual(String('abc'), String('abc'))
-        self.assertNotEqual(as3lib.Int(0), undefined)
+        self.assertNotEqual(int(0), undefined)
         self.assertEqual(undefined, undefined)
         self.assertNotEqual(NaN, NaN)
         self.assertNotEqual(undefined, NaN)
-        self.assertNotEqual(as3lib.Int(0), null)
+        self.assertNotEqual(int(0), null)
         self.assertEqual(null, null)
         self.assertEqual(undefined, null)
         self.assertNotEqual(NaN, null)
@@ -4514,39 +4515,39 @@ class OperationTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_ifstricteq(self):
-        self.assertNotStrictEQ(as3lib.Number(2), String('2'))
-        self.assertStrictEQ(as3lib.Number(2), as3lib.Number(2))
-        self.assertNotStrictEQ(as3lib.Number(2), as3lib.Number(5))
+        self.assertNotStrictEQ(Number(2), String('2'))
+        self.assertStrictEQ(Number(2), Number(2))
+        self.assertNotStrictEQ(Number(2), Number(5))
         self.assertStrictEQ(true, true)
         self.assertStrictEQ(false, false)
         self.assertNotStrictEQ(true, false)
-        self.assertNotStrictEQ(as3lib.Number(1), true)
-        self.assertNotStrictEQ(as3lib.Number(0), false)
+        self.assertNotStrictEQ(Number(1), true)
+        self.assertNotStrictEQ(Number(0), false)
         self.assertStrictEQ(String('abc'), String('abc'))
-        self.assertNotStrictEQ(as3lib.Number(0), undefined)
+        self.assertNotStrictEQ(Number(0), undefined)
         self.assertStrictEQ(undefined, undefined)
         self.assertStrictEQ(NaN, NaN)
         self.assertNotStrictEQ(undefined, NaN)
-        self.assertNotStrictEQ(as3lib.Number(0), null)
+        self.assertNotStrictEQ(Number(0), null)
         self.assertStrictEQ(null, null)
         self.assertNotStrictEQ(undefined, null)
         self.assertNotStrictEQ(NaN, null)
 
     def test_ifstrictne(self):
-        self.assertStrictNE(as3lib.Number(2), String('2'))
-        self.assertNotStrictNE(as3lib.Number(2), as3lib.Number(2))
-        self.assertStrictNE(as3lib.Number(2), as3lib.Number(5))
+        self.assertStrictNE(Number(2), String('2'))
+        self.assertNotStrictNE(Number(2), Number(2))
+        self.assertStrictNE(Number(2), Number(5))
         self.assertNotStrictNE(true, true)
         self.assertNotStrictNE(false, false)
         self.assertStrictNE(true, false)
-        self.assertStrictNE(as3lib.Number(1), true)
-        self.assertStrictNE(as3lib.Number(0), false)
+        self.assertStrictNE(Number(1), true)
+        self.assertStrictNE(Number(0), false)
         self.assertNotStrictNE(String('abc'), String('abc'))
-        self.assertStrictNE(as3lib.Number(0), undefined)
+        self.assertStrictNE(Number(0), undefined)
         self.assertNotStrictNE(undefined, undefined)
         self.assertStrictNE(NaN, NaN)
         self.assertStrictNE(undefined, NaN)
-        self.assertStrictNE(as3lib.Number(0), null)
+        self.assertStrictNE(Number(0), null)
         self.assertNotStrictNE(null, null)
         self.assertStrictNE(undefined, null)
         self.assertStrictNE(NaN, null)
@@ -6661,24 +6662,24 @@ class WTFJSTests(as3libTestCase):
         self.assertEqual(Array(Array(Array(Array(Array(Array(undefined)))))), Number(0))
 
     def test_parseInt_quirks(self):
-        self.assertNaN(as3lib.parseInt('f*ck'))
-        self.assertEqual(as3lib.parseInt('f*ck', 16), 15)
-        self.assertNaN(as3lib.parseInt('Infinity', 10))
-        self.assertNaN(as3lib.parseInt('Infinity', 18))
-        self.assertEqual(as3lib.parseInt('Infinity', 19), 18)
-        self.assertEqual(as3lib.parseInt('Infinity', 24), 151176378)
-        self.assertEqual(as3lib.parseInt('Infinity', 29), 385849803)
-        self.assertEqual(as3lib.parseInt('Infinity', 30), 13693557269)
-        self.assertEqual(as3lib.parseInt('Infinity', 34), 28872273981)
-        self.assertEqual(as3lib.parseInt('Infinity', 35), 1201203301724)
-        self.assertNaN(as3lib.parseInt('Infinity', 37))
-        self.assertEqual(as3lib.parseInt(null, 24), 23)
-        self.assertEqual(as3lib.parseInt('06'), 6)
+        self.assertNaN(parseInt('f*ck'))
+        self.assertEqual(parseInt('f*ck', 16), 15)
+        self.assertNaN(parseInt('Infinity', 10))
+        self.assertNaN(parseInt('Infinity', 18))
+        self.assertEqual(parseInt('Infinity', 19), 18)
+        self.assertEqual(parseInt('Infinity', 24), 151176378)
+        self.assertEqual(parseInt('Infinity', 29), 385849803)
+        self.assertEqual(parseInt('Infinity', 30), 13693557269)
+        self.assertEqual(parseInt('Infinity', 34), 28872273981)
+        self.assertEqual(parseInt('Infinity', 35), 1201203301724)
+        self.assertNaN(parseInt('Infinity', 37))
+        self.assertEqual(parseInt(null, 24), 23)
+        self.assertEqual(parseInt('06'), 6)
         # parseInt("08"); // 8 if support ECMAScript 5
         # parseInt("08"); // 0 if not support ECMAScript 5
-        self.assertEqual(as3lib.parseInt(0.000001), 0)
-        self.assertEqual(as3lib.parseInt(0.0000001), 1)
-        self.assertEqual(as3lib.parseInt(1 / 1999999), 5)
+        self.assertEqual(parseInt(0.000001), 0)
+        self.assertEqual(parseInt(0.0000001), 1)
+        self.assertEqual(parseInt(1 / 1999999), 5)
 
     def test_funny_math(self):
         '''
