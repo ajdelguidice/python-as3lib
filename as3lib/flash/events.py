@@ -1,6 +1,7 @@
 from as3lib import (Array, as3state, Boolean, Error, false, int, metaclasses,
                     Number, null, Object, String, true, TypeError, uint)
 from as3lib.flash.errors import SQLError
+from as3lib.flash.geom import Rectangle
 
 
 _ERRCONSTAllowedChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
@@ -864,7 +865,7 @@ class FocusEvent(Event):
     def shiftKey(self, value):
         self._shiftKey = Boolean(value)
 
-    def __init__(self, type: String, bubbles: Boolean = false,
+    def __init__(self, type: String, bubbles: Boolean = true,
                  cancelable: Boolean = false, relatedObject = null,
                  shiftKey: Boolean = false, keyCode: uint = 0,
                  direction: String = 'none'):
@@ -1027,22 +1028,107 @@ class GeolocationEvent(Event):
 
 
 class GestureEvent(Event):
-    # TODO
     GESTURE_TWO_FINGER_TAP = 'gestureTwoFingerTap'
 
-    def __init__(self, type: String, bubbles: Boolean = false,
+    @property
+    def altKey(self):
+        return self._altKey
+
+    @altKey.setter
+    def altKey(self, value):
+        self._altKey = Boolean(value)
+
+    @property
+    def commandKey(self):
+        return self._commandKey
+
+    @commandKey.setter
+    def commandKey(self, value):
+        self._commandKey = Boolean(value)
+
+    @property
+    def controlKey(self):
+        return self._controlKey
+
+    @controlKey.setter
+    def controlKey(self, value):
+        self._controlKey = Boolean(value)
+
+    @property
+    def ctrlKey(self):
+        return self._ctrlKey
+
+    @ctrlKey.setter
+    def ctrlKey(self, value):
+        self._ctrlKey = Boolean(value)
+
+    @property
+    def localX(self):
+        return self._localX
+
+    @localX.setter
+    def localX(self, value):
+        self._localX = Number(value)
+
+    @property
+    def localY(self):
+        return self._localY
+
+    @localY.setter
+    def localY(self, value):
+        self._localY = Number(value)
+
+    @property
+    def phase(self):
+        return self._phase
+
+    @phase.setter
+    def phase(self, value):
+        # TODO: Use "value not in GesturePhase" once "in" is implemented
+        #       properly for Object and _AS3_CONSTANTSOBJECT
+        if value not in {'all', 'begin', 'end', 'update'}:
+            raise
+        self._phase = String(value)
+
+    @property
+    def shiftKey(self):
+        return self._shiftKey
+
+    @shiftKey.setter
+    def shiftKey(self, value):
+        self._shiftKey = Boolean(value)
+
+    @property
+    def stageX(self):
+        raise NotImplementedError
+
+    @property
+    def stageY(self):
+        raise NotImplementedError
+
+    def __init__(self, type: String, bubbles: Boolean = true,
                  cancelable: Boolean = false, phase: String = null,
                  localX: Number = 0, localY: Number = 0,
                  ctrlKey: Boolean = false, altKey: Boolean = false,
-                 commandKey: Boolean = false, controlKey: Boolean = false):
+                 shiftKey: Boolean = false, commandKey: Boolean = false,
+                 controlKey: Boolean = false):
         super().__init__(type, bubbles, cancelable)
-        raise NotImplementedError
+        self.phase = phase
+        self.localX = localX
+        self.localY = localY
+        self.ctrlKey = ctrlKey
+        self.altKey = altKey
+        self.shiftKey = shiftKey
+        self.commandKey = commandKey
+        self.controlKey = controlKey
 
     def clone(self):
         raise NotImplementedError
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('GestureEvent', 'phase', 'localX',
+                                   'localY', 'ctrlKey', 'altKey', 'shiftKey',
+                                   'commandKey', 'controlKey')
 
     def updateAfterEvent(self):
         raise NotImplementedError
@@ -1194,6 +1280,10 @@ class IOErrorEvent(ErrorEvent):
     STANDARD_INPUT_IO_ERROR = 'standardInputIoError'
     STANDARD_OUTPUT_IO_ERROR = 'standardOutputIoError'
 
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, text: String = '', id: int = 0):
+        super().__init__(type, bubbles, cancelable, text, id)
+
     def clone(self):
         return IOErrorEvent(self.type, self.bubbles, self.cancelable,
                             self.text, self.errorID)
@@ -1274,7 +1364,7 @@ class KeyboardEvent(Event):
     def shiftKey(self, value):
         self._shiftKey = Boolean(value)
 
-    def __init__(self, type: String, bubbles: Boolean = false,
+    def __init__(self, type: String, bubbles: Boolean = true,
                  cancelable: Boolean = false, charCodeValue: uint = 0,
                  keyCodeValue: uint = 0, keyLocationValue: uint = 0,
                  ctrlKeyValue: Boolean = false, altKeyValue: Boolean = false,
@@ -1333,23 +1423,189 @@ class LocationChangeEvent(Event):
                                    'cancelable', 'location')
 
 
-class MediaEvent:
-    def __init__(self):
-        raise NotImplementedError
+class MediaEvent(Event):
+    COMPLETE = String('complete')
+    SELECT = String('select')
+
+    @property
+    def data(self):
+        return self._data
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, data = null):
+        super().__init__(type, bubbles, cancelable)
+        self._data = data
 
     def clone(self):
-        raise NotImplementedError
+        return MediaEvent(self.type, self.bubbles, self.cancelable, self.data)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('MediaEvent', 'type', 'bubbles',
+                                   'cancelable', 'data'))
 
 
-class MouseEvent:
-    def __init__(self):
+class MouseEvent(Event):
+    CLICK = String('click')
+    CONTEXT_MENU = String('contextMenu')
+    DOUBLE_CLICK = String('doubleClick')
+    MIDDLE_CLICK = String('middleClick')
+    MIDDLE_MOUSE_DOWN = String('middleMouseDown')
+    MIDDLE_MOUSE_UP = String('middleMouseUp')
+    MOUSE_DOWN = String('mouseDown')
+    MOUSE_MOVE = String('mouseMove')
+    MOUSE_OUT = String('mouseOut')
+    MOUSE_OVER = String('mouseOver')
+    MOUSE_UP = String('mouseUp')
+    MOUSE_WHEEL = String('mouseWheel')
+    RELEASE_OUTSIDE = String('releaseOutside')
+    RIGHT_CLICK = String('rightClick')
+    RIGHT_MOUSE_DOWN = String('rightMouseDown')
+    RIGHT_MOUSE_UP = String('rightMouseUp')
+    ROLL_OUT = String('rollOut')
+    ROLL_OVER = String('rollOver')
+
+    @property
+    def altKey(self):
+        return self._altKey
+
+    @altKey.setter
+    def altKey(self, value):
+        self._altKey = Boolean(value)
+
+    @property
+    def buttonDown(self):
+        return self._buttonDown
+
+    @buttonDown.setter
+    def buttonDown(self, value):
+        self._buttonDown = Boolean(value)
+
+    @property
+    def clickCount(self):
+        return self._clickCount
+
+    @property
+    def commandKey(self):
+        return self._commandKey
+
+    @commandKey.setter
+    def commandKey(self, value):
+        self._commandKey = Boolean(value)
+
+    @property
+    def controlKey(self):
+        return self._controlKey
+
+    @controlKey.setter
+    def controlKey(self, value):
+        self._controlKey = Boolean(value)
+
+    @property
+    def ctrlKey(self):
+        return self._ctrlKey
+
+    @ctrlKey.setter
+    def ctrlKey(self, value):
+        self._ctrlKey = Boolean(value)
+
+    @property
+    def delta(self):
+        return self._delta
+
+    @delta.setter
+    def delta(self, value):
+        self._delta = int(value)
+
+    @property
+    def isRelatedObjectInaccessible(self):
         raise NotImplementedError
+
+    @isRelatedObjectInaccessible.setter
+    def isRelatedObjectInaccessible(self, value):
+        raise NotImplementedError
+
+    @property
+    def localX(self):
+        return self._localX
+
+    @localX.setter
+    def localX(self, value):
+        self._localX = Number(value)
+
+    @property
+    def localY(self):
+        return self._localY
+
+    @localY.setter
+    def localY(self, value):
+        self._localY = Number(value)
+
+    @property
+    def movementX(self):
+        return self._movementX
+
+    @movementX.setter
+    def movementX(self, value):
+        self._movementX = Number(value)
+
+    @property
+    def movementY(self):
+        return self._movementY
+
+    @movementY.setter
+    def movementY(self, value):
+        self._movementY = Number(value)
+
+    @property
+    def relatedObject(self):
+        return self._relatedObject
+
+    @relatedObject.setter
+    def relatedObject(self, value):
+        raise NotImplementedError
+
+    @property
+    def shiftKey(self):
+        return self._shiftKey
+
+    @shiftKey.setter
+    def shiftKey(self, value):
+        self._shiftKey = Boolean(value)
+
+    @property
+    def stageX(self):
+        raise NotImplementedError
+
+    @property
+    def stageY(self):
+        raise NotImplementedError
+
+    def __init__(self, type: String, bubbles: Boolean = true,
+                 cancelable: Boolean = false, localX: Number = NaN,
+                 localY: Number = NaN, relatedObject = null,
+                 ctrlKey: Boolean = false, altKey: Boolean = false,
+                 shiftKey: Boolean = false, buttonDown: Boolean = false,
+                 delta: int = 0, commandKey: Boolean = false,
+                 controlKey: Boolean = false, clickCount: int = 0):
+        super().__init__(type, bubbles, cancelable)
+        self.localX = localX
+        self.localY = localY
+        self._relatedObject = relatedObject
+        self.ctrlKey = ctrlKey
+        self.altKey = altKey
+        self.shiftKey = shiftKey
+        self.buttonDown = buttonDown
+        self.delta = delta
+        self.commandKey = commandKey
+        self.controlKey = controlKey
+        self._clickCount = int(clickCount)
 
     def clone(self):
-        raise NotImplementedError
+        return MouseEvent(self.type, self.bubbles, self.cancelable,
+                          self.localX, self.localY, self.relatedObject,
+                          self.ctrlKey, self.altKey, self.shiftKey,
+                          self.buttonDown, self.delta, self.commandKey,
+                          self.controlKey, self.clickCount)
 
     def toString(self):
         raise NotImplementedError
@@ -1358,92 +1614,261 @@ class MouseEvent:
         raise NotImplementedError
 
 
-class NativeDragEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NativeDragEvent(MouseEvent):
+    NATIVE_DRAG_COMPLETE =  String('')
+    NATIVE_DRAG_DROP = String('')
+    NATIVE_DRAG_ENTER = String('')
+    NATIVE_DRAG_EXIT = String('')
+    NATIVE_DRAG_OVER = String('')
+    NATIVE_DRAG_START = String('')
+    NATIVE_DRAG_UPDATE = String('')
+
+    @property
+    def allowedActions(self):
+        return self._allowedActions
+
+    @allowedActions.setter
+    def allowedActions(self, value):
+        self._allowedActions = value
+
+    @property
+    def clipboard(self):
+        return self._clipboard
+
+    @clipboard.setter
+    def clipboard(self, value):
+        self._clipboard = value
+
+    @property
+    def dropAction(self):
+        return self._dropAction
+
+    @dropAction.setter
+    def dropAction(self, value):
+        self._dropAction = String(value)
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = true, localX: Number = NaN,
+                 localY: Number = NaN, relatedObject = null, clipboard = null,
+                 allowedActions = null, dropAction: String = null,
+                 controlKey: Boolean = false, altKey: Boolean = false,
+                 shiftKey: Boolean = false, commandKey: Boolean = false):
+        super().__init__(type, bubbles, cancelable, localX, localY,
+                         relatedObject, false, altKey, shiftKey, false, 0,
+                         commandKey, controlKey, 0)
+        self.allowedActions = allowedActions
+        self.dropAction = dropAction
+        self.clipboard = clipboard
 
     def clone(self):
-        raise NotImplementedError
+        return NativeDragEvent(self.type, self.bubbles, self.cancelable,
+                               self.localX, self.localY, self.relatedObject,
+                               self.clipboard, self.allowedActions,
+                               self.dropAction, self.controlKey, self.altKey,
+                               self.shiftKey, self.commandKey)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NativeDragEvent', 'type', 'bubbles',
+                                   'cancelable', 'localX', 'localY',
+                                   'relatedObject', 'clipboard',
+                                   'allowedActions', 'dropAction',
+                                   'controlKey', 'altKey', 'shiftKey',
+                                   'commandKey')
 
 
-class NativeProcessExitEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NativeProcessExitEvent(Event):
+    EXIT = String('exit')
+
+    @property
+    def exitCode(self):
+        return self._exitCode
+
+    @exitCode.setter
+    def exitCode(self, value):
+        self._exitCode = Number(value)
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, exitCode: Number = NaN):
+        super().__init__(type, bubbles, cancelable)
+        self.exitCode = exitCode
 
     def clone(self):
-        raise NotImplementedError
+        return NativeProcessExitEvent(self.type, self.bubbles,
+                                      self.cancelable, self.exitCode)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NativeProcessExitEvent', 'type',
+                                   'bubbles', 'cancelable', 'exitCode')
 
 
-class NativeWindowBoundsEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NativeWindowBoundsEvent(Event):
+    MOVE = String('move')
+    MOVING = String('moving')
+    RESIZE = String('resize')
+    RESIZING = String('resizing')
+
+    @property
+    def afterBounds(self):
+        return self._afterBounds
+
+    @property
+    def beforeBounds(self):
+        return self._beforeBounds
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, beforeBounds: Rectangle = null,
+                 afterBounds: Rectangle = null):
+        super().__init__(type, bubbles, cancelable)
+        # TODO: Type checks
+        self._beforeBounds = beforeBounds
+        self._afterBounds = afterBounds
 
     def clone(self):
-        raise NotImplementedError
+        return NativeWindowBoundsEvent(self.type, self.bubbles,
+                                       self.cancelable, self.beforeBounds,
+                                       self.afterBounds)
 
     def toString(self):
-        raise NotImplementedError
+        return f'[NativeWindowBoundsEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} previousDisplayState={self.beforeBounds} currentDisplayState={self.afterBounds}]'
 
 
-class NativeWindowDisplayStateEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NativeWindowDisplayStateEvent(Event):
+    DISPLAY_STATE_CHANGE = String('displayStateChange')
+    DISPLAY_STATE_CHANGING = String('displayStateChanging')
+
+    @property
+    def afterDisplayState(self):
+        return self._afterDisplayState
+
+    @property
+    def beforeDisplayState(self):
+        return self._beforeDisplayState
+
+    def __init__(self, type: String, bubbles: Boolean = true,
+                 cancelable: Boolean = false, beforeDisplayState: String = '',
+                 afterDisplayState: String = ''):
+        super().__init__(type, bubbles, cancelable)
+        self._beforeDisplayState = String(beforeDisplayState)
+        self._afterDisplayState = String(afterDisplayState)
 
     def clone(self):
-        raise NotImplementedError
+        return NativeWindowDisplayStateEvent(self.type, self.bubbles,
+                                             self.cancelable,
+                                             self.beforeDisplayState,
+                                             self.afterDisplayState)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NativeWindowDisplayStateEvent', 'type',
+                                   'bubbles', 'cancelable',
+                                   'beforeDisplayState', 'afterDisplayState')
 
 
-class NetDataEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NetDataEvent(Event):
+    MEDIA_TYPE_DATA = String('mediaTypeData')
+
+    @property
+    def info(self):
+        return self._info
+
+    @property
+    def timestamp(self):
+        return self._timestamp
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, timestamp: Number = 0,
+                 info: Object = null):
+        super().__init__(type, bubbles, cancelable)
+        self._timestamp = Number(timestamp)
+        self._info = info
 
     def clone(self):
-        raise NotImplementedError
+        return NetDataEvent(self.type, self.bubbles, self.cancelable,
+                            self.timestamp, self.info)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NetDataEvent', 'type', 'bubbles',
+                                   'cancelable', 'timestamp')
 
 
-class NetMonitorEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NetMonitorEvent(Event):
+    NET_STREAM_CREATE = String('netStreamCreate')
+
+    @property
+    def netStream(self):
+        return self._netStream
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, netStream = null):
+        super().__init__(type, bubbles, cancelable)
+        self._netStream = netSteam
 
     def clone(self):
-        raise NotImplementedError
+        return NetMonitorEvent(self.type, self.bubbles, self.cancelable,
+                               self.netStream)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NetMonitorEvent', 'type', 'bubbles',
+                                   'cancelable', 'netStream')
 
 
-class NetStatusEvent:
-    def __init__(self):
-        raise NotImplementedError
+class NetStatusEvent(Event):
+    NET_STATUS = String('netStatus')
+
+    @property
+    def info(self):
+        return self._info
+
+    @info.setter
+    def info(self, value):
+        self._info = value
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, info: Object = null):
+        super().__init__(type, bubbles, cancelable)
+        self.info = info
 
     def clone(self):
-        raise NotImplementedError
+        return NetStatusEvent(self.type, self.bubbles, self.cancelable,
+                              self.info)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('NetStatusEvent', 'type', 'bubbles',
+                                   'cancelable', 'info')
 
 
-class OutputProgressEvent:
-    def __init__(self):
-        raise NotImplementedError
+class OutputProgressEvent(Event):
+    OUTPUT_PROGRESS = String('outputProgress')
+
+    @property
+    def bytesPending(self):
+        return self._bytesPending
+
+    @bytesPending.setter
+    def bytesPending(self, value):
+        self._bytesPending = Number(value)
+
+    @property
+    def bytesTotal(self):
+        return self._bytesTotal
+
+    @bytesTotal.setter
+    def bytesTotal(self, value):
+        self._bytesTotal = Number(value)
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, bytesPending: Number = 0,
+                 bytesTotal: Number = 0):
+        super().__init__(type, bubbles, cancelable)
+        self.bytesPending = bytesPending
+        self.bytesTotal = bytesTotal
 
     def clone(self):
-        raise NotImplementedError
+        return OutputProgressEvent(self.type, self.bubbles, self.cancelable,
+                                   self.bytesPending, self.bytesTotal)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('OutputProgressEvent', 'type', 'bubbles',
+                                   'cancelable', 'bytesPending', 'bytesTotal')
 
 
 class PermissionEvent(Event):
@@ -1467,12 +1892,53 @@ class PermissionEvent(Event):
         return String(f'[PermissionEvent type={self.type} bubbles={self.bubbles} cancelable={self.cancelable} permission= status={self.status}]')
 
 
-class PressAndTapGestureEvent:
-    def __init__(self):
+class PressAndTapGestureEvent(GestureEvent):
+    GESTURE_PRESS_AND_TAP = String('gesturePressAndTap')
+
+    @property
+    def tapLocalX(self):
+        return self._tapLocalX
+
+    @tapLocalX.setter
+    def tapLocalX(self, value):
+        self._tapLocalX = Number(value)
+
+    @property
+    def tapLocalY(self):
+        return self._tapLocalY
+
+    @tapLocalY.setter
+    def tapLocalY(self, value):
+        self._tapLocalY = Number(value)
+
+    @property
+    def tapStageX(self):
         raise NotImplementedError
 
-    def clone(self):
+    @property
+    def tapStageY(self):
         raise NotImplementedError
+
+    def __init__(self, type: String, bubbles: Boolean = true,
+                 cancelable: Boolean = false, phase: String = null,
+                 localX: Number = 0, localY: Number = 0,
+                 tapLocalX: Number = 0, tapLocalY: Number = 0,
+                 ctrlKey: Boolean = false, altKey: Boolean = false,
+                 shiftKey: Boolean = false, commandKey: Boolean = false,
+                 controlKey: Boolean = false):
+        super().__init__(type, bubbles, cancelable, phase, localX, localY,
+                         ctrlKey, altKey, shiftKey, commandKey, controlKey)
+        self.tapLocalX = tapLocalX
+        self.tapLocalY = tapLocalY
+
+    def clone(self):
+        return PressAndTapGestureEvent(self.type, self.bubbles,
+                                       self.cancelable, self.phase,
+                                       self.localX, self.localY,
+                                       self.tapLocalX, self.tapLocalY,
+                                       self.ctrlKey, self.altKey,
+                                       self.shiftKey, self.commandKey,
+                                       self.controlKey)
 
     def toString(self):
         raise NotImplementedError
@@ -1517,34 +1983,107 @@ class ProgressEvent(Event):
                                    'cancelable', 'bytesLoaded', 'bytesTotal')
 
 
-class RemoteNotificationEvent:
-    ...
+class RemoteNotificationEvent(Event):
+    NOTIFICATION + String('notification')
+    TOKEN = String('token')
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def tokenId(self):
+        return self._tokenId
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, data: Object = null,
+                 tokenId: String = null):
+        super().__init__(type, bubbles, cancelable)
+        self._data = data
+        self._tokenId = String(tokenId)
 
 
-class SampleDataEvent:
-    def __init__(self):
+class SampleDataEvent(Event):
+    SAMPLE_DATA = String('sampleData')
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
         raise NotImplementedError
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = Number(value)
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, theposition: Number = 0,
+                 thedata = null):
+        super().__init__(type, bubbles, cancelable)
+        self.position = theposition
+        self._data = thedata
 
     def clone(self):
-        raise NotImplementedError
+        return SampleDataEvent(self.type, self.bubbles, self.cancelable,
+                               self.position, self.data)
 
     def toString(self):
         raise NotImplementedError
 
 
-class ScreenMouseEvent:
-    def __init__(self):
-        raise NotImplementedError
+class ScreenMouseEvent(MouseEvent):
+    CLICK = String('click')
+    MOUSE_DOWN = String('mouseDown')
+    MOUSE_UP = String('mouseUp')
+    RIGHT_CLICK = String('rightClick')
+    RIGHT_MOUSE_DOWN = String('rightMouseDown')
+    RIGHT_MOUSE_UP = String('rightMouseUp')
+
+    @property
+    def screenX(self):
+        return self._screenX
+
+    @property
+    def screenY(self):
+        return self._screenY
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, screenX: Number = NaN,
+                 screenY: Number = NaN, ctrlKey: Boolean = false,
+                 altKey: Boolean = false, shiftKey: Boolean = false,
+                 buttonDown: Boolean = false, commandKey: Boolean = false,
+                 controlKey: Boolean = false):
+        super().__init__(type, bubbles, cancelable, NaN, NaN, null, ctrlKey,
+                         altKey, shiftKey, buttonDown, 0, commandKey,
+                         controlKey, 0)
+        self._screenX = Number(screenX)
+        self._screenY = Number(screenY)
 
     def clone(self):
-        raise NotImplementedError
+        return ScreenMouseEvent(self.type, self.bubbles, self.cancelable,
+                                self.screenX, self.screenY, self.ctrlKey,
+                                self.altKey, self.shiftKey, self.buttonDown,
+                                self.commandKey, self.controlKey)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('ScreenMouseEvent', 'type', 'bubbles',
+                                   'cancelable', 'screenX', 'screenY',
+                                   'ctrlKey', 'altKey', 'shiftKey',
+                                   'buttonDown', 'commandKey', 'controlKey')
 
 
 class SecurityErrorEvent(ErrorEvent):
     SECURITY_ERROR = 'securityError'
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, text: String = '', id: int = 0):
+        super().__init__(type, bubbles, cancelable, text, id)
 
     def clone(self):
         return SecurityErrorEvent(self.type, self.bubbles, self.cancelable,
@@ -1555,34 +2094,102 @@ class SecurityErrorEvent(ErrorEvent):
                                    'cancelable', 'text', 'errorID')
 
 
-class ServerSocketConnectEvent:
-    def __init__(self):
-        raise NotImplementedError
+class ServerSocketConnectEvent(Event):
+    CONNECT = String('connect')
+
+    @property
+    def socket(self):
+        return self._sockeet
+
+    @socket.setter
+    def socket(self, value):
+        self._socket = String(value)
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, socket: String = null):
+        super().__init__(type, bubbles, cancelable)
+        self.socket = socket
 
     def clone(self):
-        raise NotImplementedError
+        return ServerSocketConnectEvent(self.type, self.bubbles,
+                                        self.cancelable, self.socket)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('ServerSocketConnectEvent', 'type',
+                                   'bubbles', 'cancelable', 'socket')
 
 
-class ShaderEvent:
-    def __init__(self):
+class ShaderEvent(Event):
+    COMPLETE = String('complete')
+
+    @property
+    def bitmapData(self):
+        return self._bitmapData
+
+    @bitmapData.setter
+    def bitmapData(self, value):
         raise NotImplementedError
+
+    @property
+    def byteArray(self):
+        return self._byteArray
+
+    @byteArray.setter
+    def byteArray(self, value):
+        raise NotImplementedError
+
+    @property
+    def vector(self):
+        return self._vector
+
+    @vector.setter
+    def vector(self, value):
+        raise NotImplementedError
+
+    def __init__(self, type: String, bubbles: Boolean = false,
+                 cancelable: Boolean = false, bitmap = null, array = null,
+                 vector = null):
+        super().__init__(type, bubbles, cancelable)
+        self._bitmapData = bitmap
+        self._byteArray = array
+        self._vector = vector
 
     def clone(self):
-        raise NotImplementedError
+        return ShaderEvent(self.type, self.bubbles, self.cancelable,
+                           self.bitmapData, self.byteArray, self.vector)
 
     def toString(self):
-        raise NotImplementedError
+        return self.formatToString('ShaderEvent', 'type', 'bubbles',
+                                   'cancelable', 'bitmapData', 'byteArray',
+                                   'vector')
 
 
-class SoftKeyboardEvent:
-    def __init__(self):
-        raise NotImplementedError
+class SoftKeyboardEvent(Event):
+    SOFT_KEYBOARD_ACTIVATE = String('softKeyboardActivate')
+    SOFT_KEYBOARD_ACTIVATING = String('softKeyboardActivating')
+    SOFT_KEYBOARD_DEACTIVATE = String('softKeyboardDeactivate')
+
+    @property
+    def relatedObject(self):
+        return self._relatedObject
+
+    @relatedObject.setter
+    def relatedObject(self, value):
+        self._relatedObject = value
+
+    @property
+    def triggerType(self):
+        return self._triggerType
+
+    def __init__(self, type: String, bubbles: Boolean, cancelable: Boolean,
+                 relatedObjectVal, triggerTypeVal: String):
+        super().__init__(type, bubbles, cancelable)
+        self.relatedObject = relatedObjectVal
+        self._triggerType = triggerTypeVal
 
     def clone(self):
-        raise NotImplementedError
+        return SoftKeyboardEvent(self.type, self.bubbles, self.cancelable,
+                                 self.relatedObject, self.triggerType)
 
     def toString(self):
         raise NotImplementedError
@@ -1617,7 +2224,7 @@ class SQLErrorEvent(ErrorEvent):
                                    'cancelable', 'error')
 
 
-class SQLEvent:
+class SQLEvent(Event):
     ANALYZE = 'analyze'
     ATTACH = 'attach'
     BEGIN = 'begin'
@@ -1905,6 +2512,12 @@ class TouchEventIntent(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
 
 
 class TransformGestureEvent(GestureEvent):
+    GESTURE_DIRECTION_TAP = String('gestureDirectionTap')
+    GESTURE_PAN = String('gesturePan')
+    GESTURE_ROTATE = String('gestureRotate')
+    GESTURE_SWIPE = String('gestureSwipe')
+    GESTURE_ZOOM = String('gestureZoom')
+
     def __init__(self):
         raise NotImplementedError
 
@@ -1922,8 +2535,8 @@ class UncaughtErrorEvent(ErrorEvent):
     def error(self):
         return self._error
 
-    def __init__(self, type: String, bubbles: Boolean = false,
-                 cancelable: Boolean = false, error_in = null):
+    def __init__(self, type: String, bubbles: Boolean = true,
+                 cancelable: Boolean = true, error_in = null):
         # TODO: Check to see if text and errorID are retrieved from error_in
         super().__init__(type, bubbles, cancelable)  # , <text>, <ID>
         self._error = error_in
