@@ -147,6 +147,7 @@ class Event(Object):
         self._eventPhase = 2
         self._preventDefault = false
         self._propagationState = 0
+        self._eventDispatched = false
 
     def clone(self):
         return Event(self.type, self.bubbles, self.cancelable)
@@ -207,12 +208,13 @@ class EventDispatcher(Object):
         # TODO: Implement useCapture
         # TODO: Implement bubbles
         # TODO: stopPropagation
-        if event.isDefaultPrevented() or event.type not in self._events:
+        if event.isDefaultPrevented() or not len(self._events.get(event.type, set())):
             return false
         event._currentTarget = self  # TODO: Make sure that this is correct
-        if event.target is null:
+        if not event._eventDispatched:
             event._target = self._target
-            e = event  # TODO: Make sure that this is correct
+            event._eventDispatched = true
+            e = event
         else:
             e = event.clone()
         for i in self._events.get(event.type, set()):
