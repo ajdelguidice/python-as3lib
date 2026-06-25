@@ -1,6 +1,6 @@
 from __future__ import annotations
-from as3lib import (Array, ArgumentError, as3state, Boolean, false,
-                    metaclasses, null, Object, String, true)
+from as3lib import (Array, ArgumentError, as3state, Boolean, false, null,
+                    Object, String, true)
 from as3lib.flash.accessibility import AccessibilityImplementation, AccessibilityProperties
 from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import Event, EventDispatcher, KeyboardEvent
@@ -572,7 +572,7 @@ class Sprite(DisplayObjectContainer):
         raise NotImplementedError
 
 
-class ActionScriptVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ActionScriptVersion(Object):
     ACTIONSCRIPT2 = 2
     ACTIONSCRIPT3 = 3
 
@@ -597,14 +597,14 @@ class BitmapDataChannel:
     ...
 
 
-class BitmapEncodingColorSpace(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class BitmapEncodingColorSpace(Object):
     COLORSPACE_4_2_0 = '4:2:0'
     COLORSPACE_4_2_2 = '4:2:2'
     COLORSPACE_4_4_4 = '4:4:4'
     COLORSPACE_AUTO = 'auto'
 
 
-class BlendMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class BlendMode(Object):
     ADD = 'add'
     ALPHA = 'alpha'
     DARKEN = 'darken'
@@ -622,25 +622,25 @@ class BlendMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     SUBTRACT = 'subtract'
 
 
-class CapsStyle(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class CapsStyle(Object):
     NONE = 'none'
     ROUND = 'round'
     SQUARE = 'square'
 
 
-class ColorCorrection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ColorCorrection(Object):
     DEFAULR = 'default'
     OFF = 'off'
     ON = 'on'
 
 
-class ColorCorrectionSupport(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ColorCorrectionSupport(Object):
     DEFAULT_OFF = 'defaultOff'
     DEFAULT_ON = 'defualtOn'
     UNSUPPORTED = 'unsupported'
 
 
-class FocusDirection(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class FocusDirection(Object):
     BOTTOM = 'bottom'
     NONE = 'none'
     TOP = 'top'
@@ -662,7 +662,7 @@ class FrameLabel(EventDispatcher):
         self._frame = frame
 
 
-class GradientType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class GradientType(Object):
     LINEAR = 'linear'
     RADIAL = 'radial'
 
@@ -761,7 +761,7 @@ class GraphicsPath:
     ...
 
 
-class GraphicsPathCommand(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class GraphicsPathCommand(Object):
     NO_OP = 0
     MOVE_TO = 1
     LINE_TO = 2
@@ -791,12 +791,12 @@ class GraphicsTrianglePath:
     ...
 
 
-class InterpolationMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class InterpolationMethod(Object):
     LINEAR_RGB = 'linearRGB'
     RGB = 'rgb'
 
 
-class JointStyle(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class JointStyle(Object):
     BEVEL = 'bevel'
     MITER = 'miter'
     ROUND = 'round'
@@ -810,7 +810,7 @@ class JPEGCREncoderOptions:
     ...
 
 
-class LineScaleMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class LineScaleMode(Object):
     HORIZONTAL = 'horizontal'
     NONE = 'none'
     NORMAL = 'normal'
@@ -1339,7 +1339,7 @@ class NativeWindow(EventDispatcher):
         raise NotImplementedError
 
 
-class NativeWindowDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class NativeWindowDisplayState(Object):
     MAXIMIZED = 'maximized'
     MINIMIZED = 'minimized'
     NORMAL = 'normal'
@@ -1358,14 +1358,14 @@ class NativeWindowInitOptions:
         self.type = String(kwargs.get('type', NativeWindowType.NORMAL))
 
 
-class NativeWindowRenderMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class NativeWindowRenderMode(Object):
     AUTO = 'auto'
     CPU = 'cpu'
     DIRECT = 'direct'
     GPU = 'gpu'
 
 
-class NativeWindowResize(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class NativeWindowResize(Object):
     BOTTOM = 'B'
     BOTTOM_LEFT = 'BL'
     BOTTOM_RIGHT = 'BR'
@@ -1376,19 +1376,19 @@ class NativeWindowResize(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     TOP_RIGHT = 'TR'
 
 
-class NativeWindowSystemChrome(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class NativeWindowSystemChrome(Object):
     ALTERNATE = 'alternate'
     NONE = 'none'
     STANDARD = 'standard'
 
 
-class NativeWindowType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class NativeWindowType(Object):
     LIGHTWEIGHT = 'lightweight'
     NORMAL = 'normal'
     UTILITY = 'utility'
 
 
-class PixelSnapping(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class PixelSnapping(Object):
     ALWAYS = 'always'
     AUTO = 'auto'
     NEVER = 'never'
@@ -1434,7 +1434,7 @@ class ShaderParameter:
     ...
 
 
-class ShaderParameterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ShaderParameterType(Object):
     BOOL = 'bool'
     BOOL2 = 'bool2'
     BOOL3 = 'bool3'
@@ -1452,7 +1452,7 @@ class ShaderParameterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     MATRIX4X4 = 'matrix4x4'
 
 
-class ShaderPrecision(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ShaderPrecision(Object):
     FAST = 'fast'
     FULL = 'full'
 
@@ -1472,7 +1472,7 @@ class SimpleButtom:
     ...
 
 
-class SpreadMethod(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SpreadMethod(Object):
     PAD = 'pad'
     REFLECT = 'reflect'
     REPEAT = 'repeat'
@@ -1486,7 +1486,7 @@ class Stage3D:
     ...
 
 
-class StageAlign(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageAlign(Object):
     BOTTOM = 'B'
     BOTTOM_LEFT = 'BL'
     BOTTOM_RIGHT = 'BR'
@@ -1497,19 +1497,19 @@ class StageAlign(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     TOP_RIGHT = 'TR'
 
 
-class StageAspectRatio(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageAspectRatio(Object):
     ANY = 'any'
     LANDSCAPE = 'landscape'
     PORTRAIT = 'portrait'
 
 
-class StageDisplayState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageDisplayState(Object):
     FULL_SCREEN = 'fullScreen'
     FULL_SCREEN_INTERACTIVE = 'fullScreenInteractive'
     NORMAL = 'normal'
 
 
-class StageOrientation(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageOrientation(Object):
     DEFAULT = 'default'
     ROTATED_LEFT = 'rotatedLeft'
     ROTATED_RIGHT = 'rotatedRight'
@@ -1517,7 +1517,7 @@ class StageOrientation(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     UPSIDE_DOWN = 'upsideDown'
 
 
-class StageQuality(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageQuality(Object):
     BEST = 'best'
     HIGH = 'high'
     HIGH_16X16 = '16x16'
@@ -1528,14 +1528,14 @@ class StageQuality(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     MEDIUM = 'medium'
 
 
-class StageScaleMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class StageScaleMode(Object):
     EXACT_FIT = 'exactFit'
     NO_BORDER = 'noBorder'
     NO_SCALE = 'noScale'
     SHOW_ALL = 'showAll'
 
 
-class SWFVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SWFVersion(Object):
     FLASH1 = 1
     FLASH2 = 2
     FLASH3 = 3
@@ -1549,7 +1549,7 @@ class SWFVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
     FLASH11 = 11
 
 
-class TriangleCulling(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class TriangleCulling(Object):
     NEGATIVE = 'negative'
     NONE = 'none'
     POSITIVE = 'positive'

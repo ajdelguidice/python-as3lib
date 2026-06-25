@@ -1,4 +1,4 @@
-from as3lib import Boolean, metaclasses, Number, Object, String, true
+from as3lib import Boolean, Number, Object, String, true
 from as3lib.flash.display import MovieClip, Sprite
 
 
@@ -8,7 +8,7 @@ class ComponentShim(MovieClip):
     ...
 
 
-class InvalidationType(metaclasses._AS3_CONSTANTSOBJECT):
+class InvalidationType(Object):
     All = 'all'
     DATA = 'data'
     RENDERER_STYLES = 'rendererStyles'

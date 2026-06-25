@@ -1,7 +1,6 @@
 from __future__ import annotations  # Allow forward references
 from as3lib import (Boolean, each, false, Math, null, Number, Object,
                     TypeError, true, uint, undefined, Vector)
-from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 import math
 
 
@@ -428,7 +427,7 @@ class Matrix3D:
         raise NotImplementedError
 
 
-class Orientation3D(metaclass=_AS3_CONSTANTSOBJECT):
+class Orientation3D(Object):
     AXIS_ANGLE = 'axisAngle'
     EULER_ANGLES = 'eulerAngles'
     QUATERNION = 'quanternion'

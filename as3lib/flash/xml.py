@@ -1,5 +1,4 @@
 from as3lib import Array, Boolean, false, null, Object
-from as3lib.metaclasses import _AS3_CONSTANTSOBJECT
 
 
 class XMLNode(Object):
@@ -170,6 +169,6 @@ class XMLDocument(XMLNode):
         raise NotImplementedError
 
 
-class XMLNodeType(_AS3_CONSTANTSOBJECT):
+class XMLNodeType(Object):
     ELEMENT_NODE = 1
     TEXT_NODE = 3

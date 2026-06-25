@@ -1,4 +1,4 @@
-from as3lib import as3state, false, int, metaclasses, Number, String, true
+from as3lib import as3state, false, int, Number, Object, String, true
 from as3lib.helpers import staticproperty
 from functools import cache
 import platform
@@ -195,7 +195,7 @@ def fscommand(command, args=''):
     raise NotImplementedError
 
 
-class ImageDecodingPolicy(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ImageDecodingPolicy(Object):
     ON_DEMAND = 'onDemand'
     ON_LOAD = 'onLoad'
 
@@ -204,7 +204,7 @@ class IME:
     ...
 
 
-class IMEConversionMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class IMEConversionMode(Object):
     ALPHANUMERIC_FULL = 'ALPHANUMERIC_FULL'
     ALPHANUMERIC_HALF = 'ALPHANUMERIC_HALF'
     CHINESE = 'CHINESE'
@@ -227,7 +227,7 @@ class MessageChannel:
     ...
 
 
-class MessageChannelState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class MessageChannelState(Object):
     CLOSED = 'closed'
     CLOSING = 'closing'
     OPEN = 'open'
@@ -279,12 +279,12 @@ class SystemUpdater:
     ...
 
 
-class SystemUpdaterType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SystemUpdaterType(Object):
     DRM = 'drm'
     SYSTEM = 'system'
 
 
-class TouchscreenType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class TouchscreenType(Object):
     FINGER = 'finger'
     NONE = 'none'
     STYLUS = 'stylus'
@@ -298,7 +298,7 @@ class WorkerDomain:
     ...
 
 
-class WorkerState(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class WorkerState(Object):
     NEW = 'new'
     RUNNING = 'running'
     TERMINATED = 'terminated'

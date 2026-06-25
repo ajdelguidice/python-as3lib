@@ -1,5 +1,5 @@
-from as3lib import (ArgumentError, Array, as3state, Error, metaclasses, null,
-                    Object, ReferenceError, String, TypeError)
+from as3lib import (ArgumentError, Array, as3state, Error, null, Object,
+                    ReferenceError, String, TypeError)
 from as3lib.flash import utils
 from as3lib.flash.events import Event, EventDispatcher
 import miniamf
@@ -193,7 +193,7 @@ class InterfaceAddress:
     #prefixLength = classmethod()
 
 
-class IPVersion(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class IPVersion(Object):
     IPV4 = 'IPv4'
     IPV6 = 'IPv6'
 
@@ -262,7 +262,7 @@ class NetworkInterface:
     ...
 
 
-class ObjectEncoding(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class ObjectEncoding(Object):
     AMF0 = 0
     AMF3 = 3
     DEFAULT = 3
@@ -344,7 +344,7 @@ class SharedObject(dict):
         raise NotImplementedError
 
 
-class SharedObjectFlushStatus(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SharedObjectFlushStatus(Object):
     FLUSHED = 'flushed'
     PENDING = 'pending'
 

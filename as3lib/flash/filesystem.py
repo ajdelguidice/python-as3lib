@@ -1,4 +1,4 @@
-from as3lib import Array, Boolean, as3state, metaclasses, Object, String
+from as3lib import Array, Boolean, as3state, Object, String
 from as3lib.flash.events import EventDispatcher
 from as3lib.flash.net import FileReference
 from subprocess import CalledProcessError, check_output
@@ -135,7 +135,7 @@ class File(FileReference):
         raise NotImplementedError
 
 
-class FileMode(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class FileMode(Object):
     APPEND = "append"
     READ = "read"
     UPDATE = "update"

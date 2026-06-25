@@ -1,5 +1,5 @@
-from as3lib import (Array, Boolean, false, int, metaclasses, null, Number,
-                    Object, String, true, uint)
+from as3lib import (Array, Boolean, false, int, null, Number, Object, String,
+                    true, uint)
 from as3lib.flash.events import ErrorEvent, Event
 
 
@@ -126,7 +126,7 @@ class DataChangeEvent(Event):
                                    'cancelable')
 
 
-class DataChangeType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class DataChangeType(Object):
     ADD = 'add'
     CHANGE = 'change'
     INVALIDATE = 'invalidate'
@@ -182,14 +182,14 @@ class DataGridEvent(ListEvent):
                                    'itemRenderer', 'dataField', 'reason')
 
 
-class DataGridEventReason(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class DataGridEventReason(Object):
     CANCELED = 'cancelled'
     NEW_COLUMN = 'newColumn'
     NEW_ROW = 'newRow'
     OTHER = 'other'
 
 
-class InteractionInputType(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class InteractionInputType(Object):
     KEYBOARD = 'keyboard'
     MOUSE = 'mouse'
 
@@ -331,6 +331,6 @@ class SliderEvent(Event):
                                    'clickTarget')
 
 
-class SliderEventClickTarget(metaclass=metaclasses._AS3_CONSTANTSOBJECT):
+class SliderEventClickTarget(Object):
     THUMB = 'thumb'
     TRACK = 'track'
