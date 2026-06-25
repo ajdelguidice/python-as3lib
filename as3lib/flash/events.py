@@ -144,15 +144,21 @@ class Event(Object):
         self._cancelable = Boolean(cancelable)
         self._currentTarget = null
         self._target = null
-        self._eventPhase = null
+        self._eventPhase = 2
         self._preventDefault = false
         self._propagationState = 0
 
     def clone(self):
         return Event(self.type, self.bubbles, self.cancelable)
 
+    @staticmethod
+    def _formatToString_formatAttr(attr):
+        if isinstance(attr, (String, str)):
+            return f'"{attr}"'
+        return attr
+
     def formatToString(self, className, *arguements):
-        return String(''.join(['[', className] + [f' {i}={getattr(self, i)}' for i in arguements] + [']']))
+        return String(''.join(['[', className] + [f' {i}={self._formatToString_formatAttr(getattr(self, i))}' for i in arguements] + [']']))
 
     def isDefaultPrevented(self):
         return self._preventDefault
@@ -168,7 +174,7 @@ class Event(Object):
         self._propagationState = 1
 
     def toString(self):
-        return self.formatToString('Event', 'type', 'bubbles', 'cancelable')
+        return self.formatToString('Event', 'type', 'bubbles', 'cancelable', 'eventPhase')
 
 
 class EventDispatcher(Object):
@@ -897,8 +903,8 @@ class FullScreenEvent(ActivityEvent):
         self._interactive = Boolean(interactive)
 
     def clone(self):
-        return FullScreenEventEvent(self.type, self.bubbles, self.cancelable,
-                                    self.fullScreen, self.interactive)
+        return FullScreenEvent(self.type, self.bubbles, self.cancelable,
+                               self.fullScreen, self.interactive)
 
     def toString(self):
         return self.formatToString('FullScreenEvent', 'type', 'bubbles',
@@ -989,7 +995,7 @@ class GeolocationEvent(Event):
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false, latitude: Number = 0,
-                 lonitude: Number = 0, altitude: Number = 0,
+                 longitude: Number = 0, altitude: Number = 0,
                  hAccuracy: Number = 0, vAccuracy: Number = 0,
                  speed: Number = 0, heading: Number = 0,
                  timestamp: Number = 0):
@@ -1685,7 +1691,7 @@ class StageOrientationEvent(Event):
         return StageOrientationEvent(self.type, self.bubbles, self.cancelable,
                                      self.beforeOrientation,
                                      self.afterOrientation)
-      
+
     def toString(self):
         raise NotImplementedError
 
@@ -1769,13 +1775,13 @@ class StorageVolumeChangeEvent(Event):
 
     @property
     def rootDirectory(self):
-        if self.type == STORAGE_VOLUME_UNMOUNT:
+        if self.type == StorageVolumeChangeEvent.STORAGE_VOLUME_UNMOUNT:
             return null
         raise NotImplementedError
 
     @property
     def storageVolume(self):
-        if self.type == STORAGE_VOLUME_UNMOUNT:
+        if self.type == StorageVolumeChangeEvent.STORAGE_VOLUME_UNMOUNT:
             return null
         raise NotImplementedError
 
@@ -1917,7 +1923,7 @@ class UncaughtErrorEvent(ErrorEvent):
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false, error_in = null):
         # TODO: Check to see if text and errorID are retrieved from error_in
-        super().__init__(type, bubbles, cancelable)  #, <text>, <ID>
+        super().__init__(type, bubbles, cancelable)  # , <text>, <ID>
         self._error = error_in
 
     def clone(self):
@@ -1948,7 +1954,6 @@ class VideoEvent(Event):
                  cancelable: Boolean = false, status: String = null):
         super().__init__(type, bubbles, cancelable)
         self._status = String(status)
-
 
 
 class VideoTextureEvent(Event):
