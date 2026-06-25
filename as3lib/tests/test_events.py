@@ -3,6 +3,7 @@ from as3lib.flash.display import DisplayObject, MovieClip
 from as3lib.flash.events import Event, EventDispatcher, IEventDispatcher
 from as3lib.tests import as3libTestCase, MethodNotImplemented, TestNotImplemented
 
+
 class EventTests(as3libTestCase):
     def test_bubbles(self):
         e = Event('test_event')
@@ -41,7 +42,77 @@ class EventTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_clone_on_redispatch(self):
-        raise TestNotImplemented
+        class CustomEvent(Event):
+            def __init__(this, type, bubbles, cancelable):
+                super().__init__(type, bubbles, cancelable)
+
+            def clone(this):
+                self.handlerCallOrder += 'C'
+                return CustomEvent(this.type, this.bubbles, this.cancelable)
+
+        self.handlerCallOrder = ''
+        event = CustomEvent('custom', false, false)
+
+        # Recursive redispatch test.
+        dispatcher1 = EventDispatcher()
+        dispatcher2 = EventDispatcher()
+
+        def func1(event):
+            self.handlerCallOrder += '1'
+            dispatcher2.dispatchEvent(event)
+
+        def func2(event):
+            self.handlerCallOrder += '2'
+
+        dispatcher1.addEventListener('custom', func1)
+
+        dispatcher2.addEventListener('custom', func2)
+
+        dispatcher1.dispatchEvent(event)
+
+        self.assertEqual(self.handlerCallOrder, '1C2')
+
+        # Non-recursive redispatch test.
+        self.handlerCallOrder = ''
+        dispatcher3 = EventDispatcher()
+        dispatcher4 = EventDispatcher()
+
+        def func3(event):
+            self.handlerCallOrder += '3'
+
+        def func4(event):
+            self.handlerCallOrder += '4'
+
+        dispatcher3.addEventListener('custom', func3)
+
+        dispatcher4.addEventListener('custom', func4)
+
+        event = CustomEvent('custom', false, false)
+
+        dispatcher3.dispatchEvent(event)
+        dispatcher4.dispatchEvent(event)
+
+        self.assertEqual(self.handlerCallOrder, '3C4')
+
+        # Event dispatched flag should not be set if the dispatcher did not have an event listener.
+        # dispatcher without handler should not cause a clone
+        self.handlerCallOrder = ''
+        dispatcherWithoutHandler = EventDispatcher()
+        dispatcherWithHandler = EventDispatcher()
+
+        def func5(event):
+            self.handlerCallOrder += '5'
+
+        dispatcherWithHandler.addEventListener('custom', func5)
+
+        event = CustomEvent('custom', false, false)
+
+        dispatcherWithoutHandler.dispatchEvent(event)
+        dispatcherWithHandler.dispatchEvent(event)
+
+        self.assertEqual(self.handlerCallOrder, '5')
+
+        del self.handlerCallOrder
 
     def test_formattostring(self):
         # TODO: Requires proper Object variable access
