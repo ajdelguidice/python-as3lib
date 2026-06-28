@@ -286,6 +286,7 @@ class Endian(Object):
 
 
 class Timer(EventDispatcher):
+    # TODO: Fix timer being broken with short delays
     @property
     def currentCount(self):
         return self._currentCount
@@ -298,10 +299,10 @@ class Timer(EventDispatcher):
     def delay(self, number_ms: Number):
         if self.running:
             self.stop()
-            self._delay = number_ms
+            self._delay = Number(number_ms)
             self.start()
         else:
-            self._delay = number_ms
+            self._delay = Number(number_ms)
 
     @property
     def repeatCount(self):
@@ -310,6 +311,7 @@ class Timer(EventDispatcher):
     @repeatCount.setter
     def repeatCount(self, number: int):
         # If repeatCount is set to a total that is the same or less then currentCount the timer stops and will not fire again.
+        number = int(number)
         if number <= self._currentCount:
             self.stop()
         self._repeatCount = number
@@ -331,25 +333,26 @@ class Timer(EventDispatcher):
 
     def __init__(self, delay: Number, repeatCount: int = 0):
         super().__init__()
-        self._currentCount = 0
+        self._currentCount = int(0)
+        self._running = false
         if delay < 0:
             raise Error()
-        self._delay = delay
-        self._repeatCount = repeatCount
-        self._running = False
+        self.delay = delay
+        self.repeatCount = repeatCount
+
 
     def reset(self):
         self.stop()
-        self._currentCount = 0
+        self._currentCount = int(0)
 
     def start(self):
         if not self.running and (self.currentCount < self.repeatCount or self.repeatCount == 0):
             self._timer = timedExec(self.delay/1000, self._TimerTick)
-            self._running = True
+            self._running = true
             self._timer.start()
 
     def stop(self):
         if self.running:
             self._timer.cancel()
             del self._timer
-            self._running = False
+            self._running = false
