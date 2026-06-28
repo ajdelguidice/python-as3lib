@@ -322,11 +322,12 @@ class Timer(EventDispatcher):
 
     def _TimerTick(self):
         self._currentCount += 1
+        del self._timer
         if self.currentCount >= self.repeatCount and self.repeatCount != 0:
             self.dispatchEvent(TimerEvent('timer'))
             self.dispatchEvent(TimerEvent('timerComplete'))
+            self._running = false
         else:
-            del self._timer
             self._timer = timedExec(self.delay/1000, self._TimerTick)
             self._timer.start()
             self.dispatchEvent(TimerEvent('timer'))
