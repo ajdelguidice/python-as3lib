@@ -6382,8 +6382,8 @@ class VectorTests(as3libTestCase):
         c_string = a_string.concat(b_string)
         self.assertArray(c_string, ['a', 'c', 'd', 'f', '986', 'B4', 'Q', 'rrr'], 8)
 
-        a_uint = Vector.uint([1, 2])
-        b_uint = Vector.uint([5, 16])
+        a_uint = Vector[uint]([1, 2])
+        b_uint = Vector[uint]([5, 16])
         c_uint = a_uint.concat(b_uint)
         self.assertArray(c_uint, [1, 2, 5, 16], 4)
 
@@ -6489,7 +6489,7 @@ class VectorTests(as3libTestCase):
         self.assertFalse(c_vector.fixed)
 
     def test_enumeration(self):
-        a = Vector.int([1, 2, 3, 4, 5])
+        a = Vector[int]([1, 2, 3, 4, 5])
         self.assertIter(a, [0, 1, 2, 3, 4])
         self.assertEach(a, [1, 2, 3, 4, 5])
 
