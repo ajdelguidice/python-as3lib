@@ -1,6 +1,7 @@
 from __future__ import annotations
-from as3lib import (ArgumentError, Boolean, false, null, Number, Object,
-                    String, uint)
+from as3lib import (ArgumentError, Boolean, false, IllegalOperationError, int,
+                    null, Number, Object, String, true, uint)
+from as3lib.flash.display import DisplayObjectContainer
 from as3lib.flash.events import EventDispatcher
 
 
@@ -153,12 +154,142 @@ class EastAsianJustifier(TextJustifier):
         return EastAsianJustifier(self.locale, self.lineJustification, self.justificationStyle)
 
 
-class ElementFormat:
+class ElementFormat(Object):
     ...
 
 
-class FontDescription:
-    ...
+class FontDescription(Object):
+    @property
+    def cffHinting(self):
+        return self._cffHinting
+
+    @cffHinting.setter
+    def cffHinting(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        if value not in {CFFHinting.HORIZONTAL_STEM, CFFHinting.NONE}:
+            # TODO: Use "value not in CFFHinting" on in is implemented correctly
+            raise ArgumentError
+        self._cffHinting = String(value)
+
+    @property
+    def fontLookup(self):
+        return self._fontLookup
+
+    @fontLookup.setter
+    def fontLookup(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        if value not in {FontLookup.DEVICE, FontLookup.EMBEDDED_CFF}:
+            ...
+        self._fontLookup = String(value)
+
+    @property
+    def fontName(self):
+        return self._fontName
+
+    @fontName.setter
+    def fontName(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        self._fontName = String(value)
+
+    @property
+    def fontPosture(self):
+        return self._fontPosture
+
+    @fontPosture.setter
+    def fontPosture(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        if value not in {FontPosture.ITALIC, FontPosture.NORMAL}:
+            # TODO: Use "value not in FontPosture" on in is implemented correctly
+            raise ArgumentError
+        self._fontPosture = String(value)
+
+    @property
+    def fontWeight(self):
+        return self._fontWeight
+
+    @fontWeight.setter
+    def fontWeight(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        if value not in {FontWeight.BOLD, FontWeight.NORMAL}:
+            # TODO: Use "value not in FontWeight" on in is implemented correctly
+            raise ArgumentError
+        self._fontWeight = String(value)
+
+    @property
+    def locked(self):
+        return self._locked
+
+    @locked.setter
+    def locked(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        self._locked = Boolean(value)
+
+    @property
+    def renderingMode(self):
+        return self._renderingMode
+
+    @renderingMode.setter
+    def renderingMode(self, value):
+        if self.locked:
+            raise IllegalOperationError
+        if value not in {RenderingMode.CFF, RenderingMode.NORMAL}:
+            # TODO: Use "value not in RenderingMode" on in is implemented correctly
+            raise ArgumentError
+        self._renderingMode = String(value)
+
+    def __init__(self, fontName: String = '_serif',
+                 fontWeight: String = 'normal',
+                 fontPosture: String = 'normal',
+                 fontLookup: String = 'device', renderingMode: String = 'cff',
+                 cffHinting: String = 'horizontalStem'):
+        self._locked = false
+        self.fontName = fontName
+        self.fontWeight = fontWeight
+        self.fontPosture = fontPosture
+        self.fontLookup = fontLookup
+        self.renderingMode = renderingMode
+        self.cffHinting = cffHinting
+
+    def clone(self):
+        return FontDescription(self.fontName, self.fontWeight,
+                               self.fontPosture, self.fontLookup,
+                               self.renderingMode, self.cffHinting)
+
+    @staticmethod
+    def isDeviceFontCompatible(fontName: String, fontWeight: String,
+                               fontPosture: String):
+        # TODO: Return true if a device font is found with the specified
+        #       properties. Can only use OpenType and TrueType fonts
+        fontName = String(fontName)
+        fontWeight = String(fontWeight)
+        fontPosture = String(fontPosture)
+        if fontWeight not in {FontWeight.BOLD, FontWeight.NORMAL}:
+            # TODO: Use "fontWeight not in FontWeight" on in is implemented correctly
+            raise ArgumentError
+        if fontPosture not in {FontPosture.ITALIC, FontPosture.NORMAL}:
+            # TODO: Use "fontPosture not in FontPosture" on in is implemented correctly
+            raise ArgumentError
+        raise NotImplementedError
+
+    @staticmethod
+    def isFontCompatible(fontName: String, fontWeight: String,
+                         fontPosture: String):
+        fontName = String(fontName)
+        fontWeight = String(fontWeight)
+        fontPosture = String(fontPosture)
+        if fontWeight not in {FontWeight.BOLD, FontWeight.NORMAL}:
+            # TODO: Use "fontWeight not in FontWeight" on in is implemented correctly
+            raise ArgumentError
+        if fontPosture not in {FontPosture.ITALIC, FontPosture.NORMAL}:
+            # TODO: Use "fontPosture not in FontPosture" on in is implemented correctly
+            raise ArgumentError
+        raise NotImplementedError
 
 
 class FontLookup(Object):
@@ -216,8 +347,44 @@ class GraphicElement(ContentElement):
         self.elementHeight = elementHeight
 
 
-class GroupElement:
-    ...
+class GroupElement(ContentElement):
+    @property
+    def elementCount(self):
+        return self._elements.length
+
+    def __init__(self, elements = null, elementFormat: ElementFormat = null,
+                 eventMirror: EventDispatcher = null,
+                 textRotation: String = 'rotate0'):
+        # TODO: Errors
+        super().__init__(elementFormat, eventMirror, textRotation)
+        self._elements = elements
+
+    def getElementAt(self, index: int):
+        raise NotImplementedError
+
+    def getElementAtCharIndex(self, charIndex: int):
+        raise NotImplementedError
+
+    def getElementIndex(self, element: ContentElement):
+        raise NotImplementedError
+
+    def groupElements(self, beginIndex: int, endIndex: int):
+        raise NotImplementedError
+
+    def mergeTextElements(self, beginIndex: int, endIndex: int):
+        raise NotImplementedError
+
+    def replaceElements(self, beginIndex: int, endIndex: int, newElements):
+        raise NotImplementedError
+
+    def setElements(self, value):
+        raise NotImplementedError
+
+    def splitTextElement(self, elementIndex: int, splitIndex: int):
+        raise NotImplementedError
+
+    def ungroupElements(self, groupIndex: int):
+        raise NotImplementedError
 
 
 class JustificationStyle(Object):
@@ -252,8 +419,52 @@ class RenderingMode(Object):
     NORMAL = String('normal')
 
 
-class SpaceJustifier:
-    ...
+class SpaceJustifier(TextJustifier):
+    @property
+    def letterSpacing(self):
+        return self._letterSpacing
+
+    @letterSpacing.setter
+    def letterSpacing(self, value):
+        self._letterSpacing = Boolean(value)
+
+    @property
+    def maximumSpacing(self):
+        return self._maximumSpacing
+
+    @maximumSpacing.setter
+    def maximumSpacing(self, value):
+        self._maximumSpacing = Number(value)
+
+    @property
+    def minimumSpacing(self):
+        return self._minimumSpacing
+
+    @minimumSpacing.setter
+    def minimumSpacing(self, value):
+        self._minimumSpacing = Number(value)
+
+    @property
+    def optimumSpacing(self):
+        return self._optimumSpacing
+
+    @optimumSpacing.setter
+    def optimumSpacing(self, value):
+        self._optimumSpacing = Number(value)
+
+    def __init__(self, locale: String = 'em',
+                 lineJustification: String = 'unjustified',
+                 letterSpacing: Boolean = false):
+        super().__init__(locale, lineJustification)
+        self.letterSpacing = letterSpacing
+
+        # TODO: Find out where these values come from
+        self.maximumSpacing = 1.5
+        self.minimumSpacing = 0.5
+        self.optimumSpacing = 1.0
+
+    def clone(self):
+        raise NotImplementedError
 
 
 class TabAlignment(Object):
@@ -309,11 +520,27 @@ class TextBlock:
     ...
 
 
-class TextElement:
-    ...
+class TextElement(ContentElement):
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value if value is null else String(value)
+
+    def __init__(self, text: String = null,
+                 elementFormat: ElementFormat = null,
+                 eventMirror: EventDispatcher = null,
+                 textRotation: String = 'rotate0'):
+        super().__init__(elementFormat, eventMirror, textRotation)
+        self.text = text
+
+    def replaceText(self, beginIndex: int, endIndex: int, newText: String):
+        raise NotImplementedError
 
 
-class TextLine:
+class TextLine(DisplayObjectContainer):
     ...
 
 
@@ -324,7 +551,7 @@ class TextLineCreationResult(Object):
     SUCCESS = String('success')
 
 
-class TextLineMirrorRegion:
+class TextLineMirrorRegion(Object):
     ...
 
 
