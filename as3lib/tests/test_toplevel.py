@@ -6738,6 +6738,20 @@ class WTFJSTests(as3libTestCase):
 
 
 class XMLTests(as3libTestCase):
+    def setUp(self):
+        # TODO: Use XML.settings() and XML.setSettings() once implemented
+        self.initialXMLPrettyPrintingValue = XML.prettyPrinting
+        self.initialXMLIgnoreCommentsValue = XML.ignoreComments
+        self.initialXMLIgnoreProcessingInstructionsValue = XML.ignoreProcessingInstructions
+
+    def tearDown(self):
+        XML.prettyPrinting = self.initialXMLPrettyPrintingValue
+        XML.ignoreComments = self.initialXMLIgnoreCommentsValue
+        XML.ignoreProcessingInstructions = self.initialXMLIgnoreProcessingInstructionsValue
+        del self.initialXMLPrettyPrintingValue
+        del self.initialXMLIgnoreCommentsValue
+        del self.initialXMLIgnoreProcessingInstructionsValue
+
     def assertXMLList(self, xmllist, check, length=null):
         if length is not null:
             self.assertEqual(xmllist.length(), length)
@@ -6804,7 +6818,7 @@ class XMLTests(as3libTestCase):
         #}
         # =>
 
-        complex = XML('<xml>\n<a>\n   <b>a1-b1</b><b>a1-b2</b>\n</a>\n<a>\n   <b>a2-b</b>\n   <c>a2-c</c>\n</a>\n<a/>\n</xml>')
+        complex = XML('<xml>\n  <a>\n    <b>a1-b1</b><b>a1-b2</b>\n  </a>\n  <a>\n    <b>a2-b</b>\n       <c>a2-c</c>\n  </a>\n  <a/>\n</xml>')
         xml_list = XMLList(complex.a)
 
         self.assertEqual(xml_list.child("b").length(), 3)
@@ -6849,10 +6863,9 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_copy(self):
-        start_pretty_print = XML.prettyPrinting
         XML.prettyPrinting = false
 
-        xml = XML('<xml>\n<a test="it">a</a>\n<b>\n   <c>c1</c><c>c2</c>\n</b>\n</xml>')
+        xml = XML('<xml>\n  <a test="it">a</a>\n  <b>\n    <c>c1</c><c>c2</c>\n  </b>\n</xml>')
 
         a_copy = xml.a[0].copy()
         self.assertNotStrictEQ(xml.a[0], a_copy)
@@ -6884,10 +6897,7 @@ class XMLTests(as3libTestCase):
         # => c1
         self.assertNotStrictEQ(c_copy[0][0], xml.b.c[0][0])
 
-        XML.prettyPrinting = start_pretty_print
-
     def test_constructor_from_string(self):
-        start_pretty_print = XML.prettyPrinting
         XML.prettyPrinting = false
 
         byteArray = ByteArray()
@@ -6962,8 +6972,6 @@ class XMLTests(as3libTestCase):
         # => Caught parsing error: TypeError: Error #1090: XML parser failure: element is malformed.
         # => 1090
 
-        XML.prettyPrinting = start_pretty_print
-
     def test_delete(self):
         raise TestNotImplemented
 
@@ -6971,7 +6979,15 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_elements(self):
-        raise TestNotImplemented
+        xml = XML('<x><?instruction ?><!-- xx -->blabla<foo>foo1</foo><bar>bar2</bar></x>')
+        self.assertEqual(xml.elements().length(), 2)
+
+        self.assertArray([element.toString() for element in each(xml.elements())], ('foo1', 'bar2'))
+
+        xml2 = XML('<x><foo>foo</foo><foo>bar</foo><bar>bar</bar></x>')
+        self.assertEqual(xml2.elements('foo').length(), 2)
+        self.assertEqual(xml2.elements('bar').length(), 1)
+        self.assertEqual(xml2.elements('baz').length(), 0)
 
     def test_equals_namespace_check(self):
         raise TestNotImplemented
@@ -6980,10 +6996,26 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_has_property_via_in(self):
-        raise TestNotImplemented
+        a = XML('<item val="example"><a/></item>')
+
+        self.assertTrue('@val' in a)
+        self.assertFalse('val' in a)
+        self.assertFalse('item' in a)
+        self.assertFalse('@item' in a)
+        self.assertTrue('a' in a)
+        self.assertFalse('@a' in a)
+        self.assertTrue(0 in a)
+        self.assertFalse(1 in a)
+        self.assertTrue('propertyIsEnumerable' in a)
 
     def test_hasOwnProperty(self):
-        raise TestNotImplemented
+        xml = XML('<a attr="1"><b>bbb</b></a>')
+        self.assertTrue(xml.hasOwnProperty('@attr'))
+        self.assertFalse(xml.hasOwnProperty('@unknown'))
+        self.assertTrue(xml.hasOwnProperty('b'))
+        self.assertFalse(xml.hasOwnProperty('em'))
+        self.assertFalse(xml.hasOwnProperty('toXMLString'))
+        self.assertFalse(xml.hasOwnProperty('isPropertyEnumerable'))
 
     def test_ignore_white(self):
         raise TestNotImplemented
@@ -7028,7 +7060,16 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_nodekind(self):
-        raise TestNotImplemented
+        # RUFFLE NOTE:
+        # Taken from https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/XML.html#nodeKind()
+        # Modified to run with what ruffle support
+        #XML.ignoreComments = false;
+
+        xml = XML('<example id="10">\n  <![CDATA[some cdata]]>\n  and some text\n</example>')
+
+        self.assertEqual(xml.nodeKind(), 'element')
+        self.assertEqual(xml.children()[0].nodeKind(), 'text')
+        self.assertEqual(xml.children()[0].nodeKind(), 'text')
 
     def test_normalize(self):
         raise TestNotImplemented
@@ -7037,7 +7078,17 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_parent(self):
-        raise TestNotImplemented
+        XML.prettyPrinting = false
+
+        xml = XML("<x><foo foo='foo'><bar><baz>baz1</baz></bar></foo></x>")
+        foo = xml.foo
+        bar = foo.bar
+        baz = bar.baz
+
+        self.assertEqual(xml.parent(), undefined)
+        self.assertEqual(foo.parent(), xml)
+        self.assertEqual(bar.parent(), xml)
+        self.assertEqual(baz.parent(), bar)
 
     def test_set_children(self):
         raise TestNotImplemented
@@ -7046,7 +7097,16 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_settings(self):
-        raise TestNotImplemented
+        settings = XML.settings()
+        self.assertTrue(isinstance(settings, Object))
+        self.assertTrue(settings.ignoreComments)
+        self.assertTrue(settings.ignoreWhitespace)
+        self.assertTrue(settings.ignoreProcessingInstructions)
+        self.assertEqual(settings.prettyIndent, 2)
+        self.assertTrue(settings.prettyPrinting)
+
+        # RUFFLE_NOTE: Stub
+        XML.setSettings(settings)
 
     def test_simple_complex_content(self):
         raise TestNotImplemented
@@ -7055,10 +7115,52 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_text(self):
-        raise TestNotImplemented
+        # TODO: Check if these asserts are correct
+        xml = XML('<a>ABC</a>')
+        self.assertXMLList(xml.text(), ['ABC'])
+
+        xml = XML('<a>Before<b/>After</a>')
+        self.assertXMLList(xml.text(), ['Before', 'After'])
+
+        xml = XML('<a>Before<b>Middle</b>After</a>')
+        self.assertXMLList(xml.text(), ['Before', 'After'])
+
+        XML.ignoreComments = false
+        XML.ignoreProcessingInstructions = false
+
+        xml = XML('<a>A<!-- bla -->B<?something ?>C<b>D</b></a>')
+        self.assertXMLList(xml.text(), ['ABC'])
+
+        xml = XML('<outer>\n  <div>abc</div>|\n  <div>before<b/>after</div>|\n  <div>a<b>b</b>c</div>\n</outer>')
+
+        texts = xml.children().text()
+        self.assertEqual(texts.length(), 5)
+        self.assertEqual(texts.toString(), 'abcbeforeafterac')
+        self.assertXMLList(xml.child("unknown").text(), [], 0)
 
     def test_toString(self):
-        raise TestNotImplemented
+        # RUFFLE FIXME: Implement indentation.
+        XML.prettyPrinting = false
+        XML.ignoreComments = false
+        XML.ignoreProcessingInstructions = false
+
+        xml = XML('<animal id="1">Cow</animal>')
+        self.assertEqual(xml.toString(), 'Cow')
+
+        xml = XML('<animals>\n  <animal id="1">Cow</animal>\n  <animal id="2">Pig</animal>\n</animals>')
+        self.assertEqual(xml.toString(), '<animals><animal id="1">Cow</animal><animal id="2">Pig</animal></animals>')
+
+        xml = XML('<foo><bar a="x" b="y" c="z"/></foo>')
+        self.assertEqual(xml.toString(), '<foo><bar a="x" b="y" c="z"/></foo>')
+
+        xml = XML('<foo><bar x="a&quot;b">&gt;&amp;&lt;</bar></foo>')
+        self.assertEqual(xml.toString(), '<foo><bar x="a&quot;b">&gt;&amp;&lt;</bar></foo>')
+
+        xml = XML('<!-- some comment -->')
+        self.assertEqual(xml.toString(), '<!-- some comment -->')
+
+        xml = XML('<? processing instruction! ?>')
+        self.assertEqual(xml.toString(), '<? processing instruction! ?>')
 
     def test_toString_namespace(self):
         raise TestNotImplemented
