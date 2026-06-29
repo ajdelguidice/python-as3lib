@@ -25,6 +25,9 @@ dependencies = [
     "as3lib-miniAMF"
 ]
 
+[project.optional-dependencies]
+python3_10 = ["tomli"]
+
 [project.urls]
 Homepage = "https://github.com/ajdelguidice/python-as3lib"
 
