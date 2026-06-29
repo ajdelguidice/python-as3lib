@@ -1,5 +1,5 @@
-from as3lib import false, NaN, null, Number, String, true, undefined
-from as3lib.flash.display import DisplayObject, MovieClip
+from as3lib import false, NaN, null, Number, Object, String, true, undefined
+from as3lib.flash.display import MovieClip
 from as3lib.flash.events import Event, EventDispatcher, IEventDispatcher
 from as3lib.tests import as3libTestCase, MethodNotImplemented, TestNotImplemented
 
@@ -245,7 +245,6 @@ class EventTests(as3libTestCase):
         self.assertIs(event.target, null)
         self.assertIs(event.currentTarget, null)
 
-
         def eventFunction(event):
             self.eventReturn += 1
 
@@ -280,7 +279,6 @@ class EventTests(as3libTestCase):
 
         self.assertTrue(type(Object.prototype.valueOf.call(e)) is Event)
         self.assertEqual(Object.prototype.toString.call(e), '[object Event]')
-
 
         e = Event("test_event", true, true)
         self.assertEqual(e.toString(), '[Event type="test_event" bubbles=true cancelable=true eventPhase=2]')
@@ -435,9 +433,9 @@ class EventDispatcherTests(as3libTestCase):
     def test_interface_invoke(self):
         self.dispatched = False
 
-        def invokeDipatcher(dispatcher: IEventDispatcher):
+        def invokeDispatcher(dispatcher: IEventDispatcher):
             # This method is invoked on the interface, not a concrete class
-            dispatch.dispatchEvent(Event("myEvent"))
+            dispatcher.dispatchEvent(Event("myEvent"))
             self.dispatched = True
 
         invokeDispatcher(MovieClip())
