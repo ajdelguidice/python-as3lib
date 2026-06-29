@@ -2159,14 +2159,6 @@ class Vector(list, Object):
         return len(self)
 
 
-# TODO: Remove these aliases
-Vector.Boolean = Vector[Boolean]
-Vector.int = Vector[int]
-Vector.Number = Vector[Number]
-Vector.uint = Vector[uint]
-Vector.String = Vector[String]
-
-
 class Namespace(Object):
     @property
     def prefix(self):
