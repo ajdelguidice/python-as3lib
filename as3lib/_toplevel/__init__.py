@@ -1874,6 +1874,16 @@ class JSON(Object):
         raise NotImplementedError
 
 
+class _VectorPartial(partial):
+    '''
+    Wrapper class for functools.partial so Vector can detect if it has been
+    given a Vector as its type
+
+    This is used to implement Vector.<Vector.<...>> as Vector[Vector[...]]
+    '''
+    ...
+
+
 class Vector(list, Object):
     '''
     AS3 Vector datatype.
@@ -1881,9 +1891,7 @@ class Vector(list, Object):
     This class is not really a vector as I haven't found a way to do that in
     python. It is instead just a type locked list.
 
-    I have not found a way to create a syntax similar to Vector.<T> so you
-    currently have to declare it like Vector(..., type=T). The way this is
-    currently handled also does not allow you to use Vector.<T> as a type.
+    Use Vector[T] instead of Vector.<T>
     '''
     @staticmethod
     def coercePythonToAs3Object(obj, type_):
@@ -1921,20 +1929,31 @@ class Vector(list, Object):
                 if type(value) is not type_:
                     raise TypeError('%s is not %s' % (type(value), type_))
 
+    def __class_getitem__(cls, value):
+        '''
+        This is the closest python equivalent to Vector.<T>[]
+
+        It is instead used like "Vector[T]([])"
+        '''
+        return _VectorPartial(Vector, type=value)
+
     def __init__(self, length=0, fixed=False, **kwargs):
+        self._type = kwargs['type']
+        if isinstance(self._type, _VectorPartial):
+            # TODO:
+            raise NotImplementedError('Vector.<Vector.<...>>')
+
         if isinstance(length, list):  # Function behaviour
             # TODO: Make sure this works properly
             if isinstance(length, Vector):
                 self._fixed = length.fixed
                 self._superclass = length._superclass
-            self._type = kwargs['type']
             self._fixed = False
             self._superclass = True
             length = [Vector.coercePythonToAs3Object(i, self._type) for i in each(length)]
             Vector._checkTypeAll(length, self._type, self._superclass)
             super().__init__(length)
         else:  # Constructor behaviour
-            self._type = kwargs['type']
             self._superclass = False
             self._fixed = fixed
             super().__init__((null for i in range(length)))
@@ -2140,13 +2159,12 @@ class Vector(list, Object):
         return len(self)
 
 
-# Temporary aliases. Remove when a syntax similar to Vector.<Type> is
-# implemented.
-Vector.Boolean = partial(Vector, type=Boolean)
-Vector.int = partial(Vector, type=int)
-Vector.Number = partial(Vector, type=Number)
-Vector.uint = partial(Vector, type=uint)
-Vector.String = partial(Vector, type=String)
+# TODO: Remove these aliases
+Vector.Boolean = Vector[Boolean]
+Vector.int = Vector[int]
+Vector.Number = Vector[Number]
+Vector.uint = Vector[uint]
+Vector.String = Vector[String]
 
 
 class Namespace(Object):
@@ -2334,6 +2352,7 @@ class XMLList(Object):
 class XML(Object):
     # Prerequisite: Object attribute access
     # TODO: Implement accessing children. This should be done by using <xmlobj>.<child>. Doing this appears to return all children with the name <child>
+    # TODO: Add special handling for "@" at the start of child name
     ignoreComments = true
     ignoreProcessingInstructions = true
     ignoreWhitespace = true
