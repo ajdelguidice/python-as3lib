@@ -6314,9 +6314,9 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_concat(self):
-        a_bool = Vector.Boolean([True, False])
-        b_bool = Vector.Boolean([False, True, False])
-        self.assertEach(a_bool.concat(b_bool), (True, False, False, True, False))
+        a_bool = Vector[Boolean]([true, false])
+        b_bool = Vector[Boolean]([false, true, false])
+        self.assertEach(a_bool.concat(b_bool), (true, false, false, true, false))
 
         class Superclass:
             ...
@@ -6324,12 +6324,12 @@ class VectorTests(as3libTestCase):
         class Subclass(Superclass):
             ...
 
-        a_class = Vector([], type=Superclass)
+        a_class = Vector[Superclass]([])
         a_class.length = 2
         a_class[0] = Superclass()
         a_class[1] = Subclass()
 
-        b_class = Vector([], type=Subclass)
+        b_class = Vector[Subclass]([])
         b_class.length = 1
         b_class[0] = Subclass()
 
@@ -6340,7 +6340,7 @@ class VectorTests(as3libTestCase):
         self.assertType(c_class[1], Subclass)
         self.assertType(c_class[2], Subclass)
 
-        c_class_flipped = b_class.concat(Vector([Subclass()], type=Subclass))
+        c_class_flipped = b_class.concat(Vector[Subclass]([Subclass()]))
 
         self.assertEqual(c_class_flipped.length, 2)
         self.assertType(c_class_flipped[0], Subclass)
@@ -6354,11 +6354,11 @@ class VectorTests(as3libTestCase):
         class Implementer:
             ...
 
-        a_iface = Vector([], type=Interface)
+        a_iface = Vector[Interface]([])
         a_iface.length = 1
         a_iface[0] = Implementer()
 
-        b_iface = Vector([], type=Implementer)
+        b_iface = Vector[Implementer]([])
         b_iface.length = 1
         b_iface[0] = Implementer()
 
@@ -6367,18 +6367,18 @@ class VectorTests(as3libTestCase):
         self.assertEqual(type(c_iface[0]), Implementer)
         self.assertEqual(type(c_iface[1]), Implementer)
 
-        a_int = Vector.int([1, 2])
-        b_int = Vector.int([5, 16])
+        a_int = Vector[int]([1, 2])
+        b_int = Vector[int]([5, 16])
         c_int = a_int.concat(b_int)
         self.assertArray(c_int, [1, 2, 5, 16], 4)
 
-        a_number = Vector.Number([1, 2, 3, 4])
-        b_number = Vector.Number([5, NaN, -5, 0])
+        a_number = Vector[Number]([1, 2, 3, 4])
+        b_number = Vector[Number]([5, NaN, -5, 0])
         c_number = a_number.concat(b_number)
         self.assertArray(c_number, [1, 2, 3, 4, 5, NaN, -5, 0], 8)
 
-        a_string = Vector.String(["a", "c", "d", "f"])
-        b_string = Vector.String(["986", "B4", "Q", "rrr"])
+        a_string = Vector[String](["a", "c", "d", "f"])
+        b_string = Vector[String](["986", "B4", "Q", "rrr"])
         c_string = a_string.concat(b_string)
         self.assertArray(c_string, ['a', 'c', 'd', 'f', '986', 'B4', 'Q', 'rrr'], 8)
 
@@ -6387,26 +6387,23 @@ class VectorTests(as3libTestCase):
         c_uint = a_uint.concat(b_uint)
         self.assertArray(c_uint, [1, 2, 5, 16], 4)
 
-        raise MethodNotImplemented('Vector.<Vector>')
-        '''
-        a_vector = Vector.<Vector.<int>>[new <int>[1,2]]
-        b_vector = Vector.<Vector.<int>>[new <int>[5,16]]
+        a_vector = Vector[Vector[int]]([Vector[int]([1,2])])
+        b_vector = Vector[Vector[int]]([Vector[int]([5,16])])
         c_vector = a_vector.concat(b_vector)
         self.assertEqual(c_vector.length, 2)
         self.assertArray(c_vector[0], [1, 2], 2)
         self.assertArray(c_vector[1], [5, 16], 2)
-        '''
 
     def test_constructor(self):
-        a_bool = Vector.Boolean(2)
+        a_bool = Vector[Boolean](2)
         self.assertEqual(a_bool.length, 2)
         self.assertFalse(a_bool.fixed)
 
-        b_bool = Vector.Boolean(3, True)
+        b_bool = Vector[Boolean](3, true)
         self.assertEqual(b_bool.length, 3)
         self.assertTrue(b_bool.fixed)
 
-        c_bool = Vector.Boolean()
+        c_bool = Vector[Boolean]()
         self.assertEqual(c_bool.length, 0)
         self.assertFalse(c_bool.fixed)
 
@@ -6419,76 +6416,75 @@ class VectorTests(as3libTestCase):
         a0_class = Superclass()
         a1_class = Subclass()
 
-        a_class = Vector(2, type=Superclass)
+        a_class = Vector[Superclass](2)
         self.assertEqual(a_class.length, 2)
         self.assertFalse(a_class.fixed)
 
-        b_class = Vector(3, True, type=Superclass)
+        b_class = Vector[Superclass](3, true)
         self.assertEqual(b_class.length, 3)
         self.assertTrue(b_class.fixed)
 
-        c_class = Vector(type=Superclass)
+        c_class = Vector[Superclass]()
         self.assertEqual(c_class.length, 0)
         self.assertFalse(c_class.fixed)
 
-        a_int = Vector.int(2)
+        a_int = Vector[int](2)
         self.assertEqual(a_int.length, 2)
         self.assertFalse(a_int.fixed)
 
-        b_int = Vector.int(3, True)
+        b_int = Vector[int](3, true)
         self.assertEqual(b_int.length, 3)
         self.assertTrue(b_int.fixed)
 
-        c_int = Vector.int()
+        c_int = Vector[int]()
         self.assertEqual(c_int.length, 0)
         self.assertFalse(c_int.fixed)
 
-        a_number = Vector.Number(2)
+        a_number = Vector[Number](2)
         self.assertEqual(a_number.length, 2)
         self.assertFalse(a_number.fixed)
 
-        b_number = Vector.Number(3, True)
+        b_number = Vector[Number](3, true)
         self.assertEqual(b_number.length, 3)
         self.assertTrue(b_number.fixed)
 
-        c_number = Vector.Number()
+        c_number = Vector[Number]()
         self.assertEqual(c_number.length, 0)
         self.assertFalse(c_number.fixed)
 
-        a_string = Vector.String(2)
+        a_string = Vector[String](2)
         self.assertEqual(a_string.length, 2)
         self.assertFalse(a_string.fixed)
 
-        b_string = Vector.String(3, True)
+        b_string = Vector[String](3, true)
         self.assertEqual(b_string.length, 3)
         self.assertTrue(b_string.fixed)
 
-        c_string = Vector.String()
+        c_string = Vector[String]()
         self.assertEqual(c_string.length, 0)
         self.assertFalse(c_string.fixed)
 
-        a_uint = Vector.uint(2)
+        a_uint = Vector[uint](2)
         self.assertEqual(a_uint.length, 2)
         self.assertFalse(a_uint.fixed)
 
-        b_uint = Vector.uint(3, True)
+        b_uint = Vector[uint](3, true)
         self.assertEqual(b_uint.length, 3)
         self.assertTrue(b_uint.fixed)
 
-        c_uint = Vector.uint()
+        c_uint = Vector[uint]()
         self.assertEqual(c_uint.length, 0)
         self.assertFalse(c_uint.fixed)
 
-        raise MethodNotImplemented('Vector.<Vector>')
-        a_vector = Vector(2, type=Vector.int)
+        a_vector = Vector[Vector[int]](2)
         self.assertEqual(a_vector.length, 2)
         self.assertFalse(a_vector.fixed)
 
-        b_vector = Vector.uint(3, True, type=Vector.int)
+        b_vector = Vector[Vector[int]](3, true)
         self.assertEqual(b_vector.length, 3)
         self.assertTrue(b_vector.fixed)
 
-        c_vector = Vector.uint(type=Vector.int)
+        c_vector = Vector[Vector[int]]()
         self.assertEqual(c_vector.length, 0)
         self.assertFalse(c_vector.fixed)
 
@@ -6498,7 +6494,100 @@ class VectorTests(as3libTestCase):
         self.assertEach(a, [1, 2, 3, 4, 5])
 
     def test_every(self):
-        raise TestNotImplemented
+        # TODO: Function with incorrect number of arguements
+        # TODO: Create a separate function for as3 "is" instead of using isinstance
+        a_bool = Vector[Boolean]([true, false])
+        b_bool = Vector[Boolean]([true, true])
+
+        self.assertFalse(a_bool.every(lambda x, y, z: x))
+        self.assertTrue(a_bool.every(lambda x, y, z: true))
+        self.assertTrue(b_bool.every(lambda x, y, z: x))
+        self.assertTrue(b_bool.every(lambda x, y, z: true))
+
+        class Superclass:
+            ...
+
+        class Subclass(Superclass):
+            ...
+
+        a_class = Vector[Superclass]([])
+        a_class.length = 2
+        a_class[0] = Superclass()
+        a_class[1] = Subclass()
+
+        b_class = Vector[Subclass]([])
+        b_class.length = 1
+        b_class[0] = Subclass()
+
+        self.assertFalse(a_class.every(lambda x, y, z: isinstance(x, Subclass)))
+        self.assertTrue(a_class.every(lambda x, y, z: isinstance(x, Superclass)))
+        self.assertTrue(b_class.every(lambda x, y, z: isinstance(x, Subclass)))
+        self.assertTrue(b_class.every(lambda x, y, z: isinstance(x, Superclass)))
+
+        raise MethodNotImplemented('interface')
+
+        class Interface:
+            ...
+
+        @implements(Interface)
+        class implementer:
+            ...
+
+        a_iface = Vector[Interface]([])
+        a_iface.length = 1
+        a_iface[0] = Implementer()
+
+        b_iface = Vector[Implementer]([])
+        b_iface.length = 2
+        b_iface[0] = Implementer()
+        b_iface[1] = Implementer()
+
+        self.assertTrue(a_iface.every(lambda x, y, z: isinstance(x, Implementer)))
+        self.assertTrue(a_iface.every(lambda x, y, z: isinstance(x, Interface)))
+        self.assertTrue(b_iface.every(lambda x, y, z: isinstance(x, Implementer)))
+        self.assertTrue(b_iface.every(lambda x, y, z: isinstance(x, Interface)))
+
+        a_int = Vector[int]([1, 2])
+        b_int = Vector[int]([5, 16])
+
+        self.assertTrue(a_int.every(lambda x, y, z: x > 0 ))
+        self.assertFalse(a_int.every(lambda x, y, z: x > 2 ))
+        self.assertTrue(b_int.every(lambda x, y, z: x > 4 ))
+        self.assertFalse(b_int.every(lambda x, y, z: x > 10 ))
+
+        a_number = Vector[Number]([1, 2, 3, 4])
+        b_number = Vector[Number]([5, NaN, -5, 0])
+
+        self.assertTrue(a_number.every(lambda x, y, z: x > 0 ))
+        self.assertFalse(a_number.every(lambda x, y, z: x > 2 ))
+        self.assertFalse(b_number.every(lambda x, y, z: x > 4 ))
+        self.assertFalse(b_number.every(lambda x, y, z: x > 10 ))
+        self.assertFalse(b_number.every(lambda x, y, z: x > -6 or isNaN(x) ))
+
+        a_string = Vector[String](['a', 'c', 'd', 'f'])
+        b_string = Vector[String](['986', 'B4', 'Q', 'rrr'])
+
+        self.assertTrue(a_string.every(lambda x, y, z: x.length > 0))
+        self.assertFalse(a_string.every(lambda x, y, z: x.length > 2))
+        self.assertTrue(a_string.every(lambda x, y, z: x.length > 0))
+        self.assertFalse(a_string.every(lambda x, y, z: x.length > 4))
+
+        a_uint = Vector[uint]([1, 2])
+        b_uint = Vector[uint]([5, 16])
+
+        self.assertTrue(a_uint.every(lambda x, y, z: x > 0 ))
+        self.assertFalse(a_uint.every(lambda x, y, z: x > 2 ))
+        self.assertTrue(b_uint.every(lambda x, y, z: x > 4 ))
+        self.assertFalse(b_uint.every(lambda x, y, z: x > 10 ))
+
+        a_vector = Vector[Vector[int]]([Vector[int]([1, 2]), Vector[int]([4, 3])])
+        b_vector = Vector[Vector[int]]([Vector[int]([5, 16]), Vector[int]([19, 8])])
+
+        trace("/// a_vector.every(function (v) { return v.every(function (v) { return v > 0; }); });");
+        self.assertTrue(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 0)))
+        self.assertFalse(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 2)))
+        self.assertTrue(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 4)))
+        self.assertFalse(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 10)))
 
     def test_filter(self):
         raise TestNotImplemented
@@ -6532,7 +6621,7 @@ class VectorTests(as3libTestCase):
 
     def test_null_callback(self):
         # TODO: Make sure this is correct
-        v = Vector.int()
+        v = Vector[int]()
         v.push(1)
         self.assertTrue(v.every(null))
         self.assertIs(v.filter(null), None)
