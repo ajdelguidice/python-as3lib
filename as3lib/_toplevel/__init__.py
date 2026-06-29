@@ -120,11 +120,11 @@ class undefined:
 
     def __lshift__(self, value):
         # TODO: Check return type
-        return Number(0)
+        return int(0)
 
     def __rshift__(self, value):
         # TODO: Check return type
-        return Number(0)
+        return int(0)
 
     def __ge__(self, value):
         return NaN >= value
@@ -202,11 +202,11 @@ class null:
 
     def __lshift__(self, value):
         # TODO: Check return type
-        return Number(0)
+        return int(0)
 
     def __rshift__(self, value):
         # TODO: Check return type
-        return Number(0)
+        return int(0)
 
     def __ge__(self, value):
         return Number(0) >= value
@@ -243,7 +243,7 @@ undefined = undefined()
 null = null()
 
 
-def _as3lib_GetNumValueFromObject(obj):
+def _as3lib_CoerceToNumberValue(obj):
     # TODO: Ensure that using this is the correct solution
     # TODO: Make this work with all as3 types
     if hasattr(obj, 'valueOf'):
@@ -333,26 +333,29 @@ class Object:
     def __iter__(self):
         return (i for i in self.__dict__.keys())
 
+    def __each__(self):
+        return (i for i in self.__dict__.items())
+
     def __neg__(self):
-        return Number(-_as3lib_GetNumValueFromObject(self))
+        return Number(-_as3lib_CoerceToNumberValue(self))
 
     def __add__(self, value):
-        #thisValue = _as3lib_GetNumValueFromObject(self)
-        #valueNum = _as3lib_GetNumValueFromObject(value)
+        #thisValue = _as3lib_CoerceToNumberValue(self)
+        #valueNum = _as3lib_CoerceToNumberValue(value)
         #if hasattr(thisValue, '_is_nan') and thisValue._is_nan() or hasattr(thisValue, 'hex') and thisValue.hex() == 'nan' or isinstance(value, (str, String)):
         #    return self.toString().concat(value)
         #return Number(thisValue + valueNum)
         return self.toString().concat(value)
 
     def __sub__(self, value):
-        return Number(_as3lib_GetNumValueFromObject(self) - _as3lib_GetNumValueFromObject(value))
+        return Number(_as3lib_CoerceToNumberValue(self) - _as3lib_CoerceToNumberValue(value))
 
     def __mul__(self, value):
-        return Number(_as3lib_GetNumValueFromObject(self) * _as3lib_GetNumValueFromObject(value))
+        return Number(_as3lib_CoerceToNumberValue(self) * _as3lib_CoerceToNumberValue(value))
 
     def __truediv__(self, value):
-        thisValue = _as3lib_GetNumValueFromObject(self)
-        value = _as3lib_GetNumValueFromObject(value)
+        thisValue = _as3lib_CoerceToNumberValue(self)
+        value = _as3lib_CoerceToNumberValue(value)
         if value == 0:
             if thisValue > 0:
                 return Number.POSITIVE_INFINITY
@@ -363,8 +366,8 @@ class Object:
 
     def __mod__(self, value):
         # TODO: Other behaviour of modulo
-        thisValue = _as3lib_GetNumValueFromObject(self)
-        value = _as3lib_GetNumValueFromObject(value)
+        thisValue = _as3lib_CoerceToNumberValue(self)
+        value = _as3lib_CoerceToNumberValue(value)
         if value == 0 or thisValue == Number.POSITIVE_INFINITY:
             return Number.NaN
         if value == Number.POSITIVE_INFINITY:
@@ -382,16 +385,16 @@ class Object:
         return int(_as3lib_CoerceToIntValue(self) >> _as3lib_CoerceToIntValue(value))
 
     def __ge__(self, value):
-        return Boolean(_as3lib_GetNumValueFromObject(self) >= _as3lib_GetNumValueFromObject(value))
+        return Boolean(_as3lib_CoerceToNumberValue(self) >= _as3lib_CoerceToNumberValue(value))
 
     def __gt__(self, value):
-        return Boolean(_as3lib_GetNumValueFromObject(self) > _as3lib_GetNumValueFromObject(value))
+        return Boolean(_as3lib_CoerceToNumberValue(self) > _as3lib_CoerceToNumberValue(value))
 
     def __lt__(self, value):
-        return Boolean(_as3lib_GetNumValueFromObject(self) < _as3lib_GetNumValueFromObject(value))
+        return Boolean(_as3lib_CoerceToNumberValue(self) < _as3lib_CoerceToNumberValue(value))
 
     def __le__(self, value):
-        return Boolean(_as3lib_GetNumValueFromObject(self) <= _as3lib_GetNumValueFromObject(value))
+        return Boolean(_as3lib_CoerceToNumberValue(self) <= _as3lib_CoerceToNumberValue(value))
 
     def __and__(self, value):
         return int(_as3lib_CoerceToIntValue(self) & _as3lib_CoerceToIntValue(value))
@@ -701,12 +704,6 @@ class Boolean(Object):
     def __repr__(self):
         return f'as3lib.Boolean({self._value})'
 
-    def __getitem__(self):
-        return self._value
-
-    def __setitem__(self, value):
-        self._value = value
-
     def __bool__(self):
         return self._value
 
@@ -728,14 +725,6 @@ class Boolean(Object):
     def __add__(self, value):
         # TODO: Check type
         return Number(self._value) + value
-
-    def __lshift__(self, value):
-        # TODO: Check to see if this is actually correct
-        return int(self._value) << value
-
-    def __rshift__(self, value):
-        # TODO: Check to see if this is actually correct
-        return int(self._value) >> value
 
     def _Boolean(self, expression=None):
         if isinstance(expression, bool):
@@ -921,20 +910,24 @@ class Date(Object):
     def _syncUTC(self):
         self._value = self._valueUTC.astimezone(tz=self._localtz)
 
-    def __init__(self, yearOrTimevalue=None, month=None, date=1, hour=0, minute=0, second=0, millisecond=0):
+    def __init__(self, yearOrTimevalue: Object = null, month: Number = null,
+                 date: Number = 1, hour: Number = 0, minute: Number = 0,
+                 second: Number = 0, millisecond: Number = 0):
         # TODO: When NaN is passed as the first arguement, all values should be set to NaN
         #       When a value is set after this, all other values become the default
         self._localtz = _getTimezone()
-        if yearOrTimevalue is None and month is None:
+        if yearOrTimevalue is not null and hasattr(yearOrTimevalue, 'valueOf'):
+            yearOrTimevalue = yearOrTimevalue.valueOf()
+        if yearOrTimevalue is null and month is null:
             # Passed no arguements. Use current date and time
             self._value = datetime.datetime.now(tz=self._localtz)
             self._sync()
-        elif isinstance(yearOrTimevalue, (builtins.int, int, float, Number)) and month is None:
+        elif isinstance(yearOrTimevalue, (builtins.int, int, float, Number)) and month is null:
             # One arguement of type Number is passed. Interpret as utc timestamp
             # TODO: _localtz is wrong here
             self._valueUTC = datetime.datetime.fromtimestamp(yearOrTimevalue / 1000, datetime.timezone.utc)
             self._syncUTC()
-        elif isinstance(yearOrTimevalue, str) and month is None:
+        elif isinstance(yearOrTimevalue, (String, str)) and month is null:
             # One arguement of type String is passed. Parse date string
             raise NotImplementedError('One aruement of type String')  # TODO
         else:
@@ -1154,7 +1147,7 @@ class Error(Exception, Object):
 
     @message.setter
     def message(self, value):
-        self._message = value
+        self._message = String(value)
 
     @property
     def name(self):
@@ -1162,12 +1155,12 @@ class Error(Exception, Object):
 
     @name.setter
     def name(self, value):
-        self._name = value
+        self._name = String(value)
 
     def __init__(self, message='', id=0):
-        self._name = 'Error'
-        self._id = next(_genErrorID) if id == 0 else id
-        self._message = message if message != '' else 'Error'
+        self.name = 'Error'
+        self._id = int(next(_genErrorID) if id == 0 else id)
+        self.message = message if message != '' else 'Error'
         errorTrace(self.toString())
 
     @staticmethod
@@ -1267,7 +1260,7 @@ class Number(Object):
         return hash(self._value)
 
     def __add__(self, value):
-        return Number(self._value + self._Number(value))
+        return Number(self._value + _as3lib_CoerceToNumberValue(value))
 
     def __float__(self):
         return self._value
@@ -1291,7 +1284,7 @@ class Number(Object):
         return Number(abs(self._value))
 
     def __pow__(self, value):
-        return Number(self._value ** self._Number(value))
+        return Number(self._value ** _as3lib_CoerceToNumberValue(value))
 
     def __round__(self, places=null):
         if places is null:
@@ -1318,10 +1311,10 @@ class Number(Object):
         if isinstance(expression, Object):
             return _NaN_value
 
-    def toExponential(self, fractionDigits=null):
-        # TODO: Cast fractionDigits to uint
-        if fractionDigits is null:
-            fractionDigits = 0
+    def toExponential(self, fractionDigits: uint = null):
+        fractionDigits = uint(fractionDigits)
+        if fractionDigits > 20:
+            raise RangeError('fractionDigits is outside of acceptable range')
         if self._value == 0:
             if fractionDigits == 0:
                 return '1e-15'
@@ -1330,14 +1323,14 @@ class Number(Object):
             return self.toString()
         return _exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value))
 
-    def toFixed(self, fractionDigits=null):
-        # TODO: Cast fractionDigits to uint
-        if fractionDigits is null:
-            fractionDigits = 0
+    def toFixed(self, fractionDigits: uint = null):
+        fractionDigits = uint(fractionDigits)
+        if fractionDigits > 20:
+            raise RangeError('fractionDigits is outside of acceptable range')
         return ('{:.%if}' % fractionDigits).format(self._value)
 
     def toPrecision(self, precision):
-        # TODO: Cast precision to uint
+        precision = uint(precision)
         raise NotImplementedError
 
     def toLocaleString(self):
@@ -1634,14 +1627,6 @@ class String(str, Object):
     __mul__ = Object.__mul__
     __rmul__ = Object.__mul__
     __mod__ = Object.__mod__
-
-    def __lshift__(self, value):
-        # TODO: Make sure that this is correct
-        return int(self) << value
-
-    def __rshift__(self, value):
-        # TODO: Make sure that this is correct
-        return int(self) >> value
 
     def charAt(self, index: Number = 0):
         index = Number(index)
