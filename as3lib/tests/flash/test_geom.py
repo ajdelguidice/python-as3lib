@@ -775,20 +775,20 @@ class Matrix3DTests(as3libTestCase):
         self.assertMatrix3D(m, asrt)
 
         # Invalid Vector length
-        tooShort = Matrix3D(Vector.Number([1, 2]))
+        tooShort = Matrix3D(Vector[Number]([1, 2]))
         asrt = (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
         self.assertMatrix3D(tooShort, asrt)
 
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16, 17])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16, 17])
         tooLong = Matrix3D(v)
         self.assertMatrix3D(tooLong, asrt)
 
     def test_clone(self):
         # NOTE: Mostly copied from MatrixTests.test_clone
         #       Unsure if this is correct
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16])
         m = Matrix3D(v)
         cloned = m.clone()
 
@@ -806,8 +806,8 @@ class Matrix3DTests(as3libTestCase):
         self.assertMatrix3D(m, asrt)
 
     def test_identity(self):
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16])
         m = Matrix3D(v)
 
         asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
@@ -820,29 +820,29 @@ class Matrix3DTests(as3libTestCase):
 
     def test_determinant(self):
         # Zero
-        v = Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        v = Vector[Number]([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         m = Matrix3D(v)
         self.assertEqual(m.determinant, 0)
 
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16])
         m = Matrix3D(v)
         self.assertEqual(m.determinant, 0)
 
         # Non-zero, randomly generated input
-        v = Vector.Number([37, 48, 70, 38, 17, 33, 70, 52, 94, 89, 11, 4, 2,
-                           43, 90, 50])
+        v = Vector[Number]([37, 48, 70, 38, 17, 33, 70, 52, 94, 89, 11, 4, 2,
+                            43, 90, 50])
         m = Matrix3D(v)
         self.assertEqual(m.determinant, 1953360)
 
-        v = Vector.Number([30, 76, 67, 56, 69, 61, 99, 11, 95, 92, 84, 24, 14,
-                           35, 96, 71])
+        v = Vector[Number]([30, 76, 67, 56, 69, 61, 99, 11, 95, 92, 84, 24, 14,
+                            35, 96, 71])
         m = Matrix3D(v)
         self.assertEqual(m.determinant, 8822702)
 
     def test_2(self):
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16])
         m = Matrix3D(v)
         asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
         self.assertMatrix3D(m, asrt)
@@ -865,7 +865,7 @@ class Matrix3DTests(as3libTestCase):
         other.copyFrom(m)
         self.assertMatrix3D(other, asrt)
 
-        out = Vector.Number()
+        out = Vector[Number]()
         out.length = 20
         m.copyRawDataTo(out, 1, True)
         asrt = (0, 154, 168, 182, 200, 330, 364, 398, 440, 506, 560, 614, 680,
@@ -880,18 +880,18 @@ class Matrix3DTests(as3libTestCase):
         vOut = m.transformVector(v)
         self.assertVector3D(vOut, 3857, 4266, 4675, 5176)
 
-        vecs = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-        vecsOut = Vector.Number()
+        vecs = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        vecsOut = Vector[Number]()
         m.transformVectors(vecs, vecsOut)
         asrt = (3857, 4266, 4675, 6827, 7542, 8257, 9797, 10818, 11839)
         self.assertArray(vecsOut, asrt)
 
-        vecsOutFixed = Vector.Number(vecs.length, True)
+        vecsOutFixed = Vector[Number](vecs.length, true)
         m.transformVectors(vecs, vecsOutFixed)
         asrt = (3857, 4266, 4675, 6827, 7542, 8257, 9797, 10818, 11839, 0)
         self.assertArray(vecsOutFixed, asrt)
 
-        vecsOutFixedTooSmall = Vector.Number(4, True)
+        vecsOutFixedTooSmall = Vector[Number](4, true)
         self.assertRaises(RangeError, m.transformVector, vecs,
                           vecsOutFixedTooSmall)
 
@@ -901,16 +901,16 @@ class Matrix3DTests(as3libTestCase):
         vOut = m.deltaTransformVector(v)
         self.assertVector3D(vOut, 2332, 2576, 2820, 3120)
 
-        modified = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
-                                  14, 15, 16])
+        modified = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                                   14, 15, 16])
         newMat = Matrix3D(modified)
         asrt = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
         self.assertMatrix3D(newMat, asrt)
         modified[0] = 9999
         self.assertMatrix3D(newMat, asrt)
 
-        v = Vector.Number([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                           16])
+        v = Vector[Number]([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16])
         newMat = Matrix3D(v)
         col = Vector3D()
         check = ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12),
@@ -959,7 +959,7 @@ class Matrix3DTests(as3libTestCase):
         self.assertMatrix(newMat, asrt)
 
     def test_copyColumnFrom(self):
-        v = Vector.Number([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        v = Vector[Number]([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         mat = Matrix3D(v)
         col = Vector3D(3, 4, 5, 6)
         check = ((3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -1659,7 +1659,7 @@ class TransformTests(as3libTestCase):
 
             # sprite3D: update mat3D
             # RUFFLE: FIXME: values shouldn't be zero (0) for test coverage. Unsupported now.
-            v = Vector.Number([2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1])
+            v = Vector[Number]([2, 3, 0, 0, 4, 5, 0, 0, 0, 0, 1, 0, 6, 7, 0, 1])
             mat3D.copyFrom(Matrix3D(v))
             self.c.assertEqual(sprite3D.transform.matrix, null)
             # RUFFLE: FIXME: mat3D update should be applied to transform.matrix3D immediately
@@ -1801,7 +1801,7 @@ class TransformTests(as3libTestCase):
 class Utils3DTests(as3libTestCase):
     def test_1(self):
         vec = Vector3D(1.0, 2.0, 3.0, 4.0)
-        mat = Matrix3D(Vector.Number([
+        mat = Matrix3D(Vector[Number]([
             100, 200, 300, 400,
             500, 600, 700, 800,
             900, 1000, 1100, 1200,
@@ -1812,9 +1812,9 @@ class Utils3DTests(as3libTestCase):
         self.assertVector3D(projected, 0.7083333333333334, 0.8055555555555556,
                             0.9027777777777778, 7200)
 
-        verts = Vector.Number([100, 200, 300, 400, 500, 600])
-        projectedVerts = Vector.Number([])
-        uvts = Vector.Number([])
+        verts = Vector[Number]([100, 200, 300, 400, 500, 600])
+        projectedVerts = Vector[Number]([])
+        uvts = Vector[Number]([])
 
         # Bad project
         Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
@@ -1827,7 +1827,7 @@ class Utils3DTests(as3libTestCase):
 
         # Good project
         # Deliberately missing a final z coord
-        uvts = uvts = Vector.Number([1000, 2000, 3000, 4000, 5000, 6000, 5, 6])
+        uvts = uvts = Vector[Number]([1000, 2000, 3000, 4000, 5000, 6000, 5, 6])
 
         Utils3D.projectVectors(mat, verts, projectedVerts, uvts)
         asrt = (0.6789529914529915, 0.7859686609686609, 0.6486423220973783,
