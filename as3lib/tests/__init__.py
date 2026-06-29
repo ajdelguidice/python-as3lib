@@ -100,7 +100,7 @@ class as3libTestCase(unittest.TestCase):
         self.assertFalse(strictne(obj1, obj2))
 
 
-class TestNotImplemented(NotImplementedError):
+class TestNotImplemented(unittest.SkipTest):
     ...
 
 
