@@ -102,6 +102,8 @@ class undefined:
         return iter([])
 
     def __add__(self, value):
+        if isinstance(value, (String, str)):
+            return self.toString().concat(value)
         return NaN
 
     def __sub__(self, value):
@@ -135,6 +137,18 @@ class undefined:
 
     def __le__(self, value):
         return NaN <= value
+
+    def __and__(self, value):
+        return int(0)
+
+    def __invert__(self):
+        return int(-1)
+
+    def __or__(self, value):
+        return int(_as3lib_CoerceToIntValue(value))
+
+    def __xor__(self, value):
+        return int(_as3lib_CoerceToIntValue(value))
 
     def __each__(self):
         return iter([])
@@ -206,6 +220,18 @@ class null:
     def __le__(self, value):
         return Number(0) <= value
 
+    def __and__(self, value):
+        return int(0)
+
+    def __invert__(self):
+        return int(-1)
+
+    def __or__(self, value):
+        return int(_as3lib_CoerceToIntValue(value))
+
+    def __xor__(self, value):
+        return int(_as3lib_CoerceToIntValue(value))
+
     def __each__(self):
         return iter([])
 
@@ -243,6 +269,30 @@ def _as3lib_GetNumValueFromObject(obj):
     if isinstance(obj, Object):
         return _NaN_value
     return obj
+
+
+def _as3lib_NumberCheckNaN(number):
+    return hasattr(number, '_is_nan') and number._is_nan() or hasattr(number, 'hex') and number.hex() == 'nan'
+
+
+def _as3lib_CoerceToIntValue(obj):
+    if hasattr(obj, 'valueOf'):
+        obj = obj.valueOf()
+    if isinstance(obj, (String, str)):
+        obj = parseFloat(obj)
+    if isinstance(obj, (int, uint, Number)):
+        obj = obj._value
+    if isinstance(obj, (builtins.int)):
+        return obj
+    if _as3lib_NumberCheckNaN(obj) or obj == Number.POSITIVE_INFINITY or obj == Number.NEGATIVE_INFINITY:
+        return 0
+    if isinstance(obj, float):
+        return math.floor(obj)
+    if hasattr(obj, '__int__'):
+        return builtins.int(obj)
+    if isinstance(obj, Object):
+        return 0
+    raise TypeError(f'Can not convert type {type(obj)} to integer')
 
 
 def _as3lib_toStringHelper(obj):
@@ -322,10 +372,14 @@ class Object:
         return Number(thisValue % value)
 
     def __lshift__(self, value):
-        return int(self) << value
+        # TODO: Negative shift value
+        #       For some reason, this wraps the bits around
+        #       Ex: 0b00000000000000000000000000000001 << -1 == 0b10000000000000000000000000000000
+        return int(_as3lib_CoerceToIntValue(self) << _as3lib_CoerceToIntValue(value))
 
     def __rshift__(self, value):
-        return int(self) >> value
+        # TODO: Negative shift value
+        return int(_as3lib_CoerceToIntValue(self) >> _as3lib_CoerceToIntValue(value))
 
     def __ge__(self, value):
         return Boolean(_as3lib_GetNumValueFromObject(self) >= _as3lib_GetNumValueFromObject(value))
@@ -338,6 +392,18 @@ class Object:
 
     def __le__(self, value):
         return Boolean(_as3lib_GetNumValueFromObject(self) <= _as3lib_GetNumValueFromObject(value))
+
+    def __and__(self, value):
+        return int(_as3lib_CoerceToIntValue(self) & _as3lib_CoerceToIntValue(value))
+
+    def __invert__(self):
+        return int(~_as3lib_CoerceToIntValue(self))
+
+    def __or__(self, value):
+        return int(_as3lib_CoerceToIntValue(self) | _as3lib_CoerceToIntValue(value))
+
+    def __xor__(self, value):
+        return int(_as3lib_CoerceToIntValue(self) ^ _as3lib_CoerceToIntValue(value))
 
     def hasOwnProperty(self, name: str):
         return str(name) in self.__dict__
@@ -1210,9 +1276,7 @@ class Number(Object):
         return builtins.int(self._value)
 
     def __index__(self):
-        if self._is_nan() or self == Number.POSITIVE_INFINITY or self == Number.NEGATIVE_INFINITY:
-            return 0
-        return builtins.int(math.floor(self._value))
+        return _as3lib_CoerceToIntValue(self)
 
     def __eq__(self, value):
         return self._value == value
@@ -1235,14 +1299,6 @@ class Number(Object):
                 return Number(math.ceil(self._value))
             return Number(math.floor(self._value))
         return Number(round(self._value, places))
-
-    def __lshift__(self, value):
-        # TODO: Make sure that this is correct
-        return int(self) << value
-
-    def __rshift__(self, value):
-        # TODO: Make sure that this is correct
-        return int(self) >> value
 
     def _Number(self, expression):
         if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
@@ -1464,7 +1520,7 @@ class int(Object):
         self._val.value = value
 
     def __init__(self, value=0):
-        self._val = self._buffertype(self._int(value))
+        self._val = self._buffertype(_as3lib_CoerceToIntValue(value))
 
     def __float__(self):
         return float(self._value)
@@ -1485,7 +1541,7 @@ class int(Object):
         return hash(self._value)
 
     def __add__(self, value):
-        return int(self._value + self._int(value))
+        return int(self._value + _as3lib_CoerceToIntValue(value))
 
     def __sub__(self, value):
         return int(super().__sub__(value))
@@ -1494,7 +1550,7 @@ class int(Object):
         return int(super().__mul__(value))
 
     def __truediv__(self, value):
-        res = super().__truediv__(self._int(value))
+        res = super().__truediv__(_as3lib_CoerceToIntValue(value))
         if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
             return res
         return int(res)
@@ -1504,42 +1560,6 @@ class int(Object):
 
     def __eq__(self, value):
         return self._value == value
-
-    def __lshift__(self, value):
-        # TODO: Negative shift value
-        #       For some reason, this wraps the bits around
-        #       Ex: 0b00000000000000000000000000000001 << -1 == 0b10000000000000000000000000000000
-        return int(self._value << self._int(value))
-
-    def __rshift__(self, value):
-        # TODO: Negative shift value
-        return int(self._value >> self._int(value))
-
-    def __xor__(self, value):
-        return int(self._value ^ self._int(value))
-
-    def __and__(self, value):
-        return int(self._value & self._int(value))
-
-    def __or__(self, value):
-        return int(self._value | self._int(value))
-
-    def _int(self, value):
-        if isinstance(value, str):
-            value = parseFloat(value)
-        if hasattr(value, '_is_nan') and value._is_nan() or value == Number.POSITIVE_INFINITY or value == Number.NEGATIVE_INFINITY:
-            return 0
-        if isinstance(value, (int, uint, Number)):
-            value = value._value
-        if isinstance(value, (builtins.int)):
-            return value
-        if isinstance(value, float):
-            return math.floor(value)
-        if hasattr(value, '__int__'):
-            return builtins.int(value)
-        if isinstance(value, Object):
-            return 0
-        raise TypeError(f'Can not convert type {type(value)} to integer')
 
     def toExponential(self, fractionDigits: uint = null):
         fractionDigits = uint(fractionDigits)
@@ -1881,7 +1901,15 @@ class _VectorPartial(partial):
 
     This is used to implement Vector.<Vector.<...>> as Vector[Vector[...]]
     '''
-    ...
+    @property
+    def type(self):
+        return self.keywords['type']
+
+    def __repr__(self):
+        return 'Vector.<%r>' % self.type
+
+    def __str__(self):
+        return 'Vector.<%s>' % self.type
 
 
 class Vector(list, Object):
@@ -2023,7 +2051,7 @@ class Vector(list, Object):
         super().__setitem__(item, value)
 
     def concat(self, *args):
-        temp = Vector(self, type=self._type)
+        temp = Vector[self._type](self)
         if len(args) > 0:
             for i in args:
                 if isinstance(i, Vector) and issubclass(i._type, self._type):
@@ -2045,7 +2073,7 @@ class Vector(list, Object):
 
     def filter(self, callback, thisObject=null):
         # TODO: Handle null callback
-        tempVector = Vector(type=self._type)
+        tempVector = Vector[self._type]()
         tempVector._superclass = self._superclass
         for i in self:
             if callback(self[i], i, self):
@@ -2089,7 +2117,7 @@ class Vector(list, Object):
 
     def map(self, callback, thisObject=null):
         # TODO: Handle null callback
-        tempVect = Vector(self.length, type=self._type)
+        tempVect = Vector[self._type](self.length)
         tempVect._superclass = self._superclass
         for i in self:
             tempVect[i] = callback(self[i], i, self)
