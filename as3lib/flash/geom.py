@@ -329,8 +329,7 @@ class Matrix3D:
         self._data = value
 
     def _identity(self):
-        # TODO: Should be Vector.<Number>
-        return Vector.Number([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
+        return Vector[Number]([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 
     def __init__(self, v = null):
         if not (isinstance(v, Vector) or v is null):
@@ -354,7 +353,7 @@ class Matrix3D:
 
     def clone(self):
         # TODO: Find a better way to clone this data
-        return Matrix3D(Vector.Number(list(each(self.rawData))))
+        return Matrix3D(Vector[Number](list(each(self.rawData))))
 
     def copyColumnFrom(self, column, vector3D: Vector3D):
         raise NotImplementedError
