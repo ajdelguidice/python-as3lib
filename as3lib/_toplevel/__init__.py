@@ -457,8 +457,7 @@ class Array(list, Object):
             return Array(*[self[i] for i in range(*item.indices(len(self)))])
         else:
             try:
-                value = super().__getitem__(item)
-                return value if value is not None else undefined
+                return super().__getitem__(item)
             except Exception:
                 return undefined
 
@@ -551,15 +550,13 @@ class Array(list, Object):
     def _join(o, sep=undefined):
         if sep is undefined:
             s = ','
-        elif hasattr(sep, 'toString'):
-            s = sep.toString()
         else:
-            s = str(sep)
+            s = String(sep)
         with StringIO() as out:
             n = o.length
             for i in range(n):
                 x = o[i]
-                if x is not None and x is not undefined and x is not null:
+                if x is not undefined and x is not null:
                     out.write(str(x))
                 if i + 1 < n:
                     out.write(s)
@@ -676,7 +673,7 @@ class Array(list, Object):
             n = self.length
             for i in range(n):
                 x = self[i]
-                if x is not None and x is not undefined and x is not null:
+                if x is not undefined and x is not null:
                     if hasattr(x, 'toLocaleString'):
                         out.write(x.toLocaleString())
                     else:
@@ -726,7 +723,7 @@ class Boolean(Object):
         # TODO: Check type
         return Number(self._value) + value
 
-    def _Boolean(self, expression=None):
+    def _Boolean(self, expression):
         if isinstance(expression, bool):
             return expression
         # NOTE: For some reason, python str does not have __bool__ but can be
@@ -1300,7 +1297,7 @@ class Number(Object):
             expression = expression.valueOf()
         if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
             return expression
-        if expression is undefined or expression is None:
+        if expression is undefined:
             return _NaN_value
         if expression is null:
             return 0.0
@@ -1992,7 +1989,7 @@ class Vector(list, Object):
 
     @property
     def length(self):
-        return len(self)
+        return int(len(self))
 
     @length.setter
     def length(self, value):
@@ -2011,14 +2008,12 @@ class Vector(list, Object):
     def _join(o, sep=undefined):
         if sep is undefined:
             s = ','
-        elif hasattr(sep, 'toString'):
-            s = sep.toString()
         else:
-            s = str(sep)
+            s = String(sep)
         with StringIO() as out:
             for i in o:
                 x = o[i]
-                if x is not None:
+                if x is not null:
                     out.write(str(x))
                 if i + 1 < o.length:
                     out.write(s)
@@ -2075,7 +2070,7 @@ class Vector(list, Object):
         if fromIndex < 0:
             fromIndex = len(self) - fromIndex
         for i in range(fromIndex, len(self)):
-            if self[i] == searchElement:
+            if stricteq(self[i], searchElement):
                 return i
         return -1
 
@@ -2088,17 +2083,18 @@ class Vector(list, Object):
         else:
             raise NotImplementedError
 
-    def join(self, sep: str = ','):
+    def join(self, sep: String = ','):
         return Vector._join(self, sep)
 
-    def lastIndexOf(self, searchElement, fromIndex=None):
-        if fromIndex is None:
-            fromIndex = len(self)
-        elif fromIndex < 0:
-            fromIndex = len(self) - fromIndex
-        raise NotImplementedError
-        # index = self[::-1].indexOf(searchElement,len(self)-1-fromIndex)
-        # return index if index == -1 else len(self)-1-index
+    def lastIndexOf(self, searchElement, fromIndex = null):
+        # TODO: Negative fromIndex
+        if fromIndex is null:
+            fromIndex = self.length - 1
+        fromIndex = int(fromIndex)
+        for i in range(fromIndex, -1, -1):
+            if stricteq(self[i], searchElement):
+                return int(i)
+        return int(-1)
 
     def map(self, callback, thisObject=null):
         # TODO: Handle null callback
@@ -2674,14 +2670,29 @@ def each(iterable):
 
 
 # Operations
+def _typeCompare(obj1, obj2):
+    # This is needed because python objects can be used alongside as3lib
+    # objects.
+    if type(obj1) is int:
+        return type(obj2) in {int, builtins.int}
+    if type(obj1) is uint:
+        return type(obj2) in {uint, builtins.int}
+    if type(obj1) is builtins.int:
+        return type(obj2) in {int, uint, builtins.int}
+    if type(obj1) is Number:
+        return type(obj2) in {Number, float}
+    if type(obj1) is float:
+        return type(obj2) in {Number, float}
+    return type(obj1) is type(obj2)
+
 def stricteq(obj1, obj2):
     if isinstance(obj1, Number) and obj1._is_nan() and isinstance(obj2, Number) and obj2._is_nan():
         return true
-    return Boolean(type(obj1) is type(obj2) and obj1 == obj2)
+    return Boolean(_typeCompare(obj1, obj2) and obj1 == obj2)
 
 
 def strictne(obj1, obj2):
-    return Boolean(type(obj1) is not type(obj2) or obj1 != obj2)
+    return Boolean(not _typeCompare(obj1, obj2) or obj1 != obj2)
 
 
 # Helpers
