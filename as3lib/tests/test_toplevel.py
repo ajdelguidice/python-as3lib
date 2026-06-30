@@ -4474,10 +4474,146 @@ class OperationTests(as3libTestCase):
                                 false, false, false, false))
 
     def test_lessequals(self):
-        raise TestNotImplemented
+        def assertLessEquals(value, check):
+            self.assertEqual(value <= undefined, check[0])
+            self.assertEqual(value <= null, check[1])
+            self.assertEqual(value <= Number(-5), check[2])
+            self.assertEqual(value <= Number(-1), check[3])
+            self.assertEqual(value <= Number(-0), check[4])
+            self.assertEqual(value <= Number(0), check[5])
+            self.assertEqual(value <= Number(1), check[6])
+            self.assertEqual(value <= Number(2), check[7])
+            self.assertEqual(value <= Number(5), check[8])
+            self.assertEqual(value <= String('abc'), check[9])
+            self.assertEqual(value <= String('2'), check[10])
+            self.assertEqual(value <= String('true'), check[11])
+            self.assertEqual(value <= String('false'), check[12])
+            self.assertEqual(value <= true, check[13])
+            self.assertEqual(value <= false, check[14])
+            self.assertEqual(value <= NaN, check[15])
+
+        assertLessEquals(undefined, (false, false, false, false, false, false,
+                                     false, false, false, false, false, false,
+                                     false, false, false, false))
+        assertLessEquals(null, (false, true, false, false, true, true, true,
+                                true, true, false, true, false, false, true,
+                                true, false))
+        assertLessEquals(Number(-5), (false, true, true, true, true, true,
+                                      true, true, true, false, true, false,
+                                      false, true, true, false))
+        assertLessEquals(Number(-1), (false, true, false, true, true, true,
+                                      true, true, true, false, true, false,
+                                      false, true, true, false))
+        assertLessEquals(Number(-0), (false, true, false, false, true, true,
+                                      true, true, true, false, true, false,
+                                      false, true, true, false))
+        assertLessEquals(Number(0), (false, true, false, false, true, true,
+                                     true, true, true, false, true, false,
+                                     false, true, true, false))
+        assertLessEquals(Number(1), (false, false, false, false, false, false,
+                                     true, true, true, false, true, false,
+                                     false, true, false, false))
+        assertLessEquals(Number(2), (false, false, false, false, false, false,
+                                     false, true, true, false, true, false,
+                                     false, false, false, false))
+        assertLessEquals(Number(5), (false, false, false, false, false, false,
+                                     false, false, true, false, false, false,
+                                     false, false, false, false))
+        assertLessEquals(String('abc'), (false, false, false, false, false,
+                                         false, false, false, false, true,
+                                         false, true, true, false, false,
+                                         false))
+        assertLessEquals(String('2'), (false, false, false, false, false,
+                                       false, false, true, true, true, true,
+                                       true, true, false, false, false))
+        assertLessEquals(String('true'), (false, false, false, false, false,
+                                          false, false, false, false, false,
+                                          false, true, false, false, false,
+                                          false))
+        assertLessEquals(String('false'), (false, false, false, false, false,
+                                           false, false, false, false, false,
+                                           false, true, true, false, false,
+                                           false))
+        assertLessEquals(true, (false, false, false, false, false, false,
+                                true, true, true, false, true, false, false,
+                                true, false, false))
+        assertLessEquals(false, (false, true, false, false, true, true, true,
+                                 true, true, false, true, false, false, true,
+                                 true, false))
+        assertLessEquals(NaN, (false, false, false, false, false, false,
+                               false, false, false, false, false, false,
+                               false, false, false, false))
 
     def test_lessthan(self):
-        raise TestNotImplemented
+        def assertLessThan(value, check):
+            self.assertEqual(value < undefined, check[0])
+            self.assertEqual(value < null, check[1])
+            self.assertEqual(value < Number(-5), check[2])
+            self.assertEqual(value < Number(-1), check[3])
+            self.assertEqual(value < Number(-0), check[4])
+            self.assertEqual(value < Number(0), check[5])
+            self.assertEqual(value < Number(1), check[6])
+            self.assertEqual(value < Number(2), check[7])
+            self.assertEqual(value < Number(5), check[8])
+            self.assertEqual(value < String('abc'), check[9])
+            self.assertEqual(value < String('2'), check[10])
+            self.assertEqual(value < String('true'), check[11])
+            self.assertEqual(value < String('false'), check[12])
+            self.assertEqual(value < true, check[13])
+            self.assertEqual(value < false, check[14])
+            self.assertEqual(value < NaN, check[15])
+
+        assertLessThan(undefined, (false, false, false, false, false, false,
+                                   false, false, false, false, false, false,
+                                   false, false, false, false))
+        assertLessThan(null, (false, false, false, false, false, false, true,
+                              true, true, false, true, false, false, true,
+                              false, false))
+        assertLessThan(Number(-5), (false, true, false, true, true, true,
+                                    true, true, true, false, true, false,
+                                    false, true, true, false))
+        assertLessThan(Number(-1), (false, true, false, false, true, true,
+                                    true, true, true, false, true, false,
+                                    false, true, true, false))
+        assertLessThan(Number(-0), (false, false, false, false, false, false,
+                                    true, true, true, false, true, false,
+                                    false, true, false, false))
+        assertLessThan(Number(0), (false, false, false, false, false, false,
+                                   true, true, true, false, true, false,
+                                   false, true, false, false))
+        assertLessThan(Number(1), (false, false, false, false, false, false,
+                                   false, true, true, false, true, false,
+                                   false, false, false, false))
+        assertLessThan(Number(2), (false, false, false, false, false, false,
+                                   false, false, true, false, false, false,
+                                   false, false, false, false))
+        assertLessThan(Number(5), (false, false, false, false, false, false,
+                                   false, false, false, false, false, false,
+                                   false, false, false, false))
+        assertLessThan(String('abc'), (false, false, false, false, false,
+                                       false, false, false, false, false,
+                                       false, true, true, false, false,
+                                       false))
+        assertLessThan(String('2'), (false, false, false, false, false, false,
+                                     false, false, true, true, false, true,
+                                     true, false, false, false))
+        assertLessThan(String('true'), (false, false, false, false, false,
+                                        false, false, false, false, false,
+                                        false, false, false, false, false,
+                                        false))
+        assertLessThan(String('false'), (false, false, false, false, false,
+                                         false, false, false, false, false,
+                                         false, true, false, false, false,
+                                         false))
+        assertLessThan(true, (false, false, false, false, false, false, false,
+                              true, true, false, true, false, false, false,
+                              false, false))
+        assertLessThan(false, (false, false, false, false, false, false, true,
+                               true, true, false, true, false, false, true,
+                               false, false))
+        assertLessThan(NaN, (false, false, false, false, false, false, false,
+                             false, false, false, false, false, false, false,
+                             false, false))
 
     def test_ifeq(self):
         # TODO: Make these use if statements
@@ -4942,10 +5078,53 @@ class StringTests(as3libTestCase):
         # self.assertEqual(new String(f));
 
     def test_indexOf(self):
-        raise TestNotImplemented
+        s = String('aaatestFOOtestaaanull')
+        trace("// s.indexOf(\"a\")");
+        self.assertEqual(s.indexOf('a'), 0)
+        self.assertEqual(s.indexOf('a', 16), 16)
+        self.assertEqual(s.indexOf('a', 14), 14)
+        self.assertEqual(s.indexOf('a', 13), 14)
+        self.assertEqual(s.indexOf('a', 0), 0)
+        self.assertEqual(s.indexOf('test'), 3)
+        self.assertEqual(s.indexOf('test', 4), 10)
+        self.assertEqual(s.indexOf('test', 100), -1)
+        self.assertEqual(s.indexOf('test', -1), 3)
+        self.assertEqual(s.indexOf('test', 4294967300), -1)
+        self.assertEqual(s.indexOf('test', null), 3)
+        self.assertEqual(s.indexOf('test', undefined), 3)
+        self.assertEqual(s.indexOf(''), 0)
+        self.assertEqual(s.indexOf('', 5), 5)
+        self.assertEqual(s.indexOf('', 100), 21)
+        self.assertEqual(s.indexOf(), -1)
+        self.assertEqual(s.indexOf(null), -1)
+        self.assertEqual(s.indexOf(undefined), -1)
+        self.assertEqual(String('hello undefined hi').indexOf(undefined), -1)
+        self.assertEqual(String('').indexOf(null), -1)
+        self.assertEqual(String('').indexOf(undefined), -1)
 
     def test_lastIndexOf(self):
-        raise TestNotImplemented
+        s = String('aaatestFOOtestaaanull')
+        self.assertEqual(s.lastIndexOf('a'), 16)
+        self.assertEqual(s.lastIndexOf('a', 16), 16)
+        self.assertEqual(s.lastIndexOf('a', 14), 14)
+        self.assertEqual(s.lastIndexOf('a', 13), 2)
+        self.assertEqual(s.lastIndexOf('a', 0), 0)
+        self.assertEqual(s.lastIndexOf('test'), 10)
+        self.assertEqual(s.lastIndexOf('test', 4), 3)
+        self.assertEqual(s.lastIndexOf('test', 100), 10)
+        self.assertEqual(s.lastIndexOf('test', -1), -1)
+        self.assertEqual(s.lastIndexOf('test', 4294967300), 10)
+        self.assertEqual(s.lastIndexOf('test', null), -1)
+        self.assertEqual(s.lastIndexOf('test', undefined), 10)
+        self.assertEqual(s.lastIndexOf(''), 21)
+        self.assertEqual(s.lastIndexOf('', 5), 5)
+        self.assertEqual(s.lastIndexOf('', 100), 21)
+        self.assertEqual(s.lastIndexOf(), -1)
+        self.assertEqual(s.lastIndexOf(null), -1)
+        self.assertEqual(s.lastIndexOf(undefined), -1)
+        self.assertEqual(String('hello undefined hi').lastIndexOf(undefined), -1)
+        self.assertEqual(String('').lastIndexOf(null), -1)
+        self.assertEqual(String('').lastIndexOf(undefined), -1)
 
     def test_length(self):
         self.assertEqual(String('').length, 0)
@@ -6311,7 +6490,139 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_coercion(self):
-        raise TestNotImplemented
+        a_bool = Vector[Boolean]([1, 2, 3, 4])
+        a_bool[0] = 1
+        a_bool[1] = NaN
+        a_bool[2] = 'false'
+        a_bool[3] = true
+
+        self.assertTrue(isinstance(a_bool[0], Boolean))
+        self.assertTrue(a_bool[0])
+        self.assertTrue(isinstance(a_bool[1], Boolean))
+        self.assertFalse(a_bool[1])
+        self.assertTrue(isinstance(a_bool[2], Boolean))
+        self.assertTrue(a_bool[2])
+        self.assertTrue(isinstance(a_bool[3], Boolean))
+        self.assertTrue(a_bool[3])
+
+        # TODO
+        '''
+        function LegacyClass() {
+
+        }
+
+        function LegacySubclass() {
+
+        }
+
+        LegacySubclass.prototype = new LegacyClass();
+
+        trace("/// var a_legacy: Vector.<Object> = new <Object>[];");
+        var a_legacy:Vector.<Object> = new <Object>[];
+
+        trace("/// a_legacy.length = 2;");
+        a_legacy.length = 2;
+
+        trace(a_legacy[0]);  # => null
+        trace(a_legacy[1]);  # => null
+
+        trace("/// a_legacy[0] = new LegacyClass();");
+        a_legacy[0] = new LegacyClass();
+
+        trace("/// a_legacy[1] = new LegacySubclass();");
+        a_legacy[1] = new LegacySubclass();
+
+        trace(a_legacy[0]);  # => [object Object]
+        trace(a_legacy[1]);  # => [object Object]
+
+        '''
+
+        class Superclass:
+            ...
+
+        class Subclass(Superclass):
+            ...
+
+        a_class = Vector[Superclass]([])
+        a_class.length = 2
+
+        self.assertIs(a_class[0], null)
+        self.assertIs(a_class[1], null)
+
+        a_class[0] = Superclass()
+        a_class[1] = Subclass()
+
+        self.assertIs(type(a_class[0]), Superclass)
+        self.assertIs(type(a_class[1]), Subclass)
+
+        a_int = Vector[int]([1, 2])
+        a_int[0] = '5'
+        a_int[1] = 'not a number'
+
+        self.assertEqual(a_int[0], 5)
+        self.assertEqual(a_int[1], 0)
+
+        a_number = Vector[Number]([1, 2, 3, 4])
+        a_number[0] = '5'
+        a_number[1] = 'NaN'
+        a_number[2] = -5
+        a_number[3] = true
+
+        self.assertEqual(a_number[0], 5)
+        self.assertNaN(a_number[1])
+        self.assertEqual(a_number[2], -5)
+        self.assertIs(type(a_number[3]), Number)
+        self.assertEqual(a_number[3], 1)
+
+        a_string = Vector[String]([1, 2, 3, 4])
+        a_string[0] = 5
+        a_string[1] = NaN
+        a_string[2] = 'actually imma string'
+        a_string[3] = true
+
+        self.assertStrictEQ(a_string[0], String('5'))
+        self.assertStrictEQ(a_string[1], String('NaN'))
+        self.assertStrictEQ(a_string[2], String('actually imma string'))
+        self.assertStrictEQ(a_string[3], String('true'))
+
+        a_uint = Vector[uint]([1, 2, 3, 4])
+        a_uint[0] = '5'
+        a_uint[1] = 'not a number'
+        a_uint[2] = -5
+        a_uint[3] = false
+
+        self.assertEqual(a_uint[0], 5)
+        self.assertEqual(a_uint[1], 0)
+        self.assertEqual(a_uint[2], 4294967291)
+        self.assertEqual(a_uint[3], 0)
+
+        a_vector = Vector[int]([1, 2])
+        b_vector = Vector[int]([5, 16])
+        c_vector = Vector[Vector[int]]([])
+        c_vector[0] = a_vector
+        c_vector[1] = b_vector;
+
+        self.assertEqual(c_vector[0][0], 1)
+        self.assertEqual(c_vector[0][1], 2)
+        self.assertEqual(c_vector[1][0], 5)
+        self.assertEqual(c_vector[1][1], 16)
+
+        raise
+        '''
+        class MyObject:
+            ...
+
+        myobj_vec = Vector[MyObject]([])
+
+        try:
+            # TODO
+            cast: Vector.<int> = myobj_vec
+        except Exception as e:
+            # Replace the non-deterministic address value with a placeholder string.
+            var normalized = e.toString().replace(/@[0-9A-Fa-f]+/, "@ADDRESS")
+            trace("Caught error: " + normalized);
+            # => Caught error: TypeError: Error #1034: Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.
+        '''
 
     def test_concat(self):
         a_bool = Vector[Boolean]([true, false])
@@ -6608,10 +6919,287 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_join(self):
-        raise TestNotImplemented
+        a_bool = Vector[Boolean]([true, false])
+        b_bool = Vector[Boolean]([false, true, false])
+
+        self.assertEqual(a_bool.join('...'), 'true...false')
+        self.assertEqual(b_bool.join('...'), 'false...true...false')
+
+        class Superclass(Object):
+            ...
+
+        class Subclass(Superclass):
+            ...
+
+        a_class = Vector[Superclass]([])
+        a_class.length = 2
+        a_class[0] = Superclass()
+        a_class[1] = Subclass()
+
+        b_class = Vector[Subclass]([])
+        b_class.length = 1
+        b_class[0] = Subclass()
+
+        self.assertEqual(a_class.join('...'), '[object Superclass]...[object Subclass]')
+        self.assertEqual(b_class.join('...'), '[object Subclass]')
+
+        raise MethodNotImplemented('interface/implements')
+        @interface
+        class Interface:
+            ...
+
+        @implements(Interface)
+        class Implementation:
+            ...
+
+        a_iface = Vector[Interface]([])
+        a_iface.length = 1
+        a_iface[0] = Implementation()
+
+        b_iface = Vector[Implementation]([])
+        b_iface.length = 2
+        b_iface[0] = Implementation()
+        b_iface[1] = Implementation()
+
+        self.assertEqual(a_iface.join('...'), '[object Implementation]')
+        self.assertEqual(b_iface.join('...'), '[object Implementation]...[object Implementation]')
+
+        a_int = Vector[int]([1, 2])
+        b_int = Vector[int]([5, 16])
+
+        self.assertEqual(a_int.join('...'), '1...2')
+        self.assertEqual(b_int.join('...'), '5...16')
+
+        a_number = Vector[Number]([1, 2, 3, 4])
+        b_number = Vector[Number]([5, NaN, -5, 0])
+
+        self.assertEqual(a_number.join('...'), '1...2...3...4')
+        self.assertEqual(b_number.join('...'), '5...NaN...-5...0')
+
+        a_string = Vector[String](['a', 'c', 'd', 'f'])
+        b_string = Vector[String](['986', 'B4', 'Q', 'rrr'])
+
+        self.assertEqual(a_string.join('...'), 'a...c...d...f')
+        self.assertEqual(b_string.join('...'), '986...B4...Q...rrr')
+
+        a_uint = Vector[uint]([1, 2])
+        b_uint = Vector[uint]([5, 16])
+
+        self.assertEqual(a_uint.join('...'), '1...2')
+        self.assertEqual(b_uint.join('...'), '5...16')
+
+        a_vector = Vector[Vector[int]]([Vector[int]([1, 2]), Vector[int]([4, 3])])
+        b_vector = Vector[Vector[int]]([Vector[int]([5, 16]), Vector[int]([19, 8])])
+
+        self.assertEqual(a_vector.join('...'), '1,2...3,4')
+        self.assertEqual(b_vector.join('...'), '5,16...19,8')
 
     def test_lastIndexOf(self):
-        raise TestNotImplemented
+        a_bool = Vector[Boolean]([true, false])
+        b_bool = Vector[Boolean]([true, true])
+
+        self.assertEqual(a_bool.lastIndexOf(true), 0)
+        self.assertEqual(a_bool.lastIndexOf(false), 1)
+        self.assertEqual(b_bool.lastIndexOf(true), 1)
+        self.assertEqual(b_bool.lastIndexOf(false), -1)
+
+        self.assertEqual(a_bool.lastIndexOf(true, 1), 0)
+        self.assertEqual(a_bool.lastIndexOf(false, 1), 1)
+        self.assertEqual(b_bool.lastIndexOf(true, 1), 1)
+        self.assertEqual(b_bool.lastIndexOf(false, 1), -1)
+
+        self.assertEqual(a_bool.lastIndexOf(true, 0), 0)
+        self.assertEqual(a_bool.lastIndexOf(false, 0), -1)
+        self.assertEqual(b_bool.lastIndexOf(true, 0), 0)
+        self.assertEqual(b_bool.lastIndexOf(false, 0), -1)
+
+        class Superclass:
+            ...
+
+        class Subclass(Superclass):
+            ...
+
+        a_class = Vector[Superclass]([])
+        a_class.length = 2
+
+        a0_class = Superclass()
+        a_class[0] = a0_class
+
+        a1_class = Subclass()
+        a_class[1] = a1_class
+
+        b_class = Vector[Subclass]([])
+        b_class.length = 1
+
+        b0_class = Subclass()
+        b_class[0] = b0_class
+
+        self.assertEqual(a_class.lastIndexOf(a0_class), 0)
+        self.assertEqual(a_class.lastIndexOf(a1_class), 1)
+        self.assertEqual(a_class.lastIndexOf(b0_class), -1)
+        self.assertEqual(b_class.lastIndexOf(a0_class), -1)
+        self.assertEqual(b_class.lastIndexOf(a1_class), -1)
+        self.assertEqual(b_class.lastIndexOf(b0_class), 0)
+
+        self.assertEqual(a_class.lastIndexOf(a0_class, 0), 0)
+        self.assertEqual(a_class.lastIndexOf(a1_class, 0), -1)
+        self.assertEqual(a_class.lastIndexOf(b0_class, 0), -1)
+        self.assertEqual(b_class.lastIndexOf(a0_class, 0), -1)
+        self.assertEqual(b_class.lastIndexOf(a1_class, 0), -1)
+        self.assertEqual(b_class.lastIndexOf(b0_class, 0), 0)
+
+        self.assertEqual(a_class.lastIndexOf(a0_class, -1), 0)
+        self.assertEqual(a_class.lastIndexOf(a1_class, -1), 1)
+        self.assertEqual(a_class.lastIndexOf(b0_class, -1), -1)
+        self.assertEqual(b_class.lastIndexOf(a0_class, -1), -1)
+        self.assertEqual(b_class.lastIndexOf(a1_class, -1), -1)
+        self.assertEqual(b_class.lastIndexOf(b0_class, -1), 0)
+
+        a_int = Vector[int]([1, 2])
+        b_int = Vector[int]([5, 16])
+
+        self.assertEqual(a_int.lastIndexOf(0), -1)
+        self.assertEqual(a_int.lastIndexOf(1), 0)
+        self.assertEqual(a_int.lastIndexOf(2), 1)
+        self.assertEqual(b_int.lastIndexOf(3), -1)
+        self.assertEqual(b_int.lastIndexOf(5), 0)
+        self.assertEqual(b_int.lastIndexOf(15), -1)
+
+        self.assertEqual(a_int.lastIndexOf(0, 0), -1)
+        self.assertEqual(a_int.lastIndexOf(1, 0), 0)
+        self.assertEqual(a_int.lastIndexOf(2, 0), -1)
+        self.assertEqual(b_int.lastIndexOf(3, 0), -1)
+        self.assertEqual(b_int.lastIndexOf(5, 0), 0)
+        self.assertEqual(b_int.lastIndexOf(15, 0), -1)
+
+        self.assertEqual(a_int.lastIndexOf(0, -2), -1)
+        self.assertEqual(a_int.lastIndexOf(1, -2), 0)
+        self.assertEqual(a_int.lastIndexOf(2, -2), -1)
+        self.assertEqual(b_int.lastIndexOf(3, -2), -1)
+        self.assertEqual(b_int.lastIndexOf(5, -2), 0)
+        self.assertEqual(b_int.lastIndexOf(15, -2), -1)
+
+        a_number = Vector[Number]([1, 2, 3, 4])
+        b_number = Vector[Number]([5, NaN, -5, 0])
+
+        self.assertEqual(a_number.lastIndexOf(0), -1)
+        self.assertEqual(a_number.lastIndexOf(1), 0)
+        self.assertEqual(a_number.lastIndexOf(2), 1)
+        self.assertEqual(b_number.lastIndexOf(3), -1)
+        self.assertEqual(b_number.lastIndexOf(-5), 2)
+        self.assertEqual(b_number.lastIndexOf(NaN), -1)
+
+        self.assertEqual(a_number.lastIndexOf(0, 1), -1)
+        self.assertEqual(a_number.lastIndexOf(1, 1), 0)
+        self.assertEqual(a_number.lastIndexOf(2, 1), 1)
+        self.assertEqual(b_number.lastIndexOf(3, 1), -1)
+        self.assertEqual(b_number.lastIndexOf(-5, 1), -1)
+        self.assertEqual(b_number.lastIndexOf(NaN, 1), -1)
+
+        self.assertEqual(a_number.lastIndexOf(0, -2), -1)
+        self.assertEqual(a_number.lastIndexOf(1, -2), 0)
+        self.assertEqual(a_number.lastIndexOf(2, -2), 1)
+        self.assertEqual(b_number.lastIndexOf(3, -2), -1)
+        self.assertEqual(b_number.lastIndexOf(-5, -2), 2)
+        self.assertEqual(b_number.lastIndexOf(NaN, -2), -1)
+
+        a_string = Vector[String](['a', 'c', 'd', 'f'])
+        b_string = Vector[String](['986', 'B4', 'Q', 'rrr'])
+
+        self.assertEqual(a_string.lastIndexOf('a'), 0)
+        self.assertEqual(a_string.lastIndexOf('z'), -1)
+        self.assertEqual(a_string.lastIndexOf('d'), 2)
+        self.assertEqual(b_string.lastIndexOf(986), -1)
+        self.assertEqual(b_string.lastIndexOf('986'), 0)
+        self.assertEqual(b_string.lastIndexOf('Q'), 2)
+
+        self.assertEqual(a_string.lastIndexOf('a', -2), 0)
+        self.assertEqual(a_string.lastIndexOf('z', -2), -1)
+        self.assertEqual(a_string.lastIndexOf('d', -2), 2)
+        self.assertEqual(b_string.lastIndexOf(986, -2), -1)
+        self.assertEqual(b_string.lastIndexOf('986', -2), 0)
+        self.assertEqual(b_string.lastIndexOf('Q', -2), 2)
+
+        self.assertEqual(a_string.lastIndexOf('a', 2), 0)
+        self.assertEqual(a_string.lastIndexOf('z', 2), -1)
+        self.assertEqual(a_string.lastIndexOf('d', 2), 2)
+        self.assertEqual(b_string.lastIndexOf(986, 2), -1)
+        self.assertEqual(b_string.lastIndexOf('986', 2), 0)
+        self.assertEqual(b_string.lastIndexOf('Q', 2), 2)
+
+        a_uint = Vector[uint]([1, 2])
+        b_uint = Vector[uint]([5, 16])
+
+        self.assertEqual(a_uint.lastIndexOf(0), -1)
+        self.assertEqual(a_uint.lastIndexOf(1), 0)
+        self.assertEqual(a_uint.lastIndexOf(2), 1)
+        self.assertEqual(b_uint.lastIndexOf(3), -1)
+        self.assertEqual(b_uint.lastIndexOf(5), 0)
+        self.assertEqual(b_uint.lastIndexOf(12), -1)
+
+        self.assertEqual(a_uint.lastIndexOf(0, 1), -1)
+        self.assertEqual(a_uint.lastIndexOf(1, 1), 0)
+        self.assertEqual(a_uint.lastIndexOf(2, 1), 1)
+        self.assertEqual(b_uint.lastIndexOf(3, 1), -1)
+        self.assertEqual(b_uint.lastIndexOf(5, 1), 0)
+        self.assertEqual(b_uint.lastIndexOf(12, 1), -1)
+
+        self.assertEqual(a_uint.lastIndexOf(0, -1), -1)
+        self.assertEqual(a_uint.lastIndexOf(1, -1), 0)
+        self.assertEqual(a_uint.lastIndexOf(2, -1), 1)
+        self.assertEqual(b_uint.lastIndexOf(3, -1), -1)
+        self.assertEqual(b_uint.lastIndexOf(5, -1), 0)
+        self.assertEqual(b_uint.lastIndexOf(12, -1), -1)
+
+        a0_vector = Vector[int]([1, 2])
+        a1_vector = Vector[int]([4, 3])
+        a_vector = Vector[Vector[int]]([a0_vector, a1_vector])
+
+        b0_vector = Vector[int]([5, 16])
+        b1_vector = Vector[int]([19, 8])
+        b_vector = Vector[Vector[int]]([b0_vector, b1_vector])
+
+        self.assertEqual(a_vector.lastIndexOf(a0_vector), 0)
+        self.assertEqual(a_vector.lastIndexOf(a1_vector), 1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([4, 3])), -1)
+        self.assertEqual(a_vector.lastIndexOf(b0_vector), -1)
+        self.assertEqual(a_vector.lastIndexOf(b1_vector), -1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([19, 8])), -1)
+
+        self.assertEqual(b_vector.lastIndexOf(a0_vector), -1)
+        self.assertEqual(b_vector.lastIndexOf(a1_vector), -1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([4, 3])), -1)
+        self.assertEqual(b_vector.lastIndexOf(b0_vector), 0)
+        self.assertEqual(b_vector.lastIndexOf(b1_vector), 1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([19, 8])), -1)
+
+        self.assertEqual(a_vector.lastIndexOf(a0_vector, 0), 0)
+        self.assertEqual(a_vector.lastIndexOf(a1_vector, 0), -1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([4, 3]), 0), -1)
+        self.assertEqual(a_vector.lastIndexOf(b0_vector, 0), -1)
+        self.assertEqual(a_vector.lastIndexOf(b1_vector, 0), -1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([19, 8]), 0), -1)
+
+        self.assertEqual(b_vector.lastIndexOf(a0_vector, 0), -1)
+        self.assertEqual(b_vector.lastIndexOf(a1_vector, 0), -1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([4, 3]), 0), -1)
+        self.assertEqual(b_vector.lastIndexOf(b0_vector, 0), 0)
+        self.assertEqual(b_vector.lastIndexOf(b1_vector, 0), -1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([19, 8]), 0), -1)
+
+        self.assertEqual(a_vector.lastIndexOf(a0_vector, -1), 0)
+        self.assertEqual(a_vector.lastIndexOf(a1_vector, -1), 1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([4, 3]), -1), -1)
+        self.assertEqual(a_vector.lastIndexOf(b0_vector, -1), -1)
+        self.assertEqual(a_vector.lastIndexOf(b1_vector, -1), -1)
+        self.assertEqual(a_vector.lastIndexOf(Vector[int]([19, 8]), -1), -1)
+
+        self.assertEqual(b_vector.lastIndexOf(a0_vector, -1), -1)
+        self.assertEqual(b_vector.lastIndexOf(a1_vector, -1), -1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([4, 3]), -1), -1)
+        self.assertEqual(b_vector.lastIndexOf(b0_vector, -1), 0)
+        self.assertEqual(b_vector.lastIndexOf(b1_vector, -1), 1)
+        self.assertEqual(b_vector.lastIndexOf(Vector[int]([19, 8]), -1), -1)
 
     def test_legacy(self):
         raise TestNotImplemented
@@ -6820,10 +7408,15 @@ class WTFJSTests(as3libTestCase):
 
     def test_infinite_timeout(self):
         # This will execute immediately because Infinity casts to uint 0
-        # TODO: console.log
-        # setTimeout(() => console.log("called"), Infinity)
-        # TODO: Make this an assert
-        setTimeout(print, Infinity, "called")
+        self.eventTriggered = false
+        def action(*e):
+            self.eventTriggered = true
+
+        setTimeout(action, Infinity)
+
+        self.assertTrue(self.eventTriggered)
+
+        del self.eventTriggered
 
 
 class XMLTests(as3libTestCase):
