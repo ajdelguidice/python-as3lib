@@ -8,4 +8,4 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     unescape)
 from warnings import warn
 Int = int
-warn('The as3lib.toplevel module is deprecated. Import as3lib instead.', DeprecationWarning)
+warn('Using as3lib.toplevel is deprecated and will be removed in version 15. Use as3lib directly instead.', DeprecationWarning)
