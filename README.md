@@ -10,7 +10,6 @@ A partial implementation of ActionScript 3 and the adobe flash api in python. Th
 - Versions of this library before 6 are broken on windows.
 - Use of multiple displays has not been tested yet.
 - interface_tk is a testing module, it does not function like actionscript and is only there to work things out. Do not expect consistency between versions and do not expect it to be kept around.
-- The toplevel module is now deprecated and only remains for backwards compatibility. Import the library instead.
 
 ## Requirements
 
