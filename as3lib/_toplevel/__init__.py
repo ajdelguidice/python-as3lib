@@ -127,6 +127,9 @@ class undefined:
         # TODO: Check return type
         return int(0)
 
+    def __eq__(self, value):
+        return Boolean(value is undefined or value is null)
+
     def __ge__(self, value):
         return NaN >= value
 
@@ -208,6 +211,9 @@ class null:
     def __rshift__(self, value):
         # TODO: Check return type
         return int(0)
+
+    def __eq__(self, value):
+        return Boolean(value is undefined or value is null)
 
     def __ge__(self, value):
         return Number(0) >= value
@@ -473,6 +479,10 @@ class Array(list, Object):
             '''
             self.length = item+1
         super().__setitem__(item, value)
+
+    def __delitem__(self, item):
+        if item < self.length:
+            super().__setitem__(item, undefined)
 
     @property
     def length(self):
@@ -2170,7 +2180,7 @@ class Namespace(Object):
 
     @prefix.setter
     def prefix(self, value):
-        self._prefix = value
+        self._prefix = value if value is undefined else String(value)
 
     @property
     def uri(self):
@@ -2178,7 +2188,7 @@ class Namespace(Object):
 
     @uri.setter
     def uri(self, value):
-        self._uri = value
+        self._uri = String(value)
 
     def __init__(self, *args):
         # Fix enumeration order
@@ -2190,33 +2200,30 @@ class Namespace(Object):
             val2 = args[1]
             if val1 is null:
                 val1 = undefined
-            if isXMLName(val1):
-                self._prefix = String(val1)
-            else:
-                self._prefix = undefined
+            self.prefix = val1 if isXMLName(val1) or val1 == '' else undefined
             if isinstance(val2, QName):
-                self._uri = val2.uri
+                self.uri = val2.uri
             elif self.prefix != '' and isinstance(val2, str) and not len(val2):
                 raise TypeError('Illegal prefix %s for no namespace.' % self.prefix, 1098)
             else:
-                self._uri = String(val2)
+                self.uri = val2
         elif len(args):
             val = args[0]
             if isinstance(val, Namespace):
-                self._prefix = val.prefix
-                self._uri = val.uri
+                self.prefix = val.prefix
+                self.uri = val.uri
             elif isinstance(val, QName):
-                self._prefix = undefined
-                self._uri = val.uri
+                self.prefix = undefined
+                self.uri = val.uri
             elif isinstance(val, str) and val == '':
-                self._prefix = String()
-                self._uri = String()
+                self.prefix = ''
+                self.uri = ''
             else:
-                self._prefix = undefined
-                self._uri = String(val)
+                self.prefix = undefined
+                self.uri = val
         else:
-            self._prefix = String()
-            self._uri = String()
+            self.prefix = ''
+            self.uri = ''
 
     def toString(self):
         return self.uri
