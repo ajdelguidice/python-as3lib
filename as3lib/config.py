@@ -1,12 +1,15 @@
 from as3lib import as3state
 from as3lib.as3state import __version__
+from as3lib._toplevel import Error
+import configparser
+from importlib.util import find_spec
 from io import StringIO
 from pathlib import Path, PurePath
-try:
+if find_spec('tomllib'):
     import tomllib
-except Exception:
+else:
     import tomli as tomllib
-from as3lib._toplevel import Error
+
 
 
 class TOML:
@@ -79,14 +82,7 @@ class TOML:
 
 
 def _dependencyCheck():
-    from importlib.util import find_spec
     hasDeps = True
-    if as3state.platform == 'Linux':
-        ...
-    elif as3state.platform == 'Windows':
-        ...
-    elif as3state.platform == 'Darwin':
-        ...
     if find_spec('numpy') is None:  # https://pypi.org/project/numpy
         as3state.initerror.append('Dependencies/Python: "numpy" not found')
         hasDeps = False
@@ -132,6 +128,7 @@ def Load():
             }
         }
     else:
+        modified = True
         cfg = {
             'version': __version__,
             'migrateOldConfig': True,
@@ -147,29 +144,21 @@ def Load():
                 'NoClearWarningNumber': 0
             }
         }
-        modified = True
     if cfg['migrateOldConfig']:
-        no_unnamed_section = False
-        import configparser
-        try:
-            UNNAMED_SECTION = configparser.UNNAMED_SECTION
-        except Exception:  # Python < 3.13 compatibility
-            no_unnamed_section = True
-            UNNAMED_SECTION = 'UNNAMED_SECTION'
-        ConfigParser = configparser.ConfigParser
         modified = True
         mmcfgpath = as3state.librarydirectory / 'mm.cfg'
         wlcfgpath = as3state.librarydirectory / 'wayland.cfg'
         oldcfgpath = as3state.librarydirectory / 'as3lib.cfg'
         if mmcfgpath.exists():
-            if no_unnamed_section:
-                mmcfg = ConfigParser()
-                with open(mmcfgpath, 'r') as f:
-                    mmcfg.read_string('[UNNAMED_SECTION]\n' + f.read())
-            else:
-                mmcfg = ConfigParser(allow_unnamed_section=True)
-                with open(mmcfgpath, 'r') as f:
+            with open(mmcfgpath, 'r') as f:
+                if hasattr(configparser, 'UNNAMED_SECTION'):
+                    UNNAMED_SECTION = configparser.UNNAMED_SECTION
+                    mmcfg = configparser.ConfigParser(allow_unnamed_section=True)
                     mmcfg.read_file(f)
+                else:  # Python < 3.13 compatibility
+                    UNNAMED_SECTION = 'UNNAMED_SECTION'
+                    mmcfg = configparser.ConfigParser()
+                    mmcfg.read_string('[UNNAMED_SECTION]\n' + f.read())
             cfg['mm.cfg'] = {
                 'ErrorReportingEnable': mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1,
                 'MaxWarnings': mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
@@ -182,7 +171,7 @@ def Load():
         if wlcfgpath.exists():
             wlcfgpath.unlink(missing_ok=True)
         if oldcfgpath.exists():
-            oldcfg = ConfigParser()
+            oldcfg = configparser.ConfigParser()
             with open(oldcfgpath, 'r') as f:
                 oldcfg.read_file(f)
             cfg = {
