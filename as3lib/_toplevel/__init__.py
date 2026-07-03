@@ -502,7 +502,7 @@ class Array(list, Object):
                 self.append(undefined)
 
     def __repr__(self):
-        return f'as3lib.Array({self.toString()})'
+        return 'Array(%s)' % self
 
     def __pos__(self):
         # TODO: This is probably wrong
@@ -711,7 +711,7 @@ class Boolean(Object):
         self._value = self._Boolean(expression)
 
     def __repr__(self):
-        return f'as3lib.Boolean({self._value})'
+        return 'Boolean(%s)' % self._value
 
     def __bool__(self):
         return self._value
@@ -1259,7 +1259,7 @@ class Number(Object):
         self._val = c_double(self._Number(num))
 
     def __repr__(self):
-        return 'as3lib.Number(%s)' % self
+        return 'Number(%s)' % self
 
     def __hash__(self):
         return hash(self._value)
@@ -1530,7 +1530,7 @@ class int(Object):
         return bool(self._value)
 
     def __repr__(self):
-        return 'as3lib.int(%s)' % self._value
+        return 'int(%s)' % self._value
 
     def __hash__(self):
         return hash(self._value)
@@ -1593,6 +1593,9 @@ class uint(int):
 
     _buffertype = c_uint32
 
+    def __repr__(self):
+        return 'uint(%s)' % self._value
+
 
 class String(str, Object):
     def __init__(self, value=''):
@@ -1605,12 +1608,12 @@ class String(str, Object):
     def __str__(self):
         return self
 
+    def __repr__(self):
+        return 'String("%s")' % self
+
     @property
     def length(self):
         return len(self)
-
-    def __repr__(self):
-        return 'as3lib.String(%s)' % self
 
     def __getitem__(self, item):
         return String(super().__getitem__(item))
