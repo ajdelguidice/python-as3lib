@@ -1,12 +1,13 @@
 from __future__ import annotations
 import builtins
 from ctypes import c_double, c_uint32, c_int32
-import datetime, time
-from functools import cmp_to_key, partial
+import datetime
+from functools import cmp_to_key
 from io import StringIO
 import math
 import random
 import re as regex
+import time
 import traceback
 from warnings import warn
 
@@ -243,11 +244,16 @@ undefined = undefined()
 null = null()
 
 
+def _as3lib_valueOfHelper(obj):
+    if hasattr(obj, 'valueOf'):
+        return obj.valueOf()
+    return obj
+
+
 def _as3lib_CoerceToNumberValue(obj):
     # TODO: Ensure that using this is the correct solution
     # TODO: Make this work with all as3 types
-    if hasattr(obj, 'valueOf'):
-        obj = obj.valueOf()
+    obj = _as3lib_valueOfHelper(obj)
     if obj is null:
         return 0
     if obj is undefined:
@@ -276,8 +282,7 @@ def _as3lib_NumberCheckNaN(number):
 
 
 def _as3lib_CoerceToIntValue(obj):
-    if hasattr(obj, 'valueOf'):
-        obj = obj.valueOf()
+    obj = _as3lib_valueOfHelper(obj)
     if isinstance(obj, (String, str)):
         obj = parseFloat(obj)
     if isinstance(obj, (int, uint, Number)):
@@ -340,12 +345,12 @@ class Object:
         return Number(-_as3lib_CoerceToNumberValue(self))
 
     def __add__(self, value):
-        #thisValue = _as3lib_CoerceToNumberValue(self)
-        #valueNum = _as3lib_CoerceToNumberValue(value)
-        #if hasattr(thisValue, '_is_nan') and thisValue._is_nan() or hasattr(thisValue, 'hex') and thisValue.hex() == 'nan' or isinstance(value, (str, String)):
-        #    return self.toString().concat(value)
-        #return Number(thisValue + valueNum)
-        return self.toString().concat(value)
+        # TODO: This is still slightly wrong
+        thisValue = _as3lib_valueOfHelper(self)
+        otherValue = _as3lib_valueOfHelper(value)
+        if isinstance(thisValue, (str, String)) or isinstance(otherValue, (str, String)):
+            return self.toString().concat(value)
+        return Number(_as3lib_CoerceToNumberValue(self) + _as3lib_CoerceToNumberValue(value))
 
     def __sub__(self, value):
         return Number(_as3lib_CoerceToNumberValue(self) - _as3lib_CoerceToNumberValue(value))
@@ -485,9 +490,6 @@ class Array(list, Object):
         elif len(self) < value:
             while len(self) < value:
                 self.append(undefined)
-
-    def __add__(self, item):
-        return self.toString() + str(item)
 
     def __repr__(self):
         return f'as3lib.Array({self.toString()})'
@@ -718,10 +720,6 @@ class Boolean(Object):
 
     def __pos__(self):
         return Number(self)
-
-    def __add__(self, value):
-        # TODO: Check type
-        return Number(self._value) + value
 
     def _Boolean(self, expression):
         if isinstance(expression, bool):
@@ -1256,9 +1254,6 @@ class Number(Object):
     def __hash__(self):
         return hash(self._value)
 
-    def __add__(self, value):
-        return Number(self._value + _as3lib_CoerceToNumberValue(value))
-
     def __float__(self):
         return self._value
 
@@ -1531,7 +1526,7 @@ class int(Object):
         return hash(self._value)
 
     def __add__(self, value):
-        return int(self._value + _as3lib_CoerceToIntValue(value))
+        return int(super().__add__(value))
 
     def __sub__(self, value):
         return int(super().__sub__(value))
@@ -1617,10 +1612,8 @@ class String(str, Object):
         # TODO: Make sure that this is correct
         return Number(self)
 
-    def __add__(self, value):
-        return String('%s%s' % (self, _as3lib_toStringHelper(value)))
-
     # TODO: Remove these once String is not a subclass of str
+    __add__ = Object.__add__
     __mul__ = Object.__mul__
     __rmul__ = Object.__mul__
     __mod__ = Object.__mod__
@@ -1638,7 +1631,7 @@ class String(str, Object):
         return Number(builtins.int(r'{:04X}'.format(ord(self[index])), 16))
 
     def concat(self, *args):
-        return self + ''.join([_as3lib_toStringHelper(i) for i in args])
+        return String(''.join([self, *(_as3lib_toStringHelper(i) for i in args)]))
 
     @staticmethod
     def fromCharCode(*charCodes):
@@ -1876,16 +1869,18 @@ class JSON(Object):
         raise NotImplementedError
 
 
-class _VectorPartial(partial):
-    '''
-    Wrapper class for functools.partial so Vector can detect if it has been
-    given a Vector as its type
+class _VectorType:
+    __slots__ = ('_type',)
 
-    This is used to implement Vector.<Vector.<...>> as Vector[Vector[...]]
-    '''
     @property
     def type(self):
-        return self.keywords['type']
+        return self._type
+
+    def __init__(self, type):
+        self._type = type
+
+    def __call__(self, *args, **kwargs):
+        return Vector(*args, **kwargs, type=self._type)
 
     def __repr__(self):
         return 'Vector.<%r>' % self.type
@@ -1945,11 +1940,11 @@ class Vector(list, Object):
 
         It is instead used like "Vector[T]([])"
         '''
-        return _VectorPartial(Vector, type=value)
+        return _VectorType(value)
 
     def __init__(self, length=0, fixed=False, **kwargs):
         self._type = kwargs['type']
-        if isinstance(self._type, _VectorPartial):
+        if isinstance(self._type, _VectorType):
             # TODO:
             raise NotImplementedError('Vector.<Vector.<...>>')
 
@@ -2020,7 +2015,7 @@ class Vector(list, Object):
             return String(out.getvalue())
 
     def __repr__(self):
-        return 'as3lib.Vector.<%s>(%s)' % (self._type.__name__, self)
+        return 'Vector.<%s>(%s)' % (self._type.__name__, self)
 
     def __getitem__(self, item):
         return super().__getitem__(item)
@@ -2684,6 +2679,7 @@ def _typeCompare(obj1, obj2):
     if type(obj1) is float:
         return type(obj2) in {Number, float}
     return type(obj1) is type(obj2)
+
 
 def stricteq(obj1, obj2):
     if isinstance(obj1, Number) and obj1._is_nan() and isinstance(obj2, Number) and obj2._is_nan():
