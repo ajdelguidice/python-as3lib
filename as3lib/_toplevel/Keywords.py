@@ -36,6 +36,77 @@ class package:
     ...
 
 
+class property:
+    # Adds a property type with write-only support
+    def __init__(self, **kwargs):
+        if 'fset' in kwargs:
+            self.fset = kwargs['fset']
+        if 'fget' in kwargs:
+            self.fget = kwargs['fget']
+
+    def getter(self, fget):
+        self.fget = fget
+        return self
+
+    def __get__(self, instance, owner):
+        if not hasattr(self, 'fget'):
+            raise AttributeError("can't get attribute")
+        cls = instance if instance is not None else self
+        return self.fget(cls, owner)
+
+    def setter(self, fset):
+        self.fset = fset
+        return self
+
+    def __set__(self, instance, value):
+        if not hasattr(self, 'fset'):
+            raise AttributeError("can't set attribute")
+        cls = instance if instance is not None else self
+        self.fset(cls, value)
+
+
+class property_get(property):
+    '''
+    Decorator replacement for "property get"
+
+    Use like this:
+
+    @property_get
+    def prop(self):
+        ...
+
+    Using this property type means that property setter must be set like this:
+
+    @prop.setter
+    def prop(self, value):
+        ...
+
+    '''
+    def __init__(self, fget):
+        self.fget = fget
+
+
+class property_set(property):
+    '''
+    Decorator replacement for "property set"
+
+    Use like this:
+
+    @property_set
+    def prop(self, value):
+        ...
+
+    Using this property type means that property getter must be set like this:
+
+    @prop.getter
+    def prop(self):
+        ...
+
+    '''
+    def __init__(self, fset):
+        self.fset = fset
+
+
 class implements:
     def __init__(self, *interfaces):
         self._i = interfaces
