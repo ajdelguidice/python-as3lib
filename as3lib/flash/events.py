@@ -4,33 +4,10 @@ from as3lib.flash.errors import SQLError
 from as3lib.flash.geom import Rectangle
 
 
-_ERRCONSTAllowedChars = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-                         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                         'U', 'V', 'W', 'X', 'Y', 'Z', '_', '0', '1', '2',
-                         '3', '4', '5', '6', '7', '8', '9'}
-
-
-def _HELPER_GetEventConstants(cls):
-    # TODO: Make child classes able to have the same constants defined as the
-    #       parents
-    consts = set()
-    for i in (i for i in dir(cls) if not i.startswith('_')):
-        valid = True
-        for j in i:
-            if j not in _ERRCONSTAllowedChars:
-                valid = False
-                break
-        if valid:
-            consts.add(getattr(cls, i))
-    if cls.__base__ != object:
-        return consts - _HELPER_GetEventConstants(cls.__base__)
-    return consts
-
-
 # Interfaces
 class IEventDispatcher:
     def __init__(self):
-        self.eventobjects = {}
+        raise NotImplementedError
 
     def addEventListener(self, type, listener, useCapture=False, priority=0, useWeakReference=False):
         raise NotImplementedError
@@ -187,23 +164,24 @@ class EventDispatcher(Object):
         self._eventsCapture = {}
         self._target = self if target is null else target
 
-    def addEventListener(self, type: String, listener, useCapture: Boolean = false, priority: int = 0, useWeakReference: Boolean = false):
+    def addEventListener(self, type: String, listener: callable,
+                         useCapture: Boolean = false, priority: int = 0,
+                         useWeakReference: Boolean = false):
         # TODO: Add error
         # TODO: Implement priority
         type = String(type)
-        useCapture = Boolean(useCapture)
         priority = int(priority)
         useWeakReference = Boolean(useWeakReference)
-        if useCapture == false:
-            if type not in self._events:
-                self._events[type] = [listener]
-            elif listener not in self._events[type]:
-                self._events[type].append(listener)
-        else:
+        if Boolean(useCapture):
             if type not in self._eventsCapture:
                 self._eventsCapture[type] = [listener]
             elif listener not in self._eventsCapture[type]:
                 self._eventsCapture[type].append(listener)
+        else:
+            if type not in self._events:
+                self._events[type] = [listener]
+            elif listener not in self._events[type]:
+                self._events[type].append(listener)
 
     def dispatchEvent(self, event):
         # TODO: Implement useCapture
@@ -234,19 +212,12 @@ class EventDispatcher(Object):
 
     def removeEventListener(self, type: String, listener, useCapture: Boolean = false):
         type = String(type)
-        useCapture = Boolean(useCapture)
-        if useCapture == false:
-            if type in self._events:
-                try:
-                    self._events[type].remove(listener)
-                except Exception:
-                    pass
+        if Boolean(useCapture):
+            if type in self._eventsCapture and listener in self._eventsCapture[type]:
+                self._eventsCapture[type].remove(listener)
         else:
-            if type in self._eventsCapture:
-                try:
-                    self._eventsCapture[type].remove(listener)
-                except Exception:
-                    pass
+            if type in self._events and listener in self._events[type]:
+                self._events[type].remove(listener)
 
     def willTrigger(self, type: String):
         # TODO: Also check ancestors
@@ -1084,7 +1055,7 @@ class GestureEvent(Event):
     @phase.setter
     def phase(self, value):
         # TODO: Use "value not in GesturePhase" once "in" is implemented
-        #       properly for Object and _AS3_CONSTANTSOBJECT
+        #       properly for Object
         if value not in {'all', 'begin', 'end', 'update'}:
             raise
         self._phase = String(value)
@@ -1799,7 +1770,7 @@ class NetMonitorEvent(Event):
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false, netStream = null):
         super().__init__(type, bubbles, cancelable)
-        self._netStream = netSteam
+        self._netStream = netStream
 
     def clone(self):
         return NetMonitorEvent(self.type, self.bubbles, self.cancelable,
