@@ -1,5 +1,6 @@
-from as3lib import (Array, as3state, Boolean, Error, false, int, NaN, Number,
-                    null, Object, String, true, TypeError, uint)
+from as3lib import (ArgumentError, Array, as3state, Boolean, Error, false,
+                    int, NaN, Number, null, Object, String, true, TypeError,
+                    uint)
 from as3lib.flash.errors import SQLError
 from as3lib.flash.geom import Rectangle
 
@@ -156,8 +157,51 @@ class Event(Object):
         return self.formatToString('Event', 'type', 'bubbles', 'cancelable', 'eventPhase')
 
 
+class _as3lib_ListenerStorage(dict):
+    '''
+    This class implements all that is necessary for event priority to work.
+
+    Can not use a normal dict with
+    ```
+    d = {}
+    def sort(key):
+        return d[key]
+
+    sorted(d, key=sort, reverse=True)
+    ```
+    here because the order is wrong when multiple listeners have the same
+    priority.
+    '''
+    def _generator(self):
+        for priority in sorted(self.keys(), key=int, reverse=True):
+            for listener in self[priority]:
+                yield listener
+
+    def __len__(self):
+        return len(tuple(self._generator()))
+
+    def __contains__(self, listener):
+        return listener in self._generator()
+
+    def __iter__(self):
+        return self._generator()
+
+    def addListener(self, priority, listener):
+        if priority not in self.keys():
+            self[priority] = []
+        self[priority].append(listener)
+
+    def removeListener(self, listener):
+        for i in self.keys():
+            if listener in self[i]:
+                self[i].remove(listener)
+                if not self[i]:
+                    del self[i]
+                break
+
+
 class EventDispatcher(Object):
-    # TODO: Implement priority, weakReference
+    # TODO: Implement weakReference
 
     def __init__(self, target: IEventDispatcher = null):
         self._events = {}
@@ -167,27 +211,28 @@ class EventDispatcher(Object):
     def addEventListener(self, type: String, listener: callable,
                          useCapture: Boolean = false, priority: int = 0,
                          useWeakReference: Boolean = false):
-        # TODO: Add error
-        # TODO: Implement priority
+        if not callable(listener):
+            # If listener is not a function
+            raise ArgumentError()
         type = String(type)
         priority = int(priority)
         useWeakReference = Boolean(useWeakReference)
         if Boolean(useCapture):
             if type not in self._eventsCapture:
-                self._eventsCapture[type] = [listener]
-            elif listener not in self._eventsCapture[type]:
-                self._eventsCapture[type].append(listener)
+                self._eventsCapture[type] = _as3lib_ListenerStorage()
+            if listener not in self._eventsCapture[type]:
+                self._eventsCapture[type].addListener(priority, listener)
         else:
             if type not in self._events:
-                self._events[type] = [listener]
-            elif listener not in self._events[type]:
-                self._events[type].append(listener)
+                self._events[type] = _as3lib_ListenerStorage()
+            if listener not in self._events[type]:
+                self._events[type].addListener(priority, listener)
 
     def dispatchEvent(self, event):
         # TODO: Implement useCapture
         # TODO: Implement bubbles
         # TODO: stopPropagation
-        if event.isDefaultPrevented() or not len(self._events.get(event.type, set())):
+        if event.isDefaultPrevented() or not len(self._events.get(event.type, ())):
             return false
         event._currentTarget = self  # TODO: Make sure that this is correct
         if not event._eventDispatched:
@@ -196,7 +241,7 @@ class EventDispatcher(Object):
             e = event
         else:
             e = event.clone()
-        for i in self._events.get(event.type, set()):
+        for i in self._events.get(event.type, ()):
             i(e)
             if e.isDefaultPrevented():
                 return false
@@ -213,11 +258,11 @@ class EventDispatcher(Object):
     def removeEventListener(self, type: String, listener, useCapture: Boolean = false):
         type = String(type)
         if Boolean(useCapture):
-            if type in self._eventsCapture and listener in self._eventsCapture[type]:
-                self._eventsCapture[type].remove(listener)
+            if type in self._eventsCapture:
+                self._eventsCapture[type].removeListener(listener)
         else:
-            if type in self._events and listener in self._events[type]:
-                self._events[type].remove(listener)
+            if type in self._events:
+                self._events[type].removeListener(listener)
 
     def willTrigger(self, type: String):
         # TODO: Also check ancestors
