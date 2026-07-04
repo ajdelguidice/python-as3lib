@@ -5,6 +5,7 @@ from as3lib.flash.events import TimerEvent
 from as3lib.flash.geom import Point
 from as3lib.flash.utils import ByteArray, Dictionary, Timer
 from as3lib.tests import as3libTestCase, TestNotImplemented
+from time import sleep
 
 
 class ByteArrayTests(as3libTestCase):
@@ -123,7 +124,6 @@ class ByteArrayTests(as3libTestCase):
         b = ByteArray()
         b.writeObject(p)
         self.assertEqual(b.length, 25)
-        trace(b.length)
 
     def test_oom(self):
         # This is not supposed to fail
@@ -720,23 +720,33 @@ class DictionaryTests(as3libTestCase):
 
 
 class TimerTests(as3libTestCase):
+    # TODO: Find a way to properly test Timer because it is async
     def test_1(self):
         raise TestNotImplemented
 
     def test_events(self):
-        # TODO: Find a better way to assert here
-        # TODO: Add eventPhase to asserts once it is implemented. Both are
-        #       supposed to be '2'
+        self.eventOrder = ''
+
         def timer(e):
+            self.eventOrder += 'T'
             self.assertEvent(e, TimerEvent, 'timer', false, false)
+            self.assertEqual(e.eventPhase, 2)
 
         def timerComplete(e):
+            self.eventOrder += 'C'
             self.assertEvent(e, TimerEvent, 'timerComplete', false, false)
+            self.assertEqual(e.eventPhase, 2)
 
         t = Timer(100, 2)
         t.addEventListener('timer', timer)
         t.addEventListener('timerComplete', timerComplete)
         t.start()
+
+        sleep(0.3)
+
+        self.assertEqual(self.eventOrder, 'TTC')
+
+        del self.eventOrder
 
     def test_finish(self):
         raise TestNotImplemented
