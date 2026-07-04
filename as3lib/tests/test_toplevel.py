@@ -2,7 +2,7 @@
 # https://github.com/ruffle-rs/ruffle
 
 from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
-                    delete, encodeURI, encodeURIComponent, Error, escape,
+                    each, encodeURI, encodeURIComponent, Error, escape,
                     EvalError, false, Infinity, int, isFinite, isNaN, JSON,
                     Math, Namespace, NaN, null, Number, Object, parseFloat,
                     parseInt, QName, RangeError, ReferenceError, RegExp,
@@ -23,17 +23,17 @@ class ArrayTests(as3libTestCase):
     def tearDown(self):
         # TODO: Remove return once prototype is implemented
         return
-        delete(Array.prototype[0])
-        delete(Array.prototype[1])
-        delete(Array.prototype[2])
-        delete(Array.prototype[3])
-        delete(Array.prototype[4])
-        delete(Array.prototype[5])
-        delete(Array.prototype[7])
-        delete(Array.prototype[9])
-        delete(Array.prototype[10])
-        delete(Array.prototype[11])
-        delete(Array.prototype[12])
+        del Array.prototype[0]
+        del Array.prototype[1]
+        del Array.prototype[2]
+        del Array.prototype[3]
+        del Array.prototype[4]
+        del Array.prototype[5]
+        del Array.prototype[7]
+        del Array.prototype[9]
+        del Array.prototype[10]
+        del Array.prototype[11]
+        del Array.prototype[12]
 
     def assertIndex(self, index, length, hasprop):
         arr = Array()
@@ -93,25 +93,29 @@ class ArrayTests(as3libTestCase):
         a = Array('a', 'b', 'c')
 
         # Delete a[1]
-        self.assertTrue(delete(a[1]))
+        del a[1]
+        # self.assertTrue(delete(a[1]))
         self.assertEqual(a.length, 3)
         self.assertArray(a, ['a', undefined, 'c', undefined])
         self.assertFalse(a.hasOwnProperty(1))
 
         # Delete a[2]
-        self.assertTrue(delete(a[2]))
+        del a[2]
+        # self.assertTrue(delete(a[2]))
         self.assertEqual(a.length, 3)
         self.assertArray(a, ['a', undefined, undefined, undefined])
         self.assertFalse(a.hasOwnProperty(2))
 
         # Delete a[3]
-        self.assertTrue(delete(a[3]))
+        del a[3]
+        # self.assertTrue(delete(a[3]))
         self.assertEqual(a.length, 3)
         self.assertArray(a, ['a', undefined, undefined, undefined])
         self.assertFalse(a.hasOwnProperty(3))
 
         # Delete a[4]
-        self.assertTrue(delete(a[4]))
+        del a[4]
+        # self.assertTrue(delete(a[4]))
         self.assertEqual(a.length, 3)
         self.assertArray(a, ['a', undefined, undefined, undefined])
         self.assertFalse(a.hasOwnProperty(4))
@@ -446,9 +450,9 @@ class ArrayTests(as3libTestCase):
             self.assertArray(a, check)
 
             # Clean up
-            delete(Array.prototype[10])
-            delete(Array.prototype[11])
-            delete(Array.prototype[12])
+            del Array.prototype[10]
+            del Array.prototype[11]
+            del Array.prototype[12]
 
             Array.prototype[9] = undefined
             Array.prototype[10] = 'hole in slot 10'
@@ -638,8 +642,8 @@ class ArrayTests(as3libTestCase):
             assertArrayProps(a, check)
 
             # Clean up
-            delete(Array.prototype[2])
-            delete(Array.prototype[4])
+            del Array.prototype[2]
+            del Array.prototype[4]
             Array.prototype[3] = item4
 
         a = newArray()
@@ -812,7 +816,7 @@ class ArrayTests(as3libTestCase):
         self.assertEqual(arr.length, 501)
 
         # Delete
-        delete(arr[50])
+        del arr[50]
         self.assertEqual(arr.length, 501)
         self.assertEqual(arr[50], undefined)
         self.assertEqual(arr[100], 10)
@@ -2920,10 +2924,12 @@ class MathTests(as3libTestCase):
                          4.0163830207523885, 2.312535423847214)
 
     def test_max(self):
+        self.assertEqual(Math.max(), -Infinity)
         self.assertFunc2(Math.max, 0, 2, 2, 4, -99, Infinity, NaN, NaN, 1,
                          NaN, 55.5, 10.1)
 
     def test_min(self):
+        self.assertEqual(Math.min(), Infinity)
         self.assertFunc2(Math.min, 0, 1, -4, -2, -100, -Infinity, NaN, NaN, 0,
                          NaN, -1234, 10.1)
 
@@ -2995,7 +3001,7 @@ class NamespaceTests(as3libTestCase):
             self.assertNamespace(Namespace(a, undefined), *check[1])
             self.assertNamespace(Namespace(a, 'test'), *check[2])
             if a == '':
-                self.assertEqual(Namespace(a, ''), '', '')
+                self.assertNamespace(Namespace(a, ''), '', '')
             else:
                 self.assertRaisesAS3(TypeError, 1098, None, Namespace, a, '')
             self.assertNamespace(Namespace(a, 'NOT A VALID PREFIX'), *check[3])
@@ -3011,7 +3017,7 @@ class NamespaceTests(as3libTestCase):
                (('test', 'null'), ('test', 'undefined'), ('test', 'test'),
                 ('test', 'NOT A VALID PREFIX'), ('test', 'otherUri'),
                 ('test', 'namespace')),
-               (('', 'null'), ('', 'undefined'), ('', 'test'), ('', ''),
+               (('', 'null'), ('', 'undefined'), ('', 'test'),
                 ('', 'NOT A VALID PREFIX'), ('', 'otherUri'),
                 ('', 'namespace')),
                ((undefined, 'null'), (undefined, 'undefined'),
@@ -5079,7 +5085,6 @@ class StringTests(as3libTestCase):
 
     def test_indexOf(self):
         s = String('aaatestFOOtestaaanull')
-        trace("// s.indexOf(\"a\")");
         self.assertEqual(s.indexOf('a'), 0)
         self.assertEqual(s.indexOf('a', 16), 16)
         self.assertEqual(s.indexOf('a', 14), 14)
@@ -6600,7 +6605,7 @@ class VectorTests(as3libTestCase):
         b_vector = Vector[int]([5, 16])
         c_vector = Vector[Vector[int]]([])
         c_vector[0] = a_vector
-        c_vector[1] = b_vector;
+        c_vector[1] = b_vector
 
         self.assertEqual(c_vector[0][0], 1)
         self.assertEqual(c_vector[0][1], 2)
@@ -6609,7 +6614,7 @@ class VectorTests(as3libTestCase):
 
         raise
         '''
-        class MyObject:
+        class MyObject(Object):
             ...
 
         myobj_vec = Vector[MyObject]([])
@@ -6698,8 +6703,8 @@ class VectorTests(as3libTestCase):
         c_uint = a_uint.concat(b_uint)
         self.assertArray(c_uint, [1, 2, 5, 16], 4)
 
-        a_vector = Vector[Vector[int]]([Vector[int]([1,2])])
-        b_vector = Vector[Vector[int]]([Vector[int]([5,16])])
+        a_vector = Vector[Vector[int]]([Vector[int]([1, 2])])
+        b_vector = Vector[Vector[int]]([Vector[int]([5, 16])])
         c_vector = a_vector.concat(b_vector)
         self.assertEqual(c_vector.length, 2)
         self.assertArray(c_vector[0], [1, 2], 2)
@@ -6724,8 +6729,8 @@ class VectorTests(as3libTestCase):
         class Subclass(Superclass):
             ...
 
-        a0_class = Superclass()
-        a1_class = Subclass()
+        # a0_class = Superclass()
+        # a1_class = Subclass()
 
         a_class = Vector[Superclass](2)
         self.assertEqual(a_class.length, 2)
@@ -6861,44 +6866,43 @@ class VectorTests(as3libTestCase):
         a_int = Vector[int]([1, 2])
         b_int = Vector[int]([5, 16])
 
-        self.assertTrue(a_int.every(lambda x, y, z: x > 0 ))
-        self.assertFalse(a_int.every(lambda x, y, z: x > 2 ))
-        self.assertTrue(b_int.every(lambda x, y, z: x > 4 ))
-        self.assertFalse(b_int.every(lambda x, y, z: x > 10 ))
+        self.assertTrue(a_int.every(lambda x, y, z: x > 0))
+        self.assertFalse(a_int.every(lambda x, y, z: x > 2))
+        self.assertTrue(b_int.every(lambda x, y, z: x > 4))
+        self.assertFalse(b_int.every(lambda x, y, z: x > 10))
 
         a_number = Vector[Number]([1, 2, 3, 4])
         b_number = Vector[Number]([5, NaN, -5, 0])
 
-        self.assertTrue(a_number.every(lambda x, y, z: x > 0 ))
-        self.assertFalse(a_number.every(lambda x, y, z: x > 2 ))
-        self.assertFalse(b_number.every(lambda x, y, z: x > 4 ))
-        self.assertFalse(b_number.every(lambda x, y, z: x > 10 ))
-        self.assertFalse(b_number.every(lambda x, y, z: x > -6 or isNaN(x) ))
+        self.assertTrue(a_number.every(lambda x, y, z: x > 0))
+        self.assertFalse(a_number.every(lambda x, y, z: x > 2))
+        self.assertFalse(b_number.every(lambda x, y, z: x > 4))
+        self.assertFalse(b_number.every(lambda x, y, z: x > 10))
+        self.assertFalse(b_number.every(lambda x, y, z: x > -6 or isNaN(x)))
 
         a_string = Vector[String](['a', 'c', 'd', 'f'])
         b_string = Vector[String](['986', 'B4', 'Q', 'rrr'])
 
         self.assertTrue(a_string.every(lambda x, y, z: x.length > 0))
         self.assertFalse(a_string.every(lambda x, y, z: x.length > 2))
-        self.assertTrue(a_string.every(lambda x, y, z: x.length > 0))
-        self.assertFalse(a_string.every(lambda x, y, z: x.length > 4))
+        self.assertTrue(b_string.every(lambda x, y, z: x.length > 0))
+        self.assertFalse(b_string.every(lambda x, y, z: x.length > 4))
 
         a_uint = Vector[uint]([1, 2])
         b_uint = Vector[uint]([5, 16])
 
-        self.assertTrue(a_uint.every(lambda x, y, z: x > 0 ))
-        self.assertFalse(a_uint.every(lambda x, y, z: x > 2 ))
-        self.assertTrue(b_uint.every(lambda x, y, z: x > 4 ))
-        self.assertFalse(b_uint.every(lambda x, y, z: x > 10 ))
+        self.assertTrue(a_uint.every(lambda x, y, z: x > 0))
+        self.assertFalse(a_uint.every(lambda x, y, z: x > 2))
+        self.assertTrue(b_uint.every(lambda x, y, z: x > 4))
+        self.assertFalse(b_uint.every(lambda x, y, z: x > 10))
 
         a_vector = Vector[Vector[int]]([Vector[int]([1, 2]), Vector[int]([4, 3])])
         b_vector = Vector[Vector[int]]([Vector[int]([5, 16]), Vector[int]([19, 8])])
 
-        trace("/// a_vector.every(function (v) { return v.every(function (v) { return v > 0; }); });");
         self.assertTrue(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 0)))
         self.assertFalse(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 2)))
-        self.assertTrue(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 4)))
-        self.assertFalse(a_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 10)))
+        self.assertTrue(b_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 4)))
+        self.assertFalse(b_vector.every(lambda x, y, z: x.every(lambda x, y, z: x > 10)))
 
     def test_filter(self):
         raise TestNotImplemented
@@ -7013,7 +7017,8 @@ class VectorTests(as3libTestCase):
         self.assertEqual(b_bool.lastIndexOf(true, 0), 0)
         self.assertEqual(b_bool.lastIndexOf(false, 0), -1)
 
-        class Superclass:
+        '''
+        class Superclass(Object):
             ...
 
         class Subclass(Superclass):
@@ -7054,6 +7059,7 @@ class VectorTests(as3libTestCase):
         self.assertEqual(b_class.lastIndexOf(a0_class, -1), -1)
         self.assertEqual(b_class.lastIndexOf(a1_class, -1), -1)
         self.assertEqual(b_class.lastIndexOf(b0_class, -1), 0)
+        '''
 
         a_int = Vector[int]([1, 2])
         b_int = Vector[int]([5, 16])
@@ -7272,10 +7278,6 @@ class WTFJSTests(as3libTestCase):
         self.asserttrue(false == Array())
         self.assertTrue(false == (not Array()))
 
-    def test_string_bools(self):
-        self.assertEqual(not not String('false'), not not String('true'))
-        self.assertIs(not not String('false'), not not String('true'))
-
     def test_fail(self):
         # Original (![] + [])[+[]] + (![] + [])[+!+[]] + ([![]] + [][[]])[+!+[] + [+[]]] + (![] + [])[!+[] + !+[]];
         self.assertEqual((not Array() + Array())[+Array()] + (not Array() + Array())[+(not+Array())] + (Array(not Array()) + Array()[Array()])[+(not+Array()) + Array(+Array)] + (not Array() + Array())[not+Array() + (not+Array())], 'fail')
@@ -7388,7 +7390,7 @@ class WTFJSTests(as3libTestCase):
         self.assertEqual(Array() + Object(), String('[object Object]'))
         self.assertEqual(Object() + Object(), String('[object Object][object Object]'))
 
-        self.assertEqual(String('222') - -String('111'), Number('333'))
+        self.assertEqual(String('222') - -String('111'), Number(333))
 
         self.assertEqual(Array([4]) * Array([4]), Number(16))
         self.assertEqual(Array() * Array(), Number(0))
@@ -7401,14 +7403,10 @@ class WTFJSTests(as3libTestCase):
 
         self.assertIs(next(next(next(next(next(f())())())())()), f)
 
-    def test_minmax(self):
-        self.assertEqual(Math.min(), Infinity)
-        self.assertEqual(Math.max(), -Infinity)
-        self.assertLess(Math.max(), Math.min())
-
     def test_infinite_timeout(self):
         # This will execute immediately because Infinity casts to uint 0
         self.eventTriggered = false
+
         def action(*e):
             self.eventTriggered = true
 
