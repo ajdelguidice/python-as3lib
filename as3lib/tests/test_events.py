@@ -443,7 +443,15 @@ class EventDispatcherTests(as3libTestCase):
         del self.dispatched
 
     def test_tostring(self):
-        raise TestNotImplemented
+        ed = EventDispatcher()
+        self.assertEqual(ed.toString(), '[object EventDispatcher]')
+
+        class CustomDispatch(EventDispatcher):
+            def toString(self):
+                return super().toString()
+
+        cust = CustomDispatch()
+        self.assertEqual(cust.toString(), '[object CustomDispatch]')
 
     def test_willtrigger(self):
         evtd = EventDispatcher()

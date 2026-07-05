@@ -9,9 +9,10 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     SecurityError, String, SyntaxError, true, TypeError, uint,
                     undefined, unescape, URIError, Vector, VerifyError, XML,
                     XMLList)
-from as3lib.flash.errors import (EOFError, IllegalOperationError,
-                                 InvalidSWFError, IOError, MemoryError,
-                                 ScriptTimeoutError, StackOverflowError)
+from as3lib.flash.errors import (DRMManagerError, EOFError,
+                                 IllegalOperationError, InvalidSWFError,
+                                 IOError, MemoryError, ScriptTimeoutError,
+                                 StackOverflowError)
 from as3lib.flash.utils import ByteArray, setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
 import builtins
@@ -1528,15 +1529,6 @@ class DateTests(as3libTestCase):
 
 
 class ErrorTests(as3libTestCase):
-    def assertError(self, cls, name):
-        # TODO: Implement these
-        # self.assertEqual(cls, f'[class {name}]')
-        # self.assertEqual(cls.prototype.name, name)
-        err = cls('My Error', 42)
-        self.assertEqual(err.name, name)
-        self.assertEqual(err.errorID, 42)
-        self.assertEqual(err.toString(), '%s: My Error' % name)
-
     def test_getErrorMessage(self):
         # TODO: Verify these on flash player. Ruffle seems to have a stub
         self.assertEqual(Error.getErrorMessage(-1), 'Error #-1')
@@ -1550,25 +1542,85 @@ class ErrorTests(as3libTestCase):
         # self.assertEqual(Error.getErrorMessage(1042), 'Error #1042')
         self.assertEqual(Error.getErrorMessage(10000), 'Error #10000')
 
+    def test_prototype(self):
+        raise MethodNotImplemented('prototype')
+
+        self.assertEqual(Object.prototype.toString.call(Error.prototype), '[object Error]')
+        self.assertEqual(Object.prototype.toString.call(DRMManagerError.prototype), '[object Object]')
+        #trace(DRMManagerError.prototype)  # => undefined: undefined
+        #trace(DRMManagerError.prototype.toString)  # => function Function() {}
+        self.assertIs(DRMManagerError.prototype.name, undefined)
+        self.assertIs(DRMManagerError.prototype.message, undefined)
+        self.assertEqual(DRMManagerError.prototype.toString(), 'undefined: undefined')
+        #trace(Error.prototype)  # => Error: Error
+        #trace(Error.prototype.toString)  # => function Function() {}
+        self.assertIs(Error.prototype.name, 'Error')
+        self.assertIs(Error.prototype.message, 'Error')
+        self.assertEqual(Error.prototype.toString(), 'Error: Error')
+        #trace(DRMManagerError.prototype.toString == Error.prototype.toString)  # => true
+        self.assertEqual(Object.prototype.toString(DRMManagerError), '[class DRMManagerError]')
+        self.assertEqual(Object.prototype.toString(Error), '[class Error]')
+
     def test_getStackTrace(self):
         raise TestNotImplemented
 
+    def test_getStackTrace_edgeCases(self):
+        raise MethodNotImplemented('prototype')
+
+        self.called = False
+        ErrorProtoOriginaltoString = Error.prototype.toString
+        err = Error()
+
+        def new_toString():
+            self.called = True
+            return 'from toString'
+
+        Error.prototype.toString = new_toString
+        self.assertEqual(err.getStackTrace(), 'from toString')
+        self.assertTrue(self.called)
+
+        self.called = False
+
+        def new_toString():
+            self.called = True
+            return null
+
+        Error.prototype.toString = new_toString
+        self.assertEqual(err.getStackTrace(), null)  # TODO: Check return type
+        self.assertTrue(self.called)
+
+        Error.prototype.toString = ErrorProtoOriginaltoString
+
+        del self.called
+
     def test_toString(self):
-        self.assertError(Error, 'Error')
-        self.assertError(RangeError, 'RangeError')
-        self.assertError(IllegalOperationError, 'IllegalOperationError')
-        self.assertError(ArgumentError, 'ArgumentError')
-        self.assertError(ReferenceError, 'ReferenceError')
-        self.assertError(DefinitionError, 'DefinitionError')
-        self.assertError(EOFError, 'EOFError')
-        self.assertError(EvalError, 'EvalError')
-        self.assertError(IOError, 'IOError')
-        self.assertError(InvalidSWFError, 'InvalidSWFError')
-        self.assertError(MemoryError, 'MemoryError')
-        self.assertError(ScriptTimeoutError, 'ScriptTimeoutError')
-        self.assertError(StackOverflowError, 'StackOverflowError')
-        self.assertError(URIError, 'URIError')
-        self.assertError(VerifyError, 'VerifyError')
+        def assertError(cls, name):
+            # TODO: Implement these
+            # self.assertEqual(cls, f'[class {name}]')
+            # self.assertEqual(cls.prototype.name, name)
+            err = cls('My Error', 42)
+            self.assertEqual(err.name, name)
+            self.assertEqual(err.errorID, 42)
+            self.assertEqual(err.toString(), '%s: My Error' % name)
+
+        assertError(Error, 'Error')
+        assertError(RangeError, 'RangeError')
+        assertError(IllegalOperationError, 'IllegalOperationError')
+        assertError(ArgumentError, 'ArgumentError')
+        assertError(ReferenceError, 'ReferenceError')
+        assertError(DefinitionError, 'DefinitionError')
+        assertError(EOFError, 'EOFError')
+        assertError(EvalError, 'EvalError')
+        assertError(IOError, 'IOError')
+        assertError(InvalidSWFError, 'InvalidSWFError')
+        assertError(MemoryError, 'MemoryError')
+        assertError(ScriptTimeoutError, 'ScriptTimeoutError')
+        assertError(StackOverflowError, 'StackOverflowError')
+        assertError(URIError, 'URIError')
+        assertError(VerifyError, 'VerifyError')
+
+    def test_toString_more(self):
+        raise TestNotImplemented
 
 
 class FunctionTests(as3libTestCase):
@@ -1850,65 +1902,98 @@ class FunctionTests(as3libTestCase):
 
 class GlobalsTests(as3libTestCase):
     def test_falsiness(self):
-        self.assertFalse(not true)
-        self.assertTrue(not false)
-        self.assertTrue(not null)
-        self.assertTrue(not undefined)
-        self.assertTrue(not String(''))
-        self.assertFalse(not String('str'))
-        self.assertFalse(not String('true'))
-        self.assertFalse(not String('false'))
-        self.assertTrue(not Number(0.0))
-        self.assertTrue(not NaN)
-        self.assertTrue(not Number(-0.0))
-        self.assertFalse(not Infinity)
-        self.assertFalse(not Number(1.0))
-        self.assertFalse(not Number(-1.0))
-        self.assertFalse(not Object())
+        def assertFalsiness(value, isFalsy):
+            if isFalsy:
+                if not value:
+                    self.fail(f'Value "!{value}" is supposed to be falsy but is truthy.')
+            elif not value:
+                pass
+            else:
+                self.fail(f'Value "!{value}" is supposed to be truthy but is falsy.')
+
+        assertFalsiness(true, True)
+        assertFalsiness(false, False)
+        assertFalsiness(null, False)
+        assertFalsiness(undefined, False)
+        assertFalsiness(String(''), False)
+        assertFalsiness(String('str'), True)
+        assertFalsiness(String('true'), True)
+        assertFalsiness(String('false'), True)
+        assertFalsiness(Number(0.0), False)
+        assertFalsiness(NaN, False)
+        assertFalsiness(Number(-0.0), False)
+        assertFalsiness(Infinity, True)
+        assertFalsiness(Number(1.0), True)
+        assertFalsiness(Number(-1.0), True)
+        assertFalsiness(Object(), True)
+
+    def test_truthyness(self):
+        def assertTruthiness(value, isTruthy):
+            if isTruthy:
+                if value:
+                    return
+                self.fail(f'Value {value} is supposed to be truthy but is falsy.')
+            elif value:
+                self.fail(f'Value {value} is supposed to be falsy but is truthy.')
+
+        assertTruthiness(true, True)
+        assertTruthiness(false, False)
+        assertTruthiness(null, False)
+        assertTruthiness(undefined, False)
+        assertTruthiness(String(''), False)
+        assertTruthiness(String('str'), True)
+        assertTruthiness(String('true'), True)
+        assertTruthiness(String('false'), True)
+        assertTruthiness(Number(0.0), False)
+        assertTruthiness(NaN, False)
+        assertTruthiness(Number(-0.0), False)
+        assertTruthiness(Infinity, True)
+        assertTruthiness(Number(1.0), True)
+        assertTruthiness(Number(-1.0), True)
+        assertTruthiness(Object(), True)
 
     def test_undefined(self):
         # From https://github.com/ruffle-rs/ruffle/tree/master/tests/tests/swfs/from_shumway/avm1/undefined/undefined-swf7
         self.assertEqual(undefined.toString(), 'undefined')
         self.assertNaN(-undefined)  # TODO: Validate this one
         self.assertTrue(not undefined)
+
         self.assertEqual(String('s') + undefined, 'sundefined')
         self.assertEqual(undefined + String('s'), 'undefineds')
         self.assertNaN(Number(0) + undefined)
         self.assertNaN(undefined + Number(0))
+
         self.assertNotEqual(String('undefined'), undefined)
         self.assertNotEqual(undefined, String('undefined'))
+
         self.assertFalse(Number(0) == undefined)
         self.assertFalse(undefined == Number(0))
         self.assertFalse(Number(1) == undefined)
         self.assertFalse(undefined == Number(1))
-        # trace("\'undefined\' < undefined => " + ("undefined" < undefined));
-        # trace("undefined < \'undefined\' => " + (undefined < "undefined"));
-        # 'undefined' < undefined => undefined
-        # undefined < 'undefined' => undefined
+
+        self.assertEqual(String('undefined') < undefined, undefined)
+        self.assertEqual(undefined < String('undefined'), undefined)
         self.assertEqual(Number(0) < undefined, undefined)
         self.assertEqual(undefined < Number(0), undefined)
         self.assertEqual(Number(1) < undefined, undefined)
         self.assertEqual(undefined < Number(1), undefined)
-        # trace("\'undefined\' <= undefined => " + ("undefined" <= undefined));
-        # trace("undefined <= \'undefined\' => " + (undefined <= "undefined"));
-        # 'undefined' <= undefined => true
-        # undefined <= 'undefined' => true
+
+        self.assertTrue(String('undefined') <= undefined)
+        self.assertTrue(undefined <= String('undefined'))
         self.assertTrue(Number(0) <= undefined)
         self.assertTrue(undefined <= Number(0))
         self.assertTrue(Number(1) <= undefined)
         self.assertTrue(undefined <= Number(1))
-        # trace("\'undefined\' > undefined => " + ("undefined" > undefined));
-        # trace("undefined > \'undefined\' => " + (undefined > "undefined"));
-        # 'undefined' > undefined => undefined
-        # undefined > 'undefined' => undefined
+
+        self.assertEqual(String('undefined') > undefined, undefined)
+        self.assertEqual(undefined > String('undefined'), undefined)
         self.assertEqual(Number(0) > undefined, undefined)
         self.assertEqual(undefined > Number(0), undefined)
         self.assertEqual(Number(1) > undefined, undefined)
         self.assertEqual(undefined > Number(1), undefined)
-        # trace("\'undefined\' >= undefined => " + ("undefined" >= undefined));
-        # trace("undefined >= \'undefined\' => " + (undefined >= "undefined"));
-        # 'undefined' >= undefined => true
-        # undefined >= 'undefined' => true
+
+        self.assertTrue(String('undefined') >= undefined)
+        self.assertTrue(undefined >= String('undefined'))
         self.assertTrue(Number(0) >= undefined)
         self.assertTrue(undefined >= Number(0))
         self.assertTrue(Number(1) >= undefined)
@@ -3664,8 +3749,6 @@ class OperationTests(as3libTestCase):
             self.assertEqualCheckNaN(String('-1.0') + value, check[21])
             self.assertEqualCheckNaN(String('0xFF1306') + value, check[22])
 
-        # NOTE: It seems that adding to a String or adding a String to something
-        #       does string concatination.
         # TODO: Make sure that the types are correct. Add is weird in ActionScript
 
         asrt_true = (2, 1, 1, NaN, 'true', 'strtrue', 'truetrue', 'falsetrue',
@@ -6492,7 +6575,37 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_class_call(self):
+        # NOTE: This test is exactly how it is supposed to be
+        v = Vector[int]([3, 4, 5])
+        self.assertEqual(v.toString(), '3,4,5')
+
+        v = Vector[int](v)
+        self.assertEqual(v.toString(), '3,4,5')
+
+        v = Vector[int]([6, 'hi'])
+        self.assertEqual(v.toString(), '6,0')
+
+        v = Vector[int]([])
+        self.assertEqual(v.toString(), '')
+
+        v = Vector[int](Object({'length': 0}))
+        self.assertEqual(v.toString(), '')
+
+        v = Vector[int](Object())
+        self.assertEqual(v.toString(), '')
+
+        v = Vector[int](Object({'length': 2, '0': 1, '1': 3}))
+        self.assertEqual(v.toString(), '1,3')
+
+        v = Vector[int](Object({'length': 2, '0': 1, '1': '9'}))
+        self.assertEqual(v.toString(), '1,9')
+
         raise TestNotImplemented
+        v = Vector[int](null)  # => raises error with id 1034
+
+        v = Vector[int]('primative')  # => raises error with id 1034
+
+        v = Vector[int](500)  # => raises error with id 1034
 
     def test_coercion(self):
         a_bool = Vector[Boolean]([1, 2, 3, 4])
@@ -7257,7 +7370,83 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_toString(self):
-        raise TestNotImplemented
+        a_bool = Vector[Boolean]([true, false])
+        b_bool = Vector[Boolean]([false, true, false])
+        c_bool = Vector[Boolean]([])
+
+        self.assertEqual(a_bool.toString(), 'true,false')
+        self.assertEqual(a_bool.toLocaleString(), '[object Boolean],[object Boolean]')
+
+        self.assertEqual(b_bool.toString(), 'false,true, false')
+        self.assertEqual(b_bool.toLocaleString(), '[object Boolean],[object Boolean],[object Boolean]')
+
+        self.assertEqual(c_bool.toString(), '')
+        self.assertEqual(c_bool.toLocaleString(), '')
+
+        class Superclass(Object):
+            ...
+
+        class Subclass(Superclass):
+            ...
+
+        a0_class = Superclass()
+        a1_class = Subclass()
+
+        a_class = Vector[Superclass]([a0_class, a1_class])
+        b_class = Vector[Subclass]([])
+        b_class.length = 1
+        b_class[0] = Subclass()
+
+        self.assertEqual(a_class.toString(), '[object Superclass],[object Subclass]')
+        self.assertEqual(a_class.toLocaleString(), '[object Superclass],[object Subclass]')
+
+        self.assertEqual(b_class.toString(), '[object Subclass]')
+        self.assertEqual(b_class.toLocaleString(), '[object Subclass]')
+
+        a_int = Vector[int]([1, 2])
+        b_int = Vector[int]([5, 16])
+
+        self.assertEqual(a_int.toString(), '1,2')
+        self.assertEqual(a_int.toLocaleString(), '1,2')
+
+        self.assertEqual(b_int.toString(), '5,16')
+        self.assertEqual(b_int.toLocaleString(), '5,16')
+
+        a_number = Vector[Number]([1, 2, 3, 4])
+        b_number = Vector[Number]([5, NaN, -5, 0])
+
+        self.assertEqual(a_number.toString(), '1,2,3,4')
+        self.assertEqual(a_number.toLocaleString(), '1,2,3,4')
+
+        self.assertEqual(b_number.toString(), '5,NaN,-5,0')
+        self.assertEqual(b_number.toLocaleString(), '5,NaN,-5,0')
+
+        a_string = Vector[String](['a', 'c', 'd', 'f'])
+        b_string = Vector[String](['986', 'B4', 'Q', 'rrr'])
+
+        self.assertEqual(a_string.toString(), 'a,c,d,f')
+        self.assertEqual(a_string.toLocaleString(), '[object String],[object String],[object String],[object String]')
+
+        self.assertEqual(b_string.toString(), '986,B4,Q,rrr')
+        self.assertEqual(b_string.toLocaleString(), '[object String],[object String],[object String],[object String]')
+
+        a_uint = Vector[uint]([1, 2])
+        b_uint = Vector[uint]([5, 16])
+
+        self.assertEqual(a_uint.toString(), '1,2')
+        self.assertEqual(a_uint.toLocaleString(), '1,2')
+
+        self.assertEqual(b_uint.toString(), '5,16')
+        self.assertEqual(b_uint.toLocaleString(), '5,16')
+
+        a_vector = Vector[Vector[int]]([Vector[int]([1, 2]), Vector[int]([4, 3])])
+        b_vector = Vector[Vector[int]]([Vector[int]([5, 16]), Vector[int]([19, 8])])
+
+        self.assertEqual(a_vector.toString(), '1,2,4,3')
+        self.assertEqual(a_vector.toLocaleString(), '1,2,4,3')
+
+        self.assertEqual(b_vector.toString(), '5,16,19,8')
+        self.assertEqual(b_vector.toLocaleString(), '5,16,19,8')
 
 
 class WTFJSTests(as3libTestCase):
