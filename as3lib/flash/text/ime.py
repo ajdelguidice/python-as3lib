@@ -1,5 +1,6 @@
 from as3lib import Boolean, int, Object
 
+
 class IIMEClient:
     ...
 

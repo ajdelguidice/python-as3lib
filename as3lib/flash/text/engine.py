@@ -1,7 +1,8 @@
 from __future__ import annotations
-from as3lib import (ArgumentError, Boolean, false, IllegalOperationError, int,
-                    null, Number, Object, String, true, uint)
+from as3lib import (ArgumentError, Boolean, false, int, null, Number, Object,
+                    String, true, uint)
 from as3lib.flash.display import DisplayObjectContainer
+from as3lib.flash.errors import IllegalOperationError
 from as3lib.flash.events import EventDispatcher
 
 

@@ -83,7 +83,7 @@ class FileFilter(Object):
 
     @macType.setter
     def macType(self, value):
-        self._macType = null if macType is null else String(value)
+        self._macType = null if value is null else String(value)
 
     def __init__(self, description: String, extension: String, macType: String = null):
         self.description = description
@@ -264,6 +264,7 @@ class LocalConnection(EventDispatcher):
     def send(self, connectionName: String, methodName: String, *arguements):
         raise NotImplementedError
 
+
 class NetConnection(EventDispatcher):
     ...
 
@@ -438,7 +439,7 @@ class SharedObject(EventDispatcher):
 
     def clear(self):
         self._path.unlink(missing_ok=True)
-        self_data.clear()
+        self._data.clear()
 
     def close(self):
         raise NotImplementedError

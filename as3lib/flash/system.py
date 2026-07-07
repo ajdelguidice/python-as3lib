@@ -135,8 +135,8 @@ class Capabilities:
     def pixelAspectRatio(cls):
         raise NotImplementedError
 
-    @property
-    def playerType():
+    @staticproperty
+    def playerType(cls):
         return String('StandAlone')
 
     @staticproperty
