@@ -74,10 +74,6 @@ def _exponentFixInt(value):  # int
 
 
 # Classes
-# TODO: The comparison functions are probably supposed to use valueOf for
-#       the comparison. Javascript does.
-#       JS EX: Object() < 11 => false
-#              { valueOf = function(){ return 10 } } < 11 => true
 class undefined:
     __slots__ = tuple()
 
@@ -1339,7 +1335,6 @@ class Number(Object):
         return self.toString()
 
     def toString(self, radix=10):
-        # TODO: Radix
         if self._is_nan():
             return String('NaN')
         if self._value == Number.NEGATIVE_INFINITY:
@@ -1347,9 +1342,22 @@ class Number(Object):
         if self._value == Number.POSITIVE_INFINITY:
             return String('Infinity')
         if radix != 10:
-            return String(math.floor(self._value))
+            return String(_as_base(builtins.int(self._value), radix))
         if self._value.is_integer():
             return String(_exponentFixNum('%i' % self._value))
+        # NOTE: Exponent -6 to 20 should not be in exonential according to the
+        #       tests
+        # NOTE: When decimals are present in the output, only seems to show
+        #       max 17 characters that are a part of the number (count
+        #       includes '.' if the characters surrounding it are non-zero)
+        #       If the length of the significant digits of the number is less
+        #       than 17 that entire portion always seems to be shown
+        # 0.000001 is 1e-6, 1000000000000000000000 is 1e21
+        if self._value >= 0.000001 and self._value < 1000000000000000000000:
+            if self._value < 1:
+                # TODO: This is incorrect. See above notes
+                return String('{:f}'.format(self._value))
+            return String('{:f}'.format(self._value).strip('0'))
         return String(_exponentFixNum('%s' % self._value))
 
     def valueOf(self):
@@ -2488,7 +2496,9 @@ class XML(Object):
         self._namespace = ns
 
     @staticmethod
-    def setSettings(**rest):
+    def setSettings(*args, **rest):
+        if len(args) == 1 and isinstance(args[0], Object):
+            rest = args[0]
         if 'ignoreComments' in rest:
             XML.ignoreComments = rest['ignoreComments']
         if 'ignoreProcessingInstructions' in rest:
@@ -2612,40 +2622,40 @@ def parseFloat(str: String = undefined):
 
 
 def parseInt(str: String = undefined, radix: uint = 0):
-    # TODO: Find a better way of doing the sign detection
+    # TODO:
+    #       '010' => 2
+    #       '1.2315e2' => 123
     radix = uint(radix)
+    if str is undefined:
+        # Special case [object undefined]
+        if radix >= 32:
+            return int(builtins.int('null', radix))
+        return Number.NaN
+    str = String(str)
+    str = str.lstrip()
+    sign = ''
+    if str.startswith(('-', '+')):
+        sign = str[0]
+        str = str[1:]
+    if (radix == 16 or not radix) and str.startswith('0x'):
+        radix = 16
+        str = str[2:]
     if radix == 0:
         radix = 10
     if radix < 2 or radix > 36:
         return Number.NaN
-    if str is undefined:
-        if radix >= 32:
-            return Number(builtins.int('undefined', radix))
-        return Number.NaN
-    str = String(str)
-    str = str.lstrip()
-    zero = False
-    minus = 0
-    j1 = 0
-    while j1 < len(str) and str[j1] in '-+':
-        if str[j1] == '-':
-            minus += 1
-        j1 += 1
-    str = str[j1:]
-    if len(str) >= 2 and str.startswith('0x'):
-        radix = 16
-        str = str[2:]
-    if str.startswith('0'):
-        zero = True
-        str.lstrip("0")
     radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
     str = str.upper()
-    j = 0
-    while j < len(str) and str[j] in radixchars:
-        j += 1
-    if j == 0:
-        return Number(0) if zero else Number.NaN
-    return Number(builtins.int(str[:j], radix) * (-1 if minus % 2 else 1))
+    index = 0
+    while index < len(str) and str[index] in radixchars:
+        index += 1
+    if index == 0:
+        return Number.NaN
+    # TODO: See if Number is supposed to handle this instead of parseInt
+    try:
+        return Number(builtins.int(sign + str[:index], radix))
+    except OverflowError:
+        return Infinity
 
 
 def unescape(str):
