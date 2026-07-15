@@ -1257,7 +1257,12 @@ class Number(Object):
         return self._value.hex() == 'nan'
 
     def __init__(self, num=null):
-        self._val = c_double(self._Number(num))
+        if isinstance(num, float):
+            # NOTE: This is here because _as3lib_CoerceToNumberValue causes
+            #       problems during first module init
+            self._val = c_double(num)
+        else:
+            self._val = c_double(_as3lib_CoerceToNumberValue(num))
 
     def __repr__(self):
         return 'Number(%s)' % self
@@ -1295,13 +1300,6 @@ class Number(Object):
                 return Number(math.ceil(self._value))
             return Number(math.floor(self._value))
         return Number(round(self._value, places))
-
-    def _Number(self, expression):
-        if _as3lib_NumberCheckNaN(expression):
-            return _NaN_value
-        if isinstance(expression, float):
-            return expression
-        return _as3lib_CoerceToNumberValue(expression)
 
     def toExponential(self, fractionDigits: uint = null):
         fractionDigits = uint(fractionDigits)
@@ -2625,7 +2623,7 @@ def parseInt(str: String = undefined, radix: uint = 0):
     if str is undefined:
         # Special case [object undefined]
         if radix >= 32:
-            return int(builtins.int('null', radix))
+            return Number(int(builtins.int('null', radix)))
         return Number.NaN
     str = String(str)
     str = str.lstrip()
