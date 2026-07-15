@@ -2621,8 +2621,6 @@ def parseFloat(str: String = undefined):
 def parseInt(str: String = undefined, radix: uint = 0):
     # TODO:
     #       '010' => 2
-    # TODO: Exponent
-    #       '1.2315e2' => 123
     radix = uint(radix)
     if str is undefined:
         # Special case [object undefined]
@@ -2645,7 +2643,6 @@ def parseInt(str: String = undefined, radix: uint = 0):
     radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
     str = str.upper()
     if radix == 10 and str.find('E') != -1:
-        print(radix, str, str.find('E'))
         return Math.floor(parseFloat(str))
     index = 0
     while index < len(str) and str[index] in radixchars:
