@@ -269,6 +269,11 @@ def _as3lib_CoerceToNumberValue(obj):
         #           [1, 2] == NaN
         obj = obj.toString()
     if isinstance(obj, (str, String)):
+        obj = obj.strip()
+        if obj.startswith('0x'):
+            return parseInt(obj)._value
+        if not obj:
+            return 0
         return parseFloat(obj)._value
     if isinstance(obj, (Number, int, uint)):
         return obj._value
@@ -286,7 +291,7 @@ def _as3lib_NumberCheckNaN(number):
 def _as3lib_CoerceToIntValue(obj):
     obj = _as3lib_valueOfHelper(obj)
     if isinstance(obj, (String, str)):
-        obj = parseFloat(obj)
+        obj = parseInt(obj)
     if isinstance(obj, (int, uint, Number)):
         obj = obj._value
     if isinstance(obj, (builtins.int)):
@@ -1292,22 +1297,11 @@ class Number(Object):
         return Number(round(self._value, places))
 
     def _Number(self, expression):
-        if hasattr(expression, '_is_nan') and expression._is_nan() or expression is _NaN_value:
+        if _as3lib_NumberCheckNaN(expression):
             return _NaN_value
-        if isinstance(expression, Object) and hasattr(expression, 'valueOf'):
-            expression = expression.valueOf()
-        if expression == _NegInf_value or expression == _PosInf_value or isinstance(expression, float):
+        if isinstance(expression, float):
             return expression
-        if expression is undefined:
-            return _NaN_value
-        if expression is null:
-            return 0.0
-        if hasattr(expression, '__float__'):
-            return float(expression)
-        if isinstance(expression, str):
-            return parseFloat(expression)._value
-        if isinstance(expression, Object):
-            return _NaN_value
+        return _as3lib_CoerceToNumberValue(expression)
 
     def toExponential(self, fractionDigits: uint = null):
         fractionDigits = uint(fractionDigits)
@@ -2582,48 +2576,52 @@ def isXMLName(str: String):
 
 def parseFloat(str: String = undefined):
     # TODO: Make stop at second period
-    # TODO: '100a' should return NaN
+    # TODO: Properly handle Infinity
+    # TODO: Handle exponent overflow
     if str is undefined:
         return Number.NaN
+    str = String(str)
     str = str.lstrip()
-    if str == '':
-        return Number(0)
+    sign = ''
+    if str.startswith(('-', '+')):
+        sign = str[0]
+        str = str[1:]
     if str == 'Infinity':
+        if sign == '-':
+            return Number.NEGATIVE_INFINITY
         return Number.POSITIVE_INFINITY
-    if str == '-Infinity':
-        return Number.NEGATIVE_INFINITY
-    size = len(str)
-    if size == 0:
-        return Number.NaN
-    if str[0].isdigit() or str[0] in '-+.':
+    if str.startswith('0x'):
+        # parseFloat does not appear to handle hex values
+        return Number(0)
+    if str.startswith(('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.')):
+        digits = '0123456789.'
+        exponent = ''
+        size = len(str)
         j = 0
-        while str[j] in '-+':
+        while j < size and str[j] in digits:
             j += 1
-        if size > j + 1 and str[j] == '0' and str[j + 1] == 'x':
-            j += 2
-            if size == j:
+        if j < size and str[j] in 'eE':
+            exp_index = 0
+            exponent = str[j+1:]
+            exponentSign = ''
+            str = str[:j]
+            if exponent.startswith(('-', '+')):
+                exponentSign = exponent[0]
+                exponent = exponent[1:]
+            while exp_index < len(exponent) and exponent[exp_index].isdigit():
+                exp_index += 1
+            if exp_index:
+                return Number(float(f'{sign}{str}e{exponentSign}{exponent[:exp_index]}'))
+            if sign:
                 return Number.NaN
-            while j != size and str[j] in '0123456789abcdefABCDEF':
-                j += 1
-            return Number(builtins.int(str[:j], 16))
-        while j != size and (str[j].isdigit() or str[j] == '.'):
-            j += 1
-        if j != size and str[j] == 'e':
-            if str[j + 1] in '-+' and str[j + 2].isdigit():
-                j += 2
-                while j != size and str[j].isdigit():
-                    j += 1
-            elif str[j + 1].isdigit():
-                j += 1
-                while j != size and str[j].isdigit():
-                    j += 1
-        return Number(float(str[:j]))
+        return Number(float(sign + str[:j]))
     return Number.NaN
 
 
 def parseInt(str: String = undefined, radix: uint = 0):
     # TODO:
     #       '010' => 2
+    # TODO: Exponent
     #       '1.2315e2' => 123
     radix = uint(radix)
     if str is undefined:
@@ -2646,6 +2644,9 @@ def parseInt(str: String = undefined, radix: uint = 0):
         return Number.NaN
     radixchars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'[:radix]
     str = str.upper()
+    if radix == 10 and str.find('E') != -1:
+        print(radix, str, str.find('E'))
+        return Math.floor(parseFloat(str))
     index = 0
     while index < len(str) and str[index] in radixchars:
         index += 1
@@ -2655,7 +2656,7 @@ def parseInt(str: String = undefined, radix: uint = 0):
     try:
         return Number(builtins.int(sign + str[:index], radix))
     except OverflowError:
-        return Infinity
+        return Number.POSITIVE_INFINITY
 
 
 def unescape(str):
