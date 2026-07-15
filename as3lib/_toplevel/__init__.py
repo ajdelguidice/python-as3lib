@@ -1895,11 +1895,14 @@ class _VectorType:
     def __call__(self, *args, **kwargs):
         return Vector(*args, **kwargs, type=self._type)
 
-    def __repr__(self):
-        return 'Vector.<%r>' % self.type
-
     def __str__(self):
-        return 'Vector.<%s>' % self.type
+        if isinstance(self.type, _VectorType):
+            typeName = self.type
+        else:
+            typeName = self.type.__name__
+        return 'Vector.<%s>' % typeName
+
+    __repr__ = __str__
 
 
 class Vector(list, Object):
