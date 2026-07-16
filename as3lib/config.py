@@ -11,7 +11,6 @@ else:
     import tomli as tomllib
 
 
-
 class TOML:
     '''
     A simple TOML writer for as3lib. This class was created out of frustration
@@ -122,9 +121,7 @@ def Load():
                 'ErrorReportingEnable': bool(tempmm.get('ErrorReportingEnable', False)),
                 'MaxWarnings': int(tempmm.get('MaxWarnings', 100)),
                 'TraceOutputFileEnable': bool(tempmm.get('TraceOutputFileEnable', False)),
-                'TraceOutputFileName': str(tempmm.get('TraceOutputFileName', '')),
-                'ClearLogsOnStartup': bool(tempmm.get('ClearLogsOnStartup', True)),
-                'NoClearWarningNumber': int(tempmm.get('NoClearWarningNumber', 0))
+                'TraceOutputFileName': str(tempmm.get('TraceOutputFileName', ''))
             }
         }
     else:
@@ -139,9 +136,7 @@ def Load():
                 'ErrorReportingEnable': False,
                 'MaxWarnings': 100,
                 'TraceOutputFileEnable': False,
-                'TraceOutputFileName': '',
-                'ClearLogsOnStartup': True,
-                'NoClearWarningNumber': 0
+                'TraceOutputFileName': ''
             }
         }
     if cfg['migrateOldConfig']:
@@ -163,9 +158,7 @@ def Load():
                 'ErrorReportingEnable': mmcfg.getint(UNNAMED_SECTION, 'ErrorReportingEnable', fallback=0) == 1,
                 'MaxWarnings': mmcfg.getint(UNNAMED_SECTION, 'MaxWarnings', fallback=100),
                 'TraceOutputFileEnable': mmcfg.getboolean(UNNAMED_SECTION, 'TraceOutputFileEnable', fallback=0) == 1,
-                'TraceOutputFileName': mmcfg.get(UNNAMED_SECTION, 'TraceOutputFileName', fallback=''),
-                'ClearLogsOnStartup': True,
-                'NoClearWarningNumber': 0
+                'TraceOutputFileName': mmcfg.get(UNNAMED_SECTION, 'TraceOutputFileName', fallback='')
             }
             del mmcfg
         if wlcfgpath.exists():
@@ -184,9 +177,7 @@ def Load():
                     'ErrorReportingEnable': oldcfg.getboolean('mm.cfg', 'ErrorReportingEnable', fallback=False),
                     'MaxWarnings': 100,  # Reset value because I messed up the type
                     'TraceOutputFileEnable': oldcfg.getboolean('mm.cfg', 'TraceOutputFileEnable', fallback=False),
-                    'TraceOutputFileName': oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback=''),
-                    'ClearLogsOnStartup': oldcfg.getint('mm.cfg', 'ClearLogsOnStartup', fallback=1) == 1,
-                    'NoClearWarningNumber': oldcfg.getint('mm.cfg', 'NoClearWarningNumber', fallback=0)
+                    'TraceOutputFileName': oldcfg.get('mm.cfg', 'TraceOutputFileName', fallback='')
                 }
             }
             oldcfgpath.unlink(missing_ok=True)
@@ -200,14 +191,12 @@ def Load():
     as3state.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
     as3state.TraceOutputFileEnable = cfg['mm.cfg']['TraceOutputFileEnable']
     tempTraceOutputFileName = cfg['mm.cfg']['TraceOutputFileName']
-    as3state.ClearLogsOnStartup = cfg['mm.cfg']['ClearLogsOnStartup']
-    if not as3state.ClearLogsOnStartup:
-        as3state.CurrentWarnings = cfg['mm.cfg']['NoClearWarningNumber']
-        as3state.MaxWarningsReached = as3state.MaxWarnings != 0 and as3state.CurrentWarnings >= as3state.MaxWarnings
     if tempTraceOutputFileName == '' or Path(tempTraceOutputFileName).is_dir():
-        print('as3lib: Using defualt TraceOutputFileName')
+        print('[as3lib] Info: Using defualt TraceOutputFileName')
         tempTraceOutputFileName = as3state.librarydirectory / 'flashlog.txt'
     as3state.TraceOutputFileName = Path(tempTraceOutputFileName)
+    if as3state.TraceOutputFileName.exists():
+        as3state.TraceOutputFileName.unlink()
     Save(modified)
 
 
@@ -223,8 +212,6 @@ def Save(saveAnyways: bool = False):
             'MaxWarnings': as3state.MaxWarnings,
             'TraceOutputFileEnable': as3state.TraceOutputFileEnable,
             'TraceOutputFileName': as3state.TraceOutputFileName,
-            'ClearLogsOnStartup': as3state.ClearLogsOnStartup,
-            'NoClearWarningNumber': 0 if as3state.ClearLogsOnStartup else as3state.CurrentWarnings
         }
     }
     if saveAnyways or as3state._cfg != tempcfg:

@@ -26,7 +26,6 @@ ErrorReportingEnable = False  # Enables logging of errors (console output seems 
 MaxWarnings = 100  # Number of warnings to log before stopping.
 TraceOutputFileEnable = False  # Enables trace logging (console output is always be active in the debugger)
 TraceOutputFileName = None  # Path to the log
-ClearLogsOnStartup = True  # If True, clears logs on startup. This is the default behavior in flash
 
 # toplevel
 as3DebugEnable = False  # State of debug mode
