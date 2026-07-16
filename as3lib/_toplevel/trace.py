@@ -2,16 +2,12 @@ from as3lib import as3state
 
 
 def _traceFileOutput(output):
-    if as3state.TraceOutputFileName.exists() and as3state.TraceOutputFileName.is_file():
-        with open(as3state.TraceOutputFileName, 'a') as f:
-            f.write(output + '\n')
-    else:
-        with open(as3state.TraceOutputFileName, 'w') as f:
-            f.write(output + '\n')
+    with open(as3state.TraceOutputFileName, 'a') as f:
+        f.write(output + '\n')
 
 
 def trace(*args):
-    output = ' '.join((str(i) for i in args))
+    output = ' '.join(str(i) for i in args)
     print(output)
     if as3state.TraceOutputFileEnable:
         _traceFileOutput(output)
