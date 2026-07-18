@@ -53,18 +53,16 @@ if not as3state.initdone:
     as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR', as3state.userdirectory / 'Documents'))
     as3state.defaultTraceFilePath_Flash = Path(traceFilePath_Flash())
 
-    if as3state.platform == 'Linux':
+    if as3state.platform == '':
+        as3state.initerror.append('Could not determine current platform.')
+    elif as3state.platform == 'Linux':
         as3state.displayserver = os.environ.get('XDG_SESSION_TYPE', 'error')
         if as3state.displayserver not in {'x11', 'wayland'}:
             as3state.initerror.append(f'Platform/Linux: Session type "{as3state.displayserver}" not supported.')
     elif as3state.platform == 'Windows':
         ...
-    elif as3state.platform == 'Darwin':
-        as3state.initerror.append('Platform/Darwin: This library is untested on the current platform and is missing some features.')
-    elif as3state.platform == '':
-        as3state.initerror.append('Could not determine current platform.')
     else:
-        as3state.initerror.append(f'Platform/{as3state.platform}: Not supported')
+        as3state.initerror.append(f'Platform/{as3state.platform} has not been tested. Things may be broken')
 
     # Load the config
     config.Load()
@@ -72,7 +70,7 @@ if not as3state.initdone:
     # Display errors to user
     if as3state.initerror:
         # NOTE: Use % because f-string expression parts can not contain a backslash on Python 3.10
-        trace('Warning: as3lib has initialised with errors, some functionality may be broken.\n\t%s' % "\n\t".join(as3state.initerror))
+        trace('[as3lib] Warning: Errors have occurred during initialisation, some functionality may be broken.\n\t%s' % "\n\t".join(as3state.initerror))
 
     # Set the default appdatadirectory
     import __main__
