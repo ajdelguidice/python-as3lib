@@ -39,12 +39,13 @@ class _config:
     This class holds all config options for this library.
     '''
     @property
+    def TOML(self):
+        # Backwards compatibility
+        return TOML
+
+    @property
     def hasDependencies(self):
         return self._hasDependencies
-
-    @hasDependencies.setter
-    def hasDependencies(self, value):
-        self._hasDependencies = bool(value)
 
     @property
     def addedFeatures(self):
@@ -187,7 +188,7 @@ class _config:
             cfg['migrateOldConfig'] = False
         # Load some values into global state
         self.addedFeatures = cfg['addedFeatures']
-        self.hasDependencies = True if cfg['dependenciesPassed'] and cfg['version'] == as3state.__version__ else self._dependencyCheck()
+        self._hasDependencies = True if cfg['dependenciesPassed'] and cfg['version'] == as3state.__version__ else self._dependencyCheck()
         self.flashVersion = cfg['flashVersion']
         self.ErrorReportingEnable = cfg['mm.cfg']['ErrorReportingEnable']
         self.MaxWarnings = cfg['mm.cfg']['MaxWarnings']
