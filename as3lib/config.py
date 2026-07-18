@@ -1,83 +1,9 @@
-from as3lib import as3state
+from as3lib import as3state, TOML
 from as3lib.as3state import __version__
 from as3lib._toplevel import Error
 import configparser
 from importlib.util import find_spec
-from io import StringIO
-from pathlib import Path, PurePath
-if find_spec('tomllib'):
-    import tomllib
-else:
-    import tomli as tomllib
-
-
-class TOML:
-    '''
-    A simple TOML writer for as3lib. This class was created out of frustration
-    at tomli_w's formatting (mostly the arrays) and only implements things needed
-    for this library. It is not guaranteed to work for your use case.
-    '''
-    def Value(value):
-        if isinstance(value, PurePath):
-            value = str(value)
-            if as3state.platform == 'Windows':
-                # workaround: tomli does not parse windows paths correctly.
-                # Must use / instead of \
-                value = value.replace('\\', '/')
-        if isinstance(value, str):
-            return f'"{value}"'
-        if isinstance(value, bool):
-            return 'true' if value else 'false'
-        if isinstance(value, (list, tuple)):
-            return TOML.Array(value)
-        if isinstance(value, dict):
-            return TOML.Table(value)
-        return f'{value}'
-
-    def Table(value):
-        with StringIO() as text:
-            text.write('{')
-            for k, v in value.items():
-                text.write(f'{k} = {TOML.Value(v)},')
-            temp = text.getvalue()
-            if temp.endswith(','):  # TODO: Make this better
-                return temp[:-1] + '}'
-            return temp + '}'
-
-    def Array(value):
-        with StringIO() as text:
-            text.write('[')
-            for i in value:
-                text.write(f'{TOML.Value(i)},')
-            text.write(']')
-            return text.getvalue()
-
-    def Return(valDict):
-        nontables = []
-        tables = []
-        for k, v in valDict.items():
-            if isinstance(v, dict):
-                tables.append(k)
-            else:
-                nontables.append(k)
-        with StringIO() as text:
-            for k in nontables:
-                text.write(f'{k} = {TOML.Value(valDict[k])}\n')
-            for k in tables:
-                text.write(f'\n["{k}"]\n' if str(k).find('.') != -1 else f'\n[{k}]\n')
-                for k2, v2 in valDict[k].items():
-                    text.write(f'{k2} = {TOML.Value(v2)}\n')
-            return text.getvalue()
-
-    def write(file, valDict, mode='w'):
-        with open(file, mode) as f:
-            f.write(TOML.Return(valDict))
-
-    def readFile(file):
-        return tomllib.load(file)
-
-    def readString(string):
-        return tomllib.loads(string)
+from pathlib import Path
 
 
 def _dependencyCheck():
@@ -108,7 +34,7 @@ def Load():
     modified = False
     if configpath.exists():
         with configpath.open('rb') as f:
-            temp = tomllib.load(f)
+            temp = TOML.readFile(f)
         as3state._cfg = temp
         tempmm = temp.get('mm.cfg', {})
         cfg = {
