@@ -1,4 +1,4 @@
-from as3lib import as3state, false, int, Number, Object, String, true
+from as3lib import as3state, config, false, int, Number, Object, String, true
 from as3lib.helpers import staticproperty
 from functools import cache
 import platform
@@ -176,7 +176,7 @@ class Capabilities:
     @staticproperty
     @cache
     def version(cls):
-        tempfv = as3state.flashVersion
+        tempfv = config.flashVersion
         if as3state.platform == 'Windows':
             return String(f'Win {tempfv[0]},{tempfv[1]},{tempfv[2]},{tempfv[3]}')
         if as3state.platform == 'Linux':
