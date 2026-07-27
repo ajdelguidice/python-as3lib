@@ -59,9 +59,21 @@ class staticproperty:
     def __set__(self, instance, value):
         if not hasattr(self, 'fset'):
             raise AttributeError("can't set attribute")
-        cls = instance.__class__ if instance is not None else self.__objclass__
+        cls = instance.__class__ if instance is not None else self
         self.fset(cls, value)
 #-----------------------------------------------------------------------------
+
+
+class staticproperty_writeOnly:
+    def __init__(self, fset):
+        self.fset = fset
+
+    def __get__(self, instance, owner):
+        raise AttributeError("can't get attribute")
+
+    def __set__(self, instance, value):
+        cls = instance.__class__ if instance is not None else self
+        self.fset(cls, value)
 
 
 def isChildClass(obj, cls):
