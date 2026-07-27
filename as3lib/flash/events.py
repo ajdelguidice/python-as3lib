@@ -3,6 +3,7 @@ from as3lib import (ArgumentError, Array, as3state, Boolean, Error, false,
                     uint)
 from as3lib.flash.errors import SQLError
 from as3lib.flash.geom import Rectangle
+import weakref
 
 
 # Interfaces
@@ -157,6 +158,23 @@ class Event(Object):
         return self.formatToString('Event', 'type', 'bubbles', 'cancelable', 'eventPhase')
 
 
+class _as3lib_listenerWeakReference:
+    def __init__(self, listener):
+        self.listener = weakref.ref(listener)
+
+    def __call__(self, *args, **kwargs):
+        listener = self.listener()
+        if listener is None:
+            return
+        return listener(*args, **kwargs)
+
+    def __eq__(self, other):
+        return self.listener() == other
+
+    def isDead(self):
+        return true if self.listener() is None else false
+
+
 class _as3lib_ListenerStorage(dict):
     '''
     This class implements all that is necessary for event priority to work.
@@ -172,6 +190,7 @@ class _as3lib_ListenerStorage(dict):
     here because the order is wrong when multiple listeners have the same
     priority.
     '''
+    # TODO: Remove weakReferences when they expire
     def _generator(self):
         for priority in sorted(self.keys(), key=int, reverse=True):
             for listener in self[priority]:
@@ -186,10 +205,13 @@ class _as3lib_ListenerStorage(dict):
     def __iter__(self):
         return self._generator()
 
-    def addListener(self, priority, listener):
+    def addListener(self, priority, listener, useWeakReference):
         if priority not in self.keys():
             self[priority] = []
-        self[priority].append(listener)
+        if useWeakReference:
+            self[priority].append(_as3lib_listenerWeakReference(listener))
+        else:
+            self[priority].append(listener)
 
     def removeListener(self, listener):
         for i in self.keys():
@@ -221,12 +243,12 @@ class EventDispatcher(Object):
             if type not in self._eventsCapture:
                 self._eventsCapture[type] = _as3lib_ListenerStorage()
             if listener not in self._eventsCapture[type]:
-                self._eventsCapture[type].addListener(priority, listener)
+                self._eventsCapture[type].addListener(priority, listener, useWeakReference)
         else:
             if type not in self._events:
                 self._events[type] = _as3lib_ListenerStorage()
             if listener not in self._events[type]:
-                self._events[type].addListener(priority, listener)
+                self._events[type].addListener(priority, listener, useWeakReference)
 
     def dispatchEvent(self, event):
         # TODO: Implement useCapture
