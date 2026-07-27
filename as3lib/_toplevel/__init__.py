@@ -9,9 +9,9 @@ import random
 import re as regex
 import time
 import traceback
-from warnings import warn
 
 from as3lib._toplevel.trace import errorTrace
+from as3lib.helpers import function
 
 
 # Internal Constants
@@ -269,7 +269,7 @@ def _as3lib_CoerceToNumberValue(obj):
         #           [1, 2] == NaN
         obj = obj.toString()
     if isinstance(obj, (str, String)):
-        obj = obj.strip()
+        obj = str(obj).strip()
         if obj.startswith('0x'):
             return parseInt(obj)._value
         if not obj:
@@ -309,25 +309,39 @@ def _as3lib_CoerceToIntValue(obj):
 
 def _as3lib_toStringHelper(obj):
     if hasattr(obj, 'toString'):
-        return obj.toString()
-    if isinstance(obj, (str, String)):
-        return obj
+        obj = obj.toString()
     if isinstance(obj, bool):
         return 'true' if obj else 'false'
     return str(obj)
 
 
-class Class:
-    ...
-
-
+# TODO: Determine correct return types for non-boolean operations
+#       This is probably determined by the input type
+#       EX: In python, int + int => int, int + float => float
 class Object:
     # ActionScript3 Base object
     # TODO: Make item assignment work with non-string values.
     # TODO: Prototypes
-    prototype = None
+    prototype = null
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        # NOTE: In actionscript, a class can only extend one class. This rule
+        #       is expectend to be respected here too.
+        # TODO: This is only a partial implementation of prototype
+        cls.prototype = cls.__bases__[0]
 
     def __init__(self):
+        '''
+        # NOTE: Doing it this way would require proper super support, proper
+        #       constructor (property) support, and would require redoing all
+        #       constructor functions in this library
+        constructorName = type(self).__name__
+        if not hasattr(self, constructorName):
+            raise
+        getattr(self, constructorName)()
+        '''
         ...
 
     def __str__(self):
@@ -357,6 +371,12 @@ class Object:
         otherValue = _as3lib_valueOfHelper(value)
         if isinstance(thisValue, (str, String)) or isinstance(otherValue, (str, String)):
             return self.toString().concat(value)
+        '''
+        if (isinstance(self, uint) or isinstance(thisValue, uint)) and (isinstance(value, uint) or isinstance(otherValue, uint)):
+            return uint(_as3lib_CoerceToIntValue(self) + _as3lib_CoerceToIntValue(value))
+        if (isinstance(self, (int, builtins.int)) or isinstance(thisValue, (int, builtins.int))) and (isinstance(value, (int, builtins.int)) or isinstance(otherValue, (int, builtins.int))):
+            return int(_as3lib_CoerceToIntValue(self) + _as3lib_CoerceToIntValue(value))
+        '''
         return Number(_as3lib_CoerceToNumberValue(self) + _as3lib_CoerceToNumberValue(value))
 
     def __sub__(self, value):
@@ -420,22 +440,25 @@ class Object:
     def __xor__(self, value):
         return int(_as3lib_CoerceToIntValue(self) ^ _as3lib_CoerceToIntValue(value))
 
+    @function
     def hasOwnProperty(self, name: str):
         return str(name) in self.__dict__
 
+    @function
     def isPrototypeOf(self, theClass):
-        warn('isPrototypeOf will not work properly because the prototype property is not implemented.')
         # This should work properly once prototype is implemented properly
         p = theClass.prototype
-        while p is not None:
+        while p is not null:
             if p is self.__class__:
                 return true
             p = p.prototype
         return false
 
+    @function
     def propertyIsEnumerable(self, name: str):
         raise NotImplementedError
 
+    @function
     def setPropertyIsEnumerable(self, name: str, isEnum=True):
         raise NotImplementedError
 
@@ -447,6 +470,18 @@ class Object:
 
     def valueOf(self):
         return self
+
+
+class Class(Object):
+    ...
+
+
+class Function(Object):
+    def apply(thisArg, argArray):
+        ...
+
+    def call(thisArg, *args):
+        ...
 
 
 class Array(list, Object):
@@ -564,7 +599,7 @@ class Array(list, Object):
         if sep is undefined:
             s = ','
         else:
-            s = String(sep)
+            s = str(String(sep))
         with StringIO() as out:
             n = o.length
             for i in range(n):
@@ -688,7 +723,7 @@ class Array(list, Object):
                 x = self[i]
                 if x is not undefined and x is not null:
                     if hasattr(x, 'toLocaleString'):
-                        out.write(x.toLocaleString())
+                        out.write(str(x.toLocaleString()))
                     else:
                         out.write(str(x))
                 if i + 1 < n:
@@ -1307,17 +1342,17 @@ class Number(Object):
             raise RangeError('fractionDigits is outside of acceptable range')
         if self._value == 0:
             if fractionDigits == 0:
-                return '1e-15'
-            return ('{:.%if}e-16' % fractionDigits).format(0)
+                return String('1e-15')
+            return String(('{:.%if}e-16' % fractionDigits).format(0))
         if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
             return self.toString()
-        return _exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value))
+        return String(_exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value)))
 
     def toFixed(self, fractionDigits: uint = null):
         fractionDigits = uint(fractionDigits)
         if fractionDigits > 20:
             raise RangeError('fractionDigits is outside of acceptable range')
-        return ('{:.%if}' % fractionDigits).format(self._value)
+        return String(('{:.%if}' % fractionDigits).format(self._value))
 
     def toPrecision(self, precision):
         precision = uint(precision)
@@ -1562,15 +1597,15 @@ class int(Object):
             raise RangeError('fractionDigits is outside of acceptable range')
         if self == 0:
             if fractionDigits == 0:
-                return '1e-15'
-            return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16'
-        return _exponentFixInt(('{:.%se}' % fractionDigits).format(self._value))
+                return String('1e-15')
+            return String(_exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)) + 'e-16')
+        return String(_exponentFixInt(('{:.%se}' % fractionDigits).format(self._value)))
 
     def toFixed(self, fractionDigits: uint = null):
         fractionDigits = uint(fractionDigits)
         if fractionDigits > 20:
             raise RangeError('fractionDigits is outside of acceptable range')
-        return ('{:.%sf}' % fractionDigits).format(self._value)
+        return String(('{:.%sf}' % fractionDigits).format(self._value))
 
     def toPrecision(self, precision: uint):
         precision = uint(precision)
@@ -1598,6 +1633,8 @@ class uint(int):
 
 
 class String(str, Object):
+    # NOTE: Using bytearray(<value>.encode('utf-16')) seems to be correct here
+    #       Use (len(<bytearray>) - 2) / 2 to get the length
     def __init__(self, value=''):
         self.__init2(_as3lib_toStringHelper(value))
 
@@ -1820,7 +1857,7 @@ class RegExp(Object):
             flags |= regex.DOTALL
         if self.extended:
             flags |= regex.VERBOSE
-        self._re = regex.compile(self.source, flags)
+        self._re = regex.compile(str(self.source), flags)
 
     def exec(self, str):
         # TODO: output.index
@@ -2020,7 +2057,7 @@ class Vector(list, Object):
         if sep is undefined:
             s = ','
         else:
-            s = String(sep)
+            s = str(String(sep))
         with StringIO() as out:
             for i in o:
                 x = o[i]
@@ -2276,8 +2313,8 @@ class QName(Object):
         if self.uri == '':
             return self.localName
         elif self.uri is null:
-            return '*::%s' % self.localName
-        return '%s::%s' % (self.uri, self.localName)
+            return String('*::%s' % self.localName)
+        return String('%s::%s' % (self.uri, self.localName))
 
     def valueOf(self):
         return self
@@ -2565,9 +2602,9 @@ def isNaN(num):
 
 def isXMLName(str: String):
     # currently this is spec compatible with the actual xml specs but unknown if it is the same as the actionscript function.
-    str = String(str)
+    str = builtins.str(String(str))
     whitelist = {'-', '_', '.'}
-    if not str.length or not str[0].isalpha() and str[0] != '_' or str.lower().startswith('xml') or ' ' in str:
+    if not len(str) or not str[0].isalpha() and str[0] != '_' or str.lower().startswith('xml') or ' ' in str:
         return false
     for i in str:
         if not i.isalnum() and i not in whitelist:
@@ -2581,7 +2618,7 @@ def parseFloat(str: String = undefined):
     # TODO: Handle exponent overflow
     if str is undefined:
         return Number.NaN
-    str = String(str)
+    str = builtins.str(String(str))
     str = str.lstrip()
     sign = ''
     if str.startswith(('-', '+')):
@@ -2628,7 +2665,7 @@ def parseInt(str: String = undefined, radix: uint = 0):
         if radix >= 32:
             return Number(int(builtins.int('null', radix)))
         return Number.NaN
-    str = String(str)
+    str = builtins.str(String(str))
     str = str.lstrip()
     sign = ''
     if str.startswith(('-', '+')):
