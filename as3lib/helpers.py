@@ -76,6 +76,30 @@ class staticproperty_writeOnly:
         self.fset(cls, value)
 
 
+class function:
+    '''
+    Internal workaround for specific functions to make them behave correctly
+
+    This is only temporary and will either be removed or completely reworked
+    once prototypes are properly implemented.
+    '''
+    def __init__(self, func, instance=None, owner=None):
+        self.func = func
+        self.instance = instance
+        self.owner = owner
+
+    def __get__(self, instance, owner=None):
+        return type(self)(self.func, instance, owner)
+
+    def __call__(self, *args, **kwargs):
+        if self.owner is None:
+            raise NotImplementedError('function defined outside of a class')
+        if self.instance is None:
+            # Part of a class
+            return self.func(self.owner, *args, **kwargs)
+        return self.func(self.instance, *args, **kwargs)
+
+
 def isChildClass(obj, cls):
     '''
     Checks both isinstance and issubclass for (obj,cls)
