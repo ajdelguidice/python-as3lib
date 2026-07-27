@@ -159,6 +159,9 @@ class Event(Object):
 
 
 class _as3lib_listenerWeakReference:
+    '''
+    Internal listener weakReference implementation for EventDispatcher
+    '''
     def __init__(self, listener):
         self.listener = weakref.ref(listener)
 
@@ -172,12 +175,12 @@ class _as3lib_listenerWeakReference:
         return self.listener() == other
 
     def isDead(self):
-        return true if self.listener() is None else false
+        return self.listener() is None
 
 
 class _as3lib_ListenerStorage(dict):
     '''
-    This class implements all that is necessary for event priority to work.
+    Internal listener storage/queue implementation for EventDispatcher.
 
     Can not use a normal dict with
     ```
@@ -223,8 +226,6 @@ class _as3lib_ListenerStorage(dict):
 
 
 class EventDispatcher(Object):
-    # TODO: Implement weakReference
-
     def __init__(self, target: IEventDispatcher = null):
         self._events = {}
         self._eventsCapture = {}
@@ -459,7 +460,7 @@ class AudioOutputChangeEvent(Event):
 
 
 class AVDictionaryDataEvent(Event):
-    # TODO: Make _dictionary init as a flash.utils.Dictionary object
+    # TODO: Make _dictionary a flash.utils.Dictionary object
     AV_DICTIONARY_DATA = String('avDictionaryData')
 
     @property
