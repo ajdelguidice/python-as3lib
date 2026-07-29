@@ -362,6 +362,9 @@ class Object:
     def __each__(self):
         return (i for i in self.__dict__.items())
 
+    def __pos__(self):
+        return Number(self)
+
     def __neg__(self):
         return Number(-_as3lib_CoerceToNumberValue(self))
 
@@ -552,14 +555,6 @@ class Array(list, Object):
 
     def __repr__(self):
         return 'Array(%s)' % self
-
-    def __pos__(self):
-        # TODO: This is probably wrong
-        return Number(0)
-
-    def __neg__(self):
-        # TODO: This is probably wrong
-        return -Number(0)
 
     def __each__(self):
         return (self[i] for i in range(self.length))
@@ -776,9 +771,6 @@ class Boolean(Object):
 
     def __abs__(self):
         return Number(self._value)
-
-    def __pos__(self):
-        return Number(self)
 
     def _Boolean(self, expression):
         if isinstance(expression, bool):
@@ -1330,9 +1322,6 @@ class Number(Object):
     def __eq__(self, value):
         return self._value == value
 
-    def __neg__(self):
-        return Number(-self._value)
-
     def __bool__(self):
         return self._value != 0 and not self._is_nan()
 
@@ -1670,10 +1659,6 @@ class String(str, Object):
 
     def __bool__(self):
         return self.length > 0
-
-    def __pos__(self):
-        # TODO: Make sure that this is correct
-        return Number(self)
 
     # TODO: Remove these once String is not a subclass of str
     __add__ = Object.__add__
