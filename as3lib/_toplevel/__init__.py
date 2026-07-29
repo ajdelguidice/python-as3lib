@@ -397,24 +397,37 @@ class Object:
         return Number(thisValue / value)
 
     def __mod__(self, value):
-        # TODO: Other behaviour of modulo
+        # TODO: This might not be entirely correct
         thisValue = _as3lib_CoerceToNumberValue(self)
-        value = _as3lib_CoerceToNumberValue(value)
-        if value == 0 or thisValue == Number.POSITIVE_INFINITY:
+        otherValue = _as3lib_CoerceToNumberValue(value)
+        if otherValue == 0 or thisValue == Number.POSITIVE_INFINITY:
             return Number.NaN
-        if value == Number.POSITIVE_INFINITY:
+        if otherValue == Number.POSITIVE_INFINITY:
             return Number(thisValue)
-        return Number(thisValue % value)
+        if thisValue < 0:
+            # Python does not handle negative modulo the same so convert to
+            # positive before and then back to negative after the modulo
+            return Number(-(-thisValue % otherValue))
+        return Number(thisValue % otherValue)
 
     def __lshift__(self, value):
-        # TODO: Negative shift value
-        #       For some reason, this wraps the bits around
-        #       Ex: 0b00000000000000000000000000000001 << -1 == 0b10000000000000000000000000000000
-        return int(_as3lib_CoerceToIntValue(self) << _as3lib_CoerceToIntValue(value))
+        thisValue = _as3lib_CoerceToIntValue(self)
+        otherValue = _as3lib_CoerceToIntValue(value)
+        if otherValue < 0:
+            otherValue = -otherValue % 32
+            if thisValue < 0:
+                return int(-(thisValue << (32 - otherValue)))
+            return int(thisValue << (32 - otherValue))
+        return int(thisValue << (otherValue % 32))
 
     def __rshift__(self, value):
-        # TODO: Negative shift value
-        return int(_as3lib_CoerceToIntValue(self) >> _as3lib_CoerceToIntValue(value))
+        thisValue = _as3lib_CoerceToIntValue(self)
+        otherValue = _as3lib_CoerceToIntValue(value)
+        if otherValue < 0:
+            if thisValue < 0:
+                return int(-1)
+            return int(0)
+        return int(thisValue >> (otherValue % 32))
 
     def __ge__(self, value):
         return Boolean(_as3lib_CoerceToNumberValue(self) >= _as3lib_CoerceToNumberValue(value))
