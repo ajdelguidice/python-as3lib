@@ -2,7 +2,7 @@ from __future__ import annotations
 import builtins
 from ctypes import c_double, c_uint32, c_int32
 import datetime
-from functools import cmp_to_key
+from functools import cmp_to_key, wraps
 from io import StringIO
 import math
 import random
@@ -284,10 +284,6 @@ def _as3lib_CoerceToNumberValue(obj):
     return obj
 
 
-def _as3lib_NumberCheckNaN(number):
-    return hasattr(number, '_is_nan') and number._is_nan() or hasattr(number, 'hex') and number.hex() == 'nan'
-
-
 def _as3lib_CoerceToIntValue(obj):
     obj = _as3lib_valueOfHelper(obj)
     if isinstance(obj, (String, str)):
@@ -296,7 +292,7 @@ def _as3lib_CoerceToIntValue(obj):
         obj = obj._value
     if isinstance(obj, (builtins.int)):
         return obj
-    if _as3lib_NumberCheckNaN(obj) or obj == Number.POSITIVE_INFINITY or obj == Number.NEGATIVE_INFINITY:
+    if isinstance(obj, (Number, int, uint, float, builtins.int)) and (math.isnan(obj) or math.isinf(obj)):
         return 0
     if isinstance(obj, float):
         return math.floor(obj)
@@ -372,7 +368,7 @@ class Object:
         # TODO: This is still slightly wrong
         thisValue = _as3lib_valueOfHelper(self)
         otherValue = _as3lib_valueOfHelper(value)
-        if isinstance(thisValue, (str, String)) or isinstance(otherValue, (str, String)):
+        if isinstance(thisValue, (str, String, Array)) or isinstance(otherValue, (str, String, Array)):
             return self.toString().concat(value)
         '''
         if (isinstance(self, uint) or isinstance(thisValue, uint)) and (isinstance(value, uint) or isinstance(otherValue, uint)):
@@ -535,6 +531,8 @@ class Array(list, Object):
     def __delitem__(self, item):
         if item < self.length:
             super().__setitem__(item, undefined)
+
+    __add__ = Object.__add__
 
     @property
     def length(self):
@@ -1293,9 +1291,6 @@ class Number(Object):
     def _value(self, value):
         self._val.value = value
 
-    def _is_nan(self):
-        return self._value.hex() == 'nan'
-
     def __init__(self, num=null):
         if isinstance(num, float):
             # NOTE: This is here because _as3lib_CoerceToNumberValue causes
@@ -1323,7 +1318,7 @@ class Number(Object):
         return self._value == value
 
     def __bool__(self):
-        return self._value != 0 and not self._is_nan()
+        return self._value != 0 and not math.isnan(self)
 
     def __abs__(self):
         return Number(abs(self._value))
@@ -1346,7 +1341,7 @@ class Number(Object):
             if fractionDigits == 0:
                 return String('1e-15')
             return String(('{:.%if}e-16' % fractionDigits).format(0))
-        if self._is_nan() or self == Number.NEGATIVE_INFINITY or self == Number.POSITIVE_INFINITY:
+        if math.isnan(self) or math.isinf(self):
             return self.toString()
         return String(_exponentFixNum(('{:.%ie}' % fractionDigits).format(self._value)))
 
@@ -1364,11 +1359,11 @@ class Number(Object):
         return self.toString()
 
     def toString(self, radix=10):
-        if self._is_nan():
+        if math.isnan(self):
             return String('NaN')
-        if self._value == Number.NEGATIVE_INFINITY:
-            return String('-Infinity')
-        if self._value == Number.POSITIVE_INFINITY:
+        if math.isinf(self):
+            if self._value < 0:
+                return String('-Infinity')
             return String('Infinity')
         if radix != 10:
             return String(_as_base(builtins.int(self._value), radix))
@@ -1415,14 +1410,14 @@ class Math(Object):
     @staticmethod
     def acos(val: Number):
         val = Number(val)
-        if val._is_nan() or val > 1 or val < -1:
+        if math.isnan(val) or val > 1 or val < -1:
             return Number.NaN
         return Number(math.acos(val))
 
     @staticmethod
     def asin(val: Number):
         val = Number(val)
-        if val._is_nan() or val > 1 or val < -1:
+        if math.isnan(val) or val > 1 or val < -1:
             return Number.NaN
         return Number(math.asin(val))
 
@@ -1437,21 +1432,21 @@ class Math(Object):
     @staticmethod
     def ceil(val: Number):
         val = Number(val)
-        if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+        if math.isnan(val) or math.isinf(val):
             return val
         return Number(math.ceil(val))
 
     @staticmethod
     def cos(angleRadians: Number):
         a = Number(angleRadians)
-        if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+        if math.isnan(a) or math.isinf(a):
             return Number.NaN
         return Number(math.cos(a))
 
     @staticmethod
     def exp(val: Number):
         val = Number(val)
-        if val._is_nan():
+        if math.isnan(val):
             return Number.NaN
         try:
             return math.exp(val)
@@ -1461,18 +1456,18 @@ class Math(Object):
     @staticmethod
     def floor(val: Number):
         val = Number(val)
-        if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+        if math.isnan(val) or math.isinf(val):
             return val
         return Number(math.floor(val))
 
     @staticmethod
     def log(val: Number):
         val = Number(val)
-        if val < 0 or val._is_nan():
+        if val < 0 or math.isnan(val):
             return Number.NaN
         if val == 0:
             return Number.NEGATIVE_INFINITY
-        if val == Number.POSITIVE_INFINITY:
+        if math.isinf(val):
             return Number.POSITIVE_INFINITY
         return Number(math.log(val))
 
@@ -1481,7 +1476,7 @@ class Math(Object):
         v = [Number.NEGATIVE_INFINITY]
         for i in values:
             n = Number(i)
-            if n._is_nan():
+            if math.isnan(n):
                 return Number.NaN
             v.append(n)
         return max(v)
@@ -1491,7 +1486,7 @@ class Math(Object):
         v = [Number.POSITIVE_INFINITY]
         for i in values:
             n = Number(i)
-            if n._is_nan():
+            if math.isnan(n):
                 return Number.NaN
             v.append(n)
         return min(v)
@@ -1499,7 +1494,7 @@ class Math(Object):
     @staticmethod
     def pow(base: Number, power: Number):
         base, power = Number(base), Number(power)
-        if base._is_nan() or power._is_nan():
+        if math.isnan(base) or math.isnan(power):
             return Number.NaN
         return Number(math.pow(base, power))
 
@@ -1510,28 +1505,28 @@ class Math(Object):
     @staticmethod
     def round(val: Number):
         val = Number(val)
-        if val == Number.POSITIVE_INFINITY or val == Number.NEGATIVE_INFINITY or val._is_nan():
+        if math.isnan(val) or math.isinf(val):
             return val
         return round(val)
 
     @staticmethod
     def sin(angleRadians: Number):
         a = Number(angleRadians)
-        if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+        if math.isnan(a) or math.isinf(a):
             return Number.NaN
         return Number(math.sin(a))
 
     @staticmethod
     def sqrt(val: Number):
         val = Number(val)
-        if val < 0 or val._is_nan():
+        if val < 0 or math.isnan(val):
             return Number.NaN
         return Number(math.sqrt(val))
 
     @staticmethod
     def tan(angleRadians: Number):
         a = Number(angleRadians)
-        if a == Number.POSITIVE_INFINITY or a == Number.NEGATIVE_INFINITY or a._is_nan():
+        if math.isnan(a) or math.isinf(a):
             return Number.NaN
         return Number(math.tan(a))
 
@@ -1583,7 +1578,7 @@ class int(Object):
 
     def __truediv__(self, value):
         res = super().__truediv__(_as3lib_CoerceToIntValue(value))
-        if res._is_nan() or res == Number.POSITIVE_INFINITY or res == Number.NEGATIVE_INFINITY:
+        if math.isnan(res) or math.isinf(res):
             return res
         return int(res)
 
@@ -1645,7 +1640,7 @@ class String(str, Object):
         super().__init__()
 
     def __str__(self):
-        return self
+        return str.__str__(self)
 
     def __repr__(self):
         return 'String("%s")' % self
@@ -2591,11 +2586,11 @@ def escape(str):
 
 def isFinite(num):
     num = Number(num)
-    return not (num._is_nan() or num == Number.POSITIVE_INFINITY or num == Number.NEGATIVE_INFINITY)
+    return not (math.isnan(num) or math.isinf(num))
 
 
 def isNaN(num):
-    return Number(num)._is_nan()
+    return math.isnan(Number(num))
 
 
 def isXMLName(str: String):
@@ -2736,7 +2731,7 @@ def _typeCompare(obj1, obj2):
 
 
 def stricteq(obj1, obj2):
-    if isinstance(obj1, Number) and obj1._is_nan() and isinstance(obj2, Number) and obj2._is_nan():
+    if isinstance(obj1, Number) and math.isnan(obj1) and isinstance(obj2, Number) and math.isnan(obj2):
         return true
     return Boolean(_typeCompare(obj1, obj2) and obj1 == obj2)
 
