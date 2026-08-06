@@ -1,10 +1,12 @@
-from as3lib import each, NaN, Number, stricteq, strictne
+from as3lib import each, int, NaN, Number, stricteq, strictne, uint
+import builtins
+import math
 import unittest
 
 
 class as3libTestCase(unittest.TestCase):
     def isNaNExplicit(self, obj):
-        return hasattr(obj, '_is_nan') and obj._is_nan() or obj is NaN or obj is Number.NaN
+        return isinstance(obj, (Number, int, uint, float, builtins.int)) and math.isnan(obj)
 
     def assertEqualCheckNaN(self, value, check):
         if self.isNaNExplicit(check):
@@ -49,11 +51,8 @@ class as3libTestCase(unittest.TestCase):
         self.assertNaN(vector.x)
         self.assertNaN(vector.y)
         self.assertNaN(vector.z)
-        if w is not None:
-            if w is NaN:
-                self.assertNaN(vector.w)
-            else:
-                self.assertEqual(vector.w, w)
+        if w is not None and not math.isnan(w):
+            self.assertEqual(vector.w, w)
 
     def assertMatrix3D(self, matrix, values):
         self.assertArray(matrix.rawData, values)
