@@ -14,12 +14,6 @@ from as3lib._toplevel.trace import errorTrace
 from as3lib.helpers import function
 
 
-# Internal Constants
-_NaN_value = 1e300000 / -1e300000
-_NegInf_value = -1e300000
-_PosInf_value = 1e300000
-
-
 # Internal Helpers
 def _getTimezone():  # Date
     if time.daylight:
@@ -259,7 +253,7 @@ def _as3lib_CoerceToNumberValue(obj):
     if obj is null:
         return 0
     if obj is undefined:
-        return _NaN_value
+        return math.nan
     if isinstance(obj, Array):
         # TODO: Check this
         # NOTE: This produces the results:
@@ -280,7 +274,7 @@ def _as3lib_CoerceToNumberValue(obj):
     if isinstance(obj, (bool, Boolean)):
         return builtins.int(obj)
     if isinstance(obj, Object):
-        return _NaN_value
+        return math.nan
     return obj
 
 
@@ -1388,9 +1382,9 @@ class Number(Object):
         return self._value
 
 
-Infinity = Number.POSITIVE_INFINITY = Number(_PosInf_value)
-NaN = Number.NaN = Number(_NaN_value)
-Number.NEGATIVE_INFINITY = Number(_NegInf_value)
+Infinity = Number.POSITIVE_INFINITY = Number(math.inf)
+NaN = Number.NaN = Number(math.nan)
+Number.NEGATIVE_INFINITY = Number(-math.inf)
 
 
 class Math(Object):
