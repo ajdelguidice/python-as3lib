@@ -3,6 +3,7 @@ from as3lib import (ArgumentError, Array, as3state, Boolean, Error, false,
                     uint)
 from as3lib.flash.errors import SQLError
 from as3lib.flash.geom import Rectangle
+from functools import partial
 import weakref
 
 
@@ -162,8 +163,9 @@ class _as3lib_listenerWeakReference:
     '''
     Internal listener weakReference implementation for EventDispatcher
     '''
-    def __init__(self, listener):
+    def __init__(self, listener, storage):
         self.listener = weakref.ref(listener)
+        self.finalizer = weakref.finalize(listener, partial(storage.removeListener, self))
 
     def __call__(self, *args, **kwargs):
         listener = self.listener()
@@ -173,9 +175,6 @@ class _as3lib_listenerWeakReference:
 
     def __eq__(self, other):
         return self.listener() == other
-
-    def isDead(self):
-        return self.listener() is None
 
 
 class _as3lib_ListenerStorage(dict):
@@ -193,7 +192,6 @@ class _as3lib_ListenerStorage(dict):
     here because the order is wrong when multiple listeners have the same
     priority.
     '''
-    # TODO: Remove weakReferences when they expire
     def _generator(self):
         for priority in sorted(self.keys(), key=int, reverse=True):
             for listener in self[priority]:
@@ -212,7 +210,7 @@ class _as3lib_ListenerStorage(dict):
         if priority not in self.keys():
             self[priority] = []
         if useWeakReference:
-            self[priority].append(_as3lib_listenerWeakReference(listener))
+            self[priority].append(_as3lib_listenerWeakReference(listener, self))
         else:
             self[priority].append(listener)
 
