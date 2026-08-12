@@ -22,11 +22,9 @@ dependencies = [
     "numpy",
     "tkhtmlview",
     "Pillow",
-    "as3lib-miniAMF"
+    "as3lib-miniAMF",
+    "tomli;python_version<'3.11'"
 ]
-
-[project.optional-dependencies]
-python3_10 = ["tomli"]
 
 [project.urls]
 Homepage = "https://github.com/ajdelguidice/python-as3lib"
@@ -51,6 +49,3 @@ commands = [["python","-m","unittest","discover","as3lib/tests"]]
 [tool.tox.env.py3]
 deps = ["flake8"]
 commands = [["-","flake8","--exclude","build,dist,configs,.tox,oldfiles","--ignore","E501,E226"]]
-
-[tool.tox.env.py310]
-deps = ["tomli"]
