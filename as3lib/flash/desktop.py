@@ -1,7 +1,10 @@
-from as3lib import (as3state, ArgumentError, Array, false, int, null, Object,
-                    true)
-from as3lib.flash.events import EventDispatcher, InvokeEvent
+from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
+                    Object, true)
+from as3lib.flash.display import NativeWindow
+from as3lib.flash.events import Event, EventDispatcher, InvokeEvent
+from as3lib.flash.filesystem import File
 from as3lib.helpers import staticproperty
+import sys
 import tkinter
 
 
@@ -43,8 +46,6 @@ class InvokeEventReason(Object):
 
 
 class NativeApplication(EventDispatcher):
-    # TODO: dispatch InvokeEvent when application starts
-    #       InvokeEvent('invoke', false, false, <directory>, sys.argv)
     @property
     def activeWindow(self):
         raise NotImplementedError
@@ -63,7 +64,7 @@ class NativeApplication(EventDispatcher):
 
     @autoExit.setter
     def autoExit(self, value):
-        raise NotImplementedError
+        self._autoExit = Boolean(value)
 
     @property
     def executeInBackground(self):
@@ -199,8 +200,26 @@ class NativeApplication(EventDispatcher):
     def dispatchEvent(self, event):
         raise NotImplementedError
 
-    def exit(self):
-        raise NotImplementedError
+    def exit(self, errorCode: int = 0):
+        # TODO: Make sure this is accurate
+        # NOTE: This will not work properly until everything is using NativeWindow
+        exitPrevented = false
+        for i in each(self._openedWindows):
+            if not isinstance(i, NativeWindow):
+                # Skip this for non NativeWindow windows (ex: interface_tk.itk_window)
+                continue
+
+            e = Event(Event.CLOSING, false, true)
+            i.dispatch(e)
+            if e.isDefaultPrevented():
+                exitPrevented = true
+                break
+        if not exitPrevented:
+            for i in each(self._openedWindows.copy()):
+                i.close()
+
+        self._toolkitApplication.destroy()
+        sys.exit(int(errorCode))
 
     def getDefaultApplication(self, extension):
         raise NotImplementedError
@@ -231,9 +250,13 @@ class NativeApplication(EventDispatcher):
             self._toolkitApplication = tkinter.Tk()
             self._toolkitApplication.withdraw()
 
-    def _close(self):
+    def _close(self):  # TODO: Remove
         # INTERNAL: closes the toolkit main object
         self._toolkitApplication.destroy()
+
+    def _invokeApplication(self):
+        # TODO: do this when application starts
+        self.dispatchEvent(InvokeEvent('invoke', false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
 
 
 class NativeDragActions:
