@@ -963,7 +963,7 @@ class itkRoot(tkinter.Toplevel):
                 self.config(menu=self.menubar['root'])
         self._children['display'] = itkDisplay(self, itkWindow=self, background=self._color)
         self._children['display'].update()
-        as3state.nativeApplication.openedWindows[self._id] = self
+        as3state.nativeApplication._addWindow(self._id, self)
         self._destroyed = False  # Variable to prevent destroy being called more than once
 
     def resetSize(self):
@@ -1188,9 +1188,7 @@ class itkRoot(tkinter.Toplevel):
         if not self._destroyed:
             self._destroyed = True
             super().destroy()
-            del as3state.nativeApplication.openedWindows[self._id]
-            if as3state.nativeApplication.autoExit and not as3state.nativeApplication.openedWindows.length:
-                as3state.nativeApplication.exit()
+            as3state.nativeApplication._removeWindow(self._id)
 
     close = destroy
 
@@ -1218,7 +1216,6 @@ class itkRootMain(itkRoot):
 
     def destroy(self):
         if not self._destroyed:
-            self._destroyed = True
             super().destroy()
             as3state.nativeApplication.exit()
 
