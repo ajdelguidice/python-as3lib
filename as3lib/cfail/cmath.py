@@ -6,7 +6,3 @@ def calculate(neww: float, newh: float, startw: int, starth: int):
 
 def resizefont(font: int, mult: float):
     return round((font * mult) / 100)
-
-
-def roundedmultdivide(number, multiplier, diviser):
-    return round(number * multiplier) / diviser
