@@ -108,7 +108,7 @@ class NativeApplication(EventDispatcher):
 
     @property
     def openedWindows(self):
-        return self._openedWindows
+        return Array(*list(each(self._openedWindows)))
 
     @property
     def publisherID(self):
@@ -166,9 +166,6 @@ class NativeApplication(EventDispatcher):
         # This class is a singleton
         if as3state.nativeApplication is None:
             return super().__new__(cls)
-        # According to the documentation, this class is not supposed to be
-        # instantiated. Instead, NativeApplication.nativeApplication is used to
-        # retrieve the global NativeApplication instance
         # TODO: Ensure that raising is the right thing to do
         raise
 
@@ -177,7 +174,10 @@ class NativeApplication(EventDispatcher):
         self._autoExit = true
         self._execInBackground = false
         self._idleThreshold = int(300)
-        self._openedWindows = Array()
+        # Using a dictionary is fine here because the public property is
+        # readonly
+        self._openedWindows = {}
+
         self._timeSinceUserInput = int(0)
 
         self._toolkitApplication = None
@@ -253,6 +253,15 @@ class NativeApplication(EventDispatcher):
     def _invokeApplication(self):
         # TODO: do this when application starts
         self.dispatchEvent(InvokeEvent('invoke', false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
+
+    def _addWindow(self, id, window):
+        # Temporary internal function to add a window to openedWindows
+        self._openedWindows[id] = window
+
+    def _removeWindow(self, id):
+        del self._openedWindows[id]
+        if self.autoExit and not self.openedWindows.length:
+            self.exit()
 
 
 class NativeDragActions:
