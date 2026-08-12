@@ -1,8 +1,4 @@
 # Temporary interface to help figure things out. A bit slow when too many things are defined.
-try:
-    from as3lib import cmath
-except Exception:
-    from as3lib.cfail import cmath
 from as3lib import as3state, Error, isXMLName, trace
 from io import BytesIO
 import PIL
@@ -10,6 +6,11 @@ import tkinter
 from tkinter import filedialog
 from tkinter.ttk import Combobox, Notebook
 import tkhtmlview
+from importlib.util import find_spec
+if find_spec('as3lib.cmath') is None:
+    from as3lib.cfail import cmath
+else:
+    from as3lib import cmath
 
 
 def _idGen():
@@ -1183,16 +1184,15 @@ class itkRoot(tkinter.Toplevel):
     def mainloop(self):
         raise Error('interface_tk.window.mainloop; Can not run mainloop on a child window.')
 
-    def close(self, *e):
-        self.destroy()
-
     def destroy(self, *e):
         if not self._destroyed:
             self._destroyed = True
             super().destroy()
             del as3state.nativeApplication.openedWindows[self._id]
-            if not as3state.nativeApplication.openedWindows.length:
-                as3state.nativeApplication._close()
+            if as3state.nativeApplication.autoExit and not as3state.nativeApplication.openedWindows.length:
+                as3state.nativeApplication.exit()
+
+    close = destroy
 
 
 class itkRootMain(itkRoot):
@@ -1220,7 +1220,7 @@ class itkRootMain(itkRoot):
         if not self._destroyed:
             self._destroyed = True
             super().destroy()
-            as3state.nativeApplication._close()
+            as3state.nativeApplication.exit()
 
 
 def window(**kwargs):
