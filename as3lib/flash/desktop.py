@@ -250,10 +250,6 @@ class NativeApplication(EventDispatcher):
             self._toolkitApplication = tkinter.Tk()
             self._toolkitApplication.withdraw()
 
-    def _close(self):  # TODO: Remove
-        # INTERNAL: closes the toolkit main object
-        self._toolkitApplication.destroy()
-
     def _invokeApplication(self):
         # TODO: do this when application starts
         self.dispatchEvent(InvokeEvent('invoke', false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
