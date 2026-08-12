@@ -1286,11 +1286,11 @@ class NativeWindow(EventDispatcher):
     def close(self):
         self._windowObject.destroy()
         self._windowObject = None
-        if not as3state.nativeApplication.openedWindows.length:
-            as3state.nativeApplication._close()
         e = Event('close')
         e._target = self
         self.dispatchEvent(e)
+        if as3state.nativeApplication.autoExit and not as3state.nativeApplication.openedWindows.length:
+            as3state.nativeApplication.exit()
 
     def globalToScreen(self, globalPoint: Point):
         raise NotImplementedError
