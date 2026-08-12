@@ -1272,7 +1272,7 @@ class NativeWindow(EventDispatcher):
         self._windowObject = tkinter.Toplevel()
         self.minimize()
         self._winNum = next(_windowNameGenerator)
-        as3state.nativeApplication.openedWindows[self._winNum] = self
+        as3state.nativeApplication._addWindow(self._winNum, self)
         self.title = 'Flash Player'
         if initOptions.owner is not None:
             self._owner = initOptions.owner
@@ -1289,8 +1289,7 @@ class NativeWindow(EventDispatcher):
         e = Event('close')
         e._target = self
         self.dispatchEvent(e)
-        if as3state.nativeApplication.autoExit and not as3state.nativeApplication.openedWindows.length:
-            as3state.nativeApplication.exit()
+        as3state.nativeApplication._removeWindow(self._id)
 
     def globalToScreen(self, globalPoint: Point):
         raise NotImplementedError
