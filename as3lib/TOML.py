@@ -4,20 +4,20 @@ frustration at tomli_w's formatting (mostly the arrays) and only implements
 things needed for this library. It is not guaranteed to work for other use
 cases.
 '''
-from importlib.util import find_spec
 from io import StringIO
 from pathlib import PurePath
 import platform
-if find_spec('tomllib'):
-    import tomllib
-
-    readFile = tomllib.load
-    readString = tomllib.loads
-else:
+import sys
+if sys.hexversion < 0x030b0000:
     import tomli
 
     readFile = tomli.load
     readString = tomli.loads
+else:
+    import tomllib
+
+    readFile = tomllib.load
+    readString = tomllib.loads
 
 
 def Value(value):
