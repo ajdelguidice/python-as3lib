@@ -1,0 +1,133 @@
+v14
+Removals:
+- Platform specific dependencies (pywin32, grep, which, xwininfo, xrandr)
+- Custom type annotations
+- Temporary vector type aliases (Vector.Boolean, Vector.int, etc.)
+- The ['display'] section of the config file
+- flash.events._AS3_BASE_EVENT
+- metaclasses._AS3_CONSTANTSOBJECT
+- ClearLogsOnStartup config option
+- All type._type conversion functions
+- cmath.roundedmultdivide
+
+Future removals:
+- [v15] as3lib.toplevel
+
+Deprecations:
+- as3lib.Int alias. Moved to as3lib.toplevel.
+
+Tests:
+- Python 3.10 is now tested as a part of the normal test flow
+- as3lib.tests.TestNotImplemented is now a subclass of unittest.SkipTest
+- Flake8 command is now split into its own environment
+- Only install tomli for python 3.10
+
+Other:
+- Vectors can now be created using Vector[T](...)
+- Changed indent size to 4
+- Use proper types in more places
+- Made a generic implementation for most operators in Object instead of having an override in every type
+- Fix python 3.10 compatibility
+- Made parseInt and parseFloat more accurate
+- Added partial static property support
+- Python type can now be used as substitues for as3lib types in the strict equality functions
+- Fix a memory leak in flash.utils.Timer
+- Partially implement propagation state for events
+- Implement most of the special cases for Math functions
+- Properly implement Event cloning
+- Use proper return types in more places
+- Implement useWeakReference for EventDispatcher
+- Implement priority for EventDispatcher (still needs a bit of work)
+- Make generic implementations for __and__, __invert__, __or__, __xor__, __add__, __lshift__, __rshift__, __pos__, __neg__
+- Make python types qualify as strictly equal to as3lib types
+- Properly implement flash.net.SharedObject stub
+- Add temporary implementation of write-only properties
+- Remove some unnecessary check in trace
+- Clean up config
+- Remove the "ClearLogsOnStartup" option. Log is now always cleared on launch
+- config.TOML has been moved to its own file
+- Add a temporary decorator "function" to make specific functions behave correctly
+- Use python builtin "math.isnan()" instead of as3lib._toplevel._as3lib_NumberCheckNaN and Number._is_nan and remove the now unused functions
+- Use python builtin "math.nan" and "math.inf" instead of redefining the values
+- Implement NativeApplication.exit() and NativeApplication.autoExit
+- Properly specify tomli as a dependency for python < 3.11
+
+
+v13
+
+Removals:
+- _toplevel.Functions.formatTypeToName
+- as3builtins.py
+- as3lib.NInfinity alias. Use -as3lib.Infinity instead.
+- as3state.windows
+- interface_tk.itkWorkaroundWindow
+- as3state.interfaceType
+- _toplevel.Functions
+
+Future Removals:
+- [v14] Custom type annotations (allArray, allBoolean, etc.)
+
+Other:
+- NaN and Infinity are now created properly and no longer have to be instantiated to be used.
+- Tests have been added to make sure things work properly. Most of these are adapted from https://github.com/ruffle-rs/ruffle
+- Implement flash.geom.Matrix
+- Partially implement flash.geom.Vector3D, flash.geom.Matrix3D, flash.geom.PerspectiveProjection, flash.geom.Transform
+- Simplify flash.events.EventDispatcher.dispatchEvent
+- Reimplement flash.ui.ContextMenu and flash.ui.ContextMenuItem
+- Stub out a bunch of stuff in flash.display
+- Fix Array.join and Array.toString
+- Make Object.__str__ an alias of Object.toString
+- Fix Timer execution and implement proper repeatCount behaviour
+- Implement flash.utils.{set,clear}Interval and flash.utils.{set,clear}Timeout
+- Implement parts of QName and Namespace
+- Jankily implement Date
+- Fix Array.concat
+- Use Boolean class for true and false
+- Rewrite Object.isPrototypeOf
+- Make Object.toLocaleString work properly
+- Raise NotImplementedError instead of doing nothing
+- Get rid of Array.filler property
+- Simplify Array constructor
+- Make null and undefined variables instead of classes
+- Improve int constructor
+- Implement parts of uint
+- Properly implement Math.min and Math.max
+- Fix undefined and null handling in Array._join
+- Implement flash.geom.ColorTransform
+- Fix most the issues with Vector constructor
+- Return undefined for nonexistant values of Array instead of empty string
+- Add file _toplevel.Keywords to store decorators and functions that take the place of actionscript keywords
+- Attemp to coerce python types to as3lib types in Vector constructor
+- Fix the value of Math.E
+- Fix converting Number to Boolean
+- Fix flash.geom.Point.polar
+- Add handling for special values in some Math functions
+- Fix Vector._join
+- Cast argument to proper types in more functions
+- Handle null callbacks in Array functions
+- Add a stub for the Class class
+- Properly implement Error properties
+- Create flash.desktop stub
+- Create flash.desktop.NativeApplication singleton on startup
+- Add a bunch of dunder methods for as3lib types
+- Allow classes to define a __each__ method to customise the behaviour of the each function
+- Better implement flash.utils.Dictionary
+- Use ctypes internally for int, uint, and Number instead of manually doing bounds checking
+- Clean up Array.sort
+- Partially implement RegExp
+- Better NaN detection
+- Remove a bunch of unnecessary error handling
+- Handle NaN in Number.__bool__
+- Don't capitalise int class
+- Partially implement Object item assignment
+- Fix int.toExponential and int.toFixed
+- Make uint a subclass of int and remove all unecessary uint methods
+- Implement Number.toExponential and Number.toFixed
+- Fix Number.toString exponent
+- Add functions for stricteq and strictneq
+- Store tkinter.Tk inside of NativeApplication
+- Store opened windows inside of NativeApplication
+- Add fl.containers and fl.controls stub
+- Recombine most toplevel classes and functions into _toplevel.__init__
+- Move isValidDirectory and isChildClass to helpers.py
+- Return as3lib types in more functions
