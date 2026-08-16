@@ -1,12 +1,13 @@
 from __future__ import annotations
 import builtins
-from ctypes import c_double, c_uint32, c_int32
+from ctypes import c_double, c_uint16, c_uint32, c_int32
 import datetime
 from functools import cmp_to_key, wraps
 from io import StringIO
 import math
 import random
 import re as regex
+import sys
 import time
 import traceback
 
@@ -1349,9 +1350,6 @@ class Number(Object):
         precision = uint(precision)
         raise NotImplementedError
 
-    def toLocaleString(self):
-        return self.toString()
-
     def toString(self, radix=10):
         if math.isnan(self):
             return String('NaN')
@@ -1377,6 +1375,8 @@ class Number(Object):
                 return String('{:f}'.format(self._value))
             return String('{:f}'.format(self._value).strip('0'))
         return String(_exponentFixNum('%s' % self._value))
+
+    toLocaleString = toString
 
     def valueOf(self):
         return self._value
@@ -1607,6 +1607,8 @@ class int(Object):
     def toString(self, radix: uint = 10):
         if radix <= 36 and radix >= 2:
             return String(_as_base(self._value, radix))
+
+    toLocaleString = toString
 
     def valueOf(self):
         return self._value
@@ -1940,6 +1942,9 @@ class Vector(list, Object):
     '''
     @staticmethod
     def _convertToType(obj, type):
+        # TODO: superclass property
+        if isinstance(type, _VectorType):
+            return type(obj)
         if obj is null or isinstance(obj, type):
             return obj
         return type(obj)
@@ -1954,11 +1959,9 @@ class Vector(list, Object):
 
     def __init__(self, length=0, fixed=False, **kwargs):
         self._type = kwargs['type']
-        if isinstance(self._type, _VectorType):
-            # TODO:
-            raise NotImplementedError('Vector.<Vector.<...>>')
 
-        if isinstance(length, list):  # Function behaviour
+        # Function behaviour
+        if isinstance(length, (list, tuple, Array, Vector)):
             # TODO: Make sure this works properly
             if isinstance(length, Vector):
                 self._fixed = length.fixed
@@ -1966,7 +1969,9 @@ class Vector(list, Object):
             self._fixed = False
             self._superclass = True
             super().__init__([Vector._convertToType(i, self._type) for i in each(length)])
-        else:  # Constructor behaviour
+
+        # Constructor behaviour
+        else:
             self._superclass = False
             self._fixed = fixed
             super().__init__((null for i in range(length)))
@@ -2029,7 +2034,12 @@ class Vector(list, Object):
         return super().__getitem__(item)
 
     def __setitem__(self, item, value):
-        super().__setitem__(item, Vector._convertToType(value, self._type))
+        if item == self.length and not self.fixed:
+            # Vectors, unlike Arrays, can only set values at an index less
+            # than or equal their length
+            self.append(Vector._convertToType(value, self._type))
+        else:
+            super().__setitem__(item, Vector._convertToType(value, self._type))
 
     def concat(self, *args):
         temp = Vector[self._type](self)
@@ -2151,7 +2161,18 @@ class Vector(list, Object):
         raise NotImplementedError
 
     def toLocaleString(self):
-        raise NotImplementedError
+        with StringIO() as out:
+            n = self.length
+            for i in range(n):
+                x = self[i]
+                if x is not undefined and x is not null:
+                    if hasattr(x, 'toLocaleString'):
+                        out.write(str(x.toLocaleString()))
+                    else:
+                        out.write(str(x))
+                if i + 1 < n:
+                    out.write(',')
+            return String(out.getvalue())
 
     def toString(self):
         return Vector._join(self)
