@@ -5,10 +5,10 @@ from as3lib.flash.events import ErrorEvent, Event
 
 # Classes
 class ListEvent(Event):
-    ITEM_CLICK = 'itemClick'
-    ITEM_DOUBLE_CLICK = 'itemDoubleClick'
-    ITEM_ROLL_OUT = 'itemRollOut'
-    ITEM_ROLL_OVER = 'itemRollOver'
+    ITEM_CLICK = String('itemClick')
+    ITEM_DOUBLE_CLICK = String('itemDoubleClick')
+    ITEM_ROLL_OUT = String('itemRollOut')
+    ITEM_ROLL_OVER = String('itemRollOver')
 
     @property
     def columnIndex(self):
@@ -46,10 +46,10 @@ class ListEvent(Event):
 
 
 class ColorPickerEvent(Event):
-    CHANGE = 'change'
-    ENTER = 'enter'
-    ITEM_ROLL_OUT = 'itemRollOut'
-    ITEM_ROLL_OVER = 'itemRollOver'
+    CHANGE = String('change')
+    ENTER = String('enter')
+    ITEM_ROLL_OUT = String('itemRollOut')
+    ITEM_ROLL_OVER = String('itemRollOver')
 
     @property
     def color(self):
@@ -68,13 +68,13 @@ class ColorPickerEvent(Event):
 
 
 class ComponentEvent(Event):
-    BUTTON_DOWN = 'buttonDown'  # bubbles=False, cancelable=False
-    ENTER = 'enter'  # bubbles=False, cancelable=False
-    HIDE = 'hide'  # bubbles=False, cancelable=False
-    LABEL_CHANGE = 'labelChange'  # bubbles=False, cancelable=False
-    MOVE = 'move'  # bubbles=False, cancelable=False
-    RESIZE = 'resize'  # bubbles=False, cancelable=False
-    SHOW = 'show'  # bubbles=False, cancelable=False
+    BUTTON_DOWN = String('buttonDown')
+    ENTER = String('enter')
+    HIDE = String('hide')
+    LABEL_CHANGE = String('labelChange')
+    MOVE = String('move')
+    RESIZE = String('resize')
+    SHOW = String('show')
 
     def __init__(self, type: String, bubbles: Boolean = false,
                  cancelable: Boolean = false):
@@ -89,8 +89,8 @@ class ComponentEvent(Event):
 
 
 class DataChangeEvent(Event):
-    DATA_CHANGE = 'dataChange'
-    PRE_DATA_CHANGE = 'preDataChange'
+    DATA_CHANGE = String('dataChange')
+    PRE_DATA_CHANGE = String('preDataChange')
 
     @property
     def changeType(self):
@@ -127,24 +127,24 @@ class DataChangeEvent(Event):
 
 
 class DataChangeType(Object):
-    ADD = 'add'
-    CHANGE = 'change'
-    INVALIDATE = 'invalidate'
-    INVALIDATE_ALL = 'invalidateAll'
-    REMOVE = 'remove'
-    REMOVE_ALL = 'removeAll'
-    REPLACE = 'replace'
-    SORT = 'sort'
+    ADD = String('add')
+    CHANGE = String('change')
+    INVALIDATE = String('invalidate')
+    INVALIDATE_ALL = String('invalidateAll')
+    REMOVE = String('remove')
+    REMOVE_ALL = String('removeAll')
+    REPLACE = String('replace')
+    SORT = String('sort')
 
 
 class DataGridEvent(ListEvent):
-    COLUMN_STRETCH = 'columnStretch'
-    HEADER_RELEASE = 'headerRelease'
-    ITEM_EDIT_BEGIN = 'itemEditBegin'
-    ITEM_EDIT_BEGINNING = 'itemEditBeginning'
-    ITEM_EDIT_END = 'itemEditEnd'
-    ITEM_FOCUS_IN = 'itemFocusIn'
-    ITEM_FOCUS_OUT = 'itemFocusOut'
+    COLUMN_STRETCH = String('columnStretch')
+    HEADER_RELEASE = String('headerRelease')
+    ITEM_EDIT_BEGIN = String('itemEditBegin')
+    ITEM_EDIT_BEGINNING = String('itemEditBeginning')
+    ITEM_EDIT_END = String('itemEditEnd')
+    ITEM_FOCUS_IN = String('itemFocusIn')
+    ITEM_FOCUS_OUT = String('itemFocusOut')
 
     @property
     def dataField(self):
@@ -183,19 +183,19 @@ class DataGridEvent(ListEvent):
 
 
 class DataGridEventReason(Object):
-    CANCELED = 'cancelled'
-    NEW_COLUMN = 'newColumn'
-    NEW_ROW = 'newRow'
-    OTHER = 'other'
+    CANCELED = String('cancelled')
+    NEW_COLUMN = String('newColumn')
+    NEW_ROW = String('newRow')
+    OTHER = String('other')
 
 
 class InteractionInputType(Object):
-    KEYBOARD = 'keyboard'
-    MOUSE = 'mouse'
+    KEYBOARD = String('keyboard')
+    MOUSE = String('mouse')
 
 
 class RSLErrorEvent(ErrorEvent):
-    RSL_LOAD_FAILED = 'rslLoadFailed'
+    RSL_LOAD_FAILED = String('rslLoadFailed')
 
     @property
     def failedURLs(self):
@@ -226,8 +226,8 @@ class RSLErrorEvent(ErrorEvent):
 
 
 class RSLEvent(Event):
-    RSL_LOAD_COMPLETE = 'rslLoadComplete'
-    RSL_PROGRESS = 'rslProgress'
+    RSL_LOAD_COMPLETE = String('rslLoadComplete')
+    RSL_PROGRESS = String('rslProgress')
 
     @property
     def bytesLoaded(self):
@@ -262,7 +262,7 @@ class RSLEvent(Event):
 
 
 class ScrollEvent(Event):
-    SCROLL = 'scroll'
+    SCROLL = String('scroll')
 
     @property
     def delta(self):
@@ -292,10 +292,10 @@ class ScrollEvent(Event):
 
 
 class SliderEvent(Event):
-    CHANGE = 'change'
-    THUMB_DRAG = 'thumbDrag'
-    THUMB_PRESS = 'thumbPress'
-    THUMB_RELEASE = 'thumbRelease'
+    CHANGE = String('change')
+    THUMB_DRAG = String('thumbDrag')
+    THUMB_PRESS = String('thumbPress')
+    THUMB_RELEASE = String('thumbRelease')
 
     @property
     def clickTarget(self):
@@ -332,5 +332,5 @@ class SliderEvent(Event):
 
 
 class SliderEventClickTarget(Object):
-    THUMB = 'thumb'
-    TRACK = 'track'
+    THUMB = String('thumb')
+    TRACK = String('track')
