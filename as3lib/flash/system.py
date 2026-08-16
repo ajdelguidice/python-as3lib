@@ -1,15 +1,16 @@
 from as3lib import as3state, false, int, Number, Object, String, true
 from as3lib.helpers import staticproperty
+from as3lib.flash.events import EventDispatcher
 from functools import cache
 import platform
 import sys
 
 
-class ApplicationDomain:
+class ApplicationDomain(Object):
     ...
 
 
-class Capabilities:
+class Capabilities(Object):
     # TODO: get actual values
     # TODO: document changes from original
 
@@ -20,12 +21,14 @@ class Capabilities:
 
     @staticproperty
     @cache
-    def cpuAddressSize(cls):  # returns 32 (32bit system) or 64 (64bit system)
+    def cpuAddressSize(cls):
+        # returns 32 (32bit system) or 64 (64bit system)
         return Number(platform.architecture()[0][:-3])
 
     @staticproperty
     @cache
-    def cpuArchitecture(cls):  # returns 'PowerPC','x86','SPARC',or 'ARM'
+    def cpuArchitecture(cls):
+        # returns 'PowerPC','x86','SPARC', or 'ARM'
         if platform.machine() in {'x86', 'x86_64', 'AMD64'}:
             return String('x86')
         if platform.machine() == 'PowerPC':
@@ -196,62 +199,89 @@ def fscommand(command, args=''):
 
 
 class ImageDecodingPolicy(Object):
-    ON_DEMAND = 'onDemand'
-    ON_LOAD = 'onLoad'
+    ON_DEMAND = String('onDemand')
+    ON_LOAD = String('onLoad')
 
 
-class IME:
+class IME(EventDispatcher):
     ...
 
 
 class IMEConversionMode(Object):
-    ALPHANUMERIC_FULL = 'ALPHANUMERIC_FULL'
-    ALPHANUMERIC_HALF = 'ALPHANUMERIC_HALF'
-    CHINESE = 'CHINESE'
-    JAPANESE_HIRAGANA = 'JAPANESE_HIRAGANA'
-    JAPANESE_KATAKANA_FULL = 'JAPANESE_KATAKANA_FULL'
-    JAPANESE_KATAKANA_HALF = 'JAPANESE_KATAKANA_HALF'
-    KOREAN = 'KOREAN'
-    UNKNOWN = 'UNKNOWN'
+    ALPHANUMERIC_FULL = String('ALPHANUMERIC_FULL')
+    ALPHANUMERIC_HALF = String('ALPHANUMERIC_HALF')
+    CHINESE = String('CHINESE')
+    JAPANESE_HIRAGANA = String('JAPANESE_HIRAGANA')
+    JAPANESE_KATAKANA_FULL = String('JAPANESE_KATAKANA_FULL')
+    JAPANESE_KATAKANA_HALF = String('JAPANESE_KATAKANA_HALF')
+    KOREAN = String('KOREAN')
+    UNKNOWN = String('UNKNOWN')
 
 
-class JPEGLoaderContex:
+class LoaderContext(Object):
     ...
 
 
-class LoaderContext:
+class JPEGLoaderContex(LoaderContext):
     ...
 
 
-class MessageChannel:
+class MessageChannel(EventDispatcher):
     ...
 
 
 class MessageChannelState(Object):
-    CLOSED = 'closed'
-    CLOSING = 'closing'
-    OPEN = 'open'
+    CLOSED = String('closed')
+    CLOSING = String('closing')
+    OPEN = String('open')
 
 
-class Security:
+class Security(Object):
     ...
 
 
-class SecurityDomain:
+class SecurityDomain(Object):
     ...
 
 
-class SecurityPanel:
-    ...
+class SecurityPanel(Object):
+    CAMERA = String('camera')
+    DEFAULT = String('default')
+    DISPLAY = String('display')
+    LOCAL_STORAGE = String('localStorage')
+    MICROPHONE = String('microphone')
+    PRIVACY = String('privacy')
+    SETTINGS_MANAGER = String('settingsManager')
 
 
-class System:
-    #freeMemory
-    #ime
-    #privateMemory
-    #totalMemory
-    #totalMemoryNumber
-    #useCodePage
+class System(Object):
+    @staticproperty
+    def freeMemory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def ime(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def privateMemory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def totalMemory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def totalMemoryNumber(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def useCodePage(cls):
+        raise NotImplementedError
+
+    @useCodePage.setter
+    def useCodePage(cls, value):
+        raise NotImplementedError
 
     def disposeXML():
         raise NotImplementedError
@@ -275,30 +305,30 @@ class System:
         raise NotImplementedError
 
 
-class SystemUpdater:
+class SystemUpdater(EventDispatcher):
     ...
 
 
 class SystemUpdaterType(Object):
-    DRM = 'drm'
-    SYSTEM = 'system'
+    DRM = String('drm')
+    SYSTEM = String('system')
 
 
 class TouchscreenType(Object):
-    FINGER = 'finger'
-    NONE = 'none'
-    STYLUS = 'stylus'
+    FINGER = String('finger')
+    NONE = String('none')
+    STYLUS = String('stylus')
 
 
-class Worker:
+class Worker(EventDispatcher):
     ...
 
 
-class WorkerDomain:
+class WorkerDomain(Object):
     ...
 
 
 class WorkerState(Object):
-    NEW = 'new'
-    RUNNING = 'running'
-    TERMINATED = 'terminated'
+    NEW = String('new')
+    RUNNING = String('running')
+    TERMINATED = String('terminated')
