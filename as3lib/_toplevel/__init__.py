@@ -1939,40 +1939,10 @@ class Vector(list, Object):
     Use Vector[T] instead of Vector.<T>
     '''
     @staticmethod
-    def coercePythonToAs3Object(obj, type_):
-        # bool must go above int because bool isinstance of int
-        if isinstance(obj, bool):
-            return Boolean(obj)
-        if isinstance(obj, builtins.int):
-            if type_ is int:
-                return int(obj)
-            if type_ is uint:
-                return uint(obj)
-            return Number(obj)
-        if isinstance(obj, float):
-            return Number(obj)
-        if isinstance(obj, str):
-            return String(obj)
-
-        # Could not coerce object or object already as3
-        return obj
-
-    @staticmethod
-    def _checkTypeAll(arr, type_, superclass):
-        # TODO: Implements/Implementer
-        for i in each(arr):
-            Vector._checkType(i, type_, superclass)
-
-    @staticmethod
-    def _checkType(value, type_, superclass):
-        # TODO: Implements/Implementer
-        if value is not null:
-            if superclass:
-                if not isinstance(value, type_):
-                    raise TypeError('%s is not %s or subclass of %s' % (type(value), type_, type_))
-            else:
-                if type(value) is not type_:
-                    raise TypeError('%s is not %s' % (type(value), type_))
+    def _convertToType(obj, type):
+        if obj is null or isinstance(obj, type):
+            return obj
+        return type(obj)
 
     def __class_getitem__(cls, value):
         '''
@@ -1995,9 +1965,7 @@ class Vector(list, Object):
                 self._superclass = length._superclass
             self._fixed = False
             self._superclass = True
-            length = [Vector.coercePythonToAs3Object(i, self._type) for i in each(length)]
-            Vector._checkTypeAll(length, self._type, self._superclass)
-            super().__init__(length)
+            super().__init__([Vector._convertToType(i, self._type) for i in each(length)])
         else:  # Constructor behaviour
             self._superclass = False
             self._fixed = fixed
@@ -2061,9 +2029,7 @@ class Vector(list, Object):
         return super().__getitem__(item)
 
     def __setitem__(self, item, value):
-        value = Vector.coercePythonToAs3Object(value, self._type)
-        Vector._checkType(value, self._type, self._superclass)
-        super().__setitem__(item, value)
+        super().__setitem__(item, Vector._convertToType(value, self._type))
 
     def concat(self, *args):
         temp = Vector[self._type](self)
@@ -2195,8 +2161,7 @@ class Vector(list, Object):
             raise RangeError('unshift can not be called on a Vector with fixed set to true.')
         fillerArray = []
         for i in args:
-            fillerArray.append(Vector.coercePythonToAs3Object(i, self._type))
-            Vector._checkType(fillerArray[-1], self._type, self._superclass)
+            fillerArray.append(Vector._convertToType(i, self._type))
         tempVect = (*fillerArray, *each(self))
         self.clear()
         self.extend(tempVect)
