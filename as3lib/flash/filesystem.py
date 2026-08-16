@@ -1,93 +1,190 @@
-from as3lib import Array, Boolean, as3state, Object, String
+from as3lib import Array, as3state, Boolean, false, null, Object, String
 from as3lib.flash.events import EventDispatcher
 from as3lib.flash.net import FileReference
+from as3lib.helpers import staticproperty
+import os
 from subprocess import CalledProcessError, check_output
 
 
 class File(FileReference):
-    # applicationDirectory
-    # applicationStorageDirectory
-    # cacheDirectory
-    # desktopDirectory
-    # documentsDirectory
-    # downloaded
-    # exists
-    # icon
-    # isDirectory
-    # isHidden
-    # isPackage
-    # isSymbolicLink
-    # lineEnding
-    # nativePath
+    @staticproperty
+    def applicationDirectory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def applicationStorageDirectory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def cacheDirectory(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def desktopDirectory(cls):
+        return File(as3state.desktopdirectory)
+
+    @staticproperty
+    def documentsDirectory(cls):
+        return File(as3state.documentsdirectory)
+
+    @property
+    def download(self):
+        raise NotImplementedError
+
+    @download.setter
+    def download(self, value):
+        raise NotImplementedError
+
+    @property
+    def exists(self):
+        return Boolean(os.path.exists(self._path))
+
+    @property
+    def icon(self):
+        raise NotImplementedError
+
+    @property
+    def isDirectory(self):
+        return Boolean(os.path.isdir(self._path))
+
+    @property
+    def isHidden(self):
+        raise NotImplementedError
+
+    @property
+    def isPackage(self):
+        # MacOS specific feature
+        if as3state.platform == 'Darwin':
+            raise NotImplementedError
+        return false
+
+    @property
+    def isSymbolicLink(self):
+        return Boolean(os.path.isjunction(self._path) or os.path.islink(self._path))
+
+    @staticproperty
+    def lineEnding(cls):
+        if as3state.platform == 'Windows':
+            return String('\r\n')
+        return String('\n')
+
+    @property
+    def nativePath(self):
+        raise NotImplementedError
+
+    @nativePath.setter
+    def nativePath(self, value):
+        raise NotImplementedError
+
     # parent
-    # permissionStatus
-    # separator
-    # spaceAvailable
-    # systemCharset
-    # url
-    # userDirectory
-    def __init__(self, path: str):
+    @property
+    def parent(self):
+        return File(os.path.dirname(self._path))
+
+    @staticproperty
+    def permissionStatus(cls):
+        raise NotImplementedError
+
+    @property
+    def preventBackup(self):
+        raise NotImplementedError
+
+    @preventBackup.setter
+    def preventBackup(self, value):
+        raise NotImplementedError
+
+    @staticproperty
+    def separator(cls):
+        if as3state.platform == 'Windows':
+            return String('\\')
+        return String('/')
+
+    @property
+    def spaceAvailable(self):
+        raise NotImplementedError
+
+    @staticproperty
+    def systemCharset(cls):
+        raise NotImplementedError
+
+    @property
+    def url(self):
+        raise NotImplementedError
+
+    @url.setter
+    def url(self, value):
+        raise NotImplementedError
+
+    @staticproperty
+    def userDirectory(cls):
+        return File(as3state.userdirectory)
+
+    def __init__(self, path: String = null):
         # TODO: detect url path
         # TODO: convert path to native path and url
         # TODO: Throw exception ArguementError if path is invalid
         super().__init__()
-        self._filepath = path
+        self._path = os.path.abspath(path)
 
-    def browseForDirectory():
+    def __repr__(self):
+        return f'File("{self._path}")'
+
+    def browseForDirectory(self, title: String):
         raise NotImplementedError
 
-    def browseForOpen():
+    def browseForOpen(self, title: String, typeFilter: Array = null):
         raise NotImplementedError
 
-    def browseForOpenMultiple():
+    def browseForOpenMultiple(self, title: String, typeFilter: Array = null):
         raise NotImplementedError
 
-    def browseForSave():
+    def browseForSave(self, title: String):
         raise NotImplementedError
 
-    def cancel():
+    def cancel(self):
         raise NotImplementedError
 
-    def canonicalize():
+    def canonicalize(self):
         raise NotImplementedError
 
-    def clone():
+    def clone(self):
         raise NotImplementedError
 
-    def copyTo():
+    def copyTo(self, newLocation: FileReference, overwrite: Boolean = false):
         raise NotImplementedError
 
-    def copyToAsync():
+    def copyToAsync(self, newLocation: FileReference,
+                    overwrite: Boolean = false):
         raise NotImplementedError
 
-    def createDirectory():
+    def createDirectory(self):
         raise NotImplementedError
 
-    def createTempDirectory():
+    def createTempDirectory(self):
         raise NotImplementedError
 
-    def createTempFile():
+    def createTempFile(self):
         raise NotImplementedError
 
-    def deleteDirectory():
+    def deleteDirectory(self, deleteDirectoryContents: Boolean = false):
         raise NotImplementedError
 
-    def deleteDirectoryAsync():
+    def deleteDirectoryAsync(self, deleteDirectoryContents: Boolean = false):
         raise NotImplementedError
 
-    def deleteFile():
+    def deleteFile(self):
         raise NotImplementedError
 
-    def deleteFileAsync():
+    def deleteFileAsync(self):
         raise NotImplementedError
 
-    def getDirectoryListing():
+    def getDirectoryListing(self):
         raise NotImplementedError
 
-    def getDirectoryListingAsync():
+    def getDirectoryListingAsync(self):
         raise NotImplementedError
 
-    def getRelativePath():
+    def getRelativePath(self, ref: FileReference, useDotDot: Boolean = false):
         raise NotImplementedError
 
     @staticmethod
@@ -110,28 +207,26 @@ class File(FileReference):
         elif as3state.platform in {'Linux', 'Darwin'}:
             return Array(File('/'))
 
-    def moveTo():
+    def moveTo(self, newLocation: FileReference, overwrite: Boolean = false):
         raise NotImplementedError
 
-    def moveToAsync():
+    def moveToAsync(self, newLocation: FileReference,
+                    overwrite: Boolean = false):
         raise NotImplementedError
 
-    def moveToTrash():
+    def moveToTrash(self):
         raise NotImplementedError
 
-    def moveToTrashAsync():
+    def moveToTrashAsync(self):
         raise NotImplementedError
 
-    def openWithDefaultApplication():
+    def openWithDefaultApplication(self):
         raise NotImplementedError
 
-    def requestPermission():
+    def requestPermission(self):
         raise NotImplementedError
 
-    def resolvePath():
-        raise NotImplementedError
-
-    def toString():
+    def resolvePath(self, path: String):
         raise NotImplementedError
 
 
