@@ -11,6 +11,7 @@ import sys
 import time
 import traceback
 
+from .. import as3state
 from as3lib._toplevel.trace import errorTrace
 from as3lib.helpers import function
 
@@ -1287,9 +1288,9 @@ class Number(Object):
         self._val.value = value
 
     def __init__(self, num=null):
-        if isinstance(num, float):
+        if not as3state.initdone:
             # NOTE: This is here because _as3lib_CoerceToNumberValue causes
-            #       problems during first module init
+            #       problems before all as3lib types are defined
             self._val = c_double(num)
         else:
             self._val = c_double(_as3lib_CoerceToNumberValue(num))
