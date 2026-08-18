@@ -1940,14 +1940,42 @@ class Vector(list, Object):
 
     Use Vector[T] instead of Vector.<T>
     '''
+    # TODO: Use correct arguement types
     @staticmethod
-    def _convertToType(obj, type):
-        # TODO: superclass property
+    def _convertToType(obj, type, isSuperclass):
         if isinstance(type, _VectorType):
             return type(obj)
-        if obj is null or isinstance(obj, type):
+        if obj is null or isSuperclass and isinstance(obj, type) or not isSuperclass and builtins.type(obj) is type:
             return obj
-        return type(obj)
+        try:
+            return type(obj)
+        except:
+            raise TypeError(f'Type Coercion failed: cannot convert {object.__repr__(obj)} to {type}', 1034)
+
+    @property
+    def fixed(self):
+        return self._fixed
+
+    @fixed.setter
+    def fixed(self, value):
+        self._fixed = Boolean(value)
+
+    @property
+    def length(self):
+        return uint(len(self))
+
+    @length.setter
+    def length(self, value):
+        if self.fixed:
+            raise RangeError('Can not set vector length while fixed is set to true.')
+        if value > 4294967296:
+            raise RangeError('New length outside of accepted range (0-4294967296).')
+        value = uint(value)
+        if len(self) > value:
+            while len(self) > value:
+                self.pop()
+        elif len(self) < value:
+            self.extend([null] * (value - len(self)))
 
     def __class_getitem__(cls, value):
         '''
@@ -1957,7 +1985,7 @@ class Vector(list, Object):
         '''
         return _VectorType(value)
 
-    def __init__(self, length=0, fixed=False, **kwargs):
+    def __init__(self, length=0, fixed: Boolean = false, **kwargs):
         self._type = kwargs['type']
 
         # Function behaviour
@@ -1966,15 +1994,15 @@ class Vector(list, Object):
             if isinstance(length, Vector):
                 self._fixed = length.fixed
                 self._superclass = length._superclass
-            self._fixed = False
+            self.fixed = false
             self._superclass = True
-            super().__init__([Vector._convertToType(i, self._type) for i in each(length)])
+            super().__init__([Vector._convertToType(i, self._type, self._superclass) for i in each(length)])
 
         # Constructor behaviour
         else:
             self._superclass = False
-            self._fixed = fixed
-            super().__init__((null for i in range(length)))
+            self.fixed = fixed
+            super().__init__([null] * length)
 
     def __iter__(self):
         return (i for i in range(len(self)))
@@ -1983,34 +2011,7 @@ class Vector(list, Object):
         return (self[i] for i in range(len(self)))
 
     def extend(self, iterable):
-        if self.fixed:
-            raise RangeError('Can not change vector length while fixed is set to true.')
         super().extend(each(iterable))
-
-    @property
-    def fixed(self):
-        return self._fixed
-
-    @fixed.setter
-    def fixed(self, value):
-        self._fixed = value
-
-    @property
-    def length(self):
-        return int(len(self))
-
-    @length.setter
-    def length(self, value):
-        if self.fixed:
-            raise RangeError('Can not set vector length while fixed is set to true.')
-        if value > 4294967296:
-            raise RangeError('New length outside of accepted range (0-4294967296).')
-        if len(self) > value:
-            while len(self) > value:
-                self.pop()
-        elif len(self) < value:
-            while len(self) < value:
-                self.append(null)
 
     @staticmethod
     def _join(o, sep=undefined):
@@ -2037,20 +2038,23 @@ class Vector(list, Object):
         if item == self.length and not self.fixed:
             # Vectors, unlike Arrays, can only set values at an index less
             # than or equal their length
-            self.append(Vector._convertToType(value, self._type))
+            self.append(Vector._convertToType(value, self._type, self._superclass))
         else:
-            super().__setitem__(item, Vector._convertToType(value, self._type))
+            super().__setitem__(item, Vector._convertToType(value, self._type, self._superclass))
+
+    def __delitem__(self, item):
+        raise NotImplementedError
 
     def concat(self, *args):
         temp = Vector[self._type](self)
         if len(args) > 0:
             for i in args:
-                if isinstance(i, Vector) and issubclass(i._type, self._type):
-                    temp.extend(i)
-                elif not isinstance(i, Vector):
+                if not isinstance(i, Vector):
                     raise TypeError('Vector.concat; One or more arguements are not of type Vector')
-                else:
+                # TODO: This check will not work with _VectorType
+                if not issubclass(i._type, self._type):
                     raise TypeError('Vector.concat; One or more arguements do not have a base type that can be converted to the current base type.')
+                temp.extend(i)
         temp.fixed = self.fixed
         return temp
 
@@ -2068,7 +2072,7 @@ class Vector(list, Object):
         tempVector._superclass = self._superclass
         for i in self:
             if callback(self[i], i, self):
-                tempVector.push(i)
+                tempVector.push(self[i])
         return tempVector
 
     def forEach(self, callback, thisObject=null):
@@ -2077,7 +2081,7 @@ class Vector(list, Object):
         for i in self:
             callback(self[i], i, self)
 
-    def indexOf(self, searchElement, fromIndex=0):
+    def indexOf(self, searchElement, fromIndex: int = 0):
         if fromIndex < 0:
             fromIndex = len(self) - fromIndex
         for i in range(fromIndex, len(self)):
@@ -2127,10 +2131,11 @@ class Vector(list, Object):
         self.extend(args)
         return len(self)
 
-    def removeAt(self, index):
+    def removeAt(self, index: int):
         if self.fixed:
             raise RangeError('removeAt can not be called on a Vector with fixed set to true.')
-        elif False:  # !Index out of bounds
+        index = int(index)
+        if index < -self.length or self.length and index > self.length - 1:
             raise RangeError('index is out of bounds.')
         return super().pop(index)
 
@@ -2143,7 +2148,7 @@ class Vector(list, Object):
             raise RangeError('shift can not be called on a Vector with fixed set to true.')
         return super().pop(0)
 
-    def slice(self):
+    def slice(self, startIndex: int = 0, endIndex: int = 16777215):
         raise NotImplementedError
 
     def some(self, callback, thisObject=null):
@@ -2154,10 +2159,10 @@ class Vector(list, Object):
                 return true
         return false
 
-    def sort(self):
+    def sort(self, sortBehavior):
         raise NotImplementedError
 
-    def splice(self):
+    def splice(self, startIndex: int, deleteCount: uint = null, *items):
         raise NotImplementedError
 
     def toLocaleString(self):
@@ -2182,7 +2187,7 @@ class Vector(list, Object):
             raise RangeError('unshift can not be called on a Vector with fixed set to true.')
         fillerArray = []
         for i in args:
-            fillerArray.append(Vector._convertToType(i, self._type))
+            fillerArray.append(Vector._convertToType(i, self._type, self._superclass))
         tempVect = (*fillerArray, *each(self))
         self.clear()
         self.extend(tempVect)
