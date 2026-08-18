@@ -1780,7 +1780,7 @@ class FunctionTests(as3libTestCase):
         self.assertEqual(parseFloat("1   Infinity"), Number(1))
 
         # invalid strings
-        self.assertNaN(parseFloat("BADBAD"))
+        self.assertNaN(parseFloat('BADBAD'))
         self.assertNaN(parseFloat(''))
         self.assertNaN(parseFloat('-'))
         self.assertEqual(parseFloat('0xff'), Number(0))
@@ -1807,7 +1807,7 @@ class FunctionTests(as3libTestCase):
         self.assertNaN(parseInt())
         self.assertNaN(parseInt(undefined))
         self.assertEqual(parseInt(undefined, 32), int(785077))
-        self.assertEqual(parseInt('undefined', 32), int(33790067563981))
+        self.assertEqual(parseInt('undefined', 32), Number(33790067563981))
         self.assertNaN(parseInt(''))
         self.assertEqual(parseInt('123'), int(123))
         self.assertEqual(parseInt('100', 10), int(100))
@@ -1834,12 +1834,12 @@ class FunctionTests(as3libTestCase):
         self.assertNaN(parseInt('++1'))
         self.assertEqual(parseInt('0x100', 36), int(1540944))
         self.assertEqual(parseInt(' 0x100', 36), int(1540944))
-        self.assertEqual(parseInt('0y100', 36), int(1597600))
-        self.assertEqual(parseInt(' 0y100', 36), int(1597600))
+        self.assertEqual(parseInt('0y100', 36), int(1587600))
+        self.assertEqual(parseInt(' 0y100', 36), int(1587600))
         self.assertEqual(parseInt('-0x100', 36), int(-1540944))
         self.assertEqual(parseInt(' -0x100', 36), int(-1540944))
-        self.assertEqual(parseInt('-0y100', 36), int(-1597600))
-        self.assertEqual(parseInt(' -0y100', 36), int(-1597600))
+        self.assertEqual(parseInt('-0y100', 36), int(-1587600))
+        self.assertEqual(parseInt(' -0y100', 36), int(-1587600))
         self.assertEqual(parseInt('-0x100'), int(-256))
         self.assertNaN(parseInt('0x-100'))
         self.assertNaN(parseInt(' 0x-100'))
@@ -3721,6 +3721,49 @@ class ObjectTests(as3libTestCase):
         obj = Object()
         self.assertIs(obj.valueOf(), obj)
 
+    def test_stored_properties(self):
+        # TODO: Const
+        class TestWithVars(Object):
+            prop  # public var
+            propDefault = 'y.propDefault resolved!'  # public var
+            propConst = 'y.propConst resolved!'  # public const
+
+        class ExtendedTest(TestWithVars):
+            prop2  # public var
+            prop2Default = 'z.prop2Default resolved!'  # public var
+            prop2Const = 'z.prop2Const resolved!'  # public const
+
+        x = Object()
+
+        x.prop = 'x.prop resolved!'
+        self.assertEqual(x.prop, 'x.prop resolved!')
+
+        y = TestWithVars()
+
+        y.prop = 'y.prop resolved!'
+        self.assertEqual(x.prop, 'y.prop resolved!')
+
+        self.assertEqual(y.propDefault, 'y.propDefault resolved!')
+        y.propDefault = 'y.propDefault overwritten!'
+        self.assertEqual(y.propDefault, 'y.propDefault overwritten!')
+
+        self.assertEqual(y.propConst, 'y.propConst resolved!')
+
+        z = ExtendedTest()
+
+        z.prop = 'z.prop resolved!'
+        self.assertEqual(z.prop, 'z.prop resolved!')
+
+        z.prop2 = 'z.prop2 resolved!'
+        self.assertEqual(z.prop2, 'z.prop2 resolved!')
+
+        self.assertEqual(z.propDefault, 'y.propDefault resolved!')
+        # trace(z.prop2Default) # TODO
+        z.propDefault = 'TEST FAIL: Default overrides should not affect other instances!'
+        self.assertEqual(y.propDefault, 'y.propDefault overwritten!')
+
+        self.assertEqual(z.propConst, 'y.propConst resolved!')
+
 
 class OperationTests(as3libTestCase):
     def test_add(self):
@@ -5590,7 +5633,7 @@ class StringTests(as3libTestCase):
 
         s = String('123456789')
         self.assertEqual(s.substr(), '123456789')
-        # trace(typeof s.slice()) -> string
+        # trace(typeof s.substr()) -> string
         self.assertSubstr(s, false, true, '1')
         self.assertSubstr(s, 4, -3, '')
         self.assertSubstr(s, 25, 29, '')
@@ -6600,12 +6643,15 @@ class VectorTests(as3libTestCase):
         v = Vector[int](Object({'length': 2, '0': 1, '1': '9'}))
         self.assertEqual(v.toString(), '1,9')
 
-        raise TestNotImplemented
-        v = Vector[int](null)  # => raises error with id 1034
+        # TODO: Check the error properties
+        with self.assertRaises():
+            v = Vector[int](null)  # => raises error with id 1034
 
-        v = Vector[int]('primative')  # => raises error with id 1034
+        with self.assertRaises():
+            v = Vector[int]('primative')  # => raises error with id 1034
 
-        v = Vector[int](500)  # => raises error with id 1034
+        with self.assertRaises():
+            v = Vector[int](500)  # => raises error with id 1034
 
     def test_coercion(self):
         a_bool = Vector[Boolean]([1, 2, 3, 4])
@@ -6725,22 +6771,21 @@ class VectorTests(as3libTestCase):
         self.assertEqual(c_vector[1][0], 5)
         self.assertEqual(c_vector[1][1], 16)
 
-        raise
-        '''
         class MyObject(Object):
             ...
 
         myobj_vec = Vector[MyObject]([])
 
+        raise TestNotImplemented
+
         try:
-            # TODO
-            cast: Vector.<int> = myobj_vec
+            cast = Vector[int](myobj_vec)
         except Exception as e:
+            # TODO
             # Replace the non-deterministic address value with a placeholder string.
-            var normalized = e.toString().replace(/@[0-9A-Fa-f]+/, "@ADDRESS")
-            trace("Caught error: " + normalized);
+            normalized = e.toString().replace(RegExp('/@[0-9A-Fa-f]+/'), "@ADDRESS")
+            # trace("Caught error: " + normalized);
             # => Caught error: TypeError: Error #1034: Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.
-        '''
 
     def test_concat(self):
         a_bool = Vector[Boolean]([true, false])
@@ -7033,7 +7078,16 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_int_delete(self):
-        raise TestNotImplemented
+        # NOTE: From the results of this test, it seems that delete on a Vector is a no-op
+        a = Vector[int]([2, 3])
+
+        self.assertArray(a, (2, 3), 2)
+
+        del a[0]
+        self.assertArray(a, (2, 3), 2)
+
+        del a[1]
+        self.assertArray(a, (2, 3), 2)
 
     def test_join(self):
         a_bool = Vector[Boolean]([true, false])
@@ -7377,7 +7431,7 @@ class VectorTests(as3libTestCase):
         self.assertEqual(a_bool.toString(), 'true,false')
         self.assertEqual(a_bool.toLocaleString(), '[object Boolean],[object Boolean]')
 
-        self.assertEqual(b_bool.toString(), 'false,true, false')
+        self.assertEqual(b_bool.toString(), 'false,true,false')
         self.assertEqual(b_bool.toLocaleString(), '[object Boolean],[object Boolean],[object Boolean]')
 
         self.assertEqual(c_bool.toString(), '')
@@ -7469,7 +7523,7 @@ class WTFJSTests(as3libTestCase):
 
     def test_fail(self):
         # Original (![] + [])[+[]] + (![] + [])[+!+[]] + ([![]] + [][[]])[+!+[] + [+[]]] + (![] + [])[!+[] + !+[]];
-        self.assertEqual((not Array() + Array())[+Array()] + (not Array() + Array())[+(not+Array())] + (Array(not Array()) + Array()[Array()])[+(not+Array()) + Array(+Array)] + (not Array() + Array())[not+Array() + (not+Array())], 'fail')
+        self.assertEqual(((not Array()) + Array())[+Array()] + ((not Array()) + Array())[+(not+Array())] + (Array(not Array()) + Array()[Array()])[+(not+Array()) + Array(+Array())] + ((not Array()) + Array())[not+Array() + (not+Array())], 'fail')
 
     def test_truthy_arry(self):
         self.assertTrue(not not Array())
@@ -7510,15 +7564,20 @@ class WTFJSTests(as3libTestCase):
         '''
         self.assertEqual(Array(), String())
         self.assertEqual(Array(), Number(0))
-        self.assertEqual(Array(['']), String())
-        self.assertEqual(Array([0]), Number(0))
-        self.assertNotEqual(Array([0]), String())
-        self.assertEqual(Array(['']), Number(0))
 
-        self.assertEqual(Array([null]), String())
-        self.assertEqual(Array([null]), Number(0))
-        self.assertEqual(Array([undefined]), String())
-        self.assertEqual(Array([undefined]), Number(0))
+        self.assertEqual(Array(''), String())
+        self.assertEqual(Array(''), Number(0))
+
+        a = Array(1)
+        a[0] = 0
+        self.assertEqual(a, Number(0))
+        self.assertNotEqual(a, String())
+
+        self.assertEqual(Array(null), String())
+        self.assertEqual(Array(null), Number(0))
+
+        self.assertEqual(Array(undefined), String())
+        self.assertEqual(Array(undefined), Number(0))
 
         self.assertEqual(Array(Array(Array(Array(Array(Array()))))), String())
         self.assertEqual(Array(Array(Array(Array(Array(Array()))))), Number(0))
@@ -7545,9 +7604,9 @@ class WTFJSTests(as3libTestCase):
         self.assertEqual(parseInt('06'), 6)
         # parseInt("08"); // 8 if support ECMAScript 5
         # parseInt("08"); // 0 if not support ECMAScript 5
-        self.assertEqual(parseInt(0.000001), 0)
-        self.assertEqual(parseInt(0.0000001), 1)
-        self.assertEqual(parseInt(1 / 1999999), 5)
+        self.assertEqual(parseInt(Number(0.000001)), 0)
+        self.assertEqual(parseInt(Number(0.0000001)), 1)  # TODO: This won't work until number.toString works properly
+        self.assertEqual(parseInt(Number(1 / 1999999)), 5)
 
     def test_funny_math(self):
         '''
@@ -7659,33 +7718,16 @@ class XMLTests(as3libTestCase):
         self.assertEqual(xml.child('XXXXX').length(), 0)
         self.assertEqual(xml.child('*').length(), 3)
 
-        raise TestNotImplemented
-
-        #for each (var child in xml.child("foo")) {
-        #trace('child("foo") toString: '  + child.toString());
-        #}
-        # => 'foo1', 'foo2'
-        #for each (var child in xml.child("bar")) {
-        #trace('child("bar") toString: '  + child.toString());
-        #}
-        # => 'bar1'
-        #for each (var child in xml.child("*")) {
-        #trace('child("*") toString: '  + child.toString());
-        #}
-        # => 'foo1', 'bar1', 'foo2'
+        self.assertArray([child.toString() for child in each(xml.child('foo'))], ['foo1', 'foo2'], 2)
+        self.assertArray([child.toString() for child in each(xml.child('bar'))], ['bar1'], 1)
+        self.assertArray([child.toString() for child in each(xml.child('*'))], ['foo1', 'bar1', 'foo2'], 3)
 
         nested = XML("<x><a b='c'><b>bbb</b></a></x>")
         self.assertEqual(nested.child("a").length(), 1)
         self.assertEqual(nested.child("b").length(), 0)
 
-        #for each (var child in nested.child("a")) {
-        #trace('child("a").@b: '  + child.@b);
-        #}
-        # => 'c'
-        #for each (var child in nested.child("b")) {
-        #trace('child("b") toString: '  + child.toString());
-        #}
-        # =>
+        self.assertArray([child['@b'] for child in nested.child('a')], ['c'], 1)
+        self.assertArray([child.toString() for child in nested.child('b')], [], 0)
 
         complex = XML('<xml>\n  <a>\n    <b>a1-b1</b><b>a1-b2</b>\n  </a>\n  <a>\n    <b>a2-b</b>\n       <c>a2-c</c>\n  </a>\n  <a/>\n</xml>')
         xml_list = XMLList(complex.a)
@@ -7699,15 +7741,12 @@ class XMLTests(as3libTestCase):
         self.assertXMLList(xml_list.child("c"), ['a2-c'])
         self.assertXMLList(xml_list.child("unknown"), [], 0)
 
-        #attrs = XML('<xml hello="world" foo="bar" />')
-        #trace('attrs.child("@unknown"):', attrs.child("@unknown"))
-        # =>
-        #trace('attrs.child("@hello"):', attrs.child("@hello"))
-        # => 'world'
-        #trace('attrs.child("@foo"):', attrs.child("@foo"))
-        # => 'bar'
-        #trace('attrs.child("@*"):', attrs.child("@*"))
-        # => 'worldbar'
+        # TODO: Convert these checks to check the real output type
+        attrs = XML('<xml hello="world" foo="bar" />')
+        self.assertEqual(attrs.child('@unknown').toString(), '')
+        self.assertEqual(attrs.child('@hello').toString(), 'world')
+        self.assertEqual(attrs.child('@foo').toString(), 'bar')
+        self.assertEqual(attrs.child('@*').toString(), 'worldbar')
 
     def test_childIndex(self):
         xml = XML('<xml>Test<a attr="123">a</a><b><x/>b</b></xml>')
@@ -7719,14 +7758,21 @@ class XMLTests(as3libTestCase):
         self.assertEqual(xml.b.x.childIndex(), 0)
         self.assertEqual(xml.b.children()[1].childIndex(), 1)
 
-        raise TestNotImplemented
-        # self.assertEqual(xml.a.@attr.childIndex(), -1)
+        self.assertEqual(xml.a['@attr'].childIndex(), -1)
 
     def test_children(self):
         raise TestNotImplemented
 
     def test_class_call(self):
-        raise TestNotImplemented
+        xml = XML('Some string')
+        self.assertEqual(xml.children().length(), 0)
+        self.assertEqual(xml.toString(), 'Some string')
+
+        complexXML = XML('<outer><inner><child>Hello</child></inner></outer>')
+        self.assertEqual(complexXML.children.length(), 1)
+        self.assertEqual(complexXML.name(), 'outer')
+
+        self.assertEqual(XMLList('<p>First element</p><p>Second element</p>').toString(), '<p>First element</p>\n<p>Second element</p>')
 
     def test_contains(self):
         raise TestNotImplemented
@@ -8035,10 +8081,62 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_unescaping(self):
-        raise TestNotImplemented
+        xml = XML('<data>A &amp; &#39; B</data>')
+        self.assertEqual(xml.children()[0].toString(), "A & ' B")
+
+        xml = XML('<data label="A &amp; &#39; B"></data>')
+        self.assertEqual(xml['@label'], "A & ' B")
+
+        xml = XML('<data>A & &thing; B</data>')
+        self.assertEqual(xml.children()[0].toString(), 'A & &thing; B')
+
+        xml = XML('<data label="A & &thing; B"></data>')
+        self.assertEqual(xml['@label'], 'A & &thing; B')
+
+        xml = XML('<data>A &&thing; B</data>')
+        self.assertEqual(xml.children()[0].toString(), 'A &&thing; B')
+
+        xml = XML('<data label="A &&thing; B"></data>')
+        self.assertEqual(xml['@label'], 'A &&thing; B')
+
+        xml = XML('<data>A &&&thing; B</data>')
+        self.assertEqual(xml.children()[0].toString(), 'A &&&thing; B')
+
+        xml = XML('<data label="A &&&thing; B"></data>')
+        self.assertEqual(xml['@label'], 'A &&&thing; B')
+
+        xml = XML('<data>A &&amp; B</data>')
+        self.assertEqual(xml.children()[0].toString(), 'A &&amp; B')
+
+        xml = XML('<data label="A &&amp; B"></data>')
+        self.assertEqual(xml['@label'], 'A &&amp; B')
+
+        xml = XML('<data>A &amp;&amp; B</data>')
+        self.assertEqual(xml.children()[0].toString(), 'A && B')
+
+        xml = XML('<data label="A &amp;&amp; B"></data>')
+        self.assertEqual(xml['@label'], 'A && B')
 
     def test_weird_ignores(self):
         raise TestNotImplemented
 
     def test_wildcard(self):
-        raise TestNotImplemented
+        xml = XML('<animals x="y" a="b"><animal id="1"><name>toto</name></animal><animal id="2"><name>piggy</name></animal></animals>')
+
+        # NOTE: According to the docs, xml.@<attr> is equivalent to xml['@<attr>']
+        #       so use that instead
+        #       xml.* should also probably be equivalent to xml.['*']
+        attrs = xml['@*']  # NOTE: This was xml.@*
+        self.assertArray([attr.name() for attr in each(attrs)], ('x', 'a'), 2)
+        self.assertArray([attr.name() for attr in each(xml.attribute('*'))], ('x', 'a'), 2)
+
+        children = xml['*']  # NOTE: This was xml.*
+        self.assertArray([child['@id'] for child in children], ('1', '2'), 2)
+        self.assertArray([child['@id'] for child in xml.child('*')], ('1', '2'), 2)
+
+
+        xml_list = xml.animal
+        self.assertEqual(Object.prototype.toString.call(xml_list), '[object XMLList]')
+
+        self.assertArray([child for child in xml_list['*']], ('toto', 'piggy'))
+
