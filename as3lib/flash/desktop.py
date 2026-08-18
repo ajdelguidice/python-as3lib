@@ -1,5 +1,6 @@
+from __future__ import annotations
 from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
-                    Object, String, true)
+                    Number, Object, String, true, Vector)
 from as3lib.flash.display import NativeWindow
 from as3lib.flash.events import Event, EventDispatcher, InvokeEvent
 from as3lib.flash.filesystem import File
@@ -14,27 +15,36 @@ class IFilePromise:
 
 
 # Classes
-class Clipboard:
+class Clipboard(Object):
     ...
 
 
-class ClipboardFormats:
+class ClipboardFormats(Object):
+    BITMAP_FORMAT = String('air:bitmap')
+    FILE_LIST_FORMAT = String('air:file list')
+    FILE_PROMISE_LIST_FORMAT = String('air:file promise list')
+    HTML_FORMAT = String('air:html')
+    RICH_TEXT_FORMAT = String('air:rtf')
+    TEXT_FORMAT = String('air:text')
+    URL_FORMAT = String('air:url')
+
+
+class ClipboardTransferMode(Object):
+    CLONE_ONLY = String('cloneOnly')
+    CLONE_PREFERRED = String('clonePreferred')
+    ORIGINAL_ONLY = String('originalOnly')
+    ORIGINAL_PREFERRED = String('originalPreferred')
+
+
+class Icon(EventDispatcher):
     ...
 
 
-class ClipboardTransferMode:
+class InteractiveIcon(Icon):
     ...
 
 
-class DockIcon:
-    ...
-
-
-class Icon:
-    ...
-
-
-class InteractiveIcon:
+class DockIcon(InteractiveIcon):
     ...
 
 
@@ -283,37 +293,110 @@ class NativeApplication(EventDispatcher):
                 self.exit()
 
 
-class NativeDragActions:
+class NativeDragActions(Object):
+    COPY = String('copy')
+    LINK = String('link')
+    MOVE = String('move')
+    NONE = String('none')
+
+
+class NativeDragManager(Object):
     ...
 
 
-class NativeDragManager:
+class NativeDragOptions(Object):
     ...
 
 
-class NativeDragOptions:
+class NativeProcess(EventDispatcher):
+    @staticproperty
+    def isSupported(self):
+        raise NotImplementedError
+
+    @property
+    def running(self):
+        raise NotImplementedError
+
+    @property
+    def standardError(self):
+        raise NotImplementedError
+
+    @property
+    def standardInput(self):
+        raise NotImplementedError
+
+    @property
+    def standardOutput(self):
+        raise NotImplementedError
+
+    def __init__(self):
+        raise NotImplementedError
+
+    def closeInput(self):
+        raise NotImplementedError
+
+    def exit(self, force: Boolean = false):
+        raise NotImplementedError
+
+    def start(self, info: NativeProcessStartupInfo):
+        raise NotImplementedError
+
+
+class NativeProcessStartupInfo(Object):
+    @property
+    def arguments(self):
+        return self._arguments
+
+    @arguments.setter
+    def arguments(self, value):
+        self._arguments = Vector[String](value)
+
+    @property
+    def executable(self):
+        return self._executable
+
+    @executable.setter
+    def executable(self, value):
+        if value is null:
+            raise ArgumentError
+        if not isinstance(value, File):
+            value = File(value)
+        if value.isDirectory or not value.exists:
+            raise ArgumentError
+        self._executable = value
+
+    @property
+    def workingDirectory(self):
+        return self._workingDirectory
+
+    @workingDirectory.setter
+    def workingDirectory(self, value):
+        if not isinstance(value, File):
+            value = File(value)
+        if not (value.isDirectory and value.exists):
+            raise ArgumentError
+        self._workingDirectory = value
+
+    def __init__(self):
+        self._arguments = null
+        self._executable = null
+        self._workingDirectory = null
+
+
+class NotificationType(Object):
+    CRITICAL = String('critical')
+    INFORMATION = String('information')
+
+
+class SystemIdleMode(Object):
+    KEEP_AWAKE = String('keepAwake')
+    NORMAL = String('normal')
+
+
+class SystemTrayIcon(InteractiveIcon):
+    MAX_TIP_LENGTH = Number(63)
     ...
 
 
-class NativeProcess:
-    ...
-
-
-class NativeProcessStartupInfo:
-    ...
-
-
-class NotificationType:
-    ...
-
-
-class SystemIdleMode:
-    ...
-
-
-class SystemTrayIcon:
-    ...
-
-
-class Updater:
+class Updater(Object):
     ...
