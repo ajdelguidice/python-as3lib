@@ -1,5 +1,5 @@
 from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
-                    Object, true)
+                    Object, String, true)
 from as3lib.flash.display import NativeWindow
 from as3lib.flash.events import Event, EventDispatcher, InvokeEvent
 from as3lib.flash.filesystem import File
@@ -39,13 +39,23 @@ class InteractiveIcon:
 
 
 class InvokeEventReason(Object):
-    LOGIN = 'login'
-    NOTIFICATION = 'notification'
-    OPEN_URL = 'openUrl'
-    STANDARD = 'standard'
+    LOGIN = String('login')
+    NOTIFICATION = String('notification')
+    OPEN_URL = String('openUrl')
+    STANDARD = String('standard')
 
 
 class NativeApplication(EventDispatcher):
+    # TODO: Event.ACTIVATE
+    # TODO: Event.EXITING
+    # TODO: Event.INVOKE
+    # TODO: Event.KEY_DOWN
+    # TODO: Event.KEY_UP
+    # TODO: Event.NETWORK_CHANGE
+    # TODO: Event.SUSPEND
+    # TODO: Event.USER_IDLE
+    # TODO: Event.USER_PRESENT
+
     @property
     def activeWindow(self):
         raise NotImplementedError
@@ -85,6 +95,7 @@ class NativeApplication(EventDispatcher):
     @idleThreshold.setter
     def idleThreshold(self, value):
         # TODO: Type coersion
+        value = int(value)
         if value < 5 or value > 86400:
             raise ArgumentError('value must be between 5 and 86400 (inclusive).')
         self._idleThreshold = value
@@ -174,6 +185,7 @@ class NativeApplication(EventDispatcher):
         self._autoExit = true
         self._execInBackground = false
         self._idleThreshold = int(300)
+
         # Using a dictionary is fine here because the public property is
         # readonly
         self._openedWindows = {}
@@ -198,10 +210,12 @@ class NativeApplication(EventDispatcher):
         raise NotImplementedError
 
     def dispatchEvent(self, event):
-        raise NotImplementedError
+        # TODO: This is overriden. Figure out what it does differently
+        super().dispatchEvent(event)
 
     def exit(self, errorCode: int = 0):
         # TODO: Make sure this is accurate
+        # TODO: Allow finishing current events before executing this one
         # NOTE: This will not work properly until everything is using NativeWindow
         exitPrevented = false
         for i in each(self._openedWindows):
@@ -252,7 +266,7 @@ class NativeApplication(EventDispatcher):
 
     def _invokeApplication(self):
         # TODO: do this when application starts
-        self.dispatchEvent(InvokeEvent('invoke', false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
+        self.dispatchEvent(InvokeEvent(Event.INVOKE, false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
 
     def _addWindow(self, id, window):
         # Temporary internal function to add a window to openedWindows
@@ -261,7 +275,12 @@ class NativeApplication(EventDispatcher):
     def _removeWindow(self, id):
         del self._openedWindows[id]
         if self.autoExit and not self.openedWindows.length:
-            self.exit()
+            e = Event(Event.EXITING, false, true)
+            self.dispatchEvent(e)
+
+            # Canceling this event prevents the application from closing
+            if not e.isDefaultPrevented():
+                self.exit()
 
 
 class NativeDragActions:
