@@ -743,7 +743,7 @@ class Array(list, Object):
 
 
 class Boolean(Object):
-    __slots__ = ('_value')
+    __slots__ = '_value'
 
     def __init__(self, expression=False):
         self._value = self._Boolean(expression)
@@ -1276,8 +1276,6 @@ class VerifyError(Error):
 
 class Number(Object):
     __slots__ = '_val'
-    MAX_VALUE = 1.79e308
-    MIN_VALUE = 5e-324
 
     @property
     def _value(self):
@@ -1386,6 +1384,8 @@ class Number(Object):
 Infinity = Number.POSITIVE_INFINITY = Number(math.inf)
 NaN = Number.NaN = Number(math.nan)
 Number.NEGATIVE_INFINITY = Number(-math.inf)
+Number.MAX_VALUE = Number(1.79e308)
+Number.MIN_VALUE = Number(5e-324)
 
 
 class Math(Object):
@@ -1528,9 +1528,6 @@ class Math(Object):
 
 class int(Object):
     # TODO: Make this return a Number if the result is a float
-    MAX_VALUE = 2147483647
-    MIN_VALUE = -2147483648
-
     _buffertype = c_int32
 
     @property
@@ -1542,7 +1539,12 @@ class int(Object):
         self._val.value = value
 
     def __init__(self, value=0):
-        self._val = self._buffertype(_as3lib_CoerceToIntValue(value))
+        if not as3state.initdone:
+            # NOTE: This is here because _as3lib_CoerceToNumberValue causes
+            #       problems before all as3lib types are defined
+            self._val = self._buffertype(value)
+        else:
+            self._val = self._buffertype(_as3lib_CoerceToIntValue(value))
 
     def __float__(self):
         return float(self._value)
@@ -1615,15 +1617,20 @@ class int(Object):
         return self._value
 
 
+int.MAX_VALUE = int(2147483647)
+int.MIN_VALUE = int(-2147483648)
+
+
 class uint(int):
     # NOTE: The tests from ruffle show that uint doesn't really exist
-    MAX_VALUE = 4294967295
-    MIN_VALUE = 0
-
     _buffertype = c_uint32
 
     def __repr__(self):
         return 'uint(%s)' % self._value
+
+
+uint.MAX_VALUE = uint(4294967295)
+uint.MIN_VALUE = uint(0)
 
 
 class String(str, Object):
