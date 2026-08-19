@@ -55,6 +55,39 @@ class InvokeEventReason(Object):
     STANDARD = String('standard')
 
 
+class _as3lib_AboutWindow:
+    @property
+    def isOpen(self):
+        return self._isOpen
+
+    def __init__(self):
+        self._isOpen = False
+
+    def open(self, *e):
+        if self._isOpen:
+            self.toplevel.lift()
+            return
+
+        self.toplevel = tkinter.Toplevel()
+        self.toplevel.geometry('350x155')
+        self.toplevel.resizable(False, False)
+        self.toplevel.transient(as3state.nativeApplication._toolkitApplication)
+        self.toplevel.bind('<Destroy>', self._close)
+        self.label = tkinter.Label(self.toplevel, font=('TkTextFont', 9), anchor='w', justify='left', text=f'as3lib version: {as3state.__version__}\nReported flash version: {as3state.flashVersion}\nDebug mode: {as3state.as3DebugEnable}')
+        self.label.place(x=7, y=9, anchor='nw')
+        self.okButton = tkinter.Button(self.toplevel, text='OK', command=self.close)
+        self.okButton.place(x=299, y=115, width=29, height=29, anchor='nw')
+        self._isOpen = True
+
+    def _close(self, *e):
+        self._isOpen = False
+
+    def close(self, *e):
+        if self._isOpen:
+            self.toplevel.destroy()
+        self._close()
+
+
 class NativeApplication(EventDispatcher):
     # TODO: Event.ACTIVATE
     # TODO: Event.EXITING
@@ -203,6 +236,7 @@ class NativeApplication(EventDispatcher):
         self._timeSinceUserInput = int(0)
 
         self._toolkitApplication = None
+        self._aboutwindow = _as3lib_AboutWindow()
 
     def activate(self, window=null):
         raise NotImplementedError
