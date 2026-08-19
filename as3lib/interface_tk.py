@@ -900,7 +900,7 @@ class _itkDefaultAboutWindow:
 itkDefaultAboutWindow = _itkDefaultAboutWindow()
 
 
-class itkRoot(tkinter.Toplevel):
+class itkWindow(tkinter.Toplevel):
     '''
     This is a subclass of tkinter.Toplevel that provides extra functionality.
 
@@ -1202,11 +1202,8 @@ class itkRoot(tkinter.Toplevel):
     destroy = close
 
 
-def window(**kwargs):
-    '''
-    Provided for backwards compatibility.
-    '''
-    return itkRoot(**kwargs)
+# TODO: Remove in v15
+itkRoot = itkWindow
 
 
 if __name__ == '__main__':
@@ -1231,7 +1228,7 @@ if __name__ == '__main__':
 
     testfont = ('Times New Roman', 12)
 
-    root = window(width=1176, height=662, title='Adobe Flash Projector-like Window Demo', main=True)
+    root = itkWindow(width=1176, height=662, title='Adobe Flash Projector-like Window Demo', main=True)
     root.aboutwindow.text = f'Adobe Flash Projector-like window demo.\n\nPython {python_version()}'
     root.addButton('display', 'testbutton1', x=130, y=0, width=130, height=30, font=testfont, command=lambda: setattr(root._children['testtext'], 'background', test_cyclecolor()), text='st_colourtest')
     root.addLabel('display', 'testlabel1', x=0, y=30, width=100, height=20, font=testfont, text='TestLabel')
