@@ -18,17 +18,8 @@ static PyObject * itk_windowcalculate(PyObject *self, PyObject *args) {
    return PyFloat_FromDouble(itkwcalc(nw,nh,sw,sh));
 };
 
-static PyObject * itk_windowresizefont(PyObject *self, PyObject *args) {
-   int font;
-   float mult;
-   if (!PyArg_ParseTuple(args, "if", &font, &mult))
-      return NULL;
-   return PyLong_FromLong((long)round(font*mult*0.01));
-};
-
 static PyMethodDef cmathMethods[] = {
-   {"calculate", itk_windowcalculate, METH_VARARGS, "window.calculate function in the interface_tk module."},
-   {"resizefont", itk_windowresizefont, METH_VARARGS, "window.resizefont function in the interface_tk module."}
+   {"calculate", itk_windowcalculate, METH_VARARGS, "window.calculate function in the interface_tk module."}
 };
 
 static struct PyModuleDef cmath = {
