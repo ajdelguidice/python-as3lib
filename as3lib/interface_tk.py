@@ -1,5 +1,5 @@
 # Temporary interface to help figure things out. A bit slow when too many things are defined.
-from as3lib import as3state, Error, isXMLName, trace
+from as3lib import as3state, Error, isXMLName
 from io import BytesIO
 import PIL.Image
 import tkinter
@@ -55,7 +55,7 @@ class itkBaseWidget:
         self.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=self._height*nm, anchor=self._anchor)
 
     def updateText(self):
-        self['font'] = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        self['font'] = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
 
     def updateBackground(self):
         self['background'] = self._bg
@@ -229,7 +229,7 @@ class itkHTMLScrolledText(itkBaseWidget, tkhtmlview.HTMLScrolledText):
     def updateText(self):
         self['state'] = 'normal'
         temp = ('<b>', '</b>') if self.bold else ('', '')
-        self.set_html(f'{temp[0]}<pre style="color: {self._fg}; background-color: {self._bg}; font-size: {cmath.resizefont(self._fontSize, self._window.fontmult)}px; font-family: {self._font}">{self._textCache}</pre>{temp[1]}')
+        self.set_html(f'{temp[0]}<pre style="color: {self._fg}; background-color: {self._bg}; font-size: {round(self._fontSize * self._window.mult)}px; font-family: {self._font}">{self._textCache}</pre>{temp[1]}')
         self['state'] = 'disabled'
 
     def updateBackground(self):
@@ -484,7 +484,7 @@ class ComboLabelWithRadioButtons(itkBaseWidget, tkinter.Label):
         super().__init__(_ComboLabelWithRadioButtons, master, **kwargs)
 
     def updateText(self):
-        temp = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        temp = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
         self['font'] = temp
         for i in self.radiobuttons:
             i['font'] = temp
@@ -538,7 +538,7 @@ class CheckboxWithLabel(itkBaseWidget, tkinter.Label):
         self.place(x=h, y=0, width=(self._width-self._height)*nm, height=h, anchor='nw')
 
     def updateText(self):
-        self['font'] = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        self['font'] = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
 
     def updateState(self):
         self['state'] = self._state
@@ -583,7 +583,7 @@ class CheckboxWithEntry(itkBaseWidget, tkinter.Entry):
         self.place(x=(self._indent+self._entrytextwidth)*nm, y=h, width=(self._width-self._indent-self._entrytextwidth)*nm, height=h, anchor='nw')
 
     def updateText(self):
-        temp = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        temp = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
         self['font'] = temp
         self.l1['font'] = temp
         self.l2['font'] = temp
@@ -658,7 +658,7 @@ class CheckboxWithCombobox(itkBaseWidget, Combobox):
         self.place(x=(self._indent+self._entrytextwidth)*nm, y=h, width=(self._width-self._indent-self._entrytextwidth)*nm, height=h, anchor='nw')
 
     def updateText(self):
-        temp = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        temp = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
         self.l1['font'] = temp
         self.l2['font'] = temp
         self['font'] = temp
@@ -734,7 +734,7 @@ class FileEntryBox(itkBaseWidget, tkinter.Entry):
         self.filebutton.place(x=(self._width-self._height)*nm, y=h, width=h, height=h, anchor='nw')
 
     def updateText(self):
-        temp = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        temp = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
         self.l1['font'] = temp
         self.l2['font'] = temp
         self['font'] = temp
@@ -786,14 +786,13 @@ class ComboEntryBox(itkBaseWidget, tkinter.Button):
     def update(self):
         nm = self._window.mult
         self.frame.place(x=self._x*nm, y=self._y*nm, width=self._width*nm, height=(self._height*self._rows)*nm, anchor=self._anchor)
-        for i, item in enumerate(self.labels):
-            item.place(x=-2*nm, y=i*self._height*nm, width=(self._textwidth+2)*nm, height=self._height*nm, anchor='nw')
-        for i, item in enumerate(self.entries):
-            item.place(x=self._textwidth*nm, y=i*self._height*nm, width=(self._width-(self._textwidth+self._buttonwidth)-1)*nm, height=self._height*nm, anchor='nw')
+        for i in range(self._rows):
+            self.labels[i].place(x=-2*nm, y=i*self._height*nm, width=(self._textwidth+2)*nm, height=self._height*nm, anchor='nw')
+            self.entries[i].place(x=self._textwidth*nm, y=i*self._height*nm, width=(self._width-(self._textwidth+self._buttonwidth)-1)*nm, height=self._height*nm, anchor='nw')
         self.place(x=(self._textwidth+(self._width-(self._textwidth+self._buttonwidth)))*nm, y=((self._rows-1)*self._height)*nm if self._rows > 1 else 0, width=self._buttonwidth*nm, height=self._height*nm, anchor='nw')
 
     def updateText(self):
-        temp = (self._font, cmath.resizefont(self._fontSize, self._window.fontmult), self._fontStyle)
+        temp = (self._font, round(self._fontSize * self._window.mult), self._fontStyle)
         for i in self.labels:
             i['font'] = temp
         for i in self.entries:
@@ -829,9 +828,8 @@ class itkDisplay(itkFrame):
 
 
 class itkImage:
-    __slots__ = ('_window', '_data', 'img', '_size')
-    def __init__(self, window, data, size):
-        self._window = window
+    __slots__ = ('_data', 'img', '_size')
+    def __init__(self, data, size):
         self._data = BytesIO(data)
         self.img = ''
         if size is None:
@@ -840,17 +838,15 @@ class itkImage:
                 self._size = (size[0], size[1])
         else:
             self._size = (size[0], size[1])
-        self.resize()
 
-    def resize(self, *e):
-        nm = self._window.mult
+    def resize(self, mult):
         with PIL.Image.open(self._data) as img:
-            img.thumbnail((self._size[0]*nm, self._size[1]*nm))
+            img.thumbnail((self._size[0]*mult, self._size[1]*mult))
             self.img = PIL.ImageTk.PhotoImage(img)
 
 
 class itkBlankImage:
-    __slots__ = ('img')
+    __slots__ = 'img'
     def __init__(self):
         self.img = ''
 
@@ -881,7 +877,7 @@ class itkWindow(tkinter.Toplevel):
         elif isinstance(fileorbytes, (str, BytesIO)):
             self._setIcon2(fileorbytes)
         else:
-            raise Error('[as3lib.interface_tk] itkRoot.icon set to an invalid value')
+            raise Error('[as3lib.interface_tk] itkWindow.icon set to an invalid value')
 
     icon = property(fset=_setIcon)
 
@@ -912,13 +908,8 @@ class itkWindow(tkinter.Toplevel):
         if self._mult == value:
             self._children['display'].update()
         else:
-            self._fontmult = value*100
             self._mult = value
             self.resizeChildren()
-
-    @property
-    def fontmult(self):
-        return self._fontmult
 
     @property
     def width(self):
@@ -967,7 +958,6 @@ class itkWindow(tkinter.Toplevel):
         ico = kwargs.pop('icon', DefaultIcon)
         tkinter.Toplevel.__init__(self, **kwargs)
         self._mult = 1
-        self._fontmult = 100
         self.geometry(f'{self._startwidth}x{self._startheight}')
         self.title(self._title)
         #self.maxsize(<width>, <height>)
@@ -1013,9 +1003,9 @@ class itkWindow(tkinter.Toplevel):
 
     def addWidget(self, widget, master: str, name: str, **kwargs):
         if not isXMLName(master):
-            raise Error('[as3lib.interface_tk] itkRoot.addWidget called with an invalid master')
+            raise Error('[as3lib.interface_tk] itkWindow.addWidget called with an invalid master')
         if not isXMLName(name):
-            raise Error('[as3lib.interface_tk] itkRoot.addWidget called with an invalid widget name')
+            raise Error('[as3lib.interface_tk] itkWindow.addWidget called with an invalid widget name')
         self._children[name] = widget(self._children[master], itkWindow=self, **kwargs)
         self._children[name].resize()
 
@@ -1043,8 +1033,9 @@ class itkWindow(tkinter.Toplevel):
         if size is not defined it is assumed to be the actual image size
         '''
         if name == '':
-            raise Error('[as3lib.interface_tk] itkRoot.addImage image_name can not be empty')
-        self.images[name] = itkImage(self, data, size)
+            raise Error('[as3lib.interface_tk] itkWindow.addImage image_name can not be empty')
+        self.images[name] = itkImage(data, size)
+        self.images[name].resize(self.mult)
 
     def addImageLabel(self, master: str, name: str, **kwargs):
         self.addWidget(itkImageLabel, master, name, **kwargs)
@@ -1078,7 +1069,7 @@ class itkWindow(tkinter.Toplevel):
 
     def resizeChildren(self):
         for i in self.images.values():
-            i.resize()
+            i.resize(self.mult)
         for i in self._children.values():
             i.resize()
 
@@ -1137,14 +1128,13 @@ class itkWindow(tkinter.Toplevel):
         '''
         w = kwargs.pop('width', None)
         h = kwargs.pop('height', None)
-        if w is not None and h is not None:
-            self.minsize(w, h)
-        elif w is not None:
-            self.minsize(w, int((w*self._startheight)/self._startwidth))
-        elif h is not None:
-            self.minsize(int((self._startwidth*h)/self._startheight), h)
-        else:
-            trace('Invalid type')
+        if w is None and h is None:
+            raise Error('[as3lib.interface_tk] itkWindow.minimumSize called with invalid arguments')
+        if h is None:
+            h = w * self._startheight / self._startwidth
+        if w is None:
+            w = h * self._startwidth / self._startheight
+        self.minsize(int(w), int(h))
 
     def mainloop(self):
         as3state.nativeApplication._toolkitApplication.mainloop()
@@ -1169,8 +1159,6 @@ itkRoot = itkWindow
 
 if __name__ == '__main__':
     # Test
-    from platform import python_version
-
     testcolor = 0
     fontBold = False
 
