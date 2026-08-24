@@ -4,6 +4,7 @@
 from io import StringIO
 from pathlib import PurePath
 import platform, sys
+from . import as3state
 
 
 class recursionDepth:
