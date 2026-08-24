@@ -49,7 +49,7 @@ if not as3state.initdone:
     # Set the default appdatadirectory
     import __main__
     if hasattr(__main__, '__file__'):
-        as3state.appdatadirectory = Path(__main__.__file__).resolve().parent
+        as3state.appdatadirectory = Path(os.path.dirname(__main__.__file__))
     else:  # Fall back to working directory
         as3state.appdatadirectory = Path.cwd()
 
