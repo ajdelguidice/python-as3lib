@@ -7,7 +7,6 @@ __version__ = 13
 platform = None  # Windows, Linux, or Darwin
 displayserver = None  # x11 or wayland (linux), x11 or native (darwin)
 librarydirectory = None  # full path to as3lib (this library)
-pythonversion = None  # version of python currently running
 startTime = None  # logs start time for flash.utils.getTimer
 nativeApplication = None  # The native application instance for the running application
 
