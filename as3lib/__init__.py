@@ -22,7 +22,7 @@ if not as3state.initdone:
         as3state._user = getpwuid(os.getuid())[0]
     as3state.separator = '\\' if as3state.platform == 'Windows' else '/'
     as3state.pythonversion = platform.python_version()
-    as3state.librarydirectory = Path(__file__).resolve().parent
+    as3state.librarydirectory = Path(os.path.dirname(__file__))
     as3state.userdirectory = Path.home()
     as3state.desktopdirectory = Path(os.environ.get('XDG_DESKTOP_DIR', as3state.userdirectory / 'Desktop'))
     as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR', as3state.userdirectory / 'Documents'))
