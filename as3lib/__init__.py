@@ -8,31 +8,6 @@ from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
 from pathlib import Path
 
 
-# Helper functions
-def traceFilePath_Flash(sysverOverride: tuple = None):
-    '''
-    These paths are defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
-    Arguements:
-        sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
-    '''
-    user = as3state._user
-    if sysverOverride:
-        if sysverOverride[0] == 'Linux':
-            return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
-        if sysverOverride[0] == 'Darwin':
-            return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
-        if sysverOverride[0] == 'Windows':
-            if sysverOverride[1] in {'95', '98', 'ME', 'XP'}:
-                return f'C:/Documents and Settings/{user}/Application Data/Macromedia/Flash Player/Logs/flashlog.txt'
-            return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
-    if as3state.platform == 'Linux':
-        return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
-    if as3state.platform == 'Windows':
-        return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
-    if as3state.platform == 'Darwin':
-        return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
-
-
 # Initialise as3lib
 if as3state.startTime is None:
     from miniamf import util
@@ -51,7 +26,6 @@ if not as3state.initdone:
     as3state.userdirectory = Path.home()
     as3state.desktopdirectory = Path(os.environ.get('XDG_DESKTOP_DIR', as3state.userdirectory / 'Desktop'))
     as3state.documentsdirectory = Path(os.environ.get('XDG_DOCUMENTS_DIR', as3state.userdirectory / 'Documents'))
-    as3state.defaultTraceFilePath_Flash = Path(traceFilePath_Flash())
 
     if as3state.platform == '':
         as3state.initerror.append('Could not determine current platform.')

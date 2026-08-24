@@ -5,7 +5,7 @@ Note to self: remove all of the things that could change outside of this library
 __version__ = 13
 
 platform = None  # Windows, Linux, or Darwin
-displayserver = None  # linux (x11 or wayland) or darwin (x11 or native) only
+displayserver = None  # x11 or wayland (linux), x11 or native (darwin)
 librarydirectory = None  # full path to as3lib (this library)
 pythonversion = None  # version of python currently running
 startTime = None  # logs start time for flash.utils.getTimer
@@ -31,7 +31,6 @@ TraceOutputFileName = None  # Path to the log
 as3DebugEnable = False  # State of debug mode
 CurrentWarnings = 0  # Current number of warnings
 MaxWarningsReached = False  # If the maximum number of warnings has been reached
-defaultTraceFilePath_Flash = None  # Default file path for trace output in flash
 appdatadirectory = None  # The path to the application specific data directory (must be set by the application, should not be set by other libraries)
 prototypes = {}  # Each class needs a global default instance of itself. Store it here
 

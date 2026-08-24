@@ -107,6 +107,30 @@ def isChildClass(obj, cls):
     return isinstance(obj, cls) or issubclass(obj, cls)
 
 
+def TraceFilePath_Flash(sysverOverride: tuple = None):
+    '''
+    These paths are defined by https://web.archive.org/web/20180227100916/helpx.adobe.com/flash-player/kb/configure-debugger-version-flash-player.html
+    Arguements:
+        sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
+    '''
+    user = as3state._user
+    if sysverOverride:
+        if sysverOverride[0] == 'Linux':
+            return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
+        if sysverOverride[0] == 'Darwin':
+            return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+        if sysverOverride[0] == 'Windows':
+            if sysverOverride[1] in {'95', '98', 'ME', 'XP'}:
+                return f'C:/Documents and Settings/{user}/Application Data/Macromedia/Flash Player/Logs/flashlog.txt'
+            return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
+    if as3state.platform == 'Linux':
+        return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
+    if as3state.platform == 'Windows':
+        return f'C:/Users/{user}/AppData/Roaming/Macromedia/Flash Player/Logs/flashlog.txt'
+    if as3state.platform == 'Darwin':
+        return f'/Users/{user}/Library/Preferences/Macromedia/Flash Player/Logs/flashlog.txt'
+
+
 if platform.system() == 'Windows':
     BlacklistedChars = {'<', '>', ':', '"', '\\', '/', '|', '?', '*', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''}
     BlacklistedNames = {'CON', 'PRN', 'AUX', 'NUL', 'COM0', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM¹', 'COM²', 'COM³', 'LPT0', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9', 'LPT¹', 'LPT²', 'LPT³'}
