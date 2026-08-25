@@ -742,7 +742,7 @@ class TimerTests(as3libTestCase):
         t.addEventListener('timerComplete', timerComplete)
         t.start()
 
-        sleep(0.3)
+        sleep(0.3)  # Wait for timer to finish
 
         self.assertEqual(self.eventOrder, 'TTC')
 
