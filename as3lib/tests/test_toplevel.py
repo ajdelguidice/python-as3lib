@@ -7634,7 +7634,7 @@ class WTFJSTests(as3libTestCase):
 
         self.assertEqual(String('') + String(''), String(''))
         self.assertEqual(Array() + Array(), String(''))
-        self.assertEqual(Object() + Array(), Number(0))  # TODO: This seems to be wrong
+        self.assertEqual(Object() + Array(), String('[object Object]'))
         self.assertEqual(Array() + Object(), String('[object Object]'))
         self.assertEqual(Object() + Object(), String('[object Object][object Object]'))
 
@@ -7694,7 +7694,30 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_appendChild(self):
-        raise TestNotImplemented
+        XML.prettyPrinting = false
+        xml = XML('<a><child1/><child2/></a>')
+        self.assertEqual(xml.toString(), '<a><child1/><child2/></a>')
+        xmls = XML('<root><child3/><child4/></root>').children()
+        appended = xml.appendChild(xmls)
+        self.assertEqual(appended.toString(), '<a><child1/><child2/><child3/><child4/></a>')
+        self.assertEqual(xml.toString(), '<a><child1/><child2/><child3/><child4/></a>')
+        self.assertEqual(xml, appended)
+
+        xml.child3 = "4"
+        self.assertEqual(xmls.toString(), '<child3>4</child3>\n<child4/>')
+
+        xml.appendChild('qwerty')
+        self.assertEqual(xml.toString(), '<a><child1/><child2/><child3>4</child3><child4/><child4>qwerty</child4></a>')
+
+        o = Object()
+        o.key = 'value'
+        self.assertEqual(xml.appendChild(o).toString(), '<a><child1/><child2/><child3>4</child3><child4/><child4>qwerty</child4><child4>[object Object]</child4></a>')
+
+        xml2 = XML('<b>abcd</b>')
+        self.assertEqual(xml2.appendChild("text1").toXMLString(), '<b>abcdtext1</b>')
+
+        xml2 = XML('<b></b>')
+        self.assertEqual(xml2.appendChild("text2").toXMLString(), '<b>text2</b>')
 
     def test_appendChild_swf_v21(self):
         raise TestNotImplemented
