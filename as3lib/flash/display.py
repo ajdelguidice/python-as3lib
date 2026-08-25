@@ -401,19 +401,6 @@ class InteractiveObject(DisplayObject):
     def tabIndex(self, value):
         self._tabIndex = value
 
-    def _TOOLKITKEYDOWNEVENTHANDLER(self, event):
-        # TODO: Bind function to toolkit key_down event
-        # TODO: Convert toolkit key_down event into flash key_down event
-        # TODO: Fill in the placeholder values
-        # NOTE: cancelable in AIR but not in flash player
-        self.dispatchEvent(KeyboardEvent('keyDown', true, true, 'charCode', 'keyCode', 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
-
-    def _TOOLKITKEYUPEVENTHANDLER(self, event):
-        # TODO: Bind function to toolkit key_up event
-        # TODO: Convert toolkit key_up event into flash key_up event
-        # TODO: Fill in the placeholder values
-        self.dispatchEvent(KeyboardEvent('keyUp', true, false, 'charCode', 'keyCode', 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
-
     def __init__(self):
         super().__init__()
         self._accessImpl = AccessibilityImplementation()

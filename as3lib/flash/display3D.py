@@ -80,7 +80,19 @@ class textures:
     class RectagleTexture:
         ...
 
-    class Texture(textures.TextureBase):
+    class TextureBase:
+        def __init__(self):
+            self.dimensions = [None, None]  # width, height
+            self.format_ = None
+            self.data = None  # byteArray
+
+        def dispose():
+            """
+            Frees all GPU resources associated with this texture. After disposal, calling upload() or rendering with this object fails.
+            """
+            ...
+
+    class Texture(TextureBase):
         def __init__(self):
             raise NotImplementedError
 
@@ -98,18 +110,6 @@ class textures:
 
         def uploadFromByteArrayAsync(data, byteArrayOffset, miplevel=0):
             raise NotImplementedError
-
-    class TextureBase:
-        def __init__(self):
-            self.dimensions = [None, None]  # width, height
-            self.format_ = None
-            self.data = None  # byteArray
-
-        def dispose():
-            """
-            Frees all GPU resources associated with this texture. After disposal, calling upload() or rendering with this object fails.
-            """
-            ...
 
     class VideoTexture:
         ...

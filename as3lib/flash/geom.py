@@ -285,7 +285,7 @@ class Matrix(Object):
         self.ty += dy
 
 
-class Matrix3D:
+class Matrix3D(Object):
     '''
     | scaleX 0      0      tx |
     | 0      scaleY 0      ty |

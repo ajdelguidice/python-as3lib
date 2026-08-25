@@ -163,6 +163,9 @@ class _as3lib_listenerWeakReference:
     '''
     Internal listener weakReference implementation for EventDispatcher
     '''
+
+    __slots__ = ('listener', 'finalizer')
+
     def __init__(self, listener, storage):
         self.listener = weakref.ref(listener)
         self.finalizer = weakref.finalize(listener, partial(storage.removeListener, self))
