@@ -1,12 +1,276 @@
 from __future__ import annotations
 from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
-                    Number, Object, String, true, Vector)
+                    Number, Object, String, true, uint, Vector)
 from as3lib.flash.display import NativeWindow
 from as3lib.flash.events import Event, EventDispatcher, InvokeEvent
 from as3lib.flash.filesystem import File
+from as3lib.flash.ui import Keyboard
 from as3lib.helpers import staticproperty
 import sys
 import tkinter
+
+
+class _TOOLKITEVENT:
+    def TKGetKeyCode(event):
+        # NOTE: Can't easily use keycode here because keycodes are
+        #       platform specific. Using keysym, while incorrect for keyboards
+        #       that aren't US_QWERTY, is still better than having a different
+        #       conversion for each platform.
+        # TODO: Make this work on all keyboard types. This will be a lot
+        #       easier once tk is no longer used
+        keysym_num = event.keysym_num
+        if keysym_num == 65288:
+            return Keyboard.BACKSPACE
+        if keysym_num == 65289:
+            return Keyboard.TAB
+
+        if keysym_num == 65293:
+            return Keyboard.ENTER
+        if False:  # TODO
+            return Keyboard.COMMAND
+        if keysym_num in {65505, 65506}:
+            return Keyboard.SHIFT
+        if keysym_num in {65507, 65508}:
+            return Keyboard.CONTROL
+        if keysym_num in {65513, 65514}:
+            return Keyboard.ALTERNATE
+
+        if keysym_num == 65509:
+            return Keyboard.CAPS_LOCK
+        if False:  # TODO
+            return Keyboard.NUMPAD
+
+        if keysym_num == 65307:
+            return Keyboard.ESCAPE
+        if keysym_num == 32:
+            return Keyboard.SPACE
+        if keysym_num == 65365:
+            return Keyboard.PAGE_UP
+        if keysym_num == 65366:
+            return Keyboard.PAGE_DOWN
+        if keysym_num == 65367:
+            return Keyboard.END
+        if keysym_num == 65360:
+            return Keyboard.HOME
+        if keysym_num == 65361:
+            return Keyboard.LEFT
+        if keysym_num == 65362:
+            return Keyboard.UP
+        if keysym_num == 65363:
+            return Keyboard.RIGHT
+        if keysym_num == 65364:
+            return Keyboard.DOWN
+
+        if keysym_num == 65379:
+            return Keyboard.INSERT
+        if keysym_num == 65535:
+            return Keyboard.DELETE
+
+        if keysym_num in {41, 48}:  # ), 0
+            return Keyboard.NUMBER_0
+        if keysym_num in {33, 49}:  # !, 1
+            return Keyboard.NUMBER_1
+        if keysym_num in {64, 50}:  # @, 2
+            return Keyboard.NUMBER_2
+        if keysym_num in {35, 51}:  # #, 3
+            return Keyboard.NUMBER_3
+        if keysym_num in {36, 52}:  # $, 4
+            return Keyboard.NUMBER_4
+        if keysym_num in {37, 53}:  # %, 5
+            return Keyboard.NUMBER_5
+        if keysym_num in {94, 54}:  # ^, 6
+            return Keyboard.NUMBER_6
+        if keysym_num in {38, 55}:  # &, 7
+            return Keyboard.NUMBER_7
+        if keysym_num in {42, 56}:  # *, 8
+            return Keyboard.NUMBER_8
+        if keysym_num in {40, 57}:  # (, 9
+            return Keyboard.NUMBER_9
+
+        if keysym_num in {65, 97}:
+            return Keyboard.A
+        if keysym_num in {66, 98}:
+            return Keyboard.B
+        if keysym_num in {67, 99}:
+            return Keyboard.C
+        if keysym_num in {68, 100}:
+            return Keyboard.D
+        if keysym_num in {69, 101}:
+            return Keyboard.E
+        if keysym_num in {70, 102}:
+            return Keyboard.F
+        if keysym_num in {71, 103}:
+            return Keyboard.G
+        if keysym_num in {72, 104}:
+            return Keyboard.H
+        if keysym_num in {73, 105}:
+            return Keyboard.I
+        if keysym_num in {74, 106}:
+            return Keyboard.J
+        if keysym_num in {75, 107}:
+            return Keyboard.K
+        if keysym_num in {76, 108}:
+            return Keyboard.L
+        if keysym_num in {77, 109}:
+            return Keyboard.M
+        if keysym_num in {78, 110}:
+            return Keyboard.N
+        if keysym_num in {79, 111}:
+            return Keyboard.O
+        if keysym_num in {80, 112}:
+            return Keyboard.P
+        if keysym_num in {81, 113}:
+            return Keyboard.Q
+        if keysym_num in {82, 114}:
+            return Keyboard.R
+        if keysym_num in {83, 115}:
+            return Keyboard.S
+        if keysym_num in {84, 116}:
+            return Keyboard.T
+        if keysym_num in {85, 117}:
+            return Keyboard.U
+        if keysym_num in {86, 118}:
+            return Keyboard.V
+        if keysym_num in {87, 119}:
+            return Keyboard.W
+        if keysym_num in {88, 120}:
+            return Keyboard.X
+        if keysym_num in {89, 121}:
+            return Keyboard.Y
+        if keysym_num in {90, 122}:
+            return Keyboard.Z
+
+        if keysym_num in {65438, 65456}:
+            return Keyboard.NUMPAD_0
+        if keysym_num in {65436, 65457}:
+            return Keyboard.NUMPAD_1
+        if keysym_num in {65433, 65458}:
+            return Keyboard.NUMPAD_2
+        if keysym_num in {65435, 65459}:
+            return Keyboard.NUMPAD_3
+        if keysym_num in {65430, 65460}:
+            return Keyboard.NUMPAD_4
+        if keysym_num in {65437, 65461}:
+            return Keyboard.NUMPAD_5
+        if keysym_num in {65432, 65462}:
+            return Keyboard.NUMPAD_6
+        if keysym_num in {65429, 65463}:
+            return Keyboard.NUMPAD_7
+        if keysym_num in {65431, 65464}:
+            return Keyboard.NUMPAD_8
+        if keysym_num in {65434, 65465}:
+            return Keyboard.NUMPAD_9
+        if keysym_num == 65450:
+            return Keyboard.NUMPAD_MULTIPLY
+        if keysym_num == 65451:
+            return Keyboard.NUMPAD_ADD
+        if keysym_num == 65421:
+            return Keyboard.NUMPAD_ENTER
+        if keysym_num == 65453:
+            return Keyboard.NUMPAD_SUBTRACT
+        if keysym_num in {65454, 65439}:  # ., del
+            return Keyboard.NUMPAD_DECIMAL
+        if keysym_num == 65455:
+            return Keyboard.NUMPAD_DIVIDE
+
+        if keysym_num == 65470:
+            return Keyboard.F1
+        if keysym_num == 65471:
+            return Keyboard.F2
+        if keysym_num == 65472:
+            return Keyboard.F3
+        if keysym_num == 65473:
+            return Keyboard.F4
+        if keysym_num == 65474:
+            return Keyboard.F5
+        if keysym_num == 65475:
+            return Keyboard.F6
+        if keysym_num == 65476:
+            return Keyboard.F7
+        if keysym_num == 65477:
+            return Keyboard.F8
+        if keysym_num == 65478:
+            return Keyboard.F9
+        if keysym_num == 65479:
+            return Keyboard.F10
+        if keysym_num == 65480:
+            return Keyboard.F11
+        if keysym_num == 65481:
+            return Keyboard.F12
+        if False:  # TODO
+            return Keyboard.F13
+        if False:  # TODO
+            return Keyboard.F14
+        if False:  # TODO
+            return Keyboard.F15
+
+        if keysym_num == 65407:
+            return uint(144)
+
+        if keysym_num in {59, 58}:  # ;, :
+            return Keyboard.SEMICOLON
+        if keysym_num in {61, 43}:  # =, +
+            return Keyboard.EQUAL
+        if keysym_num in {44, 60}:  # ,, <
+            return Keyboard.COMMA
+        if keysym_num in {45, 95}:  # -, _
+            return Keyboard.MINUS
+        if keysym_num in {46, 62}:  # ., >
+            return Keyboard.PERIOD
+        if keysym_num in {47, 63}:  # /, ?
+            return Keyboard.SLASH
+        if keysym_num in {96, 126}:  # `, ~
+            return Keyboard.BACKQUOTE
+
+        if keysym_num in {91, 123}:  # [, {
+            return Keyboard.LEFTBRACKET
+        if keysym_num in {92, 124}:  # \, |
+            return Keyboard.BACKSLASH
+        if keysym_num in {93, 125}:  # ], }
+            return Keyboard.RIGHTBRACKET
+        if keysym_num in {39, 34}:  # ', "
+            return Keyboard.QUOTE
+
+        # TODO
+        '''
+        RED = uint(0x01000000)
+        GREEN = uint(0x01000001)
+        YELLOW = uint(0x01000002)
+        BLUE = uint(0x01000003)
+        CHANNEL_UP = uint(0x01000004)
+        CHANNEL_DOWN = uint(0x01000005)
+        RECORD = uint(0x01000006)
+        PLAY = uint(0x01000007)
+        PAUSE = uint(0x01000008)
+        STOP = uint(0x01000009)
+        FAST_FORWARD = uint(0x0100000A)
+        REWIND = uint(0x0100000B)
+        SKIP_FORWARD = uint(0x0100000C)
+        SKIP_BACKWARD = uint(0x0100000D)
+        NEXT = uint(0x0100000E)
+        PREVIOUS = uint(0x0100000F)
+        LIVE = uint(0x01000010)
+        LAST = uint(0x01000011)
+        MENU = uint(0x01000012)
+        INFO = uint(0x01000013)
+        GUIDE = uint(0x01000014)
+        EXIT = uint(0x01000015)
+        BACK = uint(0x01000016)
+        AUDIO = uint(0x01000017)
+        SUBTITLE = uint(0x01000018)
+        DVR = uint(0x01000019)
+        VOD = uint(0x0100001A)
+        INPUT = uint(0x0100001B)
+        SETUP = uint(0x0100001C)
+        HELP = uint(0x0100001D)
+        MASTER_SHELL = uint(0x0100001E)
+        SEARCH = uint(0x0100001F)
+        PLAY_PAUSE = uint(0x01000020)
+        '''
+
+        # Unknown keys get 0
+        # TODO: Determine what flash player does here
+        return 0
 
 
 # Interfaces
@@ -92,12 +356,15 @@ class NativeApplication(EventDispatcher):
     # TODO: Event.ACTIVATE
     # TODO: Event.EXITING
     # TODO: Event.INVOKE
-    # TODO: Event.KEY_DOWN
-    # TODO: Event.KEY_UP
     # TODO: Event.NETWORK_CHANGE
     # TODO: Event.SUSPEND
     # TODO: Event.USER_IDLE
     # TODO: Event.USER_PRESENT
+
+    # These events seem to originate from the NativeApplication and then make
+    # their way down to other things.
+    # TODO: Event.KEY_DOWN
+    # TODO: Event.KEY_UP
 
     @property
     def activeWindow(self):
@@ -301,12 +568,31 @@ class NativeApplication(EventDispatcher):
     def setAsDefaultApplication(self, extension):
         raise NotImplementedError
 
+    def _TOOLKITHANDLER_keyDown(self, event):
+        # TODO: Bind function to toolkit key_down event
+        # TODO: Convert toolkit key_down event into flash key_down event
+        # TODO: Fill in the placeholder values
+        # NOTE: cancelable in AIR but not in flash player
+        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
+        self.dispatchEvent(KeyboardEvent('keyDown', true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
+
+    def _TOOLKITHANDLER_keyUp(self, event):
+        # TODO: Bind function to toolkit key_up event
+        # TODO: Convert toolkit key_up event into flash key_up event
+        # TODO: Fill in the placeholder values
+        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
+        self.dispatchEvent(KeyboardEvent('keyUp', true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
+
+    def _temp_handle_keys(self, event):
+        print(_TOOLKITEVENT.TKGetKeyCode(event))
+
     def _guiInit(self):
         # INTERNAL: Creates the base gui object if it does not yet exist.
         #           ex: tkinter.Tk, QApplication
         if not self._toolkitApplication:
             self._toolkitApplication = tkinter.Tk()
             self._toolkitApplication.withdraw()
+            #self._toolkitApplication.bind_all('<KeyPress>', self._temp_handle_keys)
 
     def _invokeApplication(self):
         # TODO: do this when application starts
