@@ -1,4 +1,8 @@
 from as3lib import as3state
+from warnings import warn
+
+
+warn('Using as3lib.keyConversions is deprecated and will be removed in version 16. Proper event triggers should be implemented by then, so use addEventListener like you would in actionscript instead.', DeprecationWarning)
 
 
 class Linux:
