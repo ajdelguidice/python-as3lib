@@ -1,7 +1,8 @@
 from __future__ import annotations
-from as3lib import Error, Object
+from as3lib import Array, Error, Object, uint
 from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
 from as3lib.flash.events import ContextMenuEvent
+from as3lib.helpers import staticproperty
 
 
 class ContextMenu(NativeMenu):
@@ -313,8 +314,176 @@ class GameInputDevice:
     ...
 
 
-class Keyboard:
-    ...
+class Keyboard(Object):
+    BACKSPACE = uint(8)
+    TAB = uint(9)
+
+    ENTER = uint(13)
+
+    COMMAND = uint(15)
+    SHIFT = uint(16)
+    CONTROL = uint(17)
+    ALTERNATE = uint(18)  # Alt/Option
+
+    CAPS_LOCK = uint(20)
+    NUMPAD = uint(21)  # Numpad pseudo-key (whatever that means)
+
+    ESCAPE = uint(27)
+
+    SPACE = uint(32)
+    PAGE_UP = uint(33)
+    PAGE_DOWN = uint(34)
+    END = uint(35)
+    HOME = uint(36)
+    LEFT = uint(37)
+    UP = uint(38)
+    RIGHT = uint(39)
+    DOWN = uint(40)
+
+    INSERT = uint(45)
+    DELETE = uint(46)
+
+    NUMBER_0 = uint(48)
+    NUMBER_1 = uint(49)
+    NUMBER_2 = uint(50)
+    NUMBER_3 = uint(51)
+    NUMBER_4 = uint(52)
+    NUMBER_5 = uint(53)
+    NUMBER_6 = uint(54)
+    NUMBER_7 = uint(55)
+    NUMBER_8 = uint(56)
+    NUMBER_9 = uint(57)
+
+    A = uint(65)
+    B = uint(66)
+    C = uint(67)
+    D = uint(68)
+    E = uint(69)
+    F = uint(70)
+    G = uint(71)
+    H = uint(72)
+    I = uint(73)
+    J = uint(74)
+    K = uint(75)
+    L = uint(76)
+    M = uint(77)
+    N = uint(78)
+    O = uint(79)
+    P = uint(80)
+    Q = uint(81)
+    R = uint(82)
+    S = uint(83)
+    T = uint(84)
+    U = uint(85)
+    V = uint(86)
+    W = uint(87)
+    X = uint(88)
+    Y = uint(89)
+    Z = uint(90)
+
+    NUMPAD_0 = uint(96)
+    NUMPAD_1 = uint(97)
+    NUMPAD_2 = uint(98)
+    NUMPAD_3 = uint(99)
+    NUMPAD_4 = uint(100)
+    NUMPAD_5 = uint(101)
+    NUMPAD_6 = uint(102)
+    NUMPAD_7 = uint(103)
+    NUMPAD_8 = uint(104)
+    NUMPAD_9 = uint(105)
+    NUMPAD_MULTIPLY = uint(106)
+    NUMPAD_ADD = uint(107)
+    NUMPAD_ENTER = uint(108)
+    NUMPAD_SUBTRACT = uint(109)
+    NUMPAD_DECIMAL = uint(110)
+    NUMPAD_DIVIDE = uint(111)
+    F1 = uint(112)
+    F2 = uint(113)
+    F3 = uint(114)
+    F4 = uint(115)
+    F5 = uint(116)
+    F6 = uint(117)
+    F7 = uint(118)
+    F8 = uint(119)
+    F9 = uint(120)
+    F10 = uint(121)
+    F11 = uint(122)
+    F12 = uint(123)
+    F13 = uint(124)
+    F14 = uint(125)
+    F15 = uint(126)
+
+    SEMICOLON = uint(186)
+    EQUAL = uint(187)
+    COMMA = uint(188)
+    MINUS = uint(189)
+    PERIOD = uint(190)
+    SLASH = uint(191)
+    BACKQUOTE = uint(192)
+
+    LEFTBRACKET = uint(219)
+    BACKSLASH = uint(220)
+    RIGHTBRACKET = uint(221)
+    QUOTE = uint(222)
+
+    RED = uint(0x01000000)
+    GREEN = uint(0x01000001)
+    YELLOW = uint(0x01000002)
+    BLUE = uint(0x01000003)
+    CHANNEL_UP = uint(0x01000004)
+    CHANNEL_DOWN = uint(0x01000005)
+    RECORD = uint(0x01000006)
+    PLAY = uint(0x01000007)
+    PAUSE = uint(0x01000008)
+    STOP = uint(0x01000009)
+    FAST_FORWARD = uint(0x0100000A)
+    REWIND = uint(0x0100000B)
+    SKIP_FORWARD = uint(0x0100000C)
+    SKIP_BACKWARD = uint(0x0100000D)
+    NEXT = uint(0x0100000E)
+    PREVIOUS = uint(0x0100000F)
+    LIVE = uint(0x01000010)
+    LAST = uint(0x01000011)
+    MENU = uint(0x01000012)
+    INFO = uint(0x01000013)
+    GUIDE = uint(0x01000014)
+    EXIT = uint(0x01000015)
+    BACK = uint(0x01000016)
+    AUDIO = uint(0x01000017)
+    SUBTITLE = uint(0x01000018)
+    DVR = uint(0x01000019)
+    VOD = uint(0x0100001A)
+    INPUT = uint(0x0100001B)
+    SETUP = uint(0x0100001C)
+    HELP = uint(0x0100001D)
+    MASTER_SHELL = uint(0x0100001E)
+    SEARCH = uint(0x0100001F)
+    PLAY_PAUSE = uint(0x01000020)
+
+    # TODO: KEYNAME_*
+    # TODO: STRING_*
+
+    CharCodeStrings = Array()  # TODO
+
+    @staticproperty
+    def capsLock(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def hasVirtualKeyboard(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def numLock(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def physicalKeyboardType(cls):
+        raise NotImplementedError
+
+    @staticmethod
+    def isAccessible():
+        raise NotImplementedError
 
 
 class KeyboardType:
