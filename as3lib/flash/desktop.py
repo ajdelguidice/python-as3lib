@@ -2,12 +2,14 @@ from __future__ import annotations
 from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
                     Number, Object, String, true, uint, Vector)
 from as3lib.flash.display import NativeWindow
-from as3lib.flash.events import Event, EventDispatcher, InvokeEvent
+from as3lib.flash.events import (Event, EventDispatcher, InvokeEvent,
+                                 MouseEvent)
 from as3lib.flash.filesystem import File
 from as3lib.flash.ui import Keyboard
 from as3lib.helpers import staticproperty
 import sys
 import tkinter
+import platform
 
 
 class _TOOLKITEVENT:
@@ -271,6 +273,38 @@ class _TOOLKITEVENT:
         # Unknown keys get 0
         # TODO: Determine what flash player does here
         return 0
+
+    def MouseButtonToTK(name):
+        if platform.system() in {'Linux', 'Windows'}:
+            if name == MouseEvent.CLICK:
+                return '<Button-1>'
+            if name == MouseEvent.MIDDLE_CLICK:
+                return '<Button-2>'
+            if name == MouseEvent.RIGHT_CLICK:
+                return '<Button-3>'
+        elif platform.system() == 'Darwin':
+            if name == MouseEvent.CLICK:
+                return '<Button-1>'
+            if name == MouseEvent.MIDDLE_CLICK:
+                return '<Button-3>'
+            if name == MouseEvent.RIGHT_CLICK:
+                return '<Button-2>'
+
+    def TKGetMouseButton(event):
+        if platform.system() in {'Linux', 'Windows'}:
+            if event.num == 1:
+                return MouseEvent.CLICK
+            if event.num == 2:
+                return MouseEvent.MIDDLE_CLICK
+            if event.num == 3:
+                return MouseEvent.RIGHT_CLICK
+        elif platform.system() == 'Darwin':
+            if event.num == 1:
+                return MouseEvent.CLICK
+            if event.num == 2:
+                return MouseEvent.RIGHT_CLICK
+            if event.num == 3:
+                return MouseEvent.MIDDLE_CLICK
 
 
 # Interfaces
