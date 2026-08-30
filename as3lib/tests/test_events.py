@@ -485,3 +485,17 @@ class EventDispatcherTests(as3libTestCase):
 
         self.assertEqual(self.listenerCalled, 0)
         del self.listenerCalled
+
+
+class MouseEventTests(as3libTestCase):
+    def test_constructor(self):
+        raise TestNotImplemented
+
+    def test_stagexy(self):
+        raise TestNotImplemented
+
+    def test_valueOf(self):
+        raise TestNotImplemented
+
+    def test_toString(self):
+        raise TestNotImplemented

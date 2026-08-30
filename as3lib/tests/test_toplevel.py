@@ -4552,6 +4552,9 @@ class OperationTests(as3libTestCase):
         assertRShift(String('-1.0'), asrt_n1)
         assertRShift(String('0xFF1306'), asrt_16716550)
 
+    def test_urshift(self):
+        raise TestNotImplemented
+
     def test_negate(self):
         # TODO: Test Array with and without items in it
         self.assertEqual(-true, -1)
