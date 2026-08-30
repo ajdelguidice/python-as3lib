@@ -500,6 +500,9 @@ class _ArrayClassCallObject(list):
     ...
 
 
+_GENERATOR_CLASS = (i for i in range(0)).__class__
+
+
 class Array(list, Object):
     # TODO: Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
     # NOTE: Actionscript arrays seem to function like a python dictionary which can only uses ints as keys
@@ -511,14 +514,15 @@ class Array(list, Object):
 
     def __class_getitem__(cls, *values):
         values = values[0]  # NOTE: Workaround for python converting the aruements to a tuple at values[0]
-        if hasattr(values, '__len__'):
+
+        if hasattr(values, '__len__') or isinstance(values, _GENERATOR_CLASS):
             return Array(_ArrayClassCallObject(values))
         return Array(_ArrayClassCallObject([values]))
 
     def __init__(self, *args):
         arglen = len(args)
         if arglen == 1 and isinstance(args[0], _ArrayClassCallObject):
-            super().__init__(*args[0])
+            super().__init__(args[0])
         elif arglen == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
             super().__init__([undefined for i in range(args[0])])
         else:
