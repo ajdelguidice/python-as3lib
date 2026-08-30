@@ -21,6 +21,50 @@ class ByteArrayTests(as3libTestCase):
     def assertAtEnd(self, ba):
         self.assertEqual(ba.position, ba.length)
 
+    def test_BOM(self):
+        utf8 = ByteArray()
+        utf8Bytes = (0xef, 0xbb, 0xbf, 0x46, 0x78)
+        for byte in utf8Bytes:
+            utf8.writeByte(byte)
+
+        self.assertEqual(utf8.toString(), 'Fx')
+
+        utf16le = ByteArray()
+        utf16leBytes = (0xff, 0xfe, 0x0, 0x22, 0x78, 0x0)
+        for byte in utf16leBytes:
+            utf16le.writeByte(byte)
+
+        self.assertEqual(utf16le.toString(), '∀x')
+
+        utf16be = ByteArray()
+        utf16beBytes = (0xfe, 0xff, 0x22, 0x0, 0x0, 0x78)
+        for byte in utf16beBytes:
+            utf16be.writeByte(byte)
+
+        self.assertEqual(utf16be.toString(), '∀x')
+
+        '''
+        # TODO
+        var files = ["utf8", "utf16le", "utf16be", "utf8", "utf16le", "utf16be"];
+        var current = files.shift();
+        var urlLoader = new URLLoader();
+        urlLoader.dataFormat = URLLoaderDataFormat.TEXT;
+        urlLoader.addEventListener(IOErrorEvent.IO_ERROR, function(event:IOErrorEvent):void {
+            trace("URLLoader IOError: " + event);
+        });
+        urlLoader.addEventListener(Event.COMPLETE, function(event:Event):void {
+            trace("URLLoader dataFormat=" + urlLoader.dataFormat + " " + current + ": " + event.target.data);
+            if (files.length > 0) {
+                if (files.length == 3) {
+                    urlLoader.dataFormat = URLLoaderDataFormat.VARIABLES;
+                }
+                current = files.shift();
+                urlLoader.load(new URLRequest(current));
+            }
+        });
+        urlLoader.load(new URLRequest(current));
+        '''
+
     def test_compress(self):
         # TODO: Add tests for compressed bytes
         def createByteArray():
@@ -717,6 +761,35 @@ class DictionaryTests(as3libTestCase):
         obj3 = null
         obj5 = null
         self.assertKeyAmount(d, 2)
+
+
+class ProxyTests(as3libTestCase):
+    def test_callproperty(self):
+        raise TestNotImplemented
+
+    def test_deleteproperty(self):
+        raise TestNotImplemented
+
+    def test_enumeration(self):
+        raise TestNotImplemented
+
+    def test_getproperty(self):
+        raise TestNotImplemented
+
+    def test_hasOwnProperty(self):
+        raise TestNotImplemented
+
+    def test_hasProperty(self):
+        raise TestNotImplemented
+
+    def test_not_overriden(self):
+        raise TestNotImplemented
+
+    def test_serialize(self):
+        raise TestNotImplemented
+
+    def test_setproperty(self):
+        raise TestNotImplemented
 
 
 class TimerTests(as3libTestCase):

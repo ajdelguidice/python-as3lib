@@ -211,6 +211,11 @@ class MovieClipTests(as3libTestCase):
         raise TestNotImplemented
 
 
+class NativeMenuTests(as3libTestCase):
+    def test_basic(self):
+        raise TestNotImplemented
+
+
 class SpriteTests(as3libTestCase):
     ...
 

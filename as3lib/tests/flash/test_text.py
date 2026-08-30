@@ -2,6 +2,31 @@ from as3lib.tests import as3libTestCase, TestNotImplemented
 from as3lib.flash.text import TextField, TextFormat
 
 
+class FontTests(as3libTestCase):
+    def test_embedded(self):
+        raise TestNotImplemented
+
+    def test_enumerateFonts(self):
+        raise TestNotImplemented
+
+    def test_enumerateFonts_finter(self):
+        raise TestNotImplemented
+
+    def test_enumerateFonts_order(self):
+        raise TestNotImplemented
+
+    def test_hasGlyphs(self):
+        raise TestNotImplemented
+
+    def test_registerFont(self):
+        raise TestNotImplemented
+
+
+class FontDescriptionTests(as3libTestCase):
+    def test_clone(self):
+        raise TestNotImplemented
+
+
 class TextFieldTests(as3libTestCase):
     def test_event(self):
         raise TestNotImplemented
