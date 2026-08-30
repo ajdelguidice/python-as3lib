@@ -1,4 +1,4 @@
-from as3lib.tests import as3libTestCase
+from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
 class SoundTests(as3libTestCase):
