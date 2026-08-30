@@ -923,44 +923,214 @@ class ArrayTests(as3libTestCase):
         self.assertArray(f, [2, 997, 4, 996, 6, 995], 6)
 
     def test_splice2(self):
-        raise TestNotImplemented
+        def assertResult(result, check):
+            if check is null:
+                self.assertIs(result, null)
+            elif isinstance(check, builtins.int):
+                self.assertEqual(result.length, check)
+            elif len(check) == 0:
+                self.assertEqual(result.length, 0)
+            else:
+                self.assertArray(result, check)
 
-    def _spliceTypes_arrToString(self, array):
-        if array is null:
-            return 'null'
-        if not isinstance(array, Array):
-            return String() + array
-        if array.length > 1000:
-            return '<len(%i)>' % array.length
-        if array.length == 0:
-            return '<empty>'
-        return f'[{array.map(lambda el, *args: self._spliceTypes_arrToString(el))}]'
+        def assertSplice(array, ret, check):
+            assertResult(ret, check[0])
+            assertResult(array, check[1])
 
-    def assertSpliceTypes(self, array, func, retcheck, acheck):
-        a = array.concat()  # clone
-        ret = func(a)
-        self.assertEqual(self._spliceTypes_arrToString(ret), retcheck)
-        self.assertEqual(self._spliceTypes_arrToString(a), acheck)
+            if len(check) > 2:
+                if check[2] is not None:
+                    for k, v in check[2].items():
+                        self.assertEqual(ret[k], v)
+
+                if check[3] is not None:
+                    for k, v in check[3].items():
+                        self.assertEqual(array[k], v)
+
+        def testArray(array, check, spliceNullResult, splice0Result,
+                      splice1Result, spliceLengthResult,
+                      spliceLengthMinus1Result, spliceLengthPlus1Result,
+                      spliceLengthDiv2Result, splice1_2Result,
+                      splice1_2_3_4result, splice1_2_3_4_5_6result):
+            assertResult(array, check)
+
+            a = array.concat()  # Copy the array
+            ret = a.splice()
+            assertSplice(a, ret, spliceNullResult)
+
+            a = array.concat()
+            ret = a.splice(0)
+            assertSplice(a, ret, splice0Result)
+
+            a = array.concat()
+            ret = a.splice(1)
+            assertSplice(a, ret, splice1Result)
+
+            a = array.concat()
+            ret = a.splice(a.length)
+            assertSplice(a, ret, spliceLengthResult)
+
+            a = array.concat()
+            ret = a.splice(a.length - 1)
+            assertSplice(a, ret, spliceLengthMinus1Result)
+
+            a = array.concat()
+            ret = a.splice(a.length + 1)
+            assertSplice(a, ret, spliceLengthPlus1Result)
+
+            a = array.concat()
+            ret = a.splice(a.length / 2)
+            assertSplice(a, ret, spliceLengthDiv2Result)
+
+            a = array.concat()
+            ret = a.splice(1, 2)
+            assertSplice(a, ret, splice1_2Result)
+
+            a = array.concat()
+            ret = a.splice(1, 2, 3, 4)
+            assertSplice(a, ret, splice1_2_3_4result)
+
+            a = array.concat()
+            ret = a.splice(1, 2, 3, 4, 5, 6)
+            assertSplice(a, ret, splice1_2_3_4_5_6result)
+
+        array_sparse1 = Array()
+        array_sparse1[100000] = 5
+
+        array_sparse2 = Array(1)
+        array_sparse2[0] = 1
+        array_sparse2[100000] = 5
+
+        testArray(Array(), [],
+            (null, []),  # array.splice()
+            ([], []),  # array.splice(0)
+            ([], []),  # array.splice(1)
+            ([], []),  # array.splice(array.length)
+            ([], []),  # array.splice(array.length - 1)
+            ([], []),  # array.splice(array.length + 1)
+            ([], []),  # array.splice(array.length / 2)
+            ([], []),  # array.splice(1, 2)
+            ([], [3, 4]),  # array.splice(1, 2, 3, 4)
+            ([], [3, 4, 5, 6])  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        a = Array()
+        a[0] = 1
+        testArray(a, [1],
+            (null, [1]),  # array.splice()
+            ([1], []),  # array.splice(0)
+            ([], [1]),  # array.splice(1)
+            ([], [1]),  # array.splice(array.length)
+            ([1], []),  # array.splice(array.length - 1)
+            ([], [1]),  # array.splice(array.length + 1)
+            ([1], []),  # array.splice(array.length / 2)
+            ([], [1]),  # array.splice(1, 2)
+            ([], [1, 3, 4]),  # array.splice(1, 2, 3, 4)
+            ([], [1, 3, 4, 5, 6])  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        testArray(Array(1, 2, 3, 4, 5), [1, 2, 3, 4, 5],
+            (null, [1, 2, 3, 4, 5]),  # array.splice()
+            ([1, 2, 3, 4, 5], []),  # array.splice(0)
+            ([2, 3, 4, 5], [1]),  # array.splice(1)
+            ([], [1, 2, 3, 4, 5]),  # array.splice(array.length)
+            ([5], [1, 2, 3, 4]),  # array.splice(array.length - 1)
+            ([], [1, 2, 3, 4, 5]),  # array.splice(array.length + 1)
+            ([3, 4, 5], [1, 2]),  # array.splice(array.length / 2)
+            ([2, 3], [1, 4, 5]),  # array.splice(1, 2)
+            ([2, 3], [1, 3, 4, 4, 5]),  # array.splice(1, 2, 3, 4)
+            ([2, 3], [1, 3, 4, 5, 6, 4, 5])  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        testArray(array_sparse1, 100001,
+            (null, 100001),  # array.splice()
+            (100001, []),  # array.splice(0)
+            (100000, [null]),  # array.splice(1)
+            ([], 100001),  # array.splice(array.length)
+            ([5], 100000),  # array.splice(array.length - 1)
+            ([], 100001),  # array.splice(array.length + 1)
+            (50001, 50000),  # array.splice(array.length / 2)
+            ([null, null], 99999),  # array.splice(1, 2)
+            ([null, null], 100001, None, {1: 3, 2: 4}),  # array.splice(1, 2, 3, 4)
+            ([null, null], 100003, None, {1: 3, 2: 4, 3: 5, 4: 6})  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        testArray(array_sparse2, 100001,
+            (null, 100001, None, {0: 1}),  # array.splice()
+            (100001, [], {0: 1}, None),  # array.splice(0)
+            (100000, [1], None, {0: 1}),  # array.splice(1)
+            ([], 100001, None, {0: 1}),  # array.splice(array.length)
+            ([5], 100000, None, {0: 1}),  # array.splice(array.length - 1)
+            ([], 100001, None, {0: 1}),  # array.splice(array.length + 1)
+            (50001, 50000, None, {0: 1}),  # array.splice(array.length / 2)
+            ([null, null], 99999, None, {0: 1}),  # array.splice(1, 2)
+            ([null, null], 100001, None, {0: 1, 1: 3, 2: 4}),  # array.splice(1, 2, 3, 4)
+            ([null, null], 100003, None, {0: 1, 1: 3, 2: 4, 3: 5, 4: 6})  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        testArray(Array(Array[1], Array(1, 2), Array(1, 2, 3)), [[1], [1, 2], [1, 2, 3]],
+            (null, [[1], [1, 2], [1, 2, 3]]),  # array.splice()
+            ([[1], [1, 2], [1, 2, 3]], []),  # array.splice(0)
+            ([[1, 2], [1, 2, 3]], [[1]]),  # array.splice(1)
+            ([], [[1], [1, 2], [1, 2, 3]]),  # array.splice(array.length)
+            ([[1, 2, 3]], [[1], [1, 2]]),  # array.splice(array.length - 1)
+            ([], [[1], [1, 2], [1, 2, 3]]),  # array.splice(array.length + 1)
+            ([[1, 2], [1, 2, 3]], [[1]]),  # array.splice(array.length / 2)
+            ([[1, 2], [1, 2, 3]], [[1]]),  # array.splice(1, 2)
+            ([[1, 2], [1, 2, 3]], [[1], 3, 4]),  # array.splice(1, 2, 3, 4)
+            ([[1, 2], [1, 2, 3]], [[1], 3, 4, 5, 6])  # array.splice(1, 2, 3, 4, 5, 6)
+        )
+
+        testArray(Array(1, 2, Array[3], 4, Array[5], 6), [1, 2, [3], 4, [5], 6],
+            (null, [1, 2, [3], 4, [5], 6]),  # array.splice()
+            ([1, 2, [3], 4, [5], 6], []),  # array.splice(0)
+            ([2, [3], 4, [5], 6], [1]),  # array.splice(1)
+            ([], [1, 2, [3], 4, [5], 6]),  # array.splice(array.length)
+            ([6], [1, 2, [3], 4, [5]]),  # array.splice(array.length - 1)
+            ([], [1, 2, [3], 4, [5], 6]),  # array.splice(array.length + 1)
+            ([4, [5], 6], [1, 2, [3]]),  # array.splice(array.length / 2)
+            ([2, [3]], [1, 4, [5], 6]),  # array.splice(1, 2)
+            ([2, [3]], [1, 3, 4, 4, [5], 6]),  # array.splice(1, 2, 3, 4)
+            ([2, [3]], [1, 3, 4, 5, 6, 4, [5], 6])  # array.splice(1, 2, 3, 4, 5, 6)
+        )
 
     def test_splice_types(self):
+        # TODO: Refactor this one like test_splice2
+
+        def arrToString(array):
+            if array is null:
+                return 'null'
+            if not isinstance(array, Array):
+                return String() + array
+            if array.length > 1000:
+                return '<len(%i)>' % array.length
+            if array.length == 0:
+                return '<empty>'
+            return f'[{array.map(lambda el, *args: arrToString(el))}]'
+
+        def assertSpliceTypes(array, func, retcheck, acheck):
+            a = array.concat()  # clone
+            ret = func(a)
+            self.assertEqual(arrToString(ret), retcheck)
+            self.assertEqual(arrToString(a), acheck)
+
         array = Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 
-        self.assertSpliceTypes(array, lambda a: a.splice(), 'null', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice('0'), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
-        self.assertSpliceTypes(array, lambda a: a.splice('5'), '[5,6,7,8,9,10,11,12,13,14,15]', '[0,1,2,3,4]')
-        self.assertSpliceTypes(array, lambda a: a.splice(true), '[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '[0]')
-        self.assertSpliceTypes(array, lambda a: a.splice(false), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
-        self.assertSpliceTypes(array, lambda a: a.splice(Object()), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, '2'), '[1,2]', '[0,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(-1, 2), '[15]', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]')
-        self.assertSpliceTypes(array, lambda a: a.splice('-5', 3), '[11,12,13]', '[0,1,2,3,4,5,6,7,8,9,10,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, -2), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, true), '[1]', '[0,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, false), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, 'true'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, 'false'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, Object()), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
-        self.assertSpliceTypes(array, lambda a: a.splice(1, '5'), '[1,2,3,4,5]', '[0,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(), 'null', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice('0'), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+        assertSpliceTypes(array, lambda a: a.splice('5'), '[5,6,7,8,9,10,11,12,13,14,15]', '[0,1,2,3,4]')
+        assertSpliceTypes(array, lambda a: a.splice(true), '[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '[0]')
+        assertSpliceTypes(array, lambda a: a.splice(false), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+        assertSpliceTypes(array, lambda a: a.splice(Object()), '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]', '<empty>')
+        assertSpliceTypes(array, lambda a: a.splice(1, '2'), '[1,2]', '[0,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(-1, 2), '[15]', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]')
+        assertSpliceTypes(array, lambda a: a.splice('-5', 3), '[11,12,13]', '[0,1,2,3,4,5,6,7,8,9,10,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, -2), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, true), '[1]', '[0,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, false), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, 'true'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, 'false'), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, Object()), '<empty>', '[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]')
+        assertSpliceTypes(array, lambda a: a.splice(1, '5'), '[1,2,3,4,5]', '[0,6,7,8,9,10,11,12,13,14,15]')
 
     def test_storage(self):
         a = Array('a', 'b', 'c')
@@ -1022,8 +1192,7 @@ class ArrayTests(as3libTestCase):
 
     def test_null_callback(self):
         # TODO: Make sure this is correct
-        a = Array()
-        a.push(1)
+        a = Array[1]
 
         self.assertTrue(a.every(null))
         self.assertIs(a.filter(null), None)
@@ -1340,6 +1509,14 @@ class BooleanTests(as3libTestCase):
         self.assertIs(false.valueOf(), False)
 
 
+class ClassTests(as3libTestCase):
+    ...
+
+
+class CoercionTests(as3libTestCase):
+    ...
+
+
 class DateTests(as3libTestCase):
     def assertDate(self, obj, year, month, date, day, hours, minutes, seconds, milliseconds=None):
         self.assertEqual(obj.fullYear, year)
@@ -1624,6 +1801,12 @@ class ErrorTests(as3libTestCase):
 
 
 class FunctionTests(as3libTestCase):
+    def test_decodeURI(self):
+        raise TestNotImplemented
+
+    def test_decodeURIComponent(self):
+        raise TestNotImplemented
+
     def assertEscape(self, fn, check):
         self.assertEqual(fn(), check[0])
         self.assertEqual(fn(undefined), check[1])
