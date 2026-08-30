@@ -263,6 +263,10 @@ def _as3lib_CoerceToNumberValue(obj):
         #           [1] == 1
         #           ['str'] == NaN
         #           [1, 2] == NaN
+
+        # NOTE: Temporary manual conditions until parseFloat works properly
+        if obj.length > 1:
+            return math.nan
         obj = obj.toString()
     if isinstance(obj, (str, String)):
         obj = str(obj).strip()
@@ -492,6 +496,10 @@ class Function(Object):
         ...
 
 
+class _ArrayClassCallObject(list):
+    ...
+
+
 class Array(list, Object):
     # TODO: Arrays are sparse arrays, meaning there might be an element at index 0 and another at index 5, but nothing in the index positions between those two elements. In such a case, the elements in positions 1 through 4 are undefined, which indicates the absence of an element, not necessarily the presence of an element with the value undefined.
     # NOTE: Actionscript arrays seem to function like a python dictionary which can only uses ints as keys
@@ -501,15 +509,24 @@ class Array(list, Object):
     RETURNINDEXEDARRAY = 8
     NUMERIC = 16
 
+    def __class_getitem__(cls, *values):
+        values = values[0]  # NOTE: Workaround for python converting the aruements to a tuple at values[0]
+        if hasattr(values, '__len__'):
+            return Array(_ArrayClassCallObject(values))
+        return Array(_ArrayClassCallObject([values]))
+
     def __init__(self, *args):
-        if len(args) == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
+        arglen = len(args)
+        if arglen == 1 and isinstance(args[0], _ArrayClassCallObject):
+            super().__init__(*args[0])
+        elif arglen == 1 and isinstance(args[0], (Number, int, uint, builtins.int, float)):
             super().__init__([undefined for i in range(args[0])])
         else:
             super().__init__(args)
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            return Array(*[self[i] for i in range(*item.indices(len(self)))])
+            return Array[(self[i] for i in range(*item.indices(self.length)))]
         else:
             try:
                 return super().__getitem__(item)
@@ -529,6 +546,16 @@ class Array(list, Object):
             super().__setitem__(item, undefined)
 
     __add__ = Object.__add__
+
+    def __eq__(self, value):
+        # TODO: This is how JavaScript works. Ensure that ActionScript also
+        #       works like this
+        otherValue = _as3lib_valueOfHelper(value)
+        if isinstance(otherValue, (str, String)):
+            return String(self) == otherValue
+        if isinstance(otherValue, (Number, float)):
+            return Number(self) == otherValue
+        return super().__eq__(value)
 
     @property
     def length(self):
@@ -554,9 +581,10 @@ class Array(list, Object):
         return (self[i] for i in range(self.length))
 
     def concat(self, *args):
-        newArr = Array(*self)
+        # NOTE: Can not use starred expression here
+        newArr = Array[(i for i in self)]
         for i in args:
-            if isinstance(i, (list, tuple)):
+            if isinstance(i, (list, tuple, Array, Vector)):
                 newArr.extend(i)
             else:
                 newArr.append(i)
@@ -626,7 +654,7 @@ class Array(list, Object):
     def map(self, callback: callable):
         if callback is null:
             return
-        return Array(*[callback(self[i], i, self) for i in range(len(self))])
+        return Array[(callback(self[i], i, self) for i in range(self.length))]
 
     def pop(self):
         return super().pop(-1)
@@ -1917,7 +1945,7 @@ class JSON(Object):
 
 
 class _VectorType:
-    __slots__ = ('_type',)
+    __slots__ = '_type'
 
     @property
     def type(self):
@@ -2397,6 +2425,17 @@ class XML(Object):
         self._namespace = None
         self._namespaces = Array()
         ...
+
+    def __getitem__(self, item):
+        if item.startswith('@'):
+            # TODO: Return an XMLList with all attributes that match the
+            #       following characters, or return all attributes if @ is
+            #       alone.
+            raise NotImplementedError
+        if '*' in item:
+            # TODO: Wildcard
+            raise NotImplementedError
+        super().__getitem__(item)
 
     def addNamespace(self, ns):
         raise NotImplementedError
