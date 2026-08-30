@@ -9,12 +9,21 @@ Removals:
 - ClearLogsOnStartup config option
 - All type._type conversion functions
 - cmath.roundedmultdivide
+- interface_tk.itkRootMain
+- interface_tk.window helper. Use interface_tk.itkWindow directly
+- interface_tk.itkWindow.fontmult and cmath.resizefont. Use round(fontSize * windowmultiplier) instead
+- as3state.defaultTraceFilePath_Flash
+- as3state.pythonversion
 
 Future removals:
 - [v15] as3lib.toplevel
+- [v15] interface_tk.itkRoot alias
+- [v16] as3lib.keyConversions.
 
 Deprecations:
 - as3lib.Int alias. Moved to as3lib.toplevel.
+- interface_tk.itkRoot. Now an alias of interface_tk.itkWindow
+- as3lib.keyConversions. Proper MouseEvent and KeyboardEvent support are close to being implemented.
 
 Tests:
 - Python 3.10 is now tested as a part of the normal test flow
@@ -51,6 +60,15 @@ Other:
 - Use python builtin "math.nan" and "math.inf" instead of redefining the values
 - Implement NativeApplication.exit() and NativeApplication.autoExit
 - Properly specify tomli as a dependency for python < 3.11
+- Implement Vector type coercion
+- Implement Vector.<Vector.<...>>
+- Use correct types for MAX_VALUE and MIN_VALUE of Number, int, and uint
+- Renamed interface_tk.itkRoot to interface_tk.itkWindow
+- The as3lib about window is now handled in flash.desktop instead of interface_tk
+- interface_tk.itkImage no longer needs a reference to the attached window on creation. Instead, it requires the multiplier to be passed to its update method.
+- Minor speed up in interface_tk.ComboEntryBox
+- Move as3lib.traceFilePath_Flash to helpers.TraceFilePath_Flash
+- Add partial support for proper key conversions. (This will never be 100% accurate while Tk is used)
 
 
 v13
@@ -131,3 +149,7 @@ Other:
 - Recombine most toplevel classes and functions into _toplevel.__init__
 - Move isValidDirectory and isChildClass to helpers.py
 - Return as3lib types in more functions
+
+
+v12
+...
