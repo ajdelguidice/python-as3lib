@@ -108,6 +108,11 @@ from as3lib.flash.desktop import NativeApplication
 as3state.nativeApplication = NativeApplication()
 
 
+# Create AudioDeviceManager instance
+from as3lib.flash.media import AudioDeviceManager
+as3state.audioDeviceManager = AudioDeviceManager()
+
+
 # Library state setting functions
 def EnableDebug():
     as3state.as3DebugEnable = True

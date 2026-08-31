@@ -9,6 +9,7 @@ displayserver = None  # x11 or wayland (linux), x11 or native (darwin)
 librarydirectory = None  # full path to as3lib (this library)
 startTime = None  # logs start time for flash.utils.getTimer
 nativeApplication = None  # The native application instance for the running application
+audioDeviceManager = None  # The singleton for flash.media.AudioDeviceManager
 
 # Main file header information (Default values are placeholders)
 swfVersion = 44
@@ -30,7 +31,7 @@ TraceOutputFileName = None  # Path to the log
 as3DebugEnable = False  # State of debug mode
 CurrentWarnings = 0  # Current number of warnings
 MaxWarningsReached = False  # If the maximum number of warnings has been reached
-appdatadirectory = None  # The path to the application specific data directory (must be set by the application, should not be set by other libraries)
+appdatadirectory = None  # The path to the application specific data directory
 prototypes = {}  # Each class needs a global default instance of itself. Store it here
 
 # flash.filesystem
