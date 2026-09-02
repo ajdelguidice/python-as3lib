@@ -1,7 +1,6 @@
 from __future__ import annotations  # Allow forward references
-from as3lib import (Boolean, each, false, Math, null, Number, Object,
+from as3lib import (Boolean, false, Math, null, Number, Object, String,
                     TypeError, true, uint, undefined, Vector)
-import math
 
 
 class ColorTransform(Object):
@@ -11,7 +10,7 @@ class ColorTransform(Object):
         return self._alphaM
 
     @alphaMultiplier.setter
-    def alphaMultiplier(self, value):
+    def alphaMultiplier(self, value: Number):
         self._alphaM = Number(value)
 
     @property
@@ -19,7 +18,7 @@ class ColorTransform(Object):
         return self._alphaO
 
     @alphaOffset.setter
-    def alphaOffset(self, value):
+    def alphaOffset(self, value: Number):
         self._alphaO = Number(value)
 
     @property
@@ -27,7 +26,7 @@ class ColorTransform(Object):
         return self._blueM
 
     @blueMultiplier.setter
-    def blueMultiplier(self, value):
+    def blueMultiplier(self, value: Number):
         self._blueM = Number(value)
 
     @property
@@ -35,7 +34,7 @@ class ColorTransform(Object):
         return self._blueO
 
     @blueOffset.setter
-    def blueOffset(self, value):
+    def blueOffset(self, value: Number):
         self._blueO = Number(value)
 
     @property
@@ -57,7 +56,7 @@ class ColorTransform(Object):
         return self._greenM
 
     @greenMultiplier.setter
-    def greenMultiplier(self, value):
+    def greenMultiplier(self, value: Number):
         self._greenM = Number(value)
 
     @property
@@ -65,7 +64,7 @@ class ColorTransform(Object):
         return self._greenO
 
     @greenOffset.setter
-    def greenOffset(self, value):
+    def greenOffset(self, value: Number):
         self._greenO = Number(value)
 
     @property
@@ -73,7 +72,7 @@ class ColorTransform(Object):
         return self._redM
 
     @redMultiplier.setter
-    def redMultiplier(self, value):
+    def redMultiplier(self, value: Number):
         self._redM = Number(value)
 
     @property
@@ -81,7 +80,7 @@ class ColorTransform(Object):
         return self._redO
 
     @redOffset.setter
-    def redOffset(self, value):
+    def redOffset(self, value: Number):
         self._redO = Number(value)
 
     def __init__(self, redMultiplier: Number = 1.0,
@@ -104,7 +103,7 @@ class ColorTransform(Object):
         raise NotImplementedError
 
     def toString(self):
-        return '(redMultiplier=%s, greenMultiplier=%s, blueMultiplier=%s, alphaMultiplier=%s, redOffset=%s, greenOffset=%s, blueOffset=%s, alphaOffset=%s)' % (self._redM, self._greenM, self._blueM, self._alphaM, self._redO, self._greenO, self._blueO, self._alphaO)
+        return String('(redMultiplier=%s, greenMultiplier=%s, blueMultiplier=%s, alphaMultiplier=%s, redOffset=%s, greenOffset=%s, blueOffset=%s, alphaOffset=%s)' % (self._redM, self._greenM, self._blueM, self._alphaM, self._redO, self._greenO, self._blueO, self._alphaO))
 
 
 class Matrix(Object):
@@ -119,7 +118,7 @@ class Matrix(Object):
         return self._a
 
     @a.setter
-    def a(self, value):
+    def a(self, value: Number):
         self._a = Number(value)
 
     @property
@@ -127,7 +126,7 @@ class Matrix(Object):
         return self._b
 
     @b.setter
-    def b(self, value):
+    def b(self, value: Number):
         self._b = Number(value)
 
     @property
@@ -135,7 +134,7 @@ class Matrix(Object):
         return self._c
 
     @c.setter
-    def c(self, value):
+    def c(self, value: Number):
         self._c = Number(value)
 
     @property
@@ -143,7 +142,7 @@ class Matrix(Object):
         return self._d
 
     @d.setter
-    def d(self, value):
+    def d(self, value: Number):
         self._d = Number(value)
 
     @property
@@ -151,7 +150,7 @@ class Matrix(Object):
         return self._tx
 
     @tx.setter
-    def tx(self, value):
+    def tx(self, value: Number):
         self._tx = Number(value)
 
     @property
@@ -159,16 +158,16 @@ class Matrix(Object):
         return self._ty
 
     @ty.setter
-    def ty(self, value):
+    def ty(self, value: Number):
         self._ty = Number(value)
 
     def __init__(self, a=1, b=0, c=0, d=1, tx=0, ty=0):
-        self._a = Number(a)
-        self._b = Number(b)
-        self._c = Number(c)
-        self._d = Number(d)
-        self._tx = Number(tx)
-        self._ty = Number(ty)
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.tx = tx
+        self.ty = ty
 
     def clone(self):
         return Matrix(self.a, self.b, self.c, self.d, self.tx, self.ty)
@@ -183,13 +182,14 @@ class Matrix(Object):
             m.b * self.tx + m.d * self.ty + m.ty,
         )
 
-    def copyColumnFrom(self, column, vector3D: Vector3D):
+    def copyColumnFrom(self, column: uint, vector3D: Vector3D):
         # NOTE: According to the tests, copyColumnFrom is supposed to do the
         # same thing as copyRowFrom. This doesn't make sense but the test passes
         # on flash player so it must be right.
         self.copyRowFrom(column, vector3D)
 
-    def copyColumnTo(self, column, vector3D: Vector3D):
+    def copyColumnTo(self, column: uint, vector3D: Vector3D):
+        column = uint(column)
         if column == 0:
             vector3D.setTo(self.a, self.b, 0.0)
         elif column == 1:
@@ -205,14 +205,16 @@ class Matrix(Object):
         self.tx = sourceMatrix.tx
         self.ty = sourceMatrix.ty
 
-    def copyRowFrom(self, row, vector3D: Vector3D):
+    def copyRowFrom(self, row: uint, vector3D: Vector3D):
         temp = (vector3D.x, vector3D.y, vector3D.z)
+        row = uint(row)
         if row == 0:
             self.a, self.c, self.tx = temp
         elif row == 1:
             self.b, self.d, self.ty = temp
 
-    def copyRowTo(self, row, vector3D: Vector3D):
+    def copyRowTo(self, row: uint, vector3D: Vector3D):
+        row = uint(row)
         if row == 0:
             vector3D.setTo(self.a, self.c, self.tx)
         elif row == 1:
@@ -220,13 +222,26 @@ class Matrix(Object):
         elif row == 2:
             vector3D.setTo(0.0, 0.0, 1.0)
 
-    def createBox(self, scaleX, scaleY, rotation=0, tx=0, ty=0):
+    def createBox(self, scaleX: Number, scaleY: Number, rotation: Number = 0,
+                  tx: Number = 0, ty: Number = 0):
+        scaleX = Number(scaleX)
+        scaleY = Number(scaleY)
+        rotation = Number(rotation)
+        tx = Number(tx)
+        ty = Number(ty)
         self.identity()
         self.rotate(rotation)
         self.scale(scaleX, scaleY)
         self.translate(tx, ty)
 
-    def createGradientBox(self, width, height, rotation=0, tx=0, ty=0):
+    def createGradientBox(self, width: Number, height: Number,
+                          rotation: Number = 0, tx: Number = 0,
+                          ty: Number = 0):
+        width = Number(width)
+        height = Number(height)
+        rotation = Number(rotation)
+        tx = Number(tx)
+        ty = Number(ty)
         self.createBox(width / 1638.4, height / 1638.4, rotation, tx + width / 2, ty + height / 2)
 
     def deltaTransformPoint(self, point: Point):
@@ -237,16 +252,18 @@ class Matrix(Object):
 
     def invert(self):
         det = self.a * self.d - self.c * self.b
-        a = self.d / det
-        b = self.b / -det
-        c = self.c / -det
-        d = self.a / det
-        tx = (self.d * self.tx - self.c * self.ty) / -det
-        ty = (self.b * self.tx - self.a * self.ty) / det
 
-        self.setTo(a, b, c, d, tx, ty)
+        self.setTo(
+            self.d / det,
+            self.b / -det,
+            self.c / -det,
+            self.a / det,
+            (self.d * self.tx - self.c * self.ty) / -det,
+            (self.b * self.tx - self.a * self.ty) / det
+        )
 
-    def rotate(self, angle):
+    def rotate(self, angle: Number):
+        angle = Number(angle)
         c = Math.cos(angle)
         s = Math.sin(angle)
         self.setTo(
@@ -258,7 +275,9 @@ class Matrix(Object):
             s * self.tx + c * self.ty
         )
 
-    def scale(self, sx, sy):
+    def scale(self, sx: Number, sy: Number):
+        sx = Number(sx)
+        sy = Number(sy)
         self.a *= sx
         self.b *= sy
         self.c *= sx
@@ -266,23 +285,24 @@ class Matrix(Object):
         self.tx *= sx
         self.ty *= sy
 
-    def setTo(self, aa, ba, ca, da, txa, tya):
-        self.a = Number(aa)
-        self.b = Number(ba)
-        self.c = Number(ca)
-        self.d = Number(da)
-        self.tx = Number(txa)
-        self.ty = Number(tya)
+    def setTo(self, aa: Number, ba: Number, ca: Number, da: Number,
+              txa: Number, tya: Number):
+        self.a = aa
+        self.b = ba
+        self.c = ca
+        self.d = da
+        self.tx = txa
+        self.ty = tya
 
     def toString(self):
-        return f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})'
+        return String(f'(a={self.a}, b={self.b}, c={self.c}, d={self.d}, tx={self.tx}, ty={self.ty})')
 
     def transformPoint(self, point: Point):
         return Point(self.a * point.x + self.c * point.y + self.tx, self.b * point.x + self.d * point.y + self.ty)
 
-    def translate(self, dx, dy):
-        self.tx += dx
-        self.ty += dy
+    def translate(self, dx: Number, dy: Number):
+        self.tx += Number(dx)
+        self.ty += Number(dy)
 
 
 class Matrix3D(Object):
@@ -311,7 +331,7 @@ class Matrix3D(Object):
         return Vector3D(self._data[12], self._data[13], self._data[14])
 
     @position.setter
-    def position(self, value):
+    def position(self, value: Vector3D):
         self._data[12] = value.x
         self._data[13] = value.y
         self._data[14] = value.z
@@ -321,78 +341,74 @@ class Matrix3D(Object):
         return self._data
 
     @rawData.setter
-    def rawData(self, value):
+    def rawData(self, value: Vector[Number]):
         if not isinstance(value, Vector):
             raise TypeError
         if value.length != 16:
             raise
         self._data = value
 
-    def _identity(self):
-        return Vector[Number]([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
-
-    def __init__(self, v = null):
+    def __init__(self, v: Vector[Number] = null):
         if not (isinstance(v, Vector) or v is null):
             raise TypeError
         if v is not null and v.length == 16:
             self._data = v
         else:
-            self._data = self._identity()
+            self.identity()
 
     def append(self, lhs: Matrix3D):
         raise NotImplementedError
 
-    def appendRotation(self, degrees, axis, pivotPoint=null):
+    def appendRotation(self, degrees: Number, axis: Vector3D, pivotPoint: Vector3D = null):
         raise NotImplementedError
 
-    def appendScale(self, xScale, yScale, zScale):
+    def appendScale(self, xScale: Number, yScale: Number, zScale: Number):
         raise NotImplementedError
 
-    def appendTranslation(self, x, y, z):
+    def appendTranslation(self, x: Number, y: Number, z: Number):
         raise NotImplementedError
 
     def clone(self):
-        # TODO: Find a better way to clone this data
-        return Matrix3D(Vector[Number](list(each(self.rawData))))
+        return Matrix3D(Vector[Number](self.rawData))
 
-    def copyColumnFrom(self, column, vector3D: Vector3D):
+    def copyColumnFrom(self, column: uint, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyColumnTo(self, column, vector3D: Vector3D):
+    def copyColumnTo(self, column: uint, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyFrom(self, sourceMatrix3D):
+    def copyFrom(self, sourceMatrix3D: Matrix3D):
         raise NotImplementedError
 
-    def copyRawDataFrom(self, vector, index=0, transpose=False):
+    def copyRawDataFrom(self, vector: Vector[Number], index: uint = 0, transpose: Boolean = false):
         raise NotImplementedError
 
-    def copyRawDataTo(self, vector, index=0, transpose=False):
+    def copyRawDataTo(self, vector: Vector[Number], index: uint = 0, transpose: Boolean = false):
         raise NotImplementedError
 
-    def copyRowFrom(self, row, vector3D: Vector3D):
+    def copyRowFrom(self, row: uint, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyRowTo(self, row, vector3D: Vector3D):
+    def copyRowTo(self, row: uint, vector3D: Vector3D):
         raise NotImplementedError
 
-    def copyToMatrix(self, dest):
+    def copyToMatrix(self, dest: Matrix3D):
         raise NotImplementedError
 
-    def decompose(self, orientationStyle = 'eulerAngles'):
+    def decompose(self, orientationStyle: String = 'eulerAngles'):
         raise NotImplementedError
 
     def deltaTransformVector(self, v: Vector3D):
         raise NotImplementedError
 
     def identity(self):
-        self._data = self._identity()
+        self._data = Vector[Number]([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 
     @staticmethod
-    def interpolate(thisMat: Matrix3D, toMat: Matrix3D, percent):
+    def interpolate(thisMat: Matrix3D, toMat: Matrix3D, percent: Number):
         raise NotImplementedError
 
-    def interpolateTo(self, toMat: Matrix3D, percent):
+    def interpolateTo(self, toMat: Matrix3D, percent: Number):
         raise NotImplementedError
 
     def invert(self):
@@ -404,22 +420,22 @@ class Matrix3D(Object):
     def prepend(self, rhs: Matrix3D):
         raise NotImplementedError
 
-    def prependRotation(self, degrees, axis, pivotPoint=null):
+    def prependRotation(self, degrees: Number, axis: Vector3D, pivotPoint: Vector3D = null):
         raise NotImplementedError
 
-    def prependScale(self, xScale, yScale, zScale):
+    def prependScale(self, xScale: Number, yScale: Number, zScale: Number):
         raise NotImplementedError
 
-    def prependTranslation(self, x, y, z):
+    def prependTranslation(self, x: Number, y: Number, z: Number):
         raise NotImplementedError
 
-    def recompose(self, components, orientationStyle = 'eulerAngles'):
+    def recompose(self, components: Vector[Vector3D], orientationStyle: String = 'eulerAngles'):
         raise NotImplementedError
 
     def transformVector(self, v: Vector3D):
         raise NotImplementedError
 
-    def transformVectors(self, vin, vout):
+    def transformVectors(self, vin: Vector[Number], vout: Vector[Number]):
         raise NotImplementedError
 
     def transpose(self):
@@ -427,9 +443,9 @@ class Matrix3D(Object):
 
 
 class Orientation3D(Object):
-    AXIS_ANGLE = 'axisAngle'
-    EULER_ANGLES = 'eulerAngles'
-    QUATERNION = 'quanternion'
+    AXIS_ANGLE = String('axisAngle')
+    EULER_ANGLES = String('eulerAngles')
+    QUATERNION = String('quanternion')
 
 
 class PerspectiveProjection(Object):
@@ -438,7 +454,8 @@ class PerspectiveProjection(Object):
         return self._fov
 
     @fieldOfView.setter
-    def fieldOfView(self, value):
+    def fieldOfView(self, value: Number):
+        value = Number(value)
         if value < 0 or value > 180:
             raise
         self._fov = value
@@ -448,23 +465,23 @@ class PerspectiveProjection(Object):
         return self._fLen
 
     @focalLength.setter
-    def focalLength(self, value):
-        self._fLen = value
+    def focalLength(self, value: Number):
+        self._fLen = Number(value)
 
     @property
     def projectionCenter(self):
         return self._pC
 
     @projectionCenter.setter
-    def projectionCenter(self, value):
+    def projectionCenter(self, value: Point):
         if not isinstance(value, Point):
             raise TypeError
         self._pC = value
 
     def __init__(self):
-        self._fov = 55
-        self._fLen = 480.24554443359375
-        self._pC = Point(250, 250)  # TODO: Calculate centre of object this is in
+        self.fieldOfView = 55
+        self.focalLength = 480.24554443359375
+        self.projectionCenter = Point(250, 250)  # TODO: Calculate centre of object this is in
 
     def toMatrix3D(self):
         raise NotImplementedError
@@ -473,14 +490,14 @@ class PerspectiveProjection(Object):
 class Point(Object):
     @property
     def length(self):
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return Math.sqrt(self.x ** 2 + self.y ** 2)
 
     @property
     def x(self):
         return self._x
 
     @x.setter
-    def x(self, value):
+    def x(self, value: Number):
         self._x = Number(value)
 
     @property
@@ -488,12 +505,12 @@ class Point(Object):
         return self._y
 
     @y.setter
-    def y(self, value):
+    def y(self, value: Number):
         self._y = Number(value)
 
-    def __init__(self, x=0, y=0):
-        self._x = Number(x)
-        self._y = Number(y)
+    def __init__(self, x: Number = 0, y: Number = 0):
+        self.x = x
+        self.y = y
 
     def add(self, v: Point):
         return Point(self.x + v.x, self.y + v.y)
@@ -506,7 +523,7 @@ class Point(Object):
 
     @staticmethod
     def distance(pt1: Point, pt2: Point):
-        return math.sqrt((pt2.x-pt1.x) ** 2 + (pt2.y-pt1.y) ** 2)
+        return Math.sqrt((pt2.x - pt1.x) ** 2 + (pt2.y - pt1.y) ** 2)
 
     def equals(self, toCompare: Point):
         return self.x == toCompare.x and self.y == toCompare.y
@@ -516,8 +533,9 @@ class Point(Object):
         f = Number(f)
         return Point(pt2.x + f * (pt1.x - pt2.x), pt2.y + f * (pt1.y - pt2.y))
 
-    def normalize(self, thickness):
+    def normalize(self, thickness: Number):
         # TODO: Handle NaN, undefined, and null for x and y
+        thickness = Number(thickness)
         norm_magnitude = Number(1) / self.length
         if self.x == 0:
             x = 0
@@ -529,23 +547,25 @@ class Point(Object):
             y = self.y * norm_magnitude * thickness
         self.setTo(x, y)
 
-    def offset(self, dx, dy):
-        self.x = self.x + dx
-        self.y = self.y + dy
+    def offset(self, dx: Number, dy: Number):
+        self.x += Number(dx)
+        self.y += Number(dy)
 
     @staticmethod
-    def polar(len, angle):
-        return Point(len * math.cos(angle), len * math.sin(angle))
+    def polar(len: Number, angle: Number):
+        len = Number(len)
+        angle = Number(angle)
+        return Point(len * Math.cos(angle), len * Math.sin(angle))
 
-    def setTo(self, xa, ya):
-        self.x = Number(xa)
-        self.y = Number(ya)
+    def setTo(self, xa: Number, ya: Number):
+        self.x = xa
+        self.y = ya
 
     def subtract(self, v: Point):
         return Point(self.x - v.x, self.y - v.y)
 
     def toString(self):
-        return '(x=%s, y=%s)' % (self.x, self.y)
+        return String('(x=%s, y=%s)' % (self.x, self.y))
 
 
 class Rectangle(Object):
@@ -554,8 +574,8 @@ class Rectangle(Object):
         return self.y + self.height
 
     @bottom.setter
-    def bottom(self, value):
-        self.height = value - self.y
+    def bottom(self, value: Number):
+        self.height = Number(value) - self.y
 
     @property
     def bottomRight(self):
@@ -570,7 +590,7 @@ class Rectangle(Object):
         return self._height
 
     @height.setter
-    def height(self, value):
+    def height(self, value: Number):
         self._height = Number(value)
 
     @property
@@ -586,8 +606,8 @@ class Rectangle(Object):
         return self.x + self.width
 
     @right.setter
-    def right(self, value):
-        self.width = value - self.x
+    def right(self, value: Number):
+        self.width = Number(value) - self.x
 
     @property
     def size(self):
@@ -620,7 +640,7 @@ class Rectangle(Object):
         return self._width
 
     @width.setter
-    def width(self, value):
+    def width(self, value: Number):
         self._width = Number(value)
 
     @property
@@ -628,7 +648,7 @@ class Rectangle(Object):
         return self._x
 
     @x.setter
-    def x(self, value):
+    def x(self, value: Number):
         self._x = Number(value)
 
     @property
@@ -636,10 +656,10 @@ class Rectangle(Object):
         return self._y
 
     @y.setter
-    def y(self, value):
+    def y(self, value: Number):
         self._y = Number(value)
 
-    def __init__(self, x=0, y=0, width=0, height=0):
+    def __init__(self, x: Number = 0, y: Number = 0, width: Number = 0, height: Number = 0):
         self.x = x
         self.y = y
         self.width = width
@@ -648,7 +668,7 @@ class Rectangle(Object):
     def clone(self):
         return Rectangle(self.x, self.y, self.width, self.height)
 
-    def contains(self, x, y):
+    def contains(self, x: Number, y: Number):
         x, y = Number(x), Number(y)
         return x >= self.x and x < self.right and y >= self.y and y < self.bottom
 
@@ -668,7 +688,7 @@ class Rectangle(Object):
     def equals(self, toCompare: Rectangle):
         return self.x == toCompare.x and self.y == toCompare.y and self.width == toCompare.width and self.height == toCompare.height
 
-    def inflate(self, dx, dy):
+    def inflate(self, dx: Number, dy: Number):
         raise NotImplementedError
 
     def inflatePoint(self, point: Point):
@@ -683,7 +703,7 @@ class Rectangle(Object):
     def isEmpty(self):
         return self.width <= 0 or self.height <= 0
 
-    def offset(self, dx, dy):
+    def offset(self, dx: Number, dy: Number):
         self.x = dx
         self.y = dy
 
@@ -698,7 +718,7 @@ class Rectangle(Object):
         self.height = 0
         return undefined
 
-    def setTo(self, xa, ya, widtha, heighta):
+    def setTo(self, xa: Number, ya: Number, widtha: Number, heighta: Number):
         self.x = xa
         self.y = ya
         self.width = widtha
@@ -706,7 +726,7 @@ class Rectangle(Object):
         return undefined
 
     def toString(self):
-        return f'(x={self.x}, y={self.y}, w={self.width}, h={self.height})'
+        return String(f'(x={self.x}, y={self.y}, w={self.width}, h={self.height})')
 
     def union(self, toUnion: Rectangle):
         raise NotImplementedError
@@ -718,7 +738,7 @@ class Transform(Object):
         return self._ct
 
     @colorTransform.setter
-    def colorTransform(self, value):
+    def colorTransform(self, value: ColorTransform):
         if not isinstance(value, ColorTransform):
             raise TypeError
         self._ct = value
@@ -736,7 +756,7 @@ class Transform(Object):
         return self._matrix
 
     @matrix.setter
-    def matrix(self, value):
+    def matrix(self, value: Matrix):
         if not isinstance(value, Matrix):
             raise TypeError
         self._matrix = value
@@ -746,7 +766,7 @@ class Transform(Object):
         return self._matrix3D
 
     @matrix3D.setter
-    def matrix3D(self, value):
+    def matrix3D(self, value: Matrix3D):
         if not isinstance(value, Matrix3D):
             raise TypeError
         self._matrix3D = value
@@ -756,7 +776,7 @@ class Transform(Object):
         return self._pp
 
     @perspectiveProjection.setter
-    def perspectiveProjection(self, value):
+    def perspectiveProjection(self, value: PerspectiveProjection):
         if not isinstance(value, PerspectiveProjection):
             raise TypeError
         self._pp = value
@@ -768,7 +788,7 @@ class Transform(Object):
     def __init__(self):
         raise NotImplementedError
 
-    def getRelativeMatrix3D(relativeTo):
+    def getRelativeMatrix3D(self, relativeTo):
         raise NotImplementedError
 
 
@@ -782,25 +802,25 @@ class Utils3D(Object):
         raise NotImplementedError
 
     @staticmethod
-    def projectVectors(m: Matrix3D, verts: Vector, projectedVerts: Vector, uvts: Vector) -> None:
+    def projectVectors(m: Matrix3D, verts: Vector[Number], projectedVerts: Vector[Number], uvts: Vector[Number]) -> None:
         raise NotImplementedError
 
 
 class Vector3D(Object):
     @property
     def length(self):
-        return Math.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return Math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
     @property
     def lengthSquared(self):
-        return self.x**2 + self.y**2 + self.z**2
+        return self.x ** 2 + self.y ** 2 + self.z ** 2
 
     @property
     def w(self):
         return self._w
 
     @w.setter
-    def w(self, value):
+    def w(self, value: Number):
         self._w = Number(value)
 
     @property
@@ -808,7 +828,7 @@ class Vector3D(Object):
         return self._x
 
     @x.setter
-    def x(self, value):
+    def x(self, value: Number):
         self._x = Number(value)
 
     @property
@@ -816,7 +836,7 @@ class Vector3D(Object):
         return self._y
 
     @y.setter
-    def y(self, value):
+    def y(self, value: Number):
         self._y = Number(value)
 
     @property
@@ -824,14 +844,14 @@ class Vector3D(Object):
         return self._z
 
     @z.setter
-    def z(self, value):
+    def z(self, value: Number):
         self._z = Number(value)
 
-    def __init__(self, x=0, y=0, z=0, w=0):
-        self._w = Number(w)
-        self._x = Number(x)
-        self._y = Number(y)
-        self._z = Number(z)
+    def __init__(self, x: Number = 0, y: Number = 0, z: Number = 0, w: Number = 0):
+        self.w = w
+        self.x = x
+        self.y = y
+        self.z = z
 
     def add(self, a: Vector3D):
         # The documentation does not mention w
@@ -864,11 +884,11 @@ class Vector3D(Object):
     def dotProduct(self, a: Vector3D):
         raise NotImplementedError
 
-    def equals(self, toCompare: Vector3D, allFour=False):
+    def equals(self, toCompare: Vector3D, allFour: Boolean = false):
         value = self.x == toCompare.x and self.y == toCompare.y and self.z == toCompare.z
-        if allFour:
-            return value and self.w == toCompare.w
-        return value
+        if Boolean(allFour):
+            return Boolean(value and self.w == toCompare.w)
+        return Boolean(value)
 
     def incrementBy(self, a: Vector3D):
         self.x += a.x
@@ -878,7 +898,8 @@ class Vector3D(Object):
     def nearEquals(self, toCompare: Vector3D, tolerance: Number, allFour: Boolean = false):
         # TODO: allFour
         # NOTE: Can't use math.isclose here because it doesn't function the same
-        if allFour:
+        tolerance = Number(tolerance)
+        if Boolean(allFour):
             raise NotImplementedError
         if tolerance == 0:
             return false
@@ -919,7 +940,7 @@ class Vector3D(Object):
         return Vector3D(self.x - a.x, self.y - a.y, self.z - a.z)
 
     def toString(self):
-        return '(x=%s, y=%s, z=%s)' % (self.x, self.y, self.z)
+        return String('(x=%s, y=%s, z=%s)' % (self.x, self.y, self.z))
 
 
 Vector3D.X_AXIS = Vector3D(x=1)
