@@ -1,9 +1,9 @@
 from __future__ import annotations
-from as3lib import (as3state, ArgumentError, Array, each, false, int, null,
+from as3lib import (as3state, ArgumentError, Array, Boolean, false, int, null,
                     Number, Object, String, true, uint, Vector)
 from as3lib.flash.display import NativeWindow
 from as3lib.flash.events import (Event, EventDispatcher, InvokeEvent,
-                                 MouseEvent)
+                                 KeyboardEvent, MouseEvent)
 from as3lib.flash.filesystem import File
 from as3lib.flash.ui import Keyboard
 from as3lib.helpers import staticproperty
@@ -463,7 +463,7 @@ class NativeApplication(EventDispatcher):
 
     @property
     def openedWindows(self):
-        return Array(*list(each(self._openedWindows)))
+        return Array(*self._openedWindows.values())
 
     @property
     def publisherID(self):
@@ -563,7 +563,7 @@ class NativeApplication(EventDispatcher):
         # TODO: Allow finishing current events before executing this one
         # NOTE: This will not work properly until everything is using NativeWindow
         exitPrevented = false
-        for i in each(self._openedWindows):
+        for i in self._openedWindows.values():
             if not isinstance(i, NativeWindow):
                 # Skip this for non NativeWindow windows (ex: interface_tk.itk_window)
                 continue
@@ -574,7 +574,7 @@ class NativeApplication(EventDispatcher):
                 exitPrevented = true
                 break
         if not exitPrevented:
-            for i in each(self._openedWindows.copy()):
+            for i in self._openedWindows.copy().values():
                 i.close()
 
         self._toolkitApplication.destroy()
@@ -626,11 +626,11 @@ class NativeApplication(EventDispatcher):
         if not self._toolkitApplication:
             self._toolkitApplication = tkinter.Tk()
             self._toolkitApplication.withdraw()
-            #self._toolkitApplication.bind_all('<KeyPress>', self._temp_handle_keys)
+            # self._toolkitApplication.bind_all('<KeyPress>', self._temp_handle_keys)
 
     def _invokeApplication(self):
         # TODO: do this when application starts
-        self.dispatchEvent(InvokeEvent(Event.INVOKE, false, false, File(as3lib.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
+        self.dispatchEvent(InvokeEvent(Event.INVOKE, false, false, File(as3state.appdatadirectory), sys.argv, InvokeEventReason.STANDARD))
 
     def _addWindow(self, id, window):
         # Temporary internal function to add a window to openedWindows
