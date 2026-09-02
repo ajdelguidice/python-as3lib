@@ -7005,16 +7005,13 @@ class VectorTests(as3libTestCase):
 
         myobj_vec = Vector[MyObject]([])
 
-        raise TestNotImplemented
-
-        try:
+        with self.assertRaises(TypeError) as handler:
             cast = Vector[int](myobj_vec)
-        except Exception as e:
-            # TODO
-            # Replace the non-deterministic address value with a placeholder string.
-            normalized = e.toString().replace(RegExp('/@[0-9A-Fa-f]+/'), "@ADDRESS")
-            # trace("Caught error: " + normalized);
-            # => Caught error: TypeError: Error #1034: Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1034)
+        # Replace the non-deterministic address value with a placeholder string.
+        normalized = exception.message.replace(RegExp('/@[0-9A-Fa-f]+/'), "@ADDRESS")
+        self.assertEqual(exception.message, 'Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.')
 
     def test_concat(self):
         a_bool = Vector[Boolean]([true, false])
@@ -8100,13 +8097,11 @@ class XMLTests(as3libTestCase):
         self.assertEqual(emptyList.toString(), '')
         self.assertEqual(emptyList.toXMLString(), '')
 
-        try:
+        with self.assertRaises(TypeError) as handler:
             XML(emptyList)
-        except Exception as e:
-            trace("Caught error: " + e)
-            trace(e.errorID)
-        # => Caught error: TypeError: Error #1088: The markup in the document following the root element must be well-formed.
-        # => 1088
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1088)
+        self.assertEqual(exception.message, 'The markup in the document following the root element must be well-formed.')
 
         #var singleList = new XMLList("<outer><inner>Hello</inner><second>World</second></outer>");
         #var xmlFromSingle = XML(singleList);
@@ -8126,21 +8121,17 @@ class XMLTests(as3libTestCase):
         #trace("ctorCopy equal: " + (multiList === ctorCopy));
         # => false
 
-        try:
+        with self.assertRaises(TypeError) as handler:
             XML(multiList)
-        except Exception as e:
-            trace("Caught error: " + e)
-            trace(e.errorID)
-        # => Caught error: TypeError: Error #1088: The markup in the document following the root element must be well-formed.
-        # => 1088
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1088)
+        self.assertEqual(exception.message, 'The markup in the document following the root element must be well-formed.')
 
-        try:
-            trace(XML("<Hello<"))
-        except Exception as e:
-            trace("Caught parsing error: " + e)
-            trace(e.errorID)
-        # => Caught parsing error: TypeError: Error #1090: XML parser failure: element is malformed.
-        # => 1090
+        with self.assertRaises(TypeError) as handler:
+            XML('<Hello<')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1090)
+        self.assertEqual(exception.message, 'XML parser failure: element is malformed.')
 
     def test_delete(self):
         raise TestNotImplemented
