@@ -1,5 +1,6 @@
-from as3lib import Error, Number, Object, undefined
-from as3lib.flash.net import FileFilter, getClassByAlias, SharedObject
+from as3lib import Error, null, Number, Object, undefined
+from as3lib.flash.net import (FileFilter, getClassByAlias, registerClassAlias,
+                              SharedObject)
 from as3lib.tests import as3libTestCase, TestNotImplemented
 
 
