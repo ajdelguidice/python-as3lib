@@ -4,7 +4,7 @@ from as3lib.flash.display import BitmapData, DisplayObject
 from as3lib.flash.events import ErrorEvent, EventDispatcher
 from as3lib.flash.filesystem import File
 from as3lib.flash.geom import Rectangle
-from as3lib.flash.net import URLLoader, URLRequest, URLStream
+from as3lib.flash.net import NetStream, URLLoader, URLRequest, URLStream
 from as3lib.flash.utils import ByteArray
 from as3lib.helpers import staticproperty
 
@@ -20,7 +20,6 @@ class AudioDecoder(Object):
 
 
 class AudioDeviceManager(EventDispatcher):
-    # TODO: Initialise this singleton
     # TODO: AudioOutputChangeEvent
 
     @staticproperty
@@ -122,7 +121,13 @@ class AVNetworkingParams(Object):
 
 
 class AVTagData(Object):
-    ...
+    @property
+    def data(self):
+        raise NotImplementedError
+
+    @property
+    def localTime(self):
+        raise NotImplementedError
 
 
 class AVURLLoader(URLLoader):
@@ -612,11 +617,133 @@ class MicrophoneEnhancedMode(Object):
 
 
 class MicrophoneEnhancedOptions(Object):
-    ...
+    @property
+    def echoPath(self):
+        return self._echoPath
+
+    @echoPath.setter
+    def echoPath(self, value):
+        self._echoPath = int(value)
+
+    @property
+    def isVoiceDetected(self):
+        return self._isVoiceDetected
+
+    @isVoiceDetected.setter
+    def isVoiceDetected(self, value):
+        self._isVoiceDetected = int(value)
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        value = String(value)
+        # if value not in MicrophoneEnhancedMode:
+        if value not in {'fullDuplex', 'halfDuplex', 'headset', 'off', 'speakerMute'}:
+            raise
+        self._mode = value
+
+    @property
+    def nonLinearProcessing(self):
+        return self._nonLinearProcessing
+
+    @nonLinearProcessing.setter
+    def nonLinearProcessing(self, value):
+        self._nonLinearProcessing = Boolean(value)
+
+    def __init__(self):
+        self.echoPath = 128
+        # TODO: isVoiceDetected
+        # TODO: Default for non-usb microphone is FULL_DUPLEX
+        #       Default for usb microphone is HALF_DUPLEX
+        # self.mode
+        self.nonLinearProcessing = true
+
+
+class Sound(EventDispatcher):
+    @property
+    def bytesLoaded(self):
+        raise NotImplementedError
+
+    @property
+    def bytesTotal(self):
+        raise NotImplementedError
+
+    @property
+    def id3(self):
+        raise NotImplementedError
+
+    @property
+    def isBuffering(self):
+        raise NotImplementedError
+
+    @property
+    def isURLInaccessible(self):
+        raise NotImplementedError
+
+    @property
+    def length(self):
+        raise NotImplementedError
+
+    @property
+    def url(self):
+        raise NotImplementedError
+
+    def __init__(self, stream: URLRequest = null,
+                 context: SoundLoaderContext = null):
+        raise NotImplementedError
+
+    def close(self):
+        raise NotImplementedError
+
+    def extract(self, target: ByteArray, length: Number,
+                startPosition: Number = -1):
+        raise NotImplementedError
+
+    def load(self, stream: URLRequest, context: SoundLoaderContext = null):
+        raise NotImplementedError
+
+    def loadCompressedDataFromByteArray(self, bytes: ByteArray,
+                                        bytesLength: uint):
+        raise NotImplementedError
+
+    def loadPCMFromByteArray(self, bytes: ByteArray, samples: uint,
+                             format: String = 'float', stereo: Boolean = true,
+                             sampleRate: Number = 44100.0):
+        raise NotImplementedError
+
+    def play(self, startTime: Number = 0, loops: int = 0, sndTransform: SoundTransform = null):
+        raise NotImplementedError
 
 
 class SoundChannel(EventDispatcher):
-    ...
+    @property
+    def leftPeak(self):
+        raise NotImplementedError
+
+    @property
+    def position(self):
+        raise NotImplementedError
+
+    @property
+    def rightPeak(self):
+        raise NotImplementedError
+
+    @property
+    def soundTransform(self):
+        raise NotImplementedError
+
+    @soundTransform.setter
+    def soundTransform(self, value):
+        raise NotImplementedError
+
+    def __init__(self):
+        super().__init__()
+
+    def stop(self):
+        raise NotImplementedError
 
 
 class SoundCodec(Object):
@@ -627,19 +754,190 @@ class SoundCodec(Object):
 
 
 class SoundLoaderContext(Object):
-    ...
+    @property
+    def bufferTime(self):
+        return self._bufferTime
+
+    @bufferTime.setter
+    def bufferTime(self, value):
+        self._bufferTime = Number(value)
+
+    @property
+    def checkPolicyFile(self):
+        return self._checkPolicyFile
+
+    @checkPolicyFile.setter
+    def checkPolicyFile(self, value):
+        self._checkPolicyFile = Boolean(value)
+
+    def __init__(self, bufferTime: Number = 1000,
+                 checkPolicyFile: Boolean = false):
+        self.bufferTime = bufferTime
+        self.checkPolicyFile = checkPolicyFile
 
 
 class SoundMixer(Object):
-    ...
+    @staticproperty
+    def audioPlaybackMode(cls):
+        raise NotImplementedError
+
+    @audioPlaybackMode.setter
+    def audioPlaybackMode(cls, value):
+        raise NotImplementedError
+
+    @staticproperty
+    def bufferTime(self):
+        raise NotImplementedError
+
+    @bufferTime.setter
+    def bufferTime(self, value):
+        raise NotImplementedError
+
+    @staticproperty
+    def soundTransform(self):
+        raise NotImplementedError
+
+    @soundTransform.setter
+    def soundTransform(self, value):
+        raise NotImplementedError
+
+    @staticproperty
+    def useSpeakerphoneForVoice(self):
+        raise NotImplementedError
+
+    @useSpeakerphoneForVoice.setter
+    def useSpeakerphoneForVoice(self, value):
+        raise NotImplementedError
+
+    @staticmethod
+    def areSoundsInaccessible():
+        raise NotImplementedError
+
+    @staticmethod
+    def computeSpectrum(outputArray: ByteArray, FFTMode: Boolean = false,
+                        stretchFactor: int = 0):
+        raise NotImplementedError
+
+    @staticmethod
+    def stopAll():
+        raise NotImplementedError
 
 
 class SoundTransform(Object):
-    ...
+    @property
+    def leftToLeft(self):
+        raise NotImplementedError
+
+    @leftToLeft.setter
+    def leftToLeft(self, value):
+        raise NotImplementedError
+
+    @property
+    def leftToRight(self):
+        raise NotImplementedError
+
+    @leftToRight.setter
+    def leftToRight(self, value):
+        raise NotImplementedError
+
+    @property
+    def pan(self):
+        return self._pan
+
+    @pan.setter
+    def pan(self, value):
+        value = Number(value)
+        # TODO: Check if this is supposed to raises here
+        if value > -1 or value < 1:
+            raise
+        self._pan = value
+
+    @property
+    def rightToLeft(self):
+        raise NotImplementedError
+
+    @rightToLeft.setter
+    def rightToLeft(self, value):
+        raise NotImplementedError
+
+    @property
+    def rightToRight(self):
+        raise NotImplementedError
+
+    @rightToRight.setter
+    def rightToRight(self, value):
+        raise NotImplementedError
+
+    @property
+    def volume(self):
+        return self._volume
+
+    @volume.setter
+    def volume(self, value):
+        value = Number(value)
+        # TODO: Check if this is supposed to raises here
+        if value < 0 or value > 1:
+            raise
+        self._volume = value
+
+    def __init__(self, vol: Number = 1, panning: Number = 0):
+        self.volume = vol
+        self.pan = panning
 
 
 class StageVideo(EventDispatcher):
-    ...
+    @property
+    def colorSpaces(self):
+        raise NotImplementedError
+
+    @property
+    def depth(self):
+        raise NotImplementedError
+
+    @depth.setter
+    def depth(self, value):
+        raise NotImplementedError
+
+    @property
+    def pan(self):
+        raise NotImplementedError
+
+    @pan.setter
+    def pan(self, value):
+        raise NotImplementedError
+
+    @property
+    def videoHeight(self):
+        raise NotImplementedError
+
+    @property
+    def videoWidth(self):
+        raise NotImplementedError
+
+    @property
+    def viewPort(self):
+        raise NotImplementedError
+
+    @viewPort.setter
+    def viewPort(self, value):
+        raise NotImplementedError
+
+    @property
+    def zoom(self):
+        raise NotImplementedError
+
+    @zoom.setter
+    def zoom(self, value):
+        raise NotImplementedError
+
+    def __init__(self):
+        super().__init__()
+
+    def attachCamera(self, theCamera: Camera):
+        raise NotImplementedError
+
+    def attachNetStream(self, netStream: NetStream):
+        raise NotImplementedError
 
 
 class StageVideoAvailability(Object):
@@ -660,7 +958,52 @@ class StageWebView(EventDispatcher):
 
 
 class Video(DisplayObject):
-    ...
+    @property
+    def deblocking(self):
+        raise NotImplementedError
+
+    @deblocking.setter
+    def deblocking(self, value):
+        raise NotImplementedError
+
+    @property
+    def smoothing(self):
+        raise NotImplementedError
+
+    @smoothing.setter
+    def smoothing(self, value):
+        raise NotImplementedError
+
+    @property
+    def videoHeight(self):
+        raise NotImplementedError
+
+    @property
+    def videoWidth(self):
+        raise NotImplementedError
+
+    def __init__(self, width: int = 320, height: int = 240):
+        super().__init__()
+        # NOTE: width and height properties are defined by the parent
+        width = int(width)
+        if width == 0:
+            width = 320
+        self.width = width
+
+        height = int(height)
+        if height == 0:
+            height = 240
+        self.height = height
+        raise NotImplementedError
+
+    def attachCamera(self, camera: Camera):
+        raise NotImplementedError
+
+    def attachNetStream(self, netStream: NetStream):
+        raise NotImplementedError
+
+    def clear(self):
+        raise NotImplementedError
 
 
 class VideoCodec(Object):
@@ -675,7 +1018,52 @@ class VideoStatus(Object):
 
 
 class VideoStreamSettings(Object):
-    ...
+    @property
+    def bandwidth(self):
+        return self._bandwidth
+
+    @property
+    def codec(self):
+        return self._codec
+
+    @property
+    def fps(self):
+        return self._fps
+
+    @property
+    def height(self):
+        return self._height
+
+    @property
+    def keyFrameInterval(self):
+        return self._keyFrameInterval
+
+    @property
+    def quality(self):
+        return self._quality
+
+    @property
+    def width(self):
+        return self._width
+
+    def __init__(self):
+        self._keyFrameInterval = int(15)
+        self._width = int(-1)
+        self._height = int(-1)
+        self._fps = int(-1)
+        raise NotImplementedError
+
+    def setKeyFrameInterval(self, keyFrameInterval: int):
+        keyFrameInterval = int(keyFrameInterval)
+        if keyFrameInterval != -1 and (keyFrameInterval < 1 or keyFrameInterval > 300):
+            keyFrameInterval = int(15)
+        self._keyFrameInterval = keyFrameInterval
+
+    def setMode(self, width: int, height: int, fps: Number):
+        raise NotImplementedError
+
+    def setQuality(self, bandwidth: int, quality: int):
+        raise NotImplementedError
 
 
 class H264VideoStreamSettings(VideoStreamSettings):
