@@ -876,9 +876,10 @@ class ArrayTests(as3libTestCase):
         b = a.splice()
 
         self.assertArray(a, [999, 998, 2, 997, 4, 996, 6, 995], 8)
-        # TODO: Make correct assert for b. I'm not sure what type it is
-        # trace(b)
-        # 2026-01-15T17:59:59.453530Z  INFO avm_trace: undefined
+
+        # TODO: Unsure if b is supposed to be null or undefined
+        self.assertEqual(b, null)
+        # => undefined
 
         a = constructArray()
         c = a.splice(0, 3, 'test1', 'test2')
