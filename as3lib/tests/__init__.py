@@ -1,4 +1,4 @@
-from as3lib import each, int, NaN, Number, stricteq, strictne, uint
+from as3lib import each, int, Number, stricteq, strictne, uint
 import builtins
 import math
 import unittest
