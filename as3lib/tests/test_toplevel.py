@@ -3043,16 +3043,53 @@ class JSONTests(as3libTestCase):
     def test_errors(self):
         recursive = Object()
         recursive.recursivekey = recursive
-        self.assertRaisesAS3(SyntaxError, 1132, None, JSON.parse, '{a}')
-        self.assertRaisesAS3(TypeError, 1129, None, JSON.stringify, recursive)
-        self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, {'key': 'value'}, '---')
-        self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, recursive, '---')
-        self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, recursive, {'key': '---'})
+        # TODO: Check Error.message
+        with self.assertRaises(SyntaxError) as handler:
+            JSON.parse('{a}')
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1132)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify(recursive)
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1129)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify({'key': 'value'}, '---')
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1131)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify(recursive, '---')
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1131)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify(recursive, {'key': '---'})
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1131)
+
         JSON.parse("{\"a\": 8}")  # Should work
         self.assertEqual(JSON.stringify(recursive, ['otherkey']), {})
-        self.assertRaisesAS3(TypeError, 1129, None, JSON.stringify, recursive, null)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify(recursive, null)
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1129)
+
         self.assertEqual(JSON.stringify({"a": 8}, null), '{"a":8}')
-        self.assertRaisesAS3(TypeError, 1131, None, JSON.stringify, {"a": 8}, undefined)
+
+        with self.assertRaises(TypeError) as handler:
+            JSON.stringify({"a": 8}, undefined)
+        exception = handler.exception
+        # self.assertEqual(exception.message, )
+        self.assertEqual(exception.errorID, 1131)
 
     def test_parse(self):
         INPUT = '{"test": "value", "another": [1, 2, 3], "example": {"recursive": "test"}}'
@@ -3272,7 +3309,11 @@ class NamespaceTests(as3libTestCase):
             if a == '':
                 self.assertNamespace(Namespace(a, ''), '', '')
             else:
-                self.assertRaisesAS3(TypeError, 1098, None, Namespace, a, '')
+                with self.assertRaises(TypeError) as handler:
+                    Namespace(a, '')
+                exception = handler.exception
+                # self.assertEqual(exception.message, )  # TODO
+                self.assertEqual(exception.errorID, 1098)
             self.assertNamespace(Namespace(a, 'NOT A VALID PREFIX'), *check[3])
             self.assertNamespace(Namespace(a, otherNS), *check[4])
             self.assertNamespace(Namespace(a, qName), *check[5])
@@ -5151,18 +5192,18 @@ class RegExpTests(as3libTestCase):
         test(RegExp('empty flags'), undefined, '/empty flags/', False)
         test(RegExp('dotall embedded flags', 's'), undefined,
              '/dotall embedded flags/s', False, s=True)
-        self.assertRaisesAS3(TypeError,
-                             1100,
-                             'Cannot supply flags when constructing one RegExp from another',
-                             test,
-                             RegExp('/empty string separate flag/', 's'),
-                             '')
-        self.assertRaisesAS3(TypeError,
-                             1100,
-                             'Cannot supply flags when constructing one RegExp from another',
-                             test,
-                             RegExp('/dotall separate flags/', 's'),
-                             's')
+
+        with self.assertRaises(TypeError) as handler:
+            RegExp(RegExp('/dotall separate flags/', 's'), 's')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1100)
+        self.assertEqual(exception.message, 'Cannot supply flags when constructing one RegExp from another')
+
+        with self.assertRaises(TypeError) as handler:
+            RegExp(RegExp('/empty string separate flag/', 's'), '')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1100)
+        self.assertEqual(exception.message, 'Cannot supply flags when constructing one RegExp from another')
 
     def test_exec(self):
         re = RegExp('')
@@ -5254,14 +5295,15 @@ class RegExpTests(as3libTestCase):
         re = RegExp('abc', 'xsmig')
         self.assertEqual(re.toString(), '/abc/gimsx')
         raise MethodNotImplemented('prototype')
-        # self.assertEqual(RegExp.prototype.toString.call(re), '/abc/gimsx')
-        # self.assertEqual(Object.prototype.toString.call(re), '[object, RegExp]')
-        # self.assertRaisesAS3(TypeError,
-        #                     1034,
-        #                     'Type Coercion failed: cannot convert Object@00000000000 to RegExp.',
-        #                     test,
-        #                     RegExp.prototype.toString.call,
-        #                     Object())
+
+        self.assertEqual(RegExp.prototype.toString.call(re), '/abc/gimsx')
+        self.assertEqual(Object.prototype.toString.call(re), '[object, RegExp]')
+
+        with self.assertRaises(TypeError) as handler:
+            RegExp.prototype.toString.call(Object())
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1034)
+        self.assertEqual(exception.message, 'Type Coercion failed: cannot convert Object@00000000000 to RegExp.')
 
 
 class StringTests(as3libTestCase):
@@ -7855,17 +7897,20 @@ class WTFJSTests(as3libTestCase):
 class XMLTests(as3libTestCase):
     def setUp(self):
         # TODO: Use XML.settings() and XML.setSettings() once implemented
-        self.initialXMLPrettyPrintingValue = XML.prettyPrinting
-        self.initialXMLIgnoreCommentsValue = XML.ignoreComments
-        self.initialXMLIgnoreProcessingInstructionsValue = XML.ignoreProcessingInstructions
+        self.XML_PrettyPrintingValue = XML.prettyPrinting
+        self.XML_IgnoreCommentsValue = XML.ignoreComments
+        self.XML_IgnoreProcessingInstructionsValue = XML.ignoreProcessingInstructions
+        self.XML_IgnoreWhitespaceValue = XML.ignoreWhitespace
 
     def tearDown(self):
-        XML.prettyPrinting = self.initialXMLPrettyPrintingValue
-        XML.ignoreComments = self.initialXMLIgnoreCommentsValue
-        XML.ignoreProcessingInstructions = self.initialXMLIgnoreProcessingInstructionsValue
-        del self.initialXMLPrettyPrintingValue
-        del self.initialXMLIgnoreCommentsValue
-        del self.initialXMLIgnoreProcessingInstructionsValue
+        XML.prettyPrinting = self.XML_PrettyPrintingValue
+        XML.ignoreComments = self.XML_IgnoreCommentsValue
+        XML.ignoreProcessingInstructions = self.XML_IgnoreProcessingInstructionsValue
+        XML.ignoreWhitespace = self.XML_IgnoreWhitespaceValue
+        del self.XML_PrettyPrintingValue
+        del self.XML_IgnoreCommentsValue
+        del self.XML_IgnoreProcessingInstructionsValue
+        del self.XML_IgnoreWhitespaceValue
 
     def assertXMLList(self, xmllist, check, length=null):
         if length is not null:
@@ -8328,7 +8373,90 @@ class XMLTests(as3libTestCase):
         self.assertEqual(xml['@label'], 'A && B')
 
     def test_weird_ignores(self):
-        raise TestNotImplemented
+        def assertWeirdIgnores(xml, settings, check):
+            XML.ignoreComments = settings[0]
+            XML.ignoreProcessingInstructions = settings[1]
+            XML.ignoreWhitespace = settings[2]
+
+            if isinstance(check, Error):
+                with self.assertRaises(type(check)) as handler:
+                    xml.toString()
+
+                exception = handler.exception
+                self.assertEqual(exception.message, check.message)
+                self.assertEqual(exception.errorID, check.errorID)
+
+            else:
+                self.assertEqual(xml.toXMLString(), check)
+
+        def testXMLString(xmlString, check):
+            xml = XML(xmlString)
+            if isinstance(check, tuple):
+                self.assertWeirdIgnores(xml, (false, false, false), check[0])
+                self.assertWeirdIgnores(xml, (false, false, true), check[1])
+                self.assertWeirdIgnores(xml, (false, true, false), check[2])
+                self.assertWeirdIgnores(xml, (false, true, true), check[3])
+                self.assertWeirdIgnores(xml, (true, false, false), check[4])
+                self.assertWeirdIgnores(xml, (true, false, true), check[5])
+                self.assertWeirdIgnores(xml, (true, true, false), check[6])
+                self.assertWeirdIgnores(xml, (true, true, true), check[7])
+            else:
+                self.assertWeirdIgnores(xml, (false, false, false), check)
+                self.assertWeirdIgnores(xml, (false, false, true), check)
+                self.assertWeirdIgnores(xml, (false, true, false), check)
+                self.assertWeirdIgnores(xml, (false, true, true), check)
+                self.assertWeirdIgnores(xml, (true, false, false), check)
+                self.assertWeirdIgnores(xml, (true, false, true), check)
+                self.assertWeirdIgnores(xml, (true, true, false), check)
+                self.assertWeirdIgnores(xml, (true, true, true), check)
+
+        XML.prettyPrinting = false
+
+        error = TypeError('The markup in the document following the root element must be well-formed.', 1088)
+
+        self.testXMLString("<![CDATA[abcd]]>text", error)
+        self.testXMLString(
+            "<!-- comment --><elem><?pi PI?><!-- inner --> innerText </elem><?pi PI?><![CDATA[  ]]>",
+            (
+                '<elem><?pi PI?><!-- inner --> innerText </elem>',
+                '<elem><?pi PI?><!-- inner -->innerText</elem>',
+                '<elem><!-- inner --> innerText </elem>',
+                '<elem><!-- inner -->innerText</elem>',
+                '<elem><?pi PI?> innerText </elem>',
+                '<elem><?pi PI?>innerText</elem>',
+                '<elem> innerText </elem>',
+                '<elem>innerText</elem>'
+            )
+        )
+        self.testXMLString("    <![CDATA[abcd]]><body/>", '<body/>')
+        self.testXMLString("<body/><?pi PI?><body2/><!-- comment -->", error)
+        self.testXMLString(
+            "<elem><?pi innerPI?></elem><?pi PI?>",
+            (
+                '<elem><?pi innerPI?></elem>',
+                '<elem><?pi innerPI?></elem>',
+                '<elem/>',
+                '<elem/>',
+                '<elem><?pi innerPI?></elem>',
+                '<elem><?pi innerPI?></elem>',
+                '<elem/>',
+                '<elem/>'
+            )
+        )
+        self.testXMLString("    <body/>   ", '<body/>')
+        self.testXMLString(
+            "<?pi PI?><!-- comment -->",
+            (
+                error,
+                error,
+                '<!-- comment -->',
+                '<!-- comment -->',
+                '<?pi PI?>',
+                '<?pi PI?>',
+                '',  # TODO: Check if these are actually supposed to be empty
+                ''
+            )
+        )
 
     def test_wildcard(self):
         xml = XML('<animals x="y" a="b"><animal id="1"><name>toto</name></animal><animal id="2"><name>piggy</name></animal></animals>')
