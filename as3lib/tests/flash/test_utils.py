@@ -129,39 +129,122 @@ class ByteArrayTests(as3libTestCase):
         self.assertEqual(ba.readUnsignedByte(), 218)
 
     def test_errors(self):
+        # TODO: There might be some tests missing from here
         ba = ByteArray()
-        self.assertRaisesAS3(TypeError, 2007, None, ba.compress, null)
-        self.assertRaisesAS3(IOError, 2058, None, ba.compress, 'abcdef')
+        # TODO: Check Error.message
 
-        self.assertRaisesAS3(TypeError, 2007, None, ba.uncompress, null)
-        self.assertRaisesAS3(IOError, 2058, None, ba.uncompress, 'abcdef')
+        # ByteArray.compress
+        with self.assertRaises(TypeError) as handler:
+            ba.compress(null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(IOError) as handler:
+            ba.compress('abcdef')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2058)
+        # self.assertEqual(exception.message, )
+
+        # ByteArray.uncompress
+        with self.assertRaises(TypeError) as handler:
+            ba.uncompress(null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(IOError) as handler:
+            ba.uncompress('abcdef')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2058)
+        # self.assertEqual(exception.message, )
+
         ba.uncompress('zlib')  # Doesn't raise an error
 
-        def setEndian(barr, endian):
-            barr.endian = endian
+        # ByteArray.endian
+        with self.assertRaises(TypeError) as handler:
+            ba.endian = null
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
 
-        self.assertRaisesAS3(TypeError, 2007, None, setEndian, ba, null)
-        self.assertRaisesAS3(ArgumentError, 2008, None, setEndian, ba, 'abcdef')
+        with self.assertRaises(ArgumentError) as handler:
+            ba.endian = 'abcdef'
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2008)
+        # self.assertEqual(exception.message, )
 
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTFBytes, null)
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeUTF, null)
+        # ByteArray.writeUTF
+        with self.assertRaises(TypeError) as handler:
+            ba.writeUTF(null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
 
+        # ByteArray.writeUTFBytes
+        with self.assertRaises(TypeError) as handler:
+            ba.writeUTFBytes(null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        # ByteArray.writeMultiByte
         ba.writeMultiByte('abcd', 'utf-8')
         ba.writeMultiByte('abcd', 'aisjdasd')
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, 'utf-8')
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, 'aisjdasd')
-        self.assertRaisesAS3(TypeError, 2007, None, ba.writeMultiByte, null, null)
 
+        with self.assertRaises(TypeError) as handler:
+            ba.writeMultiByte(null, 'utf-8')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(TypeError) as handler:
+            ba.writeMultiByte(null, 'aisjdasd')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(TypeError) as handler:
+            ba.writeMultiByte(null, null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        # ByteArray.readMultiByte
         ba.readMultiByte(0, '')
-        self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, '')
-        self.assertRaisesAS3(TypeError, 2007, None, ba.readMultiByte, 0, null)
-        self.assertRaisesAS3(TypeError, 2007, None, ba.readMultiByte, 20, null)
+
+        with self.assertRaises(EOFError) as handler:
+            ba.readMultiByte(20, '')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2030)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(TypeError) as handler:
+            ba.readMultiByte(0, null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
+        with self.assertRaises(TypeError) as handler:
+            ba.readMultiByte(20, null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2007)
+        # self.assertEqual(exception.message, )
+
         ba.readMultiByte(0, 'aisjdasd')
-        self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, 'aisjdasd')
+
+        with self.assertRaises(EOFError) as handler:
+            ba.readMultiByte(20, 'aisjdasd')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2030)
+        # self.assertEqual(exception.message, )
+
         ba.readMultiByte(0, 'utf-8')
-        self.assertRaisesAS3(EOFError, 2030, None, ba.readMultiByte, 20, 'utf-8')
+        with self.assertRaises(EOFError) as handler:
+            ba.readMultiByte(20, 'utf-8')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 2030)
+        # self.assertEqual(exception.message, )
 
     def test_method_serialization(self):
         p = Point(4.5, 5.5)
