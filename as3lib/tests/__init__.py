@@ -75,17 +75,6 @@ class as3libTestCase(unittest.TestCase):
         self.assertEqual(obj.localName, localName)
         self.assertEqual(obj.uri, uri)
 
-    def assertRaisesAS3(self, error, errorID, message, func, *args):
-        try:
-            func(*args)
-        except Exception as e:
-            self.assertIs(type(e), error)
-            self.assertEqual(e.errorID, errorID)
-            if message is not None:
-                self.assertEqual(e.message, message)
-        else:
-            self.fail('Function didn\'t raise an error.')
-
     def assertStrictEQ(self, obj1, obj2):
         self.assertTrue(stricteq(obj1, obj2))
 
