@@ -1,4 +1,4 @@
-from as3lib import Error, null, Number, Object, undefined
+from as3lib import Error, null, Number, Object, ReferenceError, undefined
 from as3lib.flash.net import (FileFilter, getClassByAlias, registerClassAlias,
                               SharedObject)
 from as3lib.tests import as3libTestCase, TestNotImplemented
@@ -43,16 +43,17 @@ class FileReferenceTests(as3libTestCase):
 
 class FunctionTests(as3libTestCase):
     def test_getClassByAlias(self):
-        raise TestNotImplemented
-        try:
+        with self.assertRaises(ReferenceError) as handler:
             getClassByAlias('toString')
-        except Error as e:
-            ...  # => ReferenceError: Error #1014: Class toString could not be found.
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1014)
+        self.assertEqual(exception.message, 'Class toString could not be found.')
 
-        try:
+        with self.assertRaises(ReferenceError) as handler:
             getClassByAlias('MyClass')
-        except Error as e:
-            ...  # => ReferenceError: Error #1014: Class MyClass could not be found.
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1014)
+        self.assertEqual(exception.message, 'Class MyClass could not be found.')
 
         class TestClass:
             ...
