@@ -58,15 +58,15 @@ if not as3state.initdone:
 
 # Export toplevel and set up miniamf adapters
 from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
-                        DefinitionError, Error, EvalError, false, Infinity,
-                        int, JSON, Math, Namespace, NaN, null, Number, Object,
-                        QName, RangeError, ReferenceError, RegExp,
-                        SecurityError, String, SyntaxError, true, TypeError,
-                        uint, undefined, URIError, Vector, VerifyError, XML,
-                        XMLList, decodeURI, decodeURIComponent, encodeURI,
-                        encodeURIComponent, escape, isFinite, isNaN,
-                        isXMLName, parseFloat, parseInt, unescape, delete,
-                        each, stricteq, strictne)
+                        DefinitionError, Error, EvalError, false, Function,
+                        Infinity, int, JSON, Math, Namespace, NaN, null,
+                        Number, Object, QName, RangeError, ReferenceError,
+                        RegExp, SecurityError, String, SyntaxError, true,
+                        TypeError, uint, undefined, URIError, Vector,
+                        VerifyError, XML, XMLList, decodeURI,
+                        decodeURIComponent, encodeURI, encodeURIComponent,
+                        escape, isFinite, isNaN, isXMLName, parseFloat,
+                        parseInt, unescape, delete, each, stricteq, strictne)
 
 
 # Set up miniamf type adapters
@@ -172,6 +172,7 @@ __all__ = (
     'Error',
     'escape',
     'EvalError',
+    'Function',
     'int',
     'isFinite',
     'isNaN',
