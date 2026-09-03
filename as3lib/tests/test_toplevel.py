@@ -7892,22 +7892,35 @@ class WTFJSTests(as3libTestCase):
 
 
 class XMLTests(as3libTestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Set XML static settings to their default values to ensure that tests
+        # work properly.
+        XML.ignoreComments = true
+        XML.ignoreProcessingInstructions = true
+        XML.ignoreWhitespace = true
+        XML.prettyIndent = 2
+        XML.prettyPrinting = true
+
     def setUp(self):
         # TODO: Use XML.settings() and XML.setSettings() once implemented
         self.XML_PrettyPrintingValue = XML.prettyPrinting
         self.XML_IgnoreCommentsValue = XML.ignoreComments
         self.XML_IgnoreProcessingInstructionsValue = XML.ignoreProcessingInstructions
         self.XML_IgnoreWhitespaceValue = XML.ignoreWhitespace
+        self.XML_PrettyIndent = XML.prettyIndent
 
     def tearDown(self):
         XML.prettyPrinting = self.XML_PrettyPrintingValue
         XML.ignoreComments = self.XML_IgnoreCommentsValue
         XML.ignoreProcessingInstructions = self.XML_IgnoreProcessingInstructionsValue
         XML.ignoreWhitespace = self.XML_IgnoreWhitespaceValue
+        XML.prettyIndent = self.XML_PrettyIndent
         del self.XML_PrettyPrintingValue
         del self.XML_IgnoreCommentsValue
         del self.XML_IgnoreProcessingInstructionsValue
         del self.XML_IgnoreWhitespaceValue
+        del self.XML_PrettyIndent
 
     def assertXMLList(self, xmllist, check, length=null):
         if length is not null:
@@ -8189,9 +8202,46 @@ class XMLTests(as3libTestCase):
         self.assertEqual(xml2.length(), 1)
 
     def test_list_as_attribute(self):
-        raise TestNotImplemented
+        xml = XML('<root><item>A</item></root>')
+
+        self.assertEqual(xml.toXMLString(), '<root>\n  <item>A</item>\n</root>')
+
+        xml.item[0]['@name'] = 'Hello'
+
+        self.assertEqual(xml.toXMLString(), '<root>\n  <item name="Hello">A</item>\n</root>')
+
+        part = XMLList('<root><item>A</item><item>B</item></root>')
+
+        xml.item[0]['@name2'] = part
+
+        self.assertEqual(xml.toXMLString(), '<root>\n  <item name="Hello" name2="&lt;root>&#xA;  &lt;item>A&lt;/item>&#xA;  &lt;item>B&lt;/item>&#xA;&lt;/root>">A</item>\n</root>')
 
     def test_list_concat(self):
+        raise TestNotImplemented
+
+    def tests_list_constructor_errors(self):
+        def test(xmlString, error):
+            with self.assertRaises(type(error)) as handler:
+                XMLList(xmlString)
+            exception = handler.exception
+            self.assertEqual(exception.errorID, error.errorID)
+            self.assertEqual(exception.message, error.message)
+
+        test('<xml>', TypeError('The element type "xml" must be terminated by the matching end-tag "</xml>".', 1085))
+
+        error1090 = TypeError('XML parser failure: element is malformed.', 1090)
+        test('<xm', error1090)
+        test('><', error1090)
+        test('<', error1090)
+
+        test('<a/><![CDATA[', TypeError('XML parser failure: Unterminated CDATA section.', 1091))
+        test('<!DOCTYPE ', TypeError('XML parser failure: Unterminated DOCTYPE declaration.', 1093))
+
+        obj = Object()
+        obj.toString = lambda: obj
+        test(obj, TypeError('Cannot convert Object to primitive.', 1050))
+
+    def test_list_delete_clear_parent(self):
         raise TestNotImplemented
 
     def test_list_enumerate(self):
@@ -8218,7 +8268,8 @@ class XMLTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_no_namespace(self):
-        raise TestNotImplemented
+        xml = XML('<project name="ruffle"></project>')
+        self.assertEqual(xml['@name'], 'ruffle')
 
     def test_nodekind(self):
         # RUFFLE NOTE:
@@ -8252,10 +8303,88 @@ class XMLTests(as3libTestCase):
         self.assertEqual(baz.parent(), bar)
 
     def test_set_children(self):
-        raise TestNotImplemented
+        XML.prettyPrinting = false
+
+        xml = XML('<a></a>')
+        self.assertEqual(xml.toXMLString(), '<a/>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a><b>abc<b/><a/>')
+
+        xml = XML('<a><b></b></a>')
+        self.assertEqual(xml.toXMLString(), '<a><b/><a/>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a><b>abc</b></a>')
+
+        xml = XML('<a><b>foobar</b></a>')
+        self.assertEqual(xml.toXMLString(), '<a><b>foobar</b></a>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a><b>abc</b></a>')
+
+        xml = XML('<a><b><x1>x1</x1><x2>x2</x2></b></a>')
+        self.assertEqual(xml.toXMLString(), '<a><b><x1>x1</x1><x2>x2</x2></b></a>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a><b>abc</b></a>')
+
+        xml = XML('<a><b x="1"></b></a>')
+        self.assertEqual(xml.toXMLString(), '<a><b x="1"/></a>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a><b x="1">abc</b></a>')
+
+        xml = XML('<a>xxx<foo>yyy</foo>zzz</a>')
+        self.assertEqual(xml.toXMLString(), '<a>xxx<foo>yyy</foo>zzz</a>')
+        xml.b = 'abc'
+        self.assertEqual(xml.toXMLString(), '<a>xxx<foo>yyy</foo>zzz<b>abc</b></a>')
+
+        xml = XML('<a/>')
+        self.assertEqual(xml.toXMLString(), '<a/>')
+        xml.name = 'abc'
+        self.assertEqual(xml.toXMLString(), 'abc')
+        self.assertEqual(xml.toXMLString(), '<a><name>abc</name></a>')
+
+        xml = XML('<a><b></b></a>')
+        self.assertEqual(xml.toXMLString(), '<a><b/></a>')
+        xml_list = XMLList(xml.b)
+        xml_list.hello = 'world'
+        self.assertEqual(xml.toXMLString(), '<a><b><hello>world</hello></b></a>')
 
     def test_set_name(self):
-        raise TestNotImplemented
+        a = XML('<outer attrib="value"><inner>innerText</inner></outer>;')
+        self.assertEqual(a.toXMLString(), '<outer attrib="value">\n  <inner>innerText</inner>\n</outer>')
+
+        # "newOuterName"
+        a.setName('newOuterName')
+        self.assertEqual(a.toXMLString(), '<newOuterName attrib="value">\n  <inner>innerText</inner>\n</newOuterName>')
+
+        # new QName(null, "someOuterName")
+        a.setName(QName(null, 'someOuterName'))
+        self.assertEqual(a.toXMLString(), '<someOuterName attrib="value">\n  <inner>innerText</inner>\n</someOuterName>')
+
+        # new QName("", "otherOuterName")
+        a.setName(QName('', 'otherOuterName'))
+        self.assertEqual(a.toXMLString(), '<otherOuterName attrib="value">\n  <inner>innerText</inner>\n</otherOuterName>')
+
+        # new QName("http://example.org", "nameWithNs")
+        a.setName(QName('http://example.org', 'nameWithNs'))
+        self.assertEqual(a.toXMLString(), '<nameWithNs attrib="value" xmlns="http://example.org">\n  <inner>innerText</inner>\n</nameWithNs>')
+
+        # "simpleName"
+        a.setName('simpleName')
+        self.assertEqual(a.toXMLString(), '<simpleName attrib="value">\n  <inner>innerText</inner>\n</simpleName>')
+
+        # "newattribname"
+        a['@attrib'].setName('newattribname')
+        self.assertEqual(a.toXMLString(), '<simpleName newattribname="value">\n  <inner>innerText</inner>\n</simpleName>')
+
+        # new QName("http://foo.bar", "otherattribname")
+        a['@newattribname'].setName(QName('http://foo.bar', 'otherattribname'))
+        self.assertEqual(a.toXMLString(), '<simpleName otherattribname="value" xmlns="http://foo.bar">\n  <inner>innerText</inner>\n</simpleName>')
+
+        b = XML('justText')
+        self.assertEqual(b.toXMLString(), 'justText')
+
+        # noeffect
+        b.setName('noeffect')
+        self.assertEqual(b.toXMLString(), 'justText')
 
     def test_settings(self):
         settings = XML.settings()
@@ -8324,7 +8453,17 @@ class XMLTests(as3libTestCase):
         self.assertEqual(xml.toString(), '<? processing instruction! ?>')
 
     def test_toString_namespace(self):
-        raise TestNotImplemented
+        xml = XML('<root xmlns="http://example.com" xmlns:ns1="http://xxx.com/">\n\t<ns1:foo xmlns:ns2="http://yyy.com/">\n\t\t<ns2:bar abc="1" ns1:def="2" ns2:ghi="3">bar</ns2:bar>\n\t</ns1:foo>\n</root>')
+
+        self.assertEqual(xml.toXMLString(), '<root xmlns="http://example.com" xmlns:ns1="http://xxx.com/">\n  <ns1:foo xmlns:ns2="http://yyy.com/">\n    <ns2:bar abc="1" ns1:def="2" ns2:ghi="3">bar</ns2:bar>\n  </ns1:foo>\n</root>')
+
+        self.assertEqual(xml.child(0).toXMLString(), '<ns1:foo xmlns:ns2="http://yyy.com/" xmlns="http://example.com" xmlns:ns1="http://xxx.com/">\n  <ns2:bar abc="1" ns1:def="2" ns2:ghi="3">bar</ns2:bar>\n</ns1:foo>')
+
+        self.assertEqual(xml.child(0).child(0).toXMLString(), '<ns2:bar abc="1" ns1:def="2" ns2:ghi="3" xmlns:ns2="http://yyy.com/" xmlns="http://example.com" xmlns:ns1="http://xxx.com/">bar</ns2:bar>')
+
+        # RUFFLE: TODO: Flash invents a prefix ...
+        # trace("// xml.child(0).child(0).copy().toXMLString()");
+        # trace(xml.child(0).child(0).copy().toXMLString());
 
     def test_unescaping(self):
         xml = XML('<data>A &amp; &#39; B</data>')
@@ -8468,4 +8607,3 @@ class XMLTests(as3libTestCase):
         self.assertEqual(Object.prototype.toString.call(xml_list), '[object XMLList]')
 
         self.assertArray([child for child in xml_list['*']], ('toto', 'piggy'))
-
