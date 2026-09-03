@@ -16,6 +16,7 @@ from as3lib.flash.errors import (DRMManagerError, EOFError,
 from as3lib.flash.utils import ByteArray, setTimeout
 from as3lib.tests import as3libTestCase, TestNotImplemented, MethodNotImplemented
 import builtins
+from functools import partial
 # TODO: Clear prototypes after every test
 
 
@@ -2218,8 +2219,8 @@ class GlobalsTests(as3libTestCase):
 
 
 class NumberTestsBase(as3libTestCase):
-    def _assertToExponential(self, val, check):
-        # null/0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
+    def assertToExponential(self, type, val, check):
+        val = type(val)
         self.assertEqual(val.toExponential(), check[0])
         self.assertEqual(val.toExponential(0), check[0])
         self.assertEqual(val.toExponential(1), check[1])
@@ -2234,8 +2235,8 @@ class NumberTestsBase(as3libTestCase):
         self.assertEqual(val.toExponential(10), check[10])
         self.assertEqual(val.toExponential(20), check[11])
 
-    def _assertToFixed(self, val, check):
-        # null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
+    def assertToFixed(self, type, val, check):
+        val = type(val)
         self.assertEqual(val.toFixed(), check[0])
         self.assertEqual(val.toFixed(0), check[0])
         self.assertEqual(val.toFixed(1), check[1])
@@ -2250,7 +2251,8 @@ class NumberTestsBase(as3libTestCase):
         self.assertEqual(val.toFixed(10), check[10])
         self.assertEqual(val.toFixed(20), check[11])
 
-    def _assertToPrecision(self, val, check):
+    def assertToPrecision(self, type, val, check):
+        val = type(val)
         self.assertEqual(val.toPrecision(1), check[0])
         self.assertEqual(val.toPrecision(2), check[1])
         self.assertEqual(val.toPrecision(3), check[2])
@@ -2264,8 +2266,9 @@ class NumberTestsBase(as3libTestCase):
         self.assertEqual(val.toPrecision(20), check[10])
         self.assertEqual(val.toPrecision(21), check[11])
 
-    def _assertToString(self, val, check):
+    def assertToString(self, type, val, check):
         # 2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
+        val = type(val)
         self.assertEqual(val.toString(), check[8])
         for i in range(35):
             self.assertEqual(val.toString(i + 2), check[i])
@@ -2393,12 +2396,9 @@ class intTests(NumberTestsBase):
     # This test asserts that numbers declared by themselves without type
     # declarations should be of type Number, not int
 
-    def assertToExponential(self, value, check):
-        # null/0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
-        val = int(value)
-        self._assertToExponential(val, check)
-
     def test_toExponential(self):
+        assertToExponential = partial(self.assertToExponential, int)
+
         asrt_0 = ('1e-15', '0.0e-16', '0.00e-16', '0.000e-16', '0.0000e-16',
                   '0.00000e-16', '0.000000e-16', '0.0000000e-16',
                   '0.00000000e-16', '0.000000000e-16', '0.0000000000e-16',
@@ -2438,122 +2438,119 @@ class intTests(NumberTestsBase):
                             '-2.147483647e+9', '-2.1474836470e+9',
                             '-2.14748364700000000000e+9')
 
-        self.assertToExponential(true, asrt_1)
+        assertToExponential(true, asrt_1)
 
-        self.assertToExponential(false, asrt_0)
-        self.assertToExponential(null, asrt_0)
-        self.assertToExponential(undefined, asrt_0)
+        assertToExponential(false, asrt_0)
+        assertToExponential(null, asrt_0)
+        assertToExponential(undefined, asrt_0)
 
-        self.assertToExponential(String(''), asrt_0)
-        self.assertToExponential('', asrt_0)
+        assertToExponential(String(''), asrt_0)
+        assertToExponential('', asrt_0)
 
-        self.assertToExponential(String('str'), asrt_0)
-        self.assertToExponential('str', asrt_0)
+        assertToExponential(String('str'), asrt_0)
+        assertToExponential('str', asrt_0)
 
-        self.assertToExponential(String('true'), asrt_0)
-        self.assertToExponential('true', asrt_0)
+        assertToExponential(String('true'), asrt_0)
+        assertToExponential('true', asrt_0)
 
-        self.assertToExponential(String('false'), asrt_0)
-        self.assertToExponential('false', asrt_0)
+        assertToExponential(String('false'), asrt_0)
+        assertToExponential('false', asrt_0)
 
-        self.assertToExponential(Number(0.0), asrt_0)
-        self.assertToExponential(0.0, asrt_0)
+        assertToExponential(Number(0.0), asrt_0)
+        assertToExponential(0.0, asrt_0)
 
-        self.assertToExponential(NaN, asrt_0)
+        assertToExponential(NaN, asrt_0)
 
-        self.assertToExponential(Number(-0.0), asrt_0)
-        self.assertToExponential(-0.0, asrt_0)
+        assertToExponential(Number(-0.0), asrt_0)
+        assertToExponential(-0.0, asrt_0)
 
-        self.assertToExponential(Infinity, asrt_0)
+        assertToExponential(Infinity, asrt_0)
 
-        self.assertToExponential(Number(1.0), asrt_1)
-        self.assertToExponential(1.0, asrt_1)
+        assertToExponential(Number(1.0), asrt_1)
+        assertToExponential(1.0, asrt_1)
 
-        self.assertToExponential(Number(-1.0), asrt_n1)
-        self.assertToExponential(-1.0, asrt_n1)
+        assertToExponential(Number(-1.0), asrt_n1)
+        assertToExponential(-1.0, asrt_n1)
 
-        self.assertToExponential(Number(0xFF1306), asrt_16716550)
-        self.assertToExponential(0xFF1306, asrt_16716550)
+        assertToExponential(Number(0xFF1306), asrt_16716550)
+        assertToExponential(0xFF1306, asrt_16716550)
 
-        self.assertToExponential(Number(1.2315e2), asrt_123)
-        self.assertToExponential(1.2315e2, asrt_123)
+        assertToExponential(Number(1.2315e2), asrt_123)
+        assertToExponential(1.2315e2, asrt_123)
 
-        self.assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
+        assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToExponential(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToExponential(Number(0x80000000), asrt_n2147483648)
-        self.assertToExponential(0x80000000, asrt_n2147483648)
+        assertToExponential(Number(0x80000000), asrt_n2147483648)
+        assertToExponential(0x80000000, asrt_n2147483648)
 
-        self.assertToExponential(Number(0x80000001), asrt_n2147483647)
-        self.assertToExponential(0x80000001, asrt_n2147483647)
+        assertToExponential(Number(0x80000001), asrt_n2147483647)
+        assertToExponential(0x80000001, asrt_n2147483647)
 
-        self.assertToExponential(Number(0x180000001), asrt_n2147483647)
-        self.assertToExponential(0x180000001, asrt_n2147483647)
+        assertToExponential(Number(0x180000001), asrt_n2147483647)
+        assertToExponential(0x180000001, asrt_n2147483647)
 
-        self.assertToExponential(Number(0x100000001), asrt_1)
-        self.assertToExponential(0x100000001, asrt_1)
+        assertToExponential(Number(0x100000001), asrt_1)
+        assertToExponential(0x100000001, asrt_1)
 
-        self.assertToExponential(Number(-0x7FFFFFFF), asrt_n2147483647)
-        self.assertToExponential(-0x7FFFFFFF, asrt_n2147483647)
+        assertToExponential(Number(-0x7FFFFFFF), asrt_n2147483647)
+        assertToExponential(-0x7FFFFFFF, asrt_n2147483647)
 
-        self.assertToExponential(Number(-0x80000000), asrt_n2147483648)
-        self.assertToExponential(-0x80000000, asrt_n2147483648)
+        assertToExponential(Number(-0x80000000), asrt_n2147483648)
+        assertToExponential(-0x80000000, asrt_n2147483648)
 
-        self.assertToExponential(Number(-0x80000001), asrt_2147483647)
-        self.assertToExponential(-0x80000001, asrt_2147483647)
+        assertToExponential(Number(-0x80000001), asrt_2147483647)
+        assertToExponential(-0x80000001, asrt_2147483647)
 
-        self.assertToExponential(Number(-0x180000001), asrt_2147483647)
-        self.assertToExponential(-0x180000001, asrt_2147483647)
+        assertToExponential(Number(-0x180000001), asrt_2147483647)
+        assertToExponential(-0x180000001, asrt_2147483647)
 
-        self.assertToExponential(Number(-0x100000001), asrt_n1)
-        self.assertToExponential(-0x100000001, asrt_n1)
+        assertToExponential(Number(-0x100000001), asrt_n1)
+        assertToExponential(-0x100000001, asrt_n1)
 
-        self.assertToExponential(Object(), asrt_0)
+        assertToExponential(Object(), asrt_0)
 
         # Parse Tests
-        self.assertToExponential(String('0.0'), asrt_0)
-        self.assertToExponential('0.0', asrt_0)
-        self.assertToExponential(String('NaN'), asrt_0)
-        self.assertToExponential('NaN', asrt_0)
-        self.assertToExponential(String('-0.0'), asrt_0)
-        self.assertToExponential('-0.0', asrt_0)
-        self.assertToExponential(String('Infinity'), asrt_0)
-        self.assertToExponential('Infinity', asrt_0)
-        self.assertToExponential(String('1.0'), asrt_1)
-        self.assertToExponential('1.0', asrt_1)
-        self.assertToExponential(String('-1.0'), asrt_n1)
-        self.assertToExponential('-1.0', asrt_n1)
-        self.assertToExponential(String('0xFF1306'), asrt_16716550)
-        self.assertToExponential('0xFF1306', asrt_16716550)
-        self.assertToExponential(String('1.2315e2'), asrt_123)
-        self.assertToExponential('1.2315e2', asrt_123)
-        self.assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
-        self.assertToExponential(String('0x80000000'), asrt_n2147483648)
-        self.assertToExponential('0x80000000', asrt_n2147483648)
-        self.assertToExponential(String('0x80000001'), asrt_n2147483647)
-        self.assertToExponential('0x80000001', asrt_n2147483647)
-        self.assertToExponential(String('0x180000001'), asrt_n2147483647)
-        self.assertToExponential('0x180000001', asrt_n2147483647)
-        self.assertToExponential(String('0x100000001'), asrt_1)
-        self.assertToExponential('0x100000001', asrt_1)
-        self.assertToExponential(String('-0x7FFFFFFF'), asrt_n2147483647)
-        self.assertToExponential('-0x7FFFFFFF', asrt_n2147483647)
-        self.assertToExponential(String('-0x80000000'), asrt_n2147483648)
-        self.assertToExponential('-0x80000000', asrt_n2147483648)
-        self.assertToExponential(String('-0x80000001'), asrt_2147483647)
-        self.assertToExponential('-0x80000001', asrt_2147483647)
-        self.assertToExponential(String('-0x180000001'), asrt_2147483647)
-        self.assertToExponential('-0x180000001', asrt_2147483647)
-        self.assertToExponential(String('-0x100000001'), asrt_n1)
-        self.assertToExponential('-0x100000001', asrt_n1)
-
-    def assertToFixed(self, value, check):
-        # null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20
-        val = int(value)
-        self._assertToFixed(val, check)
+        assertToExponential(String('0.0'), asrt_0)
+        assertToExponential('0.0', asrt_0)
+        assertToExponential(String('NaN'), asrt_0)
+        assertToExponential('NaN', asrt_0)
+        assertToExponential(String('-0.0'), asrt_0)
+        assertToExponential('-0.0', asrt_0)
+        assertToExponential(String('Infinity'), asrt_0)
+        assertToExponential('Infinity', asrt_0)
+        assertToExponential(String('1.0'), asrt_1)
+        assertToExponential('1.0', asrt_1)
+        assertToExponential(String('-1.0'), asrt_n1)
+        assertToExponential('-1.0', asrt_n1)
+        assertToExponential(String('0xFF1306'), asrt_16716550)
+        assertToExponential('0xFF1306', asrt_16716550)
+        assertToExponential(String('1.2315e2'), asrt_123)
+        assertToExponential('1.2315e2', asrt_123)
+        assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToExponential('0x7FFFFFFF', asrt_2147483647)
+        assertToExponential(String('0x80000000'), asrt_n2147483648)
+        assertToExponential('0x80000000', asrt_n2147483648)
+        assertToExponential(String('0x80000001'), asrt_n2147483647)
+        assertToExponential('0x80000001', asrt_n2147483647)
+        assertToExponential(String('0x180000001'), asrt_n2147483647)
+        assertToExponential('0x180000001', asrt_n2147483647)
+        assertToExponential(String('0x100000001'), asrt_1)
+        assertToExponential('0x100000001', asrt_1)
+        assertToExponential(String('-0x7FFFFFFF'), asrt_n2147483647)
+        assertToExponential('-0x7FFFFFFF', asrt_n2147483647)
+        assertToExponential(String('-0x80000000'), asrt_n2147483648)
+        assertToExponential('-0x80000000', asrt_n2147483648)
+        assertToExponential(String('-0x80000001'), asrt_2147483647)
+        assertToExponential('-0x80000001', asrt_2147483647)
+        assertToExponential(String('-0x180000001'), asrt_2147483647)
+        assertToExponential('-0x180000001', asrt_2147483647)
+        assertToExponential(String('-0x100000001'), asrt_n1)
+        assertToExponential('-0x100000001', asrt_n1)
 
     def test_toFixed(self):
+        assertToFixed = partial(self.assertToFixed, int)
+
         asrt_1 = ('1', '1.0', '1.00', '1.000', '1.0000', '1.00000',
                   '1.000000', '1.0000000', '1.00000000', '1.000000000',
                   '1.0000000000', '1.00000000000000000000')
@@ -2599,121 +2596,119 @@ class intTests(NumberTestsBase):
                             '-2147483647.000000000', '-2147483647.0000000000',
                             '-2147483647.00000000000000000000')
 
-        self.assertToFixed(true, asrt_1)
+        assertToFixed(true, asrt_1)
 
-        self.assertToFixed(false, asrt_0)
-        self.assertToFixed(null, asrt_0)
-        self.assertToFixed(undefined, asrt_0)
+        assertToFixed(false, asrt_0)
+        assertToFixed(null, asrt_0)
+        assertToFixed(undefined, asrt_0)
 
-        self.assertToFixed(String(''), asrt_0)
-        self.assertToFixed('', asrt_0)
+        assertToFixed(String(''), asrt_0)
+        assertToFixed('', asrt_0)
 
-        self.assertToFixed(String('str'), asrt_0)
-        self.assertToFixed('str', asrt_0)
+        assertToFixed(String('str'), asrt_0)
+        assertToFixed('str', asrt_0)
 
-        self.assertToFixed(String('true'), asrt_0)
-        self.assertToFixed('true', asrt_0)
+        assertToFixed(String('true'), asrt_0)
+        assertToFixed('true', asrt_0)
 
-        self.assertToFixed(String('false'), asrt_0)
-        self.assertToFixed('false', asrt_0)
+        assertToFixed(String('false'), asrt_0)
+        assertToFixed('false', asrt_0)
 
-        self.assertToFixed(Number(0.0), asrt_0)
-        self.assertToFixed(0.0, asrt_0)
+        assertToFixed(Number(0.0), asrt_0)
+        assertToFixed(0.0, asrt_0)
 
-        self.assertToFixed(NaN, asrt_0)
+        assertToFixed(NaN, asrt_0)
 
-        self.assertToFixed(Number(-0.0), asrt_0)
-        self.assertToFixed(-0.0, asrt_0)
+        assertToFixed(Number(-0.0), asrt_0)
+        assertToFixed(-0.0, asrt_0)
 
-        self.assertToFixed(Infinity, asrt_0)
+        assertToFixed(Infinity, asrt_0)
 
-        self.assertToFixed(Number(1.0), asrt_1)
-        self.assertToFixed(1.0, asrt_1)
+        assertToFixed(Number(1.0), asrt_1)
+        assertToFixed(1.0, asrt_1)
 
-        self.assertToFixed(Number(-1.0), asrt_n1)
-        self.assertToFixed(-1.0, asrt_n1)
+        assertToFixed(Number(-1.0), asrt_n1)
+        assertToFixed(-1.0, asrt_n1)
 
-        self.assertToFixed(Number(0xFF1306), asrt_16716550)
-        self.assertToFixed(0xFF1306, asrt_16716550)
+        assertToFixed(Number(0xFF1306), asrt_16716550)
+        assertToFixed(0xFF1306, asrt_16716550)
 
-        self.assertToFixed(Number(1.2315e2), asrt_123)
-        self.assertToFixed(1.2315e2, asrt_123)
+        assertToFixed(Number(1.2315e2), asrt_123)
+        assertToFixed(1.2315e2, asrt_123)
 
-        self.assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
+        assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToFixed(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToFixed(Number(0x80000000), asrt_n2147483648)
-        self.assertToFixed(0x80000000, asrt_n2147483648)
+        assertToFixed(Number(0x80000000), asrt_n2147483648)
+        assertToFixed(0x80000000, asrt_n2147483648)
 
-        self.assertToFixed(Number(0x80000001), asrt_n2147483647)
-        self.assertToFixed(0x80000001, asrt_n2147483647)
+        assertToFixed(Number(0x80000001), asrt_n2147483647)
+        assertToFixed(0x80000001, asrt_n2147483647)
 
-        self.assertToFixed(Number(0x180000001), asrt_n2147483647)
-        self.assertToFixed(0x180000001, asrt_n2147483647)
+        assertToFixed(Number(0x180000001), asrt_n2147483647)
+        assertToFixed(0x180000001, asrt_n2147483647)
 
-        self.assertToFixed(Number(0x100000001), asrt_1)
-        self.assertToFixed(0x100000001, asrt_1)
+        assertToFixed(Number(0x100000001), asrt_1)
+        assertToFixed(0x100000001, asrt_1)
 
-        self.assertToFixed(Number(-0x7FFFFFFF), asrt_n2147483647)
-        self.assertToFixed(-0x7FFFFFFF, asrt_n2147483647)
+        assertToFixed(Number(-0x7FFFFFFF), asrt_n2147483647)
+        assertToFixed(-0x7FFFFFFF, asrt_n2147483647)
 
-        self.assertToFixed(Number(-0x80000000), asrt_n2147483648)
-        self.assertToFixed(-0x80000000, asrt_n2147483648)
+        assertToFixed(Number(-0x80000000), asrt_n2147483648)
+        assertToFixed(-0x80000000, asrt_n2147483648)
 
-        self.assertToFixed(Number(-0x80000001), asrt_2147483647)
-        self.assertToFixed(-0x80000001, asrt_2147483647)
+        assertToFixed(Number(-0x80000001), asrt_2147483647)
+        assertToFixed(-0x80000001, asrt_2147483647)
 
-        self.assertToFixed(Number(-0x180000001), asrt_2147483647)
-        self.assertToFixed(-0x180000001, asrt_2147483647)
+        assertToFixed(Number(-0x180000001), asrt_2147483647)
+        assertToFixed(-0x180000001, asrt_2147483647)
 
-        self.assertToFixed(Number(-0x100000001), asrt_n1)
-        self.assertToFixed(-0x100000001, asrt_n1)
+        assertToFixed(Number(-0x100000001), asrt_n1)
+        assertToFixed(-0x100000001, asrt_n1)
 
-        self.assertToFixed(Object(), asrt_0)
+        assertToFixed(Object(), asrt_0)
 
         # Parse Tests
-        self.assertToFixed(String('0.0'), asrt_0)
-        self.assertToFixed('0.0', asrt_0)
-        self.assertToFixed(String('NaN'), asrt_0)
-        self.assertToFixed('NaN', asrt_0)
-        self.assertToFixed(String('-0.0'), asrt_0)
-        self.assertToFixed('-0.0', asrt_0)
-        self.assertToFixed(String('Infinity'), asrt_0)
-        self.assertToFixed('Infinity', asrt_0)
-        self.assertToFixed(String('1.0'), asrt_1)
-        self.assertToFixed('1.0', asrt_1)
-        self.assertToFixed(String('-1.0'), asrt_n1)
-        self.assertToFixed('-1.0', asrt_n1)
-        self.assertToFixed(String('0xFF1306'), asrt_16716550)
-        self.assertToFixed('0xFF1306', asrt_16716550)
-        self.assertToFixed(String('1.2315e2'), asrt_123)
-        self.assertToFixed('1.2315e2', asrt_123)
-        self.assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
-        self.assertToFixed(String('0x80000000'), asrt_n2147483648)
-        self.assertToFixed('0x80000000', asrt_n2147483648)
-        self.assertToFixed(String('0x80000001'), asrt_n2147483647)
-        self.assertToFixed('0x80000001', asrt_n2147483647)
-        self.assertToFixed(String('0x180000001'), asrt_n2147483647)
-        self.assertToFixed('0x180000001', asrt_n2147483647)
-        self.assertToFixed(String('0x100000001'), asrt_1)
-        self.assertToFixed('0x100000001', asrt_1)
-        self.assertToFixed(String('-0x7FFFFFFF'), asrt_n2147483647)
-        self.assertToFixed('-0x7FFFFFFF', asrt_n2147483647)
-        self.assertToFixed(String('-0x80000000'), asrt_n2147483648)
-        self.assertToFixed('-0x80000000', asrt_n2147483648)
-        self.assertToFixed(String('-0x80000001'), asrt_2147483647)
-        self.assertToFixed('-0x80000001', asrt_2147483647)
-        self.assertToFixed(String('-0x180000001'), asrt_2147483647)
-        self.assertToFixed('-0x180000001', asrt_2147483647)
-        self.assertToFixed(String('-0x100000001'), asrt_n1)
-        self.assertToFixed('-0x100000001', asrt_n1)
-
-    def assertToPrecision(self, value, check):
-        val = int(value)
-        self._assertToPrecision(val, check)
+        assertToFixed(String('0.0'), asrt_0)
+        assertToFixed('0.0', asrt_0)
+        assertToFixed(String('NaN'), asrt_0)
+        assertToFixed('NaN', asrt_0)
+        assertToFixed(String('-0.0'), asrt_0)
+        assertToFixed('-0.0', asrt_0)
+        assertToFixed(String('Infinity'), asrt_0)
+        assertToFixed('Infinity', asrt_0)
+        assertToFixed(String('1.0'), asrt_1)
+        assertToFixed('1.0', asrt_1)
+        assertToFixed(String('-1.0'), asrt_n1)
+        assertToFixed('-1.0', asrt_n1)
+        assertToFixed(String('0xFF1306'), asrt_16716550)
+        assertToFixed('0xFF1306', asrt_16716550)
+        assertToFixed(String('1.2315e2'), asrt_123)
+        assertToFixed('1.2315e2', asrt_123)
+        assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToFixed('0x7FFFFFFF', asrt_2147483647)
+        assertToFixed(String('0x80000000'), asrt_n2147483648)
+        assertToFixed('0x80000000', asrt_n2147483648)
+        assertToFixed(String('0x80000001'), asrt_n2147483647)
+        assertToFixed('0x80000001', asrt_n2147483647)
+        assertToFixed(String('0x180000001'), asrt_n2147483647)
+        assertToFixed('0x180000001', asrt_n2147483647)
+        assertToFixed(String('0x100000001'), asrt_1)
+        assertToFixed('0x100000001', asrt_1)
+        assertToFixed(String('-0x7FFFFFFF'), asrt_n2147483647)
+        assertToFixed('-0x7FFFFFFF', asrt_n2147483647)
+        assertToFixed(String('-0x80000000'), asrt_n2147483648)
+        assertToFixed('-0x80000000', asrt_n2147483648)
+        assertToFixed(String('-0x80000001'), asrt_2147483647)
+        assertToFixed('-0x80000001', asrt_2147483647)
+        assertToFixed(String('-0x180000001'), asrt_2147483647)
+        assertToFixed('-0x180000001', asrt_2147483647)
+        assertToFixed(String('-0x100000001'), asrt_n1)
+        assertToFixed('-0x100000001', asrt_n1)
 
     def test_toPrecision(self):
+        assertToPrecision = partial(self.assertToPrecision, int)
+
         asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1')
 
         asrt_0 = ('0e+1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
@@ -2745,122 +2740,119 @@ class intTests(NumberTestsBase):
                             '-2.1474837e+9', '-2.14748365e+9', '-2147483647',
                             '-2147483647', '-2147483647')
 
-        self.assertToPrecision(true, asrt_1)
+        assertToPrecision(true, asrt_1)
 
-        self.assertToPrecision(false, asrt_0)
-        self.assertToPrecision(null, asrt_0)
-        self.assertToPrecision(undefined, asrt_0)
+        assertToPrecision(false, asrt_0)
+        assertToPrecision(null, asrt_0)
+        assertToPrecision(undefined, asrt_0)
 
-        self.assertToPrecision(String(''), asrt_0)
-        self.assertToPrecision('', asrt_0)
+        assertToPrecision(String(''), asrt_0)
+        assertToPrecision('', asrt_0)
 
-        self.assertToPrecision(String('str'), asrt_0)
-        self.assertToPrecision('str', asrt_0)
+        assertToPrecision(String('str'), asrt_0)
+        assertToPrecision('str', asrt_0)
 
-        self.assertToPrecision(String('true'), asrt_0)
-        self.assertToPrecision('true', asrt_0)
+        assertToPrecision(String('true'), asrt_0)
+        assertToPrecision('true', asrt_0)
 
-        self.assertToPrecision(String('false'), asrt_0)
-        self.assertToPrecision('false', asrt_0)
+        assertToPrecision(String('false'), asrt_0)
+        assertToPrecision('false', asrt_0)
 
-        self.assertToPrecision(Number(0.0), asrt_0)
-        self.assertToPrecision(0.0, asrt_0)
+        assertToPrecision(Number(0.0), asrt_0)
+        assertToPrecision(0.0, asrt_0)
 
-        self.assertToPrecision(NaN, asrt_0)
+        assertToPrecision(NaN, asrt_0)
 
-        self.assertToPrecision(Number(-0.0), asrt_0)
-        self.assertToPrecision(-0.0, asrt_0)
+        assertToPrecision(Number(-0.0), asrt_0)
+        assertToPrecision(-0.0, asrt_0)
 
-        self.assertToPrecision(Infinity, asrt_0)
+        assertToPrecision(Infinity, asrt_0)
 
-        self.assertToPrecision(Number(1.0), asrt_1)
-        self.assertToPrecision(1.0, asrt_1)
+        assertToPrecision(Number(1.0), asrt_1)
+        assertToPrecision(1.0, asrt_1)
 
-        self.assertToPrecision(Number(-1.0), asrt_n1)
-        self.assertToPrecision(-1.0, asrt_n1)
+        assertToPrecision(Number(-1.0), asrt_n1)
+        assertToPrecision(-1.0, asrt_n1)
 
-        self.assertToPrecision(Number(0xFF1306), asrt_16716550)
-        self.assertToPrecision(0xFF1306, asrt_16716550)
+        assertToPrecision(Number(0xFF1306), asrt_16716550)
+        assertToPrecision(0xFF1306, asrt_16716550)
 
-        self.assertToPrecision(Number(1.2315e2), asrt_123)
-        self.assertToPrecision(1.2315e2, asrt_123)
+        assertToPrecision(Number(1.2315e2), asrt_123)
+        assertToPrecision(1.2315e2, asrt_123)
 
-        self.assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
+        assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToPrecision(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToPrecision(Number(0x80000000), asrt_n2147483648)
-        self.assertToPrecision(0x80000000, asrt_n2147483648)
+        assertToPrecision(Number(0x80000000), asrt_n2147483648)
+        assertToPrecision(0x80000000, asrt_n2147483648)
 
-        self.assertToPrecision(Number(0x80000001), asrt_n2147483647)
-        self.assertToPrecision(0x80000001, asrt_n2147483647)
+        assertToPrecision(Number(0x80000001), asrt_n2147483647)
+        assertToPrecision(0x80000001, asrt_n2147483647)
 
-        self.assertToPrecision(Number(0x180000001), asrt_n2147483647)
-        self.assertToPrecision(0x180000001, asrt_n2147483647)
+        assertToPrecision(Number(0x180000001), asrt_n2147483647)
+        assertToPrecision(0x180000001, asrt_n2147483647)
 
-        self.assertToPrecision(Number(0x100000001), asrt_1)
-        self.assertToPrecision(0x100000001, asrt_1)
+        assertToPrecision(Number(0x100000001), asrt_1)
+        assertToPrecision(0x100000001, asrt_1)
 
-        self.assertToPrecision(Number(-0x7FFFFFFF), asrt_n2147483647)
-        self.assertToPrecision(-0x7FFFFFFF, asrt_n2147483647)
+        assertToPrecision(Number(-0x7FFFFFFF), asrt_n2147483647)
+        assertToPrecision(-0x7FFFFFFF, asrt_n2147483647)
 
-        self.assertToPrecision(Number(-0x80000000), asrt_n2147483648)
-        self.assertToPrecision(-0x80000000, asrt_n2147483648)
+        assertToPrecision(Number(-0x80000000), asrt_n2147483648)
+        assertToPrecision(-0x80000000, asrt_n2147483648)
 
-        self.assertToPrecision(Number(-0x80000001), asrt_2147483647)
-        self.assertToPrecision(-0x80000001, asrt_2147483647)
+        assertToPrecision(Number(-0x80000001), asrt_2147483647)
+        assertToPrecision(-0x80000001, asrt_2147483647)
 
-        self.assertToPrecision(Number(-0x180000001), asrt_2147483647)
-        self.assertToPrecision(-0x180000001, asrt_2147483647)
+        assertToPrecision(Number(-0x180000001), asrt_2147483647)
+        assertToPrecision(-0x180000001, asrt_2147483647)
 
-        self.assertToPrecision(Number(-0x100000001), asrt_n1)
-        self.assertToPrecision(-0x100000001, asrt_n1)
+        assertToPrecision(Number(-0x100000001), asrt_n1)
+        assertToPrecision(-0x100000001, asrt_n1)
 
-        self.assertToPrecision(Object(), asrt_0)
+        assertToPrecision(Object(), asrt_0)
 
         # Parse Tests
-        self.assertToPrecision(String('0.0'), asrt_0)
-        self.assertToPrecision('0.0', asrt_0)
-        self.assertToPrecision(String('NaN'), asrt_0)
-        self.assertToPrecision('NaN', asrt_0)
-        self.assertToPrecision(String('-0.0'), asrt_0)
-        self.assertToPrecision('-0.0', asrt_0)
-        self.assertToPrecision(String('Infinity'), asrt_0)
-        self.assertToPrecision('Infinity', asrt_0)
-        self.assertToPrecision(String('1.0'), asrt_1)
-        self.assertToPrecision('1.0', asrt_1)
-        self.assertToPrecision(String('-1.0'), asrt_n1)
-        self.assertToPrecision('-1.0', asrt_n1)
-        self.assertToPrecision(String('0xFF1306'), asrt_16716550)
-        self.assertToPrecision('0xFF1306', asrt_16716550)
-        self.assertToPrecision(String('1.2315e2'), asrt_123)
-        self.assertToPrecision('1.2315e2', asrt_123)
-        self.assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
-        self.assertToPrecision(String('0x80000000'), asrt_n2147483648)
-        self.assertToPrecision('0x80000000', asrt_n2147483648)
-        self.assertToPrecision(String('0x80000001'), asrt_n2147483647)
-        self.assertToPrecision('0x80000001', asrt_n2147483647)
-        self.assertToPrecision(String('0x180000001'), asrt_n2147483647)
-        self.assertToPrecision('0x180000001', asrt_n2147483647)
-        self.assertToPrecision(String('0x100000001'), asrt_1)
-        self.assertToPrecision('0x100000001', asrt_1)
-        self.assertToPrecision(String('-0x7FFFFFFF'), asrt_n2147483647)
-        self.assertToPrecision('-0x7FFFFFFF', asrt_n2147483647)
-        self.assertToPrecision(String('-0x80000000'), asrt_n2147483648)
-        self.assertToPrecision('-0x80000000', asrt_n2147483648)
-        self.assertToPrecision(String('-0x80000001'), asrt_2147483647)
-        self.assertToPrecision('-0x80000001', asrt_2147483647)
-        self.assertToPrecision(String('-0x180000001'), asrt_2147483647)
-        self.assertToPrecision('-0x180000001', asrt_2147483647)
-        self.assertToPrecision(String('-0x100000001'), asrt_n1)
-        self.assertToPrecision('-0x100000001', asrt_n1)
-
-    def assertToString(self, value, check):
-        # 2, 3, 4, 5, 6, 7, 8, 9, null/10, ..., valueOf
-        val = int(value)
-        self._assertToString(val, check)
+        assertToPrecision(String('0.0'), asrt_0)
+        assertToPrecision('0.0', asrt_0)
+        assertToPrecision(String('NaN'), asrt_0)
+        assertToPrecision('NaN', asrt_0)
+        assertToPrecision(String('-0.0'), asrt_0)
+        assertToPrecision('-0.0', asrt_0)
+        assertToPrecision(String('Infinity'), asrt_0)
+        assertToPrecision('Infinity', asrt_0)
+        assertToPrecision(String('1.0'), asrt_1)
+        assertToPrecision('1.0', asrt_1)
+        assertToPrecision(String('-1.0'), asrt_n1)
+        assertToPrecision('-1.0', asrt_n1)
+        assertToPrecision(String('0xFF1306'), asrt_16716550)
+        assertToPrecision('0xFF1306', asrt_16716550)
+        assertToPrecision(String('1.2315e2'), asrt_123)
+        assertToPrecision('1.2315e2', asrt_123)
+        assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToPrecision('0x7FFFFFFF', asrt_2147483647)
+        assertToPrecision(String('0x80000000'), asrt_n2147483648)
+        assertToPrecision('0x80000000', asrt_n2147483648)
+        assertToPrecision(String('0x80000001'), asrt_n2147483647)
+        assertToPrecision('0x80000001', asrt_n2147483647)
+        assertToPrecision(String('0x180000001'), asrt_n2147483647)
+        assertToPrecision('0x180000001', asrt_n2147483647)
+        assertToPrecision(String('0x100000001'), asrt_1)
+        assertToPrecision('0x100000001', asrt_1)
+        assertToPrecision(String('-0x7FFFFFFF'), asrt_n2147483647)
+        assertToPrecision('-0x7FFFFFFF', asrt_n2147483647)
+        assertToPrecision(String('-0x80000000'), asrt_n2147483648)
+        assertToPrecision('-0x80000000', asrt_n2147483648)
+        assertToPrecision(String('-0x80000001'), asrt_2147483647)
+        assertToPrecision('-0x80000001', asrt_2147483647)
+        assertToPrecision(String('-0x180000001'), asrt_2147483647)
+        assertToPrecision('-0x180000001', asrt_2147483647)
+        assertToPrecision(String('-0x100000001'), asrt_n1)
+        assertToPrecision('-0x100000001', asrt_n1)
 
     def test_toString(self):
+        assertToString = partial(self.assertToString, int)
+
         asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
                   '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
                   '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', 1)
@@ -2928,115 +2920,115 @@ class intTests(NumberTestsBase):
                             '-2d09uc1', '-1vvvvvv', '-1lsqtl1', '-1d8xqrp',
                             '-15v22um', '-zik0zj', -2147483647)
 
-        self.assertToString(true, asrt_1)
+        assertToString(true, asrt_1)
 
-        self.assertToString(false, asrt_0)
-        self.assertToString(null, asrt_0)
-        self.assertToString(undefined, asrt_0)
+        assertToString(false, asrt_0)
+        assertToString(null, asrt_0)
+        assertToString(undefined, asrt_0)
 
-        self.assertToString(String(''), asrt_0)
-        self.assertToString('', asrt_0)
+        assertToString(String(''), asrt_0)
+        assertToString('', asrt_0)
 
-        self.assertToString(String('str'), asrt_0)
-        self.assertToString('str', asrt_0)
+        assertToString(String('str'), asrt_0)
+        assertToString('str', asrt_0)
 
-        self.assertToString(String('true'), asrt_0)
-        self.assertToString('true', asrt_0)
+        assertToString(String('true'), asrt_0)
+        assertToString('true', asrt_0)
 
-        self.assertToString(String('false'), asrt_0)
-        self.assertToString('false', asrt_0)
+        assertToString(String('false'), asrt_0)
+        assertToString('false', asrt_0)
 
-        self.assertToString(Number(0.0), asrt_0)
-        self.assertToString(0.0, asrt_0)
+        assertToString(Number(0.0), asrt_0)
+        assertToString(0.0, asrt_0)
 
-        self.assertToString(NaN, asrt_0)
+        assertToString(NaN, asrt_0)
 
-        self.assertToString(Number(-0.0), asrt_0)
-        self.assertToString(-0.0, asrt_0)
+        assertToString(Number(-0.0), asrt_0)
+        assertToString(-0.0, asrt_0)
 
-        self.assertToString(Infinity, asrt_0)
+        assertToString(Infinity, asrt_0)
 
-        self.assertToString(Number(1.0), asrt_1)
-        self.assertToString(1.0, asrt_1)
+        assertToString(Number(1.0), asrt_1)
+        assertToString(1.0, asrt_1)
 
-        self.assertToString(Number(-1.0), asrt_n1)
-        self.assertToString(-1.0, asrt_n1)
+        assertToString(Number(-1.0), asrt_n1)
+        assertToString(-1.0, asrt_n1)
 
-        self.assertToString(Number(0xFF1306), asrt_16716550)
-        self.assertToString(0xFF1306, asrt_16716550)
+        assertToString(Number(0xFF1306), asrt_16716550)
+        assertToString(0xFF1306, asrt_16716550)
 
-        self.assertToString(Number(1.2315e2), asrt_123)
-        self.assertToString(1.2315e2, asrt_123)
+        assertToString(Number(1.2315e2), asrt_123)
+        assertToString(1.2315e2, asrt_123)
 
-        self.assertToString(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToString(0x7FFFFFFF, asrt_2147483647)
+        assertToString(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToString(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToString(Number(0x80000000), asrt_n2147483648)
-        self.assertToString(0x80000000, asrt_n2147483648)
+        assertToString(Number(0x80000000), asrt_n2147483648)
+        assertToString(0x80000000, asrt_n2147483648)
 
-        self.assertToString(Number(0x80000001), asrt_n2147483647)
-        self.assertToString(0x80000001, asrt_n2147483647)
+        assertToString(Number(0x80000001), asrt_n2147483647)
+        assertToString(0x80000001, asrt_n2147483647)
 
-        self.assertToString(Number(0x180000001), asrt_n2147483647)
-        self.assertToString(0x180000001, asrt_n2147483647)
+        assertToString(Number(0x180000001), asrt_n2147483647)
+        assertToString(0x180000001, asrt_n2147483647)
 
-        self.assertToString(Number(0x100000001), asrt_1)
-        self.assertToString(0x100000001, asrt_1)
+        assertToString(Number(0x100000001), asrt_1)
+        assertToString(0x100000001, asrt_1)
 
-        self.assertToString(Number(-0x7FFFFFFF), asrt_n2147483647)
-        self.assertToString(-0x7FFFFFFF, asrt_n2147483647)
+        assertToString(Number(-0x7FFFFFFF), asrt_n2147483647)
+        assertToString(-0x7FFFFFFF, asrt_n2147483647)
 
-        self.assertToString(Number(-0x80000000), asrt_n2147483648)
-        self.assertToString(-0x80000000, asrt_n2147483648)
+        assertToString(Number(-0x80000000), asrt_n2147483648)
+        assertToString(-0x80000000, asrt_n2147483648)
 
-        self.assertToString(Number(-0x80000001), asrt_2147483647)
-        self.assertToString(-0x80000001, asrt_2147483647)
+        assertToString(Number(-0x80000001), asrt_2147483647)
+        assertToString(-0x80000001, asrt_2147483647)
 
-        self.assertToString(Number(-0x180000001), asrt_2147483647)
-        self.assertToString(-0x180000001, asrt_2147483647)
+        assertToString(Number(-0x180000001), asrt_2147483647)
+        assertToString(-0x180000001, asrt_2147483647)
 
-        self.assertToString(Number(-0x100000001), asrt_n1)
-        self.assertToString(-0x100000001, asrt_n1)
+        assertToString(Number(-0x100000001), asrt_n1)
+        assertToString(-0x100000001, asrt_n1)
 
-        self.assertToString(Object(), asrt_0)
+        assertToString(Object(), asrt_0)
 
         # Parse Tests
-        self.assertToString(String('0.0'), asrt_0)
-        self.assertToString('0.0', asrt_0)
-        self.assertToString(String('NaN'), asrt_0)
-        self.assertToString('NaN', asrt_0)
-        self.assertToString(String('-0.0'), asrt_0)
-        self.assertToString('-0.0', asrt_0)
-        self.assertToString(String('Infinity'), asrt_0)
-        self.assertToString('Infinity', asrt_0)
-        self.assertToString(String('1.0'), asrt_1)
-        self.assertToString('1.0', asrt_1)
-        self.assertToString(String('-1.0'), asrt_n1)
-        self.assertToString('-1.0', asrt_n1)
-        self.assertToString(String('0xFF1306'), asrt_16716550)
-        self.assertToString('0xFF1306', asrt_16716550)
-        self.assertToString(String('1.2315e2'), asrt_123)
-        self.assertToString('1.2315e2', asrt_123)
-        self.assertToString(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToString('0x7FFFFFFF', asrt_2147483647)
-        self.assertToString(String('0x80000000'), asrt_n2147483648)
-        self.assertToString('0x80000000', asrt_n2147483648)
-        self.assertToString(String('0x80000001'), asrt_n2147483647)
-        self.assertToString('0x80000001', asrt_n2147483647)
-        self.assertToString(String('0x180000001'), asrt_n2147483647)
-        self.assertToString('0x180000001', asrt_n2147483647)
-        self.assertToString(String('0x100000001'), asrt_1)
-        self.assertToString('0x100000001', asrt_1)
-        self.assertToString(String('-0x7FFFFFFF'), asrt_n2147483647)
-        self.assertToString('-0x7FFFFFFF', asrt_n2147483647)
-        self.assertToString(String('-0x80000000'), asrt_n2147483648)
-        self.assertToString('-0x80000000', asrt_n2147483648)
-        self.assertToString(String('-0x80000001'), asrt_2147483647)
-        self.assertToString('-0x80000001', asrt_2147483647)
-        self.assertToString(String('-0x180000001'), asrt_2147483647)
-        self.assertToString('-0x180000001', asrt_2147483647)
-        self.assertToString(String('-0x100000001'), asrt_n1)
-        self.assertToString('-0x100000001', asrt_n1)
+        assertToString(String('0.0'), asrt_0)
+        assertToString('0.0', asrt_0)
+        assertToString(String('NaN'), asrt_0)
+        assertToString('NaN', asrt_0)
+        assertToString(String('-0.0'), asrt_0)
+        assertToString('-0.0', asrt_0)
+        assertToString(String('Infinity'), asrt_0)
+        assertToString('Infinity', asrt_0)
+        assertToString(String('1.0'), asrt_1)
+        assertToString('1.0', asrt_1)
+        assertToString(String('-1.0'), asrt_n1)
+        assertToString('-1.0', asrt_n1)
+        assertToString(String('0xFF1306'), asrt_16716550)
+        assertToString('0xFF1306', asrt_16716550)
+        assertToString(String('1.2315e2'), asrt_123)
+        assertToString('1.2315e2', asrt_123)
+        assertToString(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToString('0x7FFFFFFF', asrt_2147483647)
+        assertToString(String('0x80000000'), asrt_n2147483648)
+        assertToString('0x80000000', asrt_n2147483648)
+        assertToString(String('0x80000001'), asrt_n2147483647)
+        assertToString('0x80000001', asrt_n2147483647)
+        assertToString(String('0x180000001'), asrt_n2147483647)
+        assertToString('0x180000001', asrt_n2147483647)
+        assertToString(String('0x100000001'), asrt_1)
+        assertToString('0x100000001', asrt_1)
+        assertToString(String('-0x7FFFFFFF'), asrt_n2147483647)
+        assertToString('-0x7FFFFFFF', asrt_n2147483647)
+        assertToString(String('-0x80000000'), asrt_n2147483648)
+        assertToString('-0x80000000', asrt_n2147483648)
+        assertToString(String('-0x80000001'), asrt_2147483647)
+        assertToString('-0x80000001', asrt_2147483647)
+        assertToString(String('-0x180000001'), asrt_2147483647)
+        assertToString('-0x180000001', asrt_2147483647)
+        assertToString(String('-0x100000001'), asrt_n1)
+        assertToString('-0x100000001', asrt_n1)
 
 
 class JSONTests(as3libTestCase):
@@ -3417,145 +3409,143 @@ class NumberTests(NumberTestsBase):
         self.assertEqual(Number(String('1.2315e2')), 123.15)
         self.assertEqual(Number('1.2315e2'), 123.15)
 
-    def assertToExponential(self, value, check):
-        val = Number(value)
-        self._assertToExponential(val, check)
+
 
     def test_toExponential(self):
+        assertToExponential = partial(self.assertToExponential, Number)
+
         asrt = ('1e-8', '1.2e-8', '1.23e-8', '1.231e-8', '1.2315e-8',
                 '1.23150e-8', '1.231500e-8', '1.2315000e-8', '1.23150000e-8',
                 '1.231500000e-8', '1.2315000000e-8',
                 '1.23149999999999997630e-8')
-        self.assertToExponential(1.2315e-8, asrt)
+        assertToExponential(1.2315e-8, asrt)
 
         asrt = ('1e-7', '1.2e-7', '1.23e-7', '1.231e-7', '1.2315e-7',
                 '1.23150e-7', '1.231500e-7', '1.2315000e-7', '1.23150000e-7',
                 '1.231500000e-7', '1.2315000000e-7',
                 '1.23149999999999987704e-7')
-        self.assertToExponential(1.2315e-7, asrt)
+        assertToExponential(1.2315e-7, asrt)
 
         asrt = ('1e-6', '1.2e-6', '1.23e-6', '1.231e-6', '1.2315e-6',
                 '1.23150e-6', '1.231500e-6', '1.2315000e-6', '1.23150000e-6',
                 '1.231500000e-6', '1.2315000000e-6',
                 '1.23149999999999998292e-6')
-        self.assertToExponential(1.2315e-6, asrt)
+        assertToExponential(1.2315e-6, asrt)
 
         asrt = ('1e+2', '1.2e+2', '1.23e+2', '1.232e+2', '1.2315e+2',
                 '1.23150e+2', '1.231500e+2', '1.2315000e+2', '1.23150000e+2',
                 '1.231500000e+2', '1.2315000000e+2',
                 '1.23150000000000005684e+2')
-        self.assertToExponential(1.2315e2, asrt)
+        assertToExponential(1.2315e2, asrt)
 
         asrt = ('1e+19', '1.2e+19', '1.23e+19', '1.232e+19', '1.2315e+19',
                 '1.23150e+19', '1.231500e+19', '1.2315000e+19',
                 '1.23150000e+19', '1.231500000e+19', '1.2315000000e+19',
                 '1.23150000000000000000e+19')
-        self.assertToExponential(1.2315e19, asrt)
+        assertToExponential(1.2315e19, asrt)
 
         asrt = ('1e+20', '1.2e+20', '1.23e+20', '1.232e+20', '1.2315e+20',
                 '1.23150e+20', '1.231500e+20', '1.2315000e+20',
                 '1.23150000e+20', '1.231500000e+20', '1.2315000000e+20',
                 '1.23150000000000000000e+20')
-        self.assertToExponential(1.2315e20, asrt)
+        assertToExponential(1.2315e20, asrt)
 
         asrt = ('1e+21', '1.2e+21', '1.23e+21', '1.232e+21', '1.2315e+21',
                 '1.23150e+21', '1.231500e+21', '1.2315000e+21',
                 '1.23150000e+21', '1.231500000e+21', '1.2315000000e+21',
                 '1.23150000000000013107e+21')
-        self.assertToExponential(1.2315e21, asrt)
+        assertToExponential(1.2315e21, asrt)
 
         asrt = ('1e-8', '1.2e-8', '1.23e-8', '1.232e-8', '1.2316e-8',
                 '1.23160e-8', '1.231599e-8', '1.2315988e-8', '1.23159877e-8',
                 '1.231598765e-8', '1.2315987654e-8',
                 '1.23159876543219883637e-8')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
 
         asrt = ('1e-7', '1.2e-7', '1.23e-7', '1.232e-7', '1.2316e-7',
                 '1.23160e-7', '1.231599e-7', '1.2315988e-7', '1.23159877e-7',
                 '1.231598765e-7', '1.2315987654e-7',
                 '1.23159876543219883637e-7')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
 
         asrt = ('1e-6', '1.2e-6', '1.23e-6', '1.232e-6', '1.2316e-6',
                 '1.23160e-6', '1.231599e-6', '1.2315988e-6', '1.23159877e-6',
                 '1.231598765e-6', '1.2315987654e-6',
                 '1.23159876543219883637e-6')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
 
         asrt = ('1e+2', '1.2e+2', '1.23e+2', '1.232e+2', '1.2316e+2',
                 '1.23160e+2', '1.231599e+2', '1.2315988e+2', '1.23159877e+2',
                 '1.231598765e+2', '1.2315987654e+2',
                 '1.23159876543219880318e+2')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
 
         asrt = ('1e+19', '1.2e+19', '1.23e+19', '1.232e+19', '1.2316e+19',
                 '1.23160e+19', '1.231599e+19', '1.2315988e+19',
                 '1.23159877e+19', '1.231598765e+19', '1.2315987654e+19',
                 '1.23159876543219875840e+19')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
 
         asrt = ('1e+20', '1.2e+20', '1.23e+20', '1.232e+20', '1.2316e+20',
                 '1.23160e+20', '1.231599e+20', '1.2315988e+20',
                 '1.23159877e+20', '1.231598765e+20', '1.2315987654e+20',
                 '1.23159876543219875840e+20')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
 
         asrt = ('1e+21', '1.2e+21', '1.23e+21', '1.232e+21', '1.2316e+21',
                 '1.23160e+21', '1.231599e+21', '1.2315988e+21',
                 '1.23159877e+21', '1.231598765e+21', '1.2315987654e+21',
                 '1.23159876543219866010e+21')
-        self.assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
-
-    def assertToExponential2(self, value, check):
-        val = Number(value)
-        self.assertEqual(val.toExponential(0), check[0])
-        self.assertEqual(val.toExponential(1), check[1])
-        self.assertEqual(val.toExponential(2), check[2])
-        self.assertEqual(val.toExponential(4), check[3])
-        self.assertEqual(val.toExponential(10), check[4])
-        self.assertEqual(val.toExponential(20), check[5])
+        assertToExponential(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
     def test_toExponential2(self):
+        def assertToExponential2(value, check):
+            val = Number(value)
+            self.assertEqual(val.toExponential(0), check[0])
+            self.assertEqual(val.toExponential(1), check[1])
+            self.assertEqual(val.toExponential(2), check[2])
+            self.assertEqual(val.toExponential(4), check[3])
+            self.assertEqual(val.toExponential(10), check[4])
+            self.assertEqual(val.toExponential(20), check[5])
+
         asrt_0 = ('1e-15', '0.0e-16', '0.00e-16', '0.0000e-16',
                   '0.0000000000e-16', '0.00000000000000000000e-16')
-        self.assertToExponential2(0.0, asrt_0)
-        self.assertToExponential2(-0.0, asrt_0)
+        assertToExponential2(0.0, asrt_0)
+        assertToExponential2(-0.0, asrt_0)
 
         asrt_inf = ('Infinity', 'Infinity', 'Infinity', 'Infinity',
                     'Infinity', 'Infinity')
-        self.assertToExponential2(Number.POSITIVE_INFINITY, asrt_inf)
+        assertToExponential2(Number.POSITIVE_INFINITY, asrt_inf)
 
         asrt_ninf = ('-Infinity', '-Infinity', '-Infinity', '-Infinity',
                      '-Infinity', '-Infinity')
-        self.assertToExponential2(Number.NEGATIVE_INFINITY, asrt_ninf)
+        assertToExponential2(Number.NEGATIVE_INFINITY, asrt_ninf)
 
         asrt_nan = ('NaN', 'NaN', 'NaN', 'NaN', 'NaN', 'NaN')
-        self.assertToExponential2(Number.NaN, asrt_nan)
-
-    def assertToFixed(self, value, check):
-        val = Number(value)
-        self._assertToFixed(val, check)
+        assertToExponential2(Number.NaN, asrt_nan)
 
     def test_toFixed(self):
+        assertToFixed = partial(self.assertToFixed, Number)
+
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000000',
                 '0.0000000', '0.00000001', '0.000000012', '0.0000000123',
                 '0.00000001231500000000')
-        self.assertToFixed(1.2315e-8, asrt)
+        assertToFixed(1.2315e-8, asrt)
 
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000000',
                 '0.0000001', '0.00000012', '0.000000123', '0.0000001231',
                 '0.00000012315000000000')
-        self.assertToFixed(1.2315e-7, asrt)
+        assertToFixed(1.2315e-7, asrt)
 
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000001',
                 '0.0000012', '0.00000123', '0.000001231', '0.0000012315',
                 '0.00000123150000000000')
-        self.assertToFixed(1.2315e-6, asrt)
+        assertToFixed(1.2315e-6, asrt)
 
         asrt = ('123', '123.2', '123.15', '123.150', '123.1500', '123.15000',
                 '123.150000', '123.1500000', '123.15000000', '123.150000000',
                 '123.1500000000', '123.15000000000000568434')
-        self.assertToFixed(1.2315e2, asrt)
+        assertToFixed(1.2315e2, asrt)
 
         asrt = ('12315000000000000000', '12315000000000000000.0',
                 '12315000000000000000.00', '12315000000000000000.000',
@@ -3565,7 +3555,7 @@ class NumberTests(NumberTestsBase):
                 '12315000000000000000.000000000',
                 '12315000000000000000.0000000000',
                 '12315000000000000000.00000000000000000000')
-        self.assertToFixed(1.2315e19, asrt)
+        assertToFixed(1.2315e19, asrt)
 
         asrt = ('123150000000000000000', '123150000000000000000.0',
                 '123150000000000000000.00', '123150000000000000000.000',
@@ -3576,7 +3566,7 @@ class NumberTests(NumberTestsBase):
                 '123150000000000000000.000000000',
                 '123150000000000000000.0000000000',
                 '123150000000000000000.00000000000000000000')
-        self.assertToFixed(1.2315e20, asrt)
+        assertToFixed(1.2315e20, asrt)
 
         asrt = ('1231500000000000131072', '1231500000000000131072.0',
                 '1231500000000000131072.00', '1231500000000000131072.000',
@@ -3587,27 +3577,27 @@ class NumberTests(NumberTestsBase):
                 '1231500000000000131072.000000000',
                 '1231500000000000131072.0000000000',
                 '1231500000000000131072.00000000000000000000')
-        self.assertToFixed(1.2315e21, asrt)
+        assertToFixed(1.2315e21, asrt)
 
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000000',
                 '0.0000000', '0.00000001', '0.000000012', '0.0000000123',
                 '0.00000001231598765432')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
 
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000000',
                 '0.0000001', '0.00000012', '0.000000123', '0.0000001232',
                 '0.00000012315987654322')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
 
         asrt = ('0', '0.0', '0.00', '0.000', '0.0000', '0.00000', '0.000001',
                 '0.0000012', '0.00000123', '0.000001232', '0.0000012316',
                 '0.00000123159876543220')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
 
         asrt = ('123', '123.2', '123.16', '123.160', '123.1599', '123.15988',
                 '123.159877', '123.1598765', '123.15987654', '123.159876543',
                 '123.1598765432', '123.15987654321988031825')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
 
         asrt = ('12315987654321987584', '12315987654321987584.0',
                 '12315987654321987584.00', '12315987654321987584.000',
@@ -3617,7 +3607,7 @@ class NumberTests(NumberTestsBase):
                 '12315987654321987584.000000000',
                 '12315987654321987584.0000000000',
                 '12315987654321987584.00000000000000000000')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
 
         asrt = ('123159876543219875840', '123159876543219875840.0',
                 '123159876543219875840.00', '123159876543219875840.000',
@@ -3628,7 +3618,7 @@ class NumberTests(NumberTestsBase):
                 '123159876543219875840.000000000',
                 '123159876543219875840.0000000000',
                 '123159876543219875840.00000000000000000000')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
 
         asrt = ('1231598765432198660096', '1231598765432198660096.0',
                 '1231598765432198660096.00', '1231598765432198660096.000',
@@ -3639,126 +3629,122 @@ class NumberTests(NumberTestsBase):
                 '1231598765432198660096.000000000',
                 '1231598765432198660096.0000000000',
                 '1231598765432198660096.00000000000000000000')
-        self.assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
-
-    def assertToPrecision(self, value, check):
-        val = Number(value)
-        self._assertToPrecision(val, check)
+        assertToFixed(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
     def test_toPrecision(self):
+        assertToPrecision = partial(self.assertToPrecision, Number)
+
         asrt = ('0.00000001', '0.000000012', '0.0000000123', '0.00000001231',
                 '0.000000012315', '0.000000012315', '0.000000012315',
                 '0.000000012315', '0.000000012315', '0.000000012315',
                 '0.000000012315', '0.000000012315')
-        self.assertToPrecision(1.2315e-8, asrt)
+        assertToPrecision(1.2315e-8, asrt)
 
         asrt = ('0.0000001', '0.00000012', '0.000000123', '0.0000001231',
                 '0.00000012314', '0.000000123149', '0.0000001231499',
                 '0.00000012314999', '0.000000123149999', '0.0000001231499999',
                 '0.00000012315', '0.00000012315')
-        self.assertToPrecision(1.2315e-7, asrt)
+        assertToPrecision(1.2315e-7, asrt)
 
         asrt = ('0.000001', '0.0000012', '0.00000123', '0.000001231',
                 '0.0000012315', '0.0000012315', '0.0000012315',
                 '0.0000012315', '0.0000012315', '0.0000012315',
                 '0.0000012315', '0.0000012315')
-        self.assertToPrecision(1.2315e-6, asrt)
+        assertToPrecision(1.2315e-6, asrt)
 
         asrt = ('1e+2', '1.2e+2', '123', '123.1', '123.15', '123.15',
                 '123.15', '123.15', '123.15', '123.15', '123.15', '123.15')
-        self.assertToPrecision(1.2315e2, asrt)
+        assertToPrecision(1.2315e2, asrt)
 
         asrt = ('1e+19', '1.2e+19', '1.23e+19', '1.231e+19', '1.2315e+19',
                 '1.2315e+19', '1.2315e+19', '1.2315e+19', '1.23149999e+19',
                 '1.2315e+19', '12315000000000000000', '12315000000000000000')
-        self.assertToPrecision(1.2315e19, asrt)
+        assertToPrecision(1.2315e19, asrt)
 
         asrt = ('1e+20', '1.2e+20', '1.2299999999999998e+20',
                 '1.2309999999999999e+20', '1.2315e+20',
                 '1.2314999999999998e+20', '1.2315e+20', '1.2315e+20',
                 '1.2315e+20', '1.2315e+20', '1.2315e+20',
                 '123150000000000000000')
-        self.assertToPrecision(1.2315e20, asrt)
+        assertToPrecision(1.2315e20, asrt)
 
         asrt = ('1.0000000000000002e+21', '1.2e+21', '1.23e+21', '1.231e+21',
                 '1.2314999999999998e+21', '1.2315e+21',
                 '1.2314999999999998e+21', '1.2315e+21',
                 '1.2314999999999998e+21', '1.2315e+21', '1.2315e+21',
                 '1.2315e+21')
-        self.assertToPrecision(1.2315e21, asrt)
+        assertToPrecision(1.2315e21, asrt)
 
         asrt = ('0.00000001', '0.000000012', '0.0000000123', '0.00000001231',
                 '0.000000012315', '0.0000000123159', '0.00000001231598',
                 '0.000000012315987', '0.0000000123159876',
                 '0.00000001231598765', '0.000000012315987654321987',
                 '0.000000012315987654321988')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
 
         asrt = ('0.0000001', '0.00000012', '0.000000123', '0.0000001231',
                 '0.00000012315', '0.000000123159', '0.0000001231598',
                 '0.00000012315987', '0.000000123159876', '0.0000001231598765',
                 '0.00000012315987654321988', '0.00000012315987654321988')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
 
         asrt = ('0.000001', '0.0000012', '0.00000123', '0.000001231',
                 '0.0000012315', '0.00000123159', '0.000001231598',
                 '0.0000012315987', '0.00000123159876', '0.000001231598765',
                 '0.0000012315987654321988', '0.0000012315987654321988')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
 
         asrt = ('1e+2', '1.2e+2', '123', '123.1', '123.15', '123.159',
                 '123.1598', '123.15987', '123.159876', '123.1598765',
                 '123.15987654321988', '123.15987654321988')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
 
         asrt = ('1e+19', '1.2e+19', '1.23e+19', '1.231e+19', '1.2315e+19',
                 '1.23159e+19', '1.231598e+19', '1.2315987e+19',
                 '1.23159876e+19', '1.231598765e+19', '12315987654321988000',
                 '12315987654321988000')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
 
         asrt = ('1e+20', '1.2e+20', '1.2299999999999998e+20',
                 '1.2309999999999999e+20', '1.2315e+20',
                 '1.2315899999999997e+20', '1.231598e+20', '1.2315987e+20',
                 '1.23159876e+20', '1.2315987650000002e+20',
                 '1.2315987654321987e+20', '123159876543219880000')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
 
         asrt = ('1.0000000000000002e+21', '1.2e+21', '1.23e+21', '1.231e+21',
                 '1.2314999999999998e+21', '1.23159e+21',
                 '1.2315979999999997e+21', '1.2315987000000002e+21',
                 '1.2315987599999998e+21', '1.231598765e+21',
                 '1.2315987654321987e+21', '1.2315987654321987e+21')
-        self.assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
-
-    def assertToString(self, value, check):
-        val = Number(value)
-        self._assertToString(val, check)
+        assertToPrecision(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
     def test_toString(self):
+        assertToString = partial(self.assertToString, Number)
+
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0', '1.2315e-8', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 1.2315e-8)
-        self.assertToString(1.2315e-8, asrt)
+        assertToString(1.2315e-8, asrt)
 
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0', '1.2315e-7', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 1.2315e-7)
-        self.assertToString(1.2315e-7, asrt)
+        assertToString(1.2315e-7, asrt)
 
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0', '0.0000012315', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', 0.0000012315)
-        self.assertToString(1.2315e-6, asrt)
+        assertToString(1.2315e-6, asrt)
 
         asrt = ('1111011', '11120', '1323', '443', '323', '234', '173', '146',
                 '123.15', '102', 'a3', '96', '8b', '83', '7b', '74', '6f',
                 '69', '63', '5i', '5d', '58', '53', '4n', '4j', '4f', '4b',
                 '47', '43', '3u', '3r', '3o', '3l', '3i', '3f', 123.15)
-        self.assertToString(1.2315e2, asrt)
+        assertToString(1.2315e2, asrt)
 
         asrt = ('1010101011100111101010110100000010011000111011111000000000000000',
                 '10001001022011102101012221121002220002210',
@@ -3776,7 +3762,7 @@ class NumberTests(NumberTestsBase):
                 'n55goh56nl4a0', 'fjl36k1qhumf8', 'alptb82cev000',
                 '7clnqlpb3ct3r', '55fg8hto8d2ag', '3mjap2hdf8gn5',
                 '2lkaf5u8qji8c', 12315000000000000000)
-        self.assertToString(1.2315e19, asrt)
+        assertToString(1.2315e19, asrt)
 
         asrt = ('1101010110100001100101100001000010111111001010110110000000000000000',
                 '1010101111000122012210012110222002120011210',
@@ -3794,7 +3780,7 @@ class NumberTests(NumberTestsBase):
                 'c01oapm6lkssle', '7llpi5lm7r1sa0', '51ap14eihos3qi',
                 '3aq35ggnslm000', '27rj72jmc0te16', '1hkiqh8p4fsceo',
                 '11fi25oxtcecwf', 'pzmw7mefdfkwc', 123150000000000000000)
-        self.assertToString(1.2315e20, asrt)
+        assertToString(1.2315e20, asrt)
 
         asrt = ('10000101100001001111110111001010011101110111101100100000000000000000000',
                 '102020212211020101010212000210200011210110122',
@@ -3813,32 +3799,32 @@ class NumberTests(NumberTestsBase):
                 '1jdf2bdlun131jt', '11c4vn57eup0000', 'mcbr4pvpl916en',
                 'f61hr2jdamg8s4', 'aef5lm4ndj8wf7', '77wcy4809qckc8',
                 1.2315e+21)
-        self.assertToString(1.2315e21, asrt)
+        assertToString(1.2315e21, asrt)
 
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0',
                 '1.2315987654321987e-8', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', 1.2315987654321987e-8)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e-8, asrt)
 
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0',
                 '1.231598765432198e-7', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', 1.231598765432198e-7)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e-7, asrt)
 
         asrt = ('0', '0', '0', '0', '0', '0', '0', '0',
                 '0.0000012315987654321988', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', 0.0000012315987654321988)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e-6, asrt)
 
         asrt = ('1111011', '11120', '1323', '443', '323', '234', '173', '146',
                 '123.15987654321988', '102', 'a3', '96', '8b', '83', '7b',
                 '74', '6f', '69', '63', '5i', '5d', '58', '53', '4n', '4j',
                 '4f', '4b', '47', '43', '3u', '3r', '3o', '3l', '3i', '3f',
                 123.15987654321988)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e2, asrt)
 
         asrt = ('1010101011101011001011011000010011001001111101010110000000000000',
                 '10001001110221221101001101110000200001002',
@@ -3856,7 +3842,7 @@ class NumberTests(NumberTestsBase):
                 'n576trc7h4ase', 'fjm9hk95jtiid', 'alqpdgj4vao00',
                 '7cmc2u3j7ppse', '55fwhjx3nwcw2', '3mjn8n7gfpxn4',
                 '2lkk598dhdic8', 12315987654321988000)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e19, asrt)
 
         asrt = ('1101010110100101111110001110010111111100011100101011100000000000000',
                 '1010101112210121101201111212110012111202222',
@@ -3874,7 +3860,7 @@ class NumberTests(NumberTestsBase):
                 'c02iok3ge087n2', '7lmc9t42fldeok', '51b62lgtpdgld6',
                 '3aqbu75vhpbg00', '27rplt42rbqbs8', '1hknj5tp31i0ek',
                 '11flmgm4ohen85', 'pzplgkbqtr4g8', 123159876543219880000)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e20, asrt)
 
         asrt = ('10000101100001111011101110001111101111011100011110110000000000000000000',
                 '102020220111000001222020010200112122010012202',
@@ -3893,7 +3879,7 @@ class NumberTests(NumberTestsBase):
                 '2h7e39lap74ciqq', '1jditqtej6b3h2q', '11c7ne7rrhtg000',
                 'mcdpkr7s9j29gh', 'f62vlopcuf66qk', 'aeg6eqbbyy2t1q',
                 '77x3yln9g9gckk', 1.231598765432198e+21)
-        self.assertToString(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
+        assertToString(1.2315987654321987654321987654321987654321987654321987654321e21, asrt)
 
 
 class ObjectTests(as3libTestCase):
@@ -3935,12 +3921,10 @@ class ObjectTests(as3libTestCase):
         Object.prototype.toString = temp
 
     def test_toLocaleString(self):
-        o = Object()
-        self.assertEqual(o.toLocaleString(), '[object Object]')
+        self.assertEqual(Object().toLocaleString(), '[object Object]')
 
     def test_toString(self):
-        o = Object()
-        self.assertEqual(o.toString(), '[object Object]')
+        self.assertEqual(Object().toString(), '[object Object]')
 
     def test_valueOf(self):
         obj = Object()
@@ -6189,11 +6173,9 @@ class uintTests(NumberTestsBase):
 
         self.assertEqual(uint(Object()), 0)
 
-    def assertToExponential(self, value, check):
-        val = uint(value)
-        self._assertToExponential(val, check)
-
     def test_toExponential(self):
+        assertToExponential = partial(self.assertToExponential, uint)
+
         asrt_1 = ('1', '1.0', '1.00', '1.000', '1.0000', '1.00000',
                   '1.000000', '1.0000000', '1.00000000', '1.000000000',
                   '1.0000000000', '1.00000000000000000000')
@@ -6233,121 +6215,119 @@ class uintTests(NumberTestsBase):
                            '2.1474836e+9', '2.14748365e+9', '2.147483649e+9',
                            '2.1474836490e+9', '2.14748364900000000000e+9')
 
-        self.assertToExponential(true, asrt_1)
+        assertToExponential(true, asrt_1)
 
-        self.assertToExponential(false, asrt_0)
-        self.assertToExponential(null, asrt_0)
-        self.assertToExponential(undefined, asrt_0)
+        assertToExponential(false, asrt_0)
+        assertToExponential(null, asrt_0)
+        assertToExponential(undefined, asrt_0)
 
-        self.assertToExponential(String(''), asrt_0)
-        self.assertToExponential('', asrt_0)
+        assertToExponential(String(''), asrt_0)
+        assertToExponential('', asrt_0)
 
-        self.assertToExponential(String('str'), asrt_0)
-        self.assertToExponential('str', asrt_0)
+        assertToExponential(String('str'), asrt_0)
+        assertToExponential('str', asrt_0)
 
-        self.assertToExponential(String('true'), asrt_0)
-        self.assertToExponential('true', asrt_0)
+        assertToExponential(String('true'), asrt_0)
+        assertToExponential('true', asrt_0)
 
-        self.assertToExponential(String('false'), asrt_0)
-        self.assertToExponential('false', asrt_0)
+        assertToExponential(String('false'), asrt_0)
+        assertToExponential('false', asrt_0)
 
-        self.assertToExponential(Number(0.0), asrt_0)
-        self.assertToExponential(0.0, asrt_0)
+        assertToExponential(Number(0.0), asrt_0)
+        assertToExponential(0.0, asrt_0)
 
-        self.assertToExponential(NaN, asrt_0)
+        assertToExponential(NaN, asrt_0)
 
-        self.assertToExponential(Number(-0.0), asrt_0)
-        self.assertToExponential(-0.0, asrt_0)
+        assertToExponential(Number(-0.0), asrt_0)
+        assertToExponential(-0.0, asrt_0)
 
-        self.assertToExponential(Infinity, asrt_0)
+        assertToExponential(Infinity, asrt_0)
 
-        self.assertToExponential(Number(1.0), asrt_1)
-        self.assertToExponential(1.0, asrt_1)
+        assertToExponential(Number(1.0), asrt_1)
+        assertToExponential(1.0, asrt_1)
 
-        self.assertToExponential(Number(-1.0), asrt_4294967295)
-        self.assertToExponential(-1.0, asrt_4294967295)
+        assertToExponential(Number(-1.0), asrt_4294967295)
+        assertToExponential(-1.0, asrt_4294967295)
 
-        self.assertToExponential(Number(0xFF1306), asrt_16716550)
-        self.assertToExponential(0xFF1306, asrt_16716550)
+        assertToExponential(Number(0xFF1306), asrt_16716550)
+        assertToExponential(0xFF1306, asrt_16716550)
 
-        self.assertToExponential(Number(1.2315e2), asrt_123)
-        self.assertToExponential(1.2315e2, asrt_123)
+        assertToExponential(Number(1.2315e2), asrt_123)
+        assertToExponential(1.2315e2, asrt_123)
 
-        self.assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToExponential(0x7FFFFFFF, asrt_2147483647)
+        assertToExponential(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToExponential(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToExponential(Number(0x80000000), asrt_2147483648)
-        self.assertToExponential(0x80000000, asrt_2147483648)
+        assertToExponential(Number(0x80000000), asrt_2147483648)
+        assertToExponential(0x80000000, asrt_2147483648)
 
-        self.assertToExponential(Number(0x80000001), asrt_2147483649)
-        self.assertToExponential(0x80000001, asrt_2147483649)
+        assertToExponential(Number(0x80000001), asrt_2147483649)
+        assertToExponential(0x80000001, asrt_2147483649)
 
-        self.assertToExponential(Number(0x180000001), asrt_2147483649)
-        self.assertToExponential(0x180000001, asrt_2147483649)
+        assertToExponential(Number(0x180000001), asrt_2147483649)
+        assertToExponential(0x180000001, asrt_2147483649)
 
-        self.assertToExponential(Number(0x100000001), asrt_1)
-        self.assertToExponential(0x100000001, asrt_1)
+        assertToExponential(Number(0x100000001), asrt_1)
+        assertToExponential(0x100000001, asrt_1)
 
-        self.assertToExponential(Number(-0x7FFFFFFF), asrt_2147483649)
-        self.assertToExponential(-0x7FFFFFFF, asrt_2147483649)
+        assertToExponential(Number(-0x7FFFFFFF), asrt_2147483649)
+        assertToExponential(-0x7FFFFFFF, asrt_2147483649)
 
-        self.assertToExponential(Number(-0x80000000), asrt_2147483648)
-        self.assertToExponential(-0x80000000, asrt_2147483648)
+        assertToExponential(Number(-0x80000000), asrt_2147483648)
+        assertToExponential(-0x80000000, asrt_2147483648)
 
-        self.assertToExponential(Number(-0x80000001), asrt_2147483647)
-        self.assertToExponential(-0x80000001, asrt_2147483647)
+        assertToExponential(Number(-0x80000001), asrt_2147483647)
+        assertToExponential(-0x80000001, asrt_2147483647)
 
-        self.assertToExponential(Number(-0x180000001), asrt_2147483647)
-        self.assertToExponential(-0x180000001, asrt_2147483647)
+        assertToExponential(Number(-0x180000001), asrt_2147483647)
+        assertToExponential(-0x180000001, asrt_2147483647)
 
-        self.assertToExponential(Number(-0x100000001), asrt_4294967295)
-        self.assertToExponential(-0x100000001, asrt_4294967295)
+        assertToExponential(Number(-0x100000001), asrt_4294967295)
+        assertToExponential(-0x100000001, asrt_4294967295)
 
-        self.assertToExponential(Object(), asrt_0)
+        assertToExponential(Object(), asrt_0)
 
         # Parse tests
-        self.assertToExponential(String('0.0'), asrt_0)
-        self.assertToExponential('0.0', asrt_0)
-        self.assertToExponential(String('NaN'), asrt_0)
-        self.assertToExponential('NaN', asrt_0)
-        self.assertToExponential(String('-0.0'), asrt_0)
-        self.assertToExponential('-0.0', asrt_0)
-        self.assertToExponential(String('Infinity'), asrt_0)
-        self.assertToExponential('Infinity', asrt_0)
-        self.assertToExponential(String('1.0'), asrt_1)
-        self.assertToExponential('1.0', asrt_1)
-        self.assertToExponential(String('-1.0'), asrt_4294967295)
-        self.assertToExponential('-1.0', asrt_4294967295)
-        self.assertToExponential(String('0xFF1306'), asrt_16716550)
-        self.assertToExponential('0xFF1306', asrt_16716550)
-        self.assertToExponential(String('1.2315e2'), asrt_123)
-        self.assertToExponential('1.2315e2', asrt_123)
-        self.assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToExponential('0x7FFFFFFF', asrt_2147483647)
-        self.assertToExponential(String('0x80000000'), asrt_2147483648)
-        self.assertToExponential('0x80000000', asrt_2147483648)
-        self.assertToExponential(String('0x80000001'), asrt_2147483649)
-        self.assertToExponential('0x80000001', asrt_2147483649)
-        self.assertToExponential(String('0x180000001'), asrt_2147483649)
-        self.assertToExponential('0x180000001', asrt_2147483649)
-        self.assertToExponential(String('0x100000001'), asrt_1)
-        self.assertToExponential('0x100000001', asrt_1)
-        self.assertToExponential(String('-0x7FFFFFFF'), asrt_2147483649)
-        self.assertToExponential('-0x7FFFFFFF', asrt_2147483649)
-        self.assertToExponential(String('-0x80000000'), asrt_2147483648)
-        self.assertToExponential('-0x80000000', asrt_2147483648)
-        self.assertToExponential(String('-0x80000001'), asrt_2147483647)
-        self.assertToExponential('-0x80000001', asrt_2147483647)
-        self.assertToExponential(String('-0x180000001'), asrt_2147483647)
-        self.assertToExponential('-0x180000001', asrt_2147483647)
-        self.assertToExponential(String('-0x100000001'), asrt_4294967295)
-        self.assertToExponential('-0x100000001', asrt_4294967295)
-
-    def assertToFixed(self, value, check):
-        val = uint(value)
-        self._assertToFixed(val, check)
+        assertToExponential(String('0.0'), asrt_0)
+        assertToExponential('0.0', asrt_0)
+        assertToExponential(String('NaN'), asrt_0)
+        assertToExponential('NaN', asrt_0)
+        assertToExponential(String('-0.0'), asrt_0)
+        assertToExponential('-0.0', asrt_0)
+        assertToExponential(String('Infinity'), asrt_0)
+        assertToExponential('Infinity', asrt_0)
+        assertToExponential(String('1.0'), asrt_1)
+        assertToExponential('1.0', asrt_1)
+        assertToExponential(String('-1.0'), asrt_4294967295)
+        assertToExponential('-1.0', asrt_4294967295)
+        assertToExponential(String('0xFF1306'), asrt_16716550)
+        assertToExponential('0xFF1306', asrt_16716550)
+        assertToExponential(String('1.2315e2'), asrt_123)
+        assertToExponential('1.2315e2', asrt_123)
+        assertToExponential(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToExponential('0x7FFFFFFF', asrt_2147483647)
+        assertToExponential(String('0x80000000'), asrt_2147483648)
+        assertToExponential('0x80000000', asrt_2147483648)
+        assertToExponential(String('0x80000001'), asrt_2147483649)
+        assertToExponential('0x80000001', asrt_2147483649)
+        assertToExponential(String('0x180000001'), asrt_2147483649)
+        assertToExponential('0x180000001', asrt_2147483649)
+        assertToExponential(String('0x100000001'), asrt_1)
+        assertToExponential('0x100000001', asrt_1)
+        assertToExponential(String('-0x7FFFFFFF'), asrt_2147483649)
+        assertToExponential('-0x7FFFFFFF', asrt_2147483649)
+        assertToExponential(String('-0x80000000'), asrt_2147483648)
+        assertToExponential('-0x80000000', asrt_2147483648)
+        assertToExponential(String('-0x80000001'), asrt_2147483647)
+        assertToExponential('-0x80000001', asrt_2147483647)
+        assertToExponential(String('-0x180000001'), asrt_2147483647)
+        assertToExponential('-0x180000001', asrt_2147483647)
+        assertToExponential(String('-0x100000001'), asrt_4294967295)
+        assertToExponential('-0x100000001', asrt_4294967295)
 
     def test_toFixed(self):
+        assertToFixed = partial(self.assertToFixed, uint)
+
         asrt_1 = ('1', '1.0', '1.00', '1.000', '1.0000', '1.00000',
                   '1.000000', '1.0000000', '1.00000000', '1.000000000',
                   '1.0000000000', '1.00000000000000000000')
@@ -6396,121 +6376,119 @@ class uintTests(NumberTestsBase):
                            '2147483649.000000000', '2147483649.0000000000',
                            '2147483649.00000000000000000000')
 
-        self.assertToFixed(true, asrt_1)
+        assertToFixed(true, asrt_1)
 
-        self.assertToFixed(false, asrt_0)
-        self.assertToFixed(null, asrt_0)
-        self.assertToFixed(undefined, asrt_0)
+        assertToFixed(false, asrt_0)
+        assertToFixed(null, asrt_0)
+        assertToFixed(undefined, asrt_0)
 
-        self.assertToFixed(String(''), asrt_0)
-        self.assertToFixed('', asrt_0)
+        assertToFixed(String(''), asrt_0)
+        assertToFixed('', asrt_0)
 
-        self.assertToFixed(String('str'), asrt_0)
-        self.assertToFixed('str', asrt_0)
+        assertToFixed(String('str'), asrt_0)
+        assertToFixed('str', asrt_0)
 
-        self.assertToFixed(String('true'), asrt_0)
-        self.assertToFixed('true', asrt_0)
+        assertToFixed(String('true'), asrt_0)
+        assertToFixed('true', asrt_0)
 
-        self.assertToFixed(String('false'), asrt_0)
-        self.assertToFixed('false', asrt_0)
+        assertToFixed(String('false'), asrt_0)
+        assertToFixed('false', asrt_0)
 
-        self.assertToFixed(Number(0.0), asrt_0)
-        self.assertToFixed(0.0, asrt_0)
+        assertToFixed(Number(0.0), asrt_0)
+        assertToFixed(0.0, asrt_0)
 
-        self.assertToFixed(NaN, asrt_0)
+        assertToFixed(NaN, asrt_0)
 
-        self.assertToFixed(Number(-0.0), asrt_0)
-        self.assertToFixed(-0.0, asrt_0)
+        assertToFixed(Number(-0.0), asrt_0)
+        assertToFixed(-0.0, asrt_0)
 
-        self.assertToFixed(Infinity, asrt_0)
+        assertToFixed(Infinity, asrt_0)
 
-        self.assertToFixed(Number(1.0), asrt_1)
-        self.assertToFixed(1.0, asrt_1)
+        assertToFixed(Number(1.0), asrt_1)
+        assertToFixed(1.0, asrt_1)
 
-        self.assertToFixed(Number(-1.0), asrt_4294967295)
-        self.assertToFixed(-1.0, asrt_4294967295)
+        assertToFixed(Number(-1.0), asrt_4294967295)
+        assertToFixed(-1.0, asrt_4294967295)
 
-        self.assertToFixed(Number(0xFF1306), asrt_16716550)
-        self.assertToFixed(0xFF1306, asrt_16716550)
+        assertToFixed(Number(0xFF1306), asrt_16716550)
+        assertToFixed(0xFF1306, asrt_16716550)
 
-        self.assertToFixed(Number(1.2315e2), asrt_123)
-        self.assertToFixed(1.2315e2, asrt_123)
+        assertToFixed(Number(1.2315e2), asrt_123)
+        assertToFixed(1.2315e2, asrt_123)
 
-        self.assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToFixed(0x7FFFFFFF, asrt_2147483647)
+        assertToFixed(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToFixed(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToFixed(Number(0x80000000), asrt_2147483648)
-        self.assertToFixed(0x80000000, asrt_2147483648)
+        assertToFixed(Number(0x80000000), asrt_2147483648)
+        assertToFixed(0x80000000, asrt_2147483648)
 
-        self.assertToFixed(Number(0x80000001), asrt_2147483649)
-        self.assertToFixed(0x80000001, asrt_2147483649)
+        assertToFixed(Number(0x80000001), asrt_2147483649)
+        assertToFixed(0x80000001, asrt_2147483649)
 
-        self.assertToFixed(Number(0x180000001), asrt_2147483649)
-        self.assertToFixed(0x180000001, asrt_2147483649)
+        assertToFixed(Number(0x180000001), asrt_2147483649)
+        assertToFixed(0x180000001, asrt_2147483649)
 
-        self.assertToFixed(Number(0x100000001), asrt_1)
-        self.assertToFixed(0x100000001, asrt_1)
+        assertToFixed(Number(0x100000001), asrt_1)
+        assertToFixed(0x100000001, asrt_1)
 
-        self.assertToFixed(Number(-0x7FFFFFFF), asrt_2147483649)
-        self.assertToFixed(-0x7FFFFFFF, asrt_2147483649)
+        assertToFixed(Number(-0x7FFFFFFF), asrt_2147483649)
+        assertToFixed(-0x7FFFFFFF, asrt_2147483649)
 
-        self.assertToFixed(Number(-0x80000000), asrt_2147483648)
-        self.assertToFixed(-0x80000000, asrt_2147483648)
+        assertToFixed(Number(-0x80000000), asrt_2147483648)
+        assertToFixed(-0x80000000, asrt_2147483648)
 
-        self.assertToFixed(Number(-0x80000001), asrt_2147483647)
-        self.assertToFixed(-0x80000001, asrt_2147483647)
+        assertToFixed(Number(-0x80000001), asrt_2147483647)
+        assertToFixed(-0x80000001, asrt_2147483647)
 
-        self.assertToFixed(Number(-0x180000001), asrt_2147483647)
-        self.assertToFixed(-0x180000001, asrt_2147483647)
+        assertToFixed(Number(-0x180000001), asrt_2147483647)
+        assertToFixed(-0x180000001, asrt_2147483647)
 
-        self.assertToFixed(Number(-0x100000001), asrt_4294967295)
-        self.assertToFixed(-0x100000001, asrt_4294967295)
+        assertToFixed(Number(-0x100000001), asrt_4294967295)
+        assertToFixed(-0x100000001, asrt_4294967295)
 
-        self.assertToFixed(Object(), asrt_0)
+        assertToFixed(Object(), asrt_0)
 
         # Parse tests
-        self.assertToFixed(String('0.0'), asrt_0)
-        self.assertToFixed('0.0', asrt_0)
-        self.assertToFixed(String('NaN'), asrt_0)
-        self.assertToFixed('NaN', asrt_0)
-        self.assertToFixed(String('-0.0'), asrt_0)
-        self.assertToFixed('-0.0', asrt_0)
-        self.assertToFixed(String('Infinity'), asrt_0)
-        self.assertToFixed('Infinity', asrt_0)
-        self.assertToFixed(String('1.0'), asrt_1)
-        self.assertToFixed('1.0', asrt_1)
-        self.assertToFixed(String('-1.0'), asrt_4294967295)
-        self.assertToFixed('-1.0', asrt_4294967295)
-        self.assertToFixed(String('0xFF1306'), asrt_16716550)
-        self.assertToFixed('0xFF1306', asrt_16716550)
-        self.assertToFixed(String('1.2315e2'), asrt_123)
-        self.assertToFixed('1.2315e2', asrt_123)
-        self.assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToFixed('0x7FFFFFFF', asrt_2147483647)
-        self.assertToFixed(String('0x80000000'), asrt_2147483648)
-        self.assertToFixed('0x80000000', asrt_2147483648)
-        self.assertToFixed(String('0x80000001'), asrt_2147483649)
-        self.assertToFixed('0x80000001', asrt_2147483649)
-        self.assertToFixed(String('0x180000001'), asrt_2147483649)
-        self.assertToFixed('0x180000001', asrt_2147483649)
-        self.assertToFixed(String('0x100000001'), asrt_1)
-        self.assertToFixed('0x100000001', asrt_1)
-        self.assertToFixed(String('-0x7FFFFFFF'), asrt_2147483649)
-        self.assertToFixed('-0x7FFFFFFF', asrt_2147483649)
-        self.assertToFixed(String('-0x80000000'), asrt_2147483648)
-        self.assertToFixed('-0x80000000', asrt_2147483648)
-        self.assertToFixed(String('-0x80000001'), asrt_2147483647)
-        self.assertToFixed('-0x80000001', asrt_2147483647)
-        self.assertToFixed(String('-0x180000001'), asrt_2147483647)
-        self.assertToFixed('-0x180000001', asrt_2147483647)
-        self.assertToFixed(String('-0x100000001'), asrt_4294967295)
-        self.assertToFixed('-0x100000001', asrt_4294967295)
-
-    def assertToPrecision(self, value, check):
-        val = uint(value)
-        self._assertToPrecision(val, check)
+        assertToFixed(String('0.0'), asrt_0)
+        assertToFixed('0.0', asrt_0)
+        assertToFixed(String('NaN'), asrt_0)
+        assertToFixed('NaN', asrt_0)
+        assertToFixed(String('-0.0'), asrt_0)
+        assertToFixed('-0.0', asrt_0)
+        assertToFixed(String('Infinity'), asrt_0)
+        assertToFixed('Infinity', asrt_0)
+        assertToFixed(String('1.0'), asrt_1)
+        assertToFixed('1.0', asrt_1)
+        assertToFixed(String('-1.0'), asrt_4294967295)
+        assertToFixed('-1.0', asrt_4294967295)
+        assertToFixed(String('0xFF1306'), asrt_16716550)
+        assertToFixed('0xFF1306', asrt_16716550)
+        assertToFixed(String('1.2315e2'), asrt_123)
+        assertToFixed('1.2315e2', asrt_123)
+        assertToFixed(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToFixed('0x7FFFFFFF', asrt_2147483647)
+        assertToFixed(String('0x80000000'), asrt_2147483648)
+        assertToFixed('0x80000000', asrt_2147483648)
+        assertToFixed(String('0x80000001'), asrt_2147483649)
+        assertToFixed('0x80000001', asrt_2147483649)
+        assertToFixed(String('0x180000001'), asrt_2147483649)
+        assertToFixed('0x180000001', asrt_2147483649)
+        assertToFixed(String('0x100000001'), asrt_1)
+        assertToFixed('0x100000001', asrt_1)
+        assertToFixed(String('-0x7FFFFFFF'), asrt_2147483649)
+        assertToFixed('-0x7FFFFFFF', asrt_2147483649)
+        assertToFixed(String('-0x80000000'), asrt_2147483648)
+        assertToFixed('-0x80000000', asrt_2147483648)
+        assertToFixed(String('-0x80000001'), asrt_2147483647)
+        assertToFixed('-0x80000001', asrt_2147483647)
+        assertToFixed(String('-0x180000001'), asrt_2147483647)
+        assertToFixed('-0x180000001', asrt_2147483647)
+        assertToFixed(String('-0x100000001'), asrt_4294967295)
+        assertToFixed('-0x100000001', asrt_4294967295)
 
     def test_toPrecision(self):
+        assertToPrecision = partial(self.assertToPrecision, uint)
+
         asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1')
 
         asrt_0 = ('0e+1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
@@ -6544,121 +6522,119 @@ class uintTests(NumberTestsBase):
                            '2.147483e+9', '2.1474836e+9', '2.14748364e+9',
                            '2147483649', '2147483649', '2147483649')
 
-        self.assertToPrecision(true, asrt_1)
+        assertToPrecision(true, asrt_1)
 
-        self.assertToPrecision(false, asrt_0)
-        self.assertToPrecision(null, asrt_0)
-        self.assertToPrecision(undefined, asrt_0)
+        assertToPrecision(false, asrt_0)
+        assertToPrecision(null, asrt_0)
+        assertToPrecision(undefined, asrt_0)
 
-        self.assertToPrecision(String(''), asrt_0)
-        self.assertToPrecision('', asrt_0)
+        assertToPrecision(String(''), asrt_0)
+        assertToPrecision('', asrt_0)
 
-        self.assertToPrecision(String('str'), asrt_0)
-        self.assertToPrecision('str', asrt_0)
+        assertToPrecision(String('str'), asrt_0)
+        assertToPrecision('str', asrt_0)
 
-        self.assertToPrecision(String('true'), asrt_0)
-        self.assertToPrecision('true', asrt_0)
+        assertToPrecision(String('true'), asrt_0)
+        assertToPrecision('true', asrt_0)
 
-        self.assertToPrecision(String('false'), asrt_0)
-        self.assertToPrecision('false', asrt_0)
+        assertToPrecision(String('false'), asrt_0)
+        assertToPrecision('false', asrt_0)
 
-        self.assertToPrecision(Number(0.0), asrt_0)
-        self.assertToPrecision(0.0, asrt_0)
+        assertToPrecision(Number(0.0), asrt_0)
+        assertToPrecision(0.0, asrt_0)
 
-        self.assertToPrecision(NaN, asrt_0)
+        assertToPrecision(NaN, asrt_0)
 
-        self.assertToPrecision(Number(-0.0), asrt_0)
-        self.assertToPrecision(-0.0, asrt_0)
+        assertToPrecision(Number(-0.0), asrt_0)
+        assertToPrecision(-0.0, asrt_0)
 
-        self.assertToPrecision(Infinity, asrt_0)
+        assertToPrecision(Infinity, asrt_0)
 
-        self.assertToPrecision(Number(1.0), asrt_1)
-        self.assertToPrecision(1.0, asrt_1)
+        assertToPrecision(Number(1.0), asrt_1)
+        assertToPrecision(1.0, asrt_1)
 
-        self.assertToPrecision(Number(-1.0), asrt_4294967295)
-        self.assertToPrecision(-1.0, asrt_4294967295)
+        assertToPrecision(Number(-1.0), asrt_4294967295)
+        assertToPrecision(-1.0, asrt_4294967295)
 
-        self.assertToPrecision(Number(0xFF1306), asrt_16716550)
-        self.assertToPrecision(0xFF1306, asrt_16716550)
+        assertToPrecision(Number(0xFF1306), asrt_16716550)
+        assertToPrecision(0xFF1306, asrt_16716550)
 
-        self.assertToPrecision(Number(1.2315e2), asrt_123)
-        self.assertToPrecision(1.2315e2, asrt_123)
+        assertToPrecision(Number(1.2315e2), asrt_123)
+        assertToPrecision(1.2315e2, asrt_123)
 
-        self.assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToPrecision(0x7FFFFFFF, asrt_2147483647)
+        assertToPrecision(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToPrecision(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToPrecision(Number(0x80000000), asrt_2147483648)
-        self.assertToPrecision(0x80000000, asrt_2147483648)
+        assertToPrecision(Number(0x80000000), asrt_2147483648)
+        assertToPrecision(0x80000000, asrt_2147483648)
 
-        self.assertToPrecision(Number(0x80000001), asrt_2147483649)
-        self.assertToPrecision(0x80000001, asrt_2147483649)
+        assertToPrecision(Number(0x80000001), asrt_2147483649)
+        assertToPrecision(0x80000001, asrt_2147483649)
 
-        self.assertToPrecision(Number(0x180000001), asrt_2147483649)
-        self.assertToPrecision(0x180000001, asrt_2147483649)
+        assertToPrecision(Number(0x180000001), asrt_2147483649)
+        assertToPrecision(0x180000001, asrt_2147483649)
 
-        self.assertToPrecision(Number(0x100000001), asrt_1)
-        self.assertToPrecision(0x100000001, asrt_1)
+        assertToPrecision(Number(0x100000001), asrt_1)
+        assertToPrecision(0x100000001, asrt_1)
 
-        self.assertToPrecision(Number(-0x7FFFFFFF), asrt_2147483649)
-        self.assertToPrecision(-0x7FFFFFFF, asrt_2147483649)
+        assertToPrecision(Number(-0x7FFFFFFF), asrt_2147483649)
+        assertToPrecision(-0x7FFFFFFF, asrt_2147483649)
 
-        self.assertToPrecision(Number(-0x80000000), asrt_2147483648)
-        self.assertToPrecision(-0x80000000, asrt_2147483648)
+        assertToPrecision(Number(-0x80000000), asrt_2147483648)
+        assertToPrecision(-0x80000000, asrt_2147483648)
 
-        self.assertToPrecision(Number(-0x80000001), asrt_2147483647)
-        self.assertToPrecision(-0x80000001, asrt_2147483647)
+        assertToPrecision(Number(-0x80000001), asrt_2147483647)
+        assertToPrecision(-0x80000001, asrt_2147483647)
 
-        self.assertToPrecision(Number(-0x180000001), asrt_2147483647)
-        self.assertToPrecision(-0x180000001, asrt_2147483647)
+        assertToPrecision(Number(-0x180000001), asrt_2147483647)
+        assertToPrecision(-0x180000001, asrt_2147483647)
 
-        self.assertToPrecision(Number(-0x100000001), asrt_4294967295)
-        self.assertToPrecision(-0x100000001, asrt_4294967295)
+        assertToPrecision(Number(-0x100000001), asrt_4294967295)
+        assertToPrecision(-0x100000001, asrt_4294967295)
 
-        self.assertToPrecision(Object(), asrt_0)
+        assertToPrecision(Object(), asrt_0)
 
         # Parse tests
-        self.assertToPrecision(String('0.0'), asrt_0)
-        self.assertToPrecision('0.0', asrt_0)
-        self.assertToPrecision(String('NaN'), asrt_0)
-        self.assertToPrecision('NaN', asrt_0)
-        self.assertToPrecision(String('-0.0'), asrt_0)
-        self.assertToPrecision('-0.0', asrt_0)
-        self.assertToPrecision(String('Infinity'), asrt_0)
-        self.assertToPrecision('Infinity', asrt_0)
-        self.assertToPrecision(String('1.0'), asrt_1)
-        self.assertToPrecision('1.0', asrt_1)
-        self.assertToPrecision(String('-1.0'), asrt_4294967295)
-        self.assertToPrecision('-1.0', asrt_4294967295)
-        self.assertToPrecision(String('0xFF1306'), asrt_16716550)
-        self.assertToPrecision('0xFF1306', asrt_16716550)
-        self.assertToPrecision(String('1.2315e2'), asrt_123)
-        self.assertToPrecision('1.2315e2', asrt_123)
-        self.assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToPrecision('0x7FFFFFFF', asrt_2147483647)
-        self.assertToPrecision(String('0x80000000'), asrt_2147483648)
-        self.assertToPrecision('0x80000000', asrt_2147483648)
-        self.assertToPrecision(String('0x80000001'), asrt_2147483649)
-        self.assertToPrecision('0x80000001', asrt_2147483649)
-        self.assertToPrecision(String('0x180000001'), asrt_2147483649)
-        self.assertToPrecision('0x180000001', asrt_2147483649)
-        self.assertToPrecision(String('0x100000001'), asrt_1)
-        self.assertToPrecision('0x100000001', asrt_1)
-        self.assertToPrecision(String('-0x7FFFFFFF'), asrt_2147483649)
-        self.assertToPrecision('-0x7FFFFFFF', asrt_2147483649)
-        self.assertToPrecision(String('-0x80000000'), asrt_2147483648)
-        self.assertToPrecision('-0x80000000', asrt_2147483648)
-        self.assertToPrecision(String('-0x80000001'), asrt_2147483647)
-        self.assertToPrecision('-0x80000001', asrt_2147483647)
-        self.assertToPrecision(String('-0x180000001'), asrt_2147483647)
-        self.assertToPrecision('-0x180000001', asrt_2147483647)
-        self.assertToPrecision(String('-0x100000001'), asrt_4294967295)
-        self.assertToPrecision('-0x100000001', asrt_4294967295)
-
-    def assertToString(self, value, check):
-        val = uint(value)
-        self._assertToString(val, check)
+        assertToPrecision(String('0.0'), asrt_0)
+        assertToPrecision('0.0', asrt_0)
+        assertToPrecision(String('NaN'), asrt_0)
+        assertToPrecision('NaN', asrt_0)
+        assertToPrecision(String('-0.0'), asrt_0)
+        assertToPrecision('-0.0', asrt_0)
+        assertToPrecision(String('Infinity'), asrt_0)
+        assertToPrecision('Infinity', asrt_0)
+        assertToPrecision(String('1.0'), asrt_1)
+        assertToPrecision('1.0', asrt_1)
+        assertToPrecision(String('-1.0'), asrt_4294967295)
+        assertToPrecision('-1.0', asrt_4294967295)
+        assertToPrecision(String('0xFF1306'), asrt_16716550)
+        assertToPrecision('0xFF1306', asrt_16716550)
+        assertToPrecision(String('1.2315e2'), asrt_123)
+        assertToPrecision('1.2315e2', asrt_123)
+        assertToPrecision(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToPrecision('0x7FFFFFFF', asrt_2147483647)
+        assertToPrecision(String('0x80000000'), asrt_2147483648)
+        assertToPrecision('0x80000000', asrt_2147483648)
+        assertToPrecision(String('0x80000001'), asrt_2147483649)
+        assertToPrecision('0x80000001', asrt_2147483649)
+        assertToPrecision(String('0x180000001'), asrt_2147483649)
+        assertToPrecision('0x180000001', asrt_2147483649)
+        assertToPrecision(String('0x100000001'), asrt_1)
+        assertToPrecision('0x100000001', asrt_1)
+        assertToPrecision(String('-0x7FFFFFFF'), asrt_2147483649)
+        assertToPrecision('-0x7FFFFFFF', asrt_2147483649)
+        assertToPrecision(String('-0x80000000'), asrt_2147483648)
+        assertToPrecision('-0x80000000', asrt_2147483648)
+        assertToPrecision(String('-0x80000001'), asrt_2147483647)
+        assertToPrecision('-0x80000001', asrt_2147483647)
+        assertToPrecision(String('-0x180000001'), asrt_2147483647)
+        assertToPrecision('-0x180000001', asrt_2147483647)
+        assertToPrecision(String('-0x100000001'), asrt_4294967295)
+        assertToPrecision('-0x100000001', asrt_4294967295)
 
     def test_toString(self):
+        assertToString = partial(self.assertToString, uint)
+
         asrt_1 = ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
                   '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
                   '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', 1)
@@ -6731,115 +6707,115 @@ class uintTests(NumberTestsBase):
                            '2d09uc3', '2000001', '1lsqtl3', '1d8xqrr',
                            '15v22uo', 'zik0zl', 2147483649)
 
-        self.assertToString(true, asrt_1)
+        assertToString(true, asrt_1)
 
-        self.assertToString(false, asrt_0)
-        self.assertToString(null, asrt_0)
-        self.assertToString(undefined, asrt_0)
+        assertToString(false, asrt_0)
+        assertToString(null, asrt_0)
+        assertToString(undefined, asrt_0)
 
-        self.assertToString(String(''), asrt_0)
-        self.assertToString('', asrt_0)
+        assertToString(String(''), asrt_0)
+        assertToString('', asrt_0)
 
-        self.assertToString(String('str'), asrt_0)
-        self.assertToString('str', asrt_0)
+        assertToString(String('str'), asrt_0)
+        assertToString('str', asrt_0)
 
-        self.assertToString(String('true'), asrt_0)
-        self.assertToString('true', asrt_0)
+        assertToString(String('true'), asrt_0)
+        assertToString('true', asrt_0)
 
-        self.assertToString(String('false'), asrt_0)
-        self.assertToString('false', asrt_0)
+        assertToString(String('false'), asrt_0)
+        assertToString('false', asrt_0)
 
-        self.assertToString(Number(0.0), asrt_0)
-        self.assertToString(0.0, asrt_0)
+        assertToString(Number(0.0), asrt_0)
+        assertToString(0.0, asrt_0)
 
-        self.assertToString(NaN, asrt_0)
+        assertToString(NaN, asrt_0)
 
-        self.assertToString(Number(-0.0), asrt_0)
-        self.assertToString(-0.0, asrt_0)
+        assertToString(Number(-0.0), asrt_0)
+        assertToString(-0.0, asrt_0)
 
-        self.assertToString(Infinity, asrt_0)
+        assertToString(Infinity, asrt_0)
 
-        self.assertToString(Number(1.0), asrt_1)
-        self.assertToString(1.0, asrt_1)
+        assertToString(Number(1.0), asrt_1)
+        assertToString(1.0, asrt_1)
 
-        self.assertToString(Number(-1.0), asrt_4294967295)
-        self.assertToString(-1.0, asrt_4294967295)
+        assertToString(Number(-1.0), asrt_4294967295)
+        assertToString(-1.0, asrt_4294967295)
 
-        self.assertToString(Number(0xFF1306), asrt_16716550)
-        self.assertToString(0xFF1306, asrt_16716550)
+        assertToString(Number(0xFF1306), asrt_16716550)
+        assertToString(0xFF1306, asrt_16716550)
 
-        self.assertToString(Number(1.2315e2), asrt_123)
-        self.assertToString(1.2315e2, asrt_123)
+        assertToString(Number(1.2315e2), asrt_123)
+        assertToString(1.2315e2, asrt_123)
 
-        self.assertToString(Number(0x7FFFFFFF), asrt_2147483647)
-        self.assertToString(0x7FFFFFFF, asrt_2147483647)
+        assertToString(Number(0x7FFFFFFF), asrt_2147483647)
+        assertToString(0x7FFFFFFF, asrt_2147483647)
 
-        self.assertToString(Number(0x80000000), asrt_2147483648)
-        self.assertToString(0x80000000, asrt_2147483648)
+        assertToString(Number(0x80000000), asrt_2147483648)
+        assertToString(0x80000000, asrt_2147483648)
 
-        self.assertToString(Number(0x80000001), asrt_2147483649)
-        self.assertToString(0x80000001, asrt_2147483649)
+        assertToString(Number(0x80000001), asrt_2147483649)
+        assertToString(0x80000001, asrt_2147483649)
 
-        self.assertToString(Number(0x180000001), asrt_2147483649)
-        self.assertToString(0x180000001, asrt_2147483649)
+        assertToString(Number(0x180000001), asrt_2147483649)
+        assertToString(0x180000001, asrt_2147483649)
 
-        self.assertToString(Number(0x100000001), asrt_1)
-        self.assertToString(0x100000001, asrt_1)
+        assertToString(Number(0x100000001), asrt_1)
+        assertToString(0x100000001, asrt_1)
 
-        self.assertToString(Number(-0x7FFFFFFF), asrt_2147483649)
-        self.assertToString(-0x7FFFFFFF, asrt_2147483649)
+        assertToString(Number(-0x7FFFFFFF), asrt_2147483649)
+        assertToString(-0x7FFFFFFF, asrt_2147483649)
 
-        self.assertToString(Number(-0x80000000), asrt_2147483648)
-        self.assertToString(-0x80000000, asrt_2147483648)
+        assertToString(Number(-0x80000000), asrt_2147483648)
+        assertToString(-0x80000000, asrt_2147483648)
 
-        self.assertToString(Number(-0x80000001), asrt_2147483647)
-        self.assertToString(-0x80000001, asrt_2147483647)
+        assertToString(Number(-0x80000001), asrt_2147483647)
+        assertToString(-0x80000001, asrt_2147483647)
 
-        self.assertToString(Number(-0x180000001), asrt_2147483647)
-        self.assertToString(-0x180000001, asrt_2147483647)
+        assertToString(Number(-0x180000001), asrt_2147483647)
+        assertToString(-0x180000001, asrt_2147483647)
 
-        self.assertToString(Number(-0x100000001), asrt_4294967295)
-        self.assertToString(-0x100000001, asrt_4294967295)
+        assertToString(Number(-0x100000001), asrt_4294967295)
+        assertToString(-0x100000001, asrt_4294967295)
 
-        self.assertToString(Object(), asrt_0)
+        assertToString(Object(), asrt_0)
 
         # Parse tests
-        self.assertToString(String('0.0'), asrt_0)
-        self.assertToString('0.0', asrt_0)
-        self.assertToString(String('NaN'), asrt_0)
-        self.assertToString('NaN', asrt_0)
-        self.assertToString(String('-0.0'), asrt_0)
-        self.assertToString('-0.0', asrt_0)
-        self.assertToString(String('Infinity'), asrt_0)
-        self.assertToString('Infinity', asrt_0)
-        self.assertToString(String('1.0'), asrt_1)
-        self.assertToString('1.0', asrt_1)
-        self.assertToString(String('-1.0'), asrt_4294967295)
-        self.assertToString('-1.0', asrt_4294967295)
-        self.assertToString(String('0xFF1306'), asrt_16716550)
-        self.assertToString('0xFF1306', asrt_16716550)
-        self.assertToString(String('1.2315e2'), asrt_123)
-        self.assertToString('1.2315e2', asrt_123)
-        self.assertToString(String('0x7FFFFFFF'), asrt_2147483647)
-        self.assertToString('0x7FFFFFFF', asrt_2147483647)
-        self.assertToString(String('0x80000000'), asrt_2147483648)
-        self.assertToString('0x80000000', asrt_2147483648)
-        self.assertToString(String('0x80000001'), asrt_2147483649)
-        self.assertToString('0x80000001', asrt_2147483649)
-        self.assertToString(String('0x180000001'), asrt_2147483649)
-        self.assertToString('0x180000001', asrt_2147483649)
-        self.assertToString(String('0x100000001'), asrt_1)
-        self.assertToString('0x100000001', asrt_1)
-        self.assertToString(String('-0x7FFFFFFF'), asrt_2147483649)
-        self.assertToString('-0x7FFFFFFF', asrt_2147483649)
-        self.assertToString(String('-0x80000000'), asrt_2147483648)
-        self.assertToString('-0x80000000', asrt_2147483648)
-        self.assertToString(String('-0x80000001'), asrt_2147483647)
-        self.assertToString('-0x80000001', asrt_2147483647)
-        self.assertToString(String('-0x180000001'), asrt_2147483647)
-        self.assertToString('-0x180000001', asrt_2147483647)
-        self.assertToString(String('-0x100000001'), asrt_4294967295)
-        self.assertToString('-0x100000001', asrt_4294967295)
+        assertToString(String('0.0'), asrt_0)
+        assertToString('0.0', asrt_0)
+        assertToString(String('NaN'), asrt_0)
+        assertToString('NaN', asrt_0)
+        assertToString(String('-0.0'), asrt_0)
+        assertToString('-0.0', asrt_0)
+        assertToString(String('Infinity'), asrt_0)
+        assertToString('Infinity', asrt_0)
+        assertToString(String('1.0'), asrt_1)
+        assertToString('1.0', asrt_1)
+        assertToString(String('-1.0'), asrt_4294967295)
+        assertToString('-1.0', asrt_4294967295)
+        assertToString(String('0xFF1306'), asrt_16716550)
+        assertToString('0xFF1306', asrt_16716550)
+        assertToString(String('1.2315e2'), asrt_123)
+        assertToString('1.2315e2', asrt_123)
+        assertToString(String('0x7FFFFFFF'), asrt_2147483647)
+        assertToString('0x7FFFFFFF', asrt_2147483647)
+        assertToString(String('0x80000000'), asrt_2147483648)
+        assertToString('0x80000000', asrt_2147483648)
+        assertToString(String('0x80000001'), asrt_2147483649)
+        assertToString('0x80000001', asrt_2147483649)
+        assertToString(String('0x180000001'), asrt_2147483649)
+        assertToString('0x180000001', asrt_2147483649)
+        assertToString(String('0x100000001'), asrt_1)
+        assertToString('0x100000001', asrt_1)
+        assertToString(String('-0x7FFFFFFF'), asrt_2147483649)
+        assertToString('-0x7FFFFFFF', asrt_2147483649)
+        assertToString(String('-0x80000000'), asrt_2147483648)
+        assertToString('-0x80000000', asrt_2147483648)
+        assertToString(String('-0x80000001'), asrt_2147483647)
+        assertToString('-0x80000001', asrt_2147483647)
+        assertToString(String('-0x180000001'), asrt_2147483647)
+        assertToString('-0x180000001', asrt_2147483647)
+        assertToString(String('-0x100000001'), asrt_4294967295)
+        assertToString('-0x100000001', asrt_4294967295)
 
 
 class VectorTests(as3libTestCase):
@@ -6872,15 +6848,22 @@ class VectorTests(as3libTestCase):
         v = Vector[int](Object({'length': 2, '0': 1, '1': '9'}))
         self.assertEqual(v.toString(), '1,9')
 
-        # TODO: Check the error properties
-        with self.assertRaises():
-            v = Vector[int](null)  # => raises error with id 1034
+        # TODO: Check error.message
+        with self.assertRaises(TypeError) as handler:
+            v = Vector[int](null)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1034)
+        # Type Coercion failed: cannot convert <Object> to <Object>.
 
-        with self.assertRaises():
-            v = Vector[int]('primative')  # => raises error with id 1034
+        with self.assertRaises(TypeError) as handler:
+            v = Vector[int]('primative')
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1034)
 
-        with self.assertRaises():
-            v = Vector[int](500)  # => raises error with id 1034
+        with self.assertRaises(TypeError) as Handler:
+            v = Vector[int](500)
+        exception = handler.exception
+        self.assertEqual(exception.errorID, 1034)
 
     def test_coercion(self):
         a_bool = Vector[Boolean]([1, 2, 3, 4])
@@ -7301,7 +7284,10 @@ class VectorTests(as3libTestCase):
         raise TestNotImplemented
 
     def test_int_access(self):
-        raise TestNotImplemented
+        a = Vector[int]([1,2,3,])
+        self.assertEqual(a[0], 1)
+        self.assertEqual(a[1], 2)
+        self.assertEqual(a[2], 3)
 
     def test_int_delete(self):
         # NOTE: From the results of this test, it seems that delete on a Vector is a no-op
@@ -7876,19 +7862,6 @@ class WTFJSTests(as3libTestCase):
             yield f
 
         self.assertIs(next(next(next(next(next(f())())())())()), f)
-
-    def test_infinite_timeout(self):
-        # This will execute immediately because Infinity casts to uint 0
-        self.eventTriggered = false
-
-        def action(*e):
-            self.eventTriggered = true
-
-        setTimeout(action, Infinity)
-
-        self.assertTrue(self.eventTriggered)
-
-        del self.eventTriggered
 
 
 class XMLTests(as3libTestCase):
