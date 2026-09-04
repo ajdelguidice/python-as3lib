@@ -1,12 +1,15 @@
 from warnings import warn
+
+
+# PEP 702 - 3.13
 class deprecated:
-    #PEP 702 - 3.13
-    def __init__(self, message:str, /, *, category:type[Warning]|None=DeprecationWarning, stacklevel:int=1) -> None:
+    def __init__(self, message: str, /, *, category: type[Warning] | None = DeprecationWarning, stacklevel: int = 1) -> None:
         if not isinstance(message, str):
             raise TypeError(f"Expected an object of type str for 'message', not {type(message).__name__!r}")
         self.message = message
         self.category = category
         self.stacklevel = stacklevel
+
     def __call__(self, arg, /):
         # Make sure the inner functions created below don't
         # retain a reference to self.
@@ -20,6 +23,7 @@ class deprecated:
             import functools
             from types import MethodType
             original_new = arg.__new__
+
             @functools.wraps(original_new)
             def __new__(cls, *args, **kwargs):
                 if cls is arg:
@@ -31,16 +35,19 @@ class deprecated:
                     raise TypeError(f"{cls.__name__}() takes no arguments")
                 else:
                     return original_new(cls)
+
             arg.__new__ = staticmethod(__new__)
             original_init_subclass = arg.__init_subclass__
             # We need slightly different behavior if __init_subclass__
             # is a bound method (likely if it was implemented in Python)
             if isinstance(original_init_subclass, MethodType):
                 original_init_subclass = original_init_subclass.__func__
+
                 @functools.wraps(original_init_subclass)
                 def __init_subclass__(*args, **kwargs):
                     warn(msg, category=category, stacklevel=stacklevel + 1)
                     return original_init_subclass(*args, **kwargs)
+
                 arg.__init_subclass__ = classmethod(__init_subclass__)
             # Or otherwise, which likely means it's a builtin such as
             # object's implementation of __init_subclass__.
@@ -56,10 +63,12 @@ class deprecated:
         elif callable(arg):
             import functools
             import inspect
+
             @functools.wraps(arg)
             def wrapper(*args, **kwargs):
                 warn(msg, category=category, stacklevel=stacklevel + 1)
                 return arg(*args, **kwargs)
+
             if inspect.iscoroutinefunction(arg):
                 wrapper = inspect.markcoroutinefunction(wrapper)
             arg.__deprecated__ = wrapper.__deprecated__ = msg
