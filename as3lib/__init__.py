@@ -62,7 +62,8 @@ from ._toplevel import (ArgumentError, Array, Boolean, Class, Date,
                         VerifyError, XML, XMLList, decodeURI,
                         decodeURIComponent, encodeURI, encodeURIComponent,
                         escape, isFinite, isNaN, isXMLName, parseFloat,
-                        parseInt, unescape, delete, each, stricteq, strictne)
+                        parseInt, unescape, delete, each, stricteq, strictne,
+                        urshift)
 
 
 # Set up miniamf type adapters
@@ -154,6 +155,7 @@ __all__ = (
 
     'stricteq',
     'strictne',
+    'urshift',
 
     'ArgumentError',
     'Array',
