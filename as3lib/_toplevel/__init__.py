@@ -13,7 +13,7 @@ import traceback
 
 from .. import as3state
 from as3lib._toplevel.trace import errorTrace
-from as3lib.helpers import function
+from as3lib.helpers import function, int32_to_binary32, binary32_to_int32
 
 
 # Internal Helpers
@@ -67,6 +67,75 @@ def _exponentFixInt(value):  # int
             return '%se+%i' % (a, bi)
         return '%se%i' % (a, bi)
     return value
+
+
+def _as3lib_valueOfHelper(obj):
+    if hasattr(obj, 'valueOf'):
+        return obj.valueOf()
+    return obj
+
+
+def _as3lib_CoerceToNumberValue(obj):
+    # TODO: Ensure that using this is the correct solution
+    # TODO: Make this work with all as3 types
+    obj = _as3lib_valueOfHelper(obj)
+    if obj is null:
+        return 0
+    if obj is undefined:
+        return math.nan
+    if isinstance(obj, Array):
+        # TODO: Check this
+        # NOTE: This produces the results:
+        #           [] == ''
+        #           [1] == 1
+        #           ['str'] == NaN
+        #           [1, 2] == NaN
+
+        # NOTE: Temporary manual conditions until parseFloat works properly
+        if obj.length > 1:
+            return math.nan
+        obj = obj.toString()
+    if isinstance(obj, (str, String)):
+        obj = str(obj).strip()
+        if obj.startswith('0x'):
+            return parseInt(obj)._value
+        if not obj:
+            return 0
+        return parseFloat(obj)._value
+    if isinstance(obj, (Number, int, uint)):
+        return obj._value
+    if isinstance(obj, (bool, Boolean)):
+        return builtins.int(obj)
+    if isinstance(obj, Object):
+        return math.nan
+    return obj
+
+
+def _as3lib_CoerceToIntValue(obj):
+    obj = _as3lib_valueOfHelper(obj)
+    if isinstance(obj, (String, str)):
+        obj = parseInt(obj)
+    if isinstance(obj, (int, uint, Number)):
+        obj = obj._value
+    if isinstance(obj, (builtins.int)):
+        return obj
+    if isinstance(obj, (Number, int, uint, float, builtins.int)) and (math.isnan(obj) or math.isinf(obj)):
+        return 0
+    if isinstance(obj, float):
+        return math.floor(obj)
+    if hasattr(obj, '__int__'):
+        return builtins.int(obj)
+    if isinstance(obj, Object):
+        return 0
+    raise TypeError(f'Can not convert type {type(obj)} to integer')
+
+
+def _as3lib_toStringHelper(obj):
+    if hasattr(obj, 'toString'):
+        obj = obj.toString()
+    if isinstance(obj, bool):
+        return 'true' if obj else 'false'
+    return str(obj)
 
 
 # Classes
@@ -242,75 +311,6 @@ undefined = undefined()
 null = null()
 
 
-def _as3lib_valueOfHelper(obj):
-    if hasattr(obj, 'valueOf'):
-        return obj.valueOf()
-    return obj
-
-
-def _as3lib_CoerceToNumberValue(obj):
-    # TODO: Ensure that using this is the correct solution
-    # TODO: Make this work with all as3 types
-    obj = _as3lib_valueOfHelper(obj)
-    if obj is null:
-        return 0
-    if obj is undefined:
-        return math.nan
-    if isinstance(obj, Array):
-        # TODO: Check this
-        # NOTE: This produces the results:
-        #           [] == ''
-        #           [1] == 1
-        #           ['str'] == NaN
-        #           [1, 2] == NaN
-
-        # NOTE: Temporary manual conditions until parseFloat works properly
-        if obj.length > 1:
-            return math.nan
-        obj = obj.toString()
-    if isinstance(obj, (str, String)):
-        obj = str(obj).strip()
-        if obj.startswith('0x'):
-            return parseInt(obj)._value
-        if not obj:
-            return 0
-        return parseFloat(obj)._value
-    if isinstance(obj, (Number, int, uint)):
-        return obj._value
-    if isinstance(obj, (bool, Boolean)):
-        return builtins.int(obj)
-    if isinstance(obj, Object):
-        return math.nan
-    return obj
-
-
-def _as3lib_CoerceToIntValue(obj):
-    obj = _as3lib_valueOfHelper(obj)
-    if isinstance(obj, (String, str)):
-        obj = parseInt(obj)
-    if isinstance(obj, (int, uint, Number)):
-        obj = obj._value
-    if isinstance(obj, (builtins.int)):
-        return obj
-    if isinstance(obj, (Number, int, uint, float, builtins.int)) and (math.isnan(obj) or math.isinf(obj)):
-        return 0
-    if isinstance(obj, float):
-        return math.floor(obj)
-    if hasattr(obj, '__int__'):
-        return builtins.int(obj)
-    if isinstance(obj, Object):
-        return 0
-    raise TypeError(f'Can not convert type {type(obj)} to integer')
-
-
-def _as3lib_toStringHelper(obj):
-    if hasattr(obj, 'toString'):
-        obj = obj.toString()
-    if isinstance(obj, bool):
-        return 'true' if obj else 'false'
-    return str(obj)
-
-
 # TODO: Determine correct return types for non-boolean operations
 #       This is probably determined by the input type
 #       EX: In python, int + int => int, int + float => float
@@ -366,7 +366,7 @@ class Object:
 
     def __add__(self, value):
         # TODO: This is still slightly wrong
-        thisValue = _as3lib_valueOfHelper(self)
+        thisValue = self.valueOf()
         otherValue = _as3lib_valueOfHelper(value)
         if isinstance(thisValue, (str, String, Array)) or isinstance(otherValue, (str, String, Array)):
             return self.toString().concat(value)
@@ -2776,8 +2776,14 @@ def strictne(obj1, obj2):
     return Boolean(not _typeCompare(obj1, obj2) or obj1 != obj2)
 
 
-def urshift(obj1, obj2):
-    raise NotImplementedError
+def urshift(obj1: Number, obj2: Number):
+    # TODO: Reimplement this without converting to string
+    obj1 = int(Number(obj1))._value
+    obj2 = int(Number(obj2))._value
+
+    if obj2 < 0:
+        return uint(binary32_to_int32(('0' * (32 - ((abs(obj2) - 1) % 32 + 1)) + int32_to_binary32(obj1))[:32]))
+    return uint(binary32_to_int32(('0' * (obj2 % 32) + int32_to_binary32(obj1))[:32]))
 
 
 # Helpers
