@@ -737,7 +737,7 @@ class Array(list, Object):
 
     def splice(self, startIndex: int = null, deleteCount: uint = null, *values):
         if startIndex is null:
-            return null
+            return null  # TODO: Make sure that this is supposed to be null and not undefined
         if deleteCount is null:
             deleteCount = self.length
         startIndex, deleteCount = int(startIndex), int(deleteCount)
@@ -2774,6 +2774,10 @@ def stricteq(obj1, obj2):
 
 def strictne(obj1, obj2):
     return Boolean(not _typeCompare(obj1, obj2) or obj1 != obj2)
+
+
+def urshift(obj1, obj2):
+    raise NotImplementedError
 
 
 # Helpers
