@@ -8,6 +8,21 @@ import platform, sys
 from . import as3state
 
 
+def int32_to_binary32(value):
+    sign = '0'
+    if value < 0:
+        value = 2147483648 + value
+        sign = '1'
+    bits = bin(value)[2:]
+    return sign + '0' * (31 - len(bits)) + bits
+
+def binary32_to_int32(value):
+    sign = value[0]
+    if sign == '1':
+        return -2147483648 + int(value[1:], 2)
+    return int(value[1:], 2)
+
+
 class printOnce:
     def __init__(self, message):
         self.message = message
