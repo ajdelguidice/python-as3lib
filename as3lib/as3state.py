@@ -38,7 +38,6 @@ prototypes = {}  # Each class needs a global default instance of itself. Store i
 
 # flash.filesystem
 separator = None
-_user = None  # Name of the currect user.
 userdirectory = None
 desktopdirectory = None
 documentsdirectory = None

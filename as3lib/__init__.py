@@ -1,7 +1,8 @@
 from . import as3state, config
 from ._toplevel.trace import trace
 from .helpers import isValidDirectory
-import builtins, os
+import builtins
+import os
 from functools import partial
 from miniamf import add_type
 from miniamf.amf3 import IntVector, UintVector, DoubleVector, ObjectVector
@@ -15,11 +16,6 @@ if as3state.startTime is None:
 if not as3state.initdone:
     import platform
     as3state.platform = platform.system()
-    if as3state.platform == 'Windows':
-        as3state._user = os.getlogin()
-    else:
-        from pwd import getpwuid
-        as3state._user = getpwuid(os.getuid())[0]
     as3state.separator = '\\' if as3state.platform == 'Windows' else '/'
     as3state.librarydirectory = Path(os.path.dirname(__file__))
     as3state.userdirectory = Path.home()
@@ -50,7 +46,7 @@ if not as3state.initdone:
     if hasattr(__main__, '__file__'):
         as3state.appdatadirectory = Path(os.path.dirname(__main__.__file__))
     else:  # Fall back to working directory
-        as3state.appdatadirectory = Path.cwd()
+        as3state.appdatadirectory = Path(os.getcwd())
 
     # Tell others that library has been initialised
     as3state.initdone = True

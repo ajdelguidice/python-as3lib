@@ -1,6 +1,7 @@
 # This module inlcudes many things that might be useful when using this
 # library but aren't in actionscript. EX: a helper for increasing python's
 # maximum recursion depth.
+import getpass
 from io import StringIO
 from pathlib import PurePath
 import platform, sys
@@ -126,7 +127,7 @@ def TraceFilePath_Flash(sysverOverride: tuple = None):
     Arguements:
         sysverOverride - A tuple containing the system and version of system you want to choose. ex: ('Windows','XP')
     '''
-    user = as3state._user
+    user = getpass.getuser()
     if sysverOverride:
         if sysverOverride[0] == 'Linux':
             return f'/home/{user}/.macromedia/Flash_Player/Logs/flashlog.txt'
