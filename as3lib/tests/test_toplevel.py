@@ -7,8 +7,8 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     isNaN, JSON, Math, Namespace, NaN, null, Number, Object,
                     parseFloat, parseInt, QName, RangeError, ReferenceError,
                     RegExp, SecurityError, String, SyntaxError, true,
-                    TypeError, uint, undefined, unescape, URIError, Vector,
-                    VerifyError, XML, XMLList)
+                    TypeError, uint, undefined, unescape, URIError, urshift,
+                    Vector, VerifyError, XML, XMLList)
 from as3lib.flash.errors import (DRMManagerError, EOFError,
                                  IllegalOperationError, InvalidSWFError,
                                  IOError, MemoryError, ScriptTimeoutError,
@@ -572,13 +572,14 @@ class ArrayTests(as3libTestCase):
         self.assertArray(s, ['4', 3])
 
     def test_sort_xorshift(self):
+        # TODO: This fails
         # A simple deterministic PRNG; namely, Xorshift.
         def _rng():
             # TODO: This implementation seems wrong
             rngState = int(0x12345678)
             while True:
                 rngState ^= rngState << 13
-                rngState ^= rngState >> 17
+                rngState ^= urshift(rngState, 17)
                 rngState ^= rngState << 5
                 yield rngState
 
@@ -596,11 +597,11 @@ class ArrayTests(as3libTestCase):
             return -1
 
         array.sort(sortfunc)
-        self.assertArray(array, [13, 35, 24, 1, 8, 33, 6, 3, 9, 38, 20, 7, 23,
+        self.assertArray(array, (13, 35, 24, 1, 8, 33, 6, 3, 9, 38, 20, 7, 23,
                                  40, 19, 16, 12, 15, 14, 4, 22, 37, 21, 18,
                                  45, 25, 41, 27, 36, 32, 47, 44, 43, 48, 29, 5,
                                  26, 11, 10, 39, 17, 42, 49, 2, 31, 28, 0, 30,
-                                 34, 46])
+                                 34, 46))
 
     def test_sortOn(self):
         item1 = Object()
@@ -2281,10 +2282,13 @@ class intTests(NumberTestsBase):
 
     def test_constructor(self):
         self.assertEqual(int(), 0)
+
         self.assertEqual(int(true), 1)
         self.assertEqual(int(True), 1)
+
         self.assertEqual(int(false), 0)
         self.assertEqual(int(False), 0)
+
         self.assertEqual(int(null), 0)
         self.assertEqual(int(undefined), 0)
 
@@ -4566,7 +4570,66 @@ class OperationTests(as3libTestCase):
         assertRShift(String('0xFF1306'), asrt_16716550)
 
     def test_urshift(self):
-        raise TestNotImplemented
+        def assertURShift(value, check):
+            self.assertEqual(urshift(true, value), check[0])
+            self.assertEqual(urshift(false, value), check[1])
+            self.assertEqual(urshift(null, value), check[2])
+            self.assertEqual(urshift(undefined, value), check[3])
+            self.assertEqual(urshift(String(''), value), check[4])
+            self.assertEqual(urshift(String('str'), value), check[5])
+            self.assertEqual(urshift(String('true'), value), check[6])
+            self.assertEqual(urshift(String('false'), value), check[7])
+            self.assertEqual(urshift(Number(0.0), value), check[8])
+            self.assertEqual(urshift(NaN, value), check[9])
+            self.assertEqual(urshift(Number(-0.0), value), check[10])
+            self.assertEqual(urshift(Infinity, value), check[11])
+            self.assertEqual(urshift(Number(1.0), value), check[12])
+            self.assertEqual(urshift(Number(-1.0), value), check[13])
+            self.assertEqual(urshift(Number(0xFF1306), value), check[14])
+            self.assertEqual(urshift(Object(), value), check[15])
+            self.assertEqual(urshift(String('0.0'), value), check[16])
+            self.assertEqual(urshift(String('NaN'), value), check[17])
+            self.assertEqual(urshift(String('-0.0'), value), check[18])
+            self.assertEqual(urshift(String('Infinity'), value), check[19])
+            self.assertEqual(urshift(String('1.0'), value), check[20])
+            self.assertEqual(urshift(String('-1.0'), value), check[21])
+            self.assertEqual(urshift(String('0xFF1306'), value), check[22])
+
+        asrt_1 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2147483647, 8358275,
+                  0, 0, 0, 0, 0, 0, 2147483647, 8358275)
+
+        asrt_0 = (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4294967295, 16716550,
+                  0, 0, 0, 0, 0, 1, 4294967295, 16716550)
+
+        asrt_n1 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+                   0, 1, 0)
+
+        asrt_16716550 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 67108863,
+                         261196, 0, 0, 0, 0, 0, 0, 67108863, 261196)
+
+        assertURShift(true, asrt_1)
+        assertURShift(false, asrt_0)
+        assertURShift(null, asrt_0)
+        assertURShift(undefined, asrt_0)
+        assertURShift(String(''), asrt_0)
+        assertURShift(String('str'), asrt_0)
+        assertURShift(String('true'), asrt_0)
+        assertURShift(String('false'), asrt_0)
+        assertURShift(Number(0.0), asrt_0)
+        assertURShift(NaN, asrt_0)
+        assertURShift(Number(-0.0), asrt_0)
+        assertURShift(Infinity, asrt_0)
+        assertURShift(Number(1.0), asrt_1)
+        assertURShift(Number(-1.0), asrt_n1)
+        assertURShift(Number(0xFF1306), asrt_16716550)
+        assertURShift(Object(), asrt_0)
+        assertURShift(String('0.0'), asrt_0)
+        assertURShift(String('NaN'), asrt_0)
+        assertURShift(String('-0.0'), asrt_0)
+        assertURShift(String('Infinity'), asrt_0)
+        assertURShift(String('1.0'), asrt_1)
+        assertURShift(String('-1.0'), asrt_n1)
+        assertURShift(String('0xFF1306'), asrt_16716550)
 
     def test_negate(self):
         # TODO: Test Array with and without items in it
@@ -6841,7 +6904,7 @@ class VectorTests(as3libTestCase):
         exception = handler.exception
         self.assertEqual(exception.errorID, 1034)
 
-        with self.assertRaises(TypeError) as Handler:
+        with self.assertRaises(TypeError) as handler:
             v = Vector[int](500)
         exception = handler.exception
         self.assertEqual(exception.errorID, 1034)
@@ -6970,12 +7033,12 @@ class VectorTests(as3libTestCase):
         myobj_vec = Vector[MyObject]([])
 
         with self.assertRaises(TypeError) as handler:
-            cast = Vector[int](myobj_vec)
+            Vector[int](myobj_vec)
         exception = handler.exception
         self.assertEqual(exception.errorID, 1034)
         # Replace the non-deterministic address value with a placeholder string.
         normalized = exception.message.replace(RegExp('/@[0-9A-Fa-f]+/'), "@ADDRESS")
-        self.assertEqual(exception.message, 'Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.')
+        self.assertEqual(normalized, 'Type Coercion failed: cannot convert __AS3__.vec::Vector.<Test.as$38::MyObject>@ADDRESS to __AS3__.vec.Vector.<int>.')
 
     def test_concat(self):
         a_bool = Vector[Boolean]([true, false])
