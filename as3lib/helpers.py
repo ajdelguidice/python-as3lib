@@ -7,6 +7,18 @@ import platform, sys
 from . import as3state
 
 
+class printOnce:
+    def __init__(self, message):
+        self.message = message
+        if self in as3state.printOnce:
+            return
+        as3state.printOnce.append(self)
+        print(message)
+
+    def __eq__(self, value):
+        return isinstance(value, printOnce) and value.message == self.message
+
+
 class recursionDepth:
     # used like "with recursionDepth(Number):"
     def __init__(self, limit):
