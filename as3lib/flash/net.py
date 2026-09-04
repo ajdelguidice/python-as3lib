@@ -1,13 +1,15 @@
 from __future__ import annotations
-from as3lib import (ArgumentError, Array, as3state, Boolean, Error, false,
-                    int, null, Object, ReferenceError, String, TypeError,
-                    uint)
+from as3lib import (ArgumentError, Array, as3state, Boolean, Date, Error,
+                    false, int, null, Number, Object, ReferenceError, String,
+                    TypeError, uint)
+from as3lib.flash.errors import IllegalOperationError, IOError
 from as3lib.flash.events import Event, EventDispatcher
 from as3lib.flash.utils import ByteArray
 from as3lib.helpers import staticproperty
 import builtins
 import miniamf
 from miniamf import sol
+import os
 
 
 class DatagramSocket(EventDispatcher):
@@ -94,27 +96,54 @@ class FileFilter(Object):
 class FileReference(EventDispatcher):
     @property
     def creationDate(self):
-        return self._creationDate
+        if self._path is None:
+            raise IllegalOperationError
+        try:
+            return Date(Number(os.stat(self._path).st_birthtime * 1000))
+        except AttributeError as e:
+            raise IOError from e
 
     @property
     def creator(self):
-        return self._creator
+        if self._path is None:
+            raise IllegalOperationError
+        # MacOS specific freature
+        if as3state.platform == 'Darwin':
+            raise NotImplementedError
+        return null
 
     @property
     def data(self):
-        return self._data
+        if self._path is None:
+            raise IllegalOperationError
+        raise NotImplementedError
 
     @property
     def extension(self):
-        return self._extension
+        if self._path is None:
+            raise IllegalOperationError
+        ext = os.path.splitext(self._path)[1]
+        if ext == '':
+            return null
+        # Return with dot removed
+        return String(ext[1:])
 
     @property
     def modificationDate(self):
-        return self._modificationDate
+        if self._path is None:
+            raise IllegalOperationError
+        try:
+            return Date(Number(os.stat(self._path).st_mtime * 1000))
+        except AttributeError as e:
+            # NOTE: The python documentation does not mention this being able
+            #       fail, so use what was used for creationDate.
+            raise IOError from e
 
     @property
     def name(self):
-        return self._name
+        if self._path is None:
+            raise IllegalOperationError
+        return os.path.split(self._path)[1]
 
     @staticproperty
     def permissionStatus(cls):
@@ -122,17 +151,26 @@ class FileReference(EventDispatcher):
 
     @property
     def size(self):
-        return self._size
+        if self._path is None:
+            raise IllegalOperationError
+        return Number(os.stat(self._path).st_size)
 
     @property
     def type(self):
-        return self._type
+        # NOTE: On MacOS before OSX, this property was different
+        if self._path is None:
+            raise IllegalOperationError
+        return self.extension
 
     def __init__(self):
         super().__init__()
-        self._location = None
+        self._path = None
 
     def browse(self, typeFilter: Array = null):
+        # TODO: Return true if typeFilters are valid and dialog opens
+        # TODO: Async dialog box
+        # TODO: dispatch Event(Event.SELECT, false, false) after user presses ok
+        # TODO: dispatch Event(Event.CANCEL, false, false) after user closes dialog without a choice
         raise NotImplementedError
 
     def cancel(self):
@@ -552,9 +590,9 @@ class XMLSocket(EventDispatcher):
 
 def getClassByAlias(aliasName: String):
     try:
-        return miniamf.get_class_alias(aliasName)
+        return miniamf.get_class_alias(aliasName).klass
     except miniamf.UnknownClassAlias:
-        raise ReferenceError(f'Alias {aliasName} was not registered.')
+        raise ReferenceError(f'Class {aliasName} could not be found.', 1014)
 
 
 def navigateToURL(request: URLRequest, window: String = null):
