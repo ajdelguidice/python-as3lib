@@ -45,6 +45,7 @@ env_list = ["py3", "py313", "py310"]
 [tool.tox.env_run_base]
 runner = "uv-venv-runner"
 commands = [["python","-m","unittest","discover","as3lib/tests"]]
+pass_env = ['XDG_DESKTOP_DIR', 'XDG_DOCUMENTS_DIR', 'XDG_SESSION_TYPE']
 
 [tool.tox.env.py3]
 deps = ["flake8"]
