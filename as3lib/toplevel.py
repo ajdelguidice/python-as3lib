@@ -6,6 +6,6 @@ from as3lib import (ArgumentError, Array, Boolean, Date, DefinitionError,
                     decodeURIComponent, encodeURI, encodeURIComponent, escape,
                     isFinite, isNaN, isXMLName, parseFloat, parseInt, trace,
                     unescape)
-from warnings import warn
+from .helpers import printOnce
 Int = int
-warn('Using as3lib.toplevel is deprecated and will be removed in version 15. Use as3lib directly instead.', DeprecationWarning)
+printOnce('DeprecationWarning: as3lib.toplevel is deprecated and is scheduled for removal in version 15. Use as3lib directly instead.')
