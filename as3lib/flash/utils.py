@@ -1,6 +1,7 @@
 from __future__ import annotations
 from as3lib import (ArgumentError, as3state, Boolean, Error, false, int, null,
-                    Number, Object, true, uint, undefined)
+                    Number, Object, String, true, TypeError, uint, undefined)
+from as3lib.flash.errors import EOFError, IOError
 from as3lib.flash.events import EventDispatcher, TimerEvent
 import builtins
 from miniamf import util
@@ -9,7 +10,8 @@ from threading import Timer as timedExec
 
 
 def _INTERVAL_ID_GEN():
-    i = 0
+    # Can't use the python id here because it can be over the limit of a uint
+    i = uint(0)
     while True:
         yield i
         i += 1
@@ -18,23 +20,23 @@ def _INTERVAL_ID_GEN():
 _NEW_INTERVAL_ID = _INTERVAL_ID_GEN()
 
 
-def clearInterval(id):
-    as3state.intervals[id].stop()
+def clearInterval(id: uint):
+    as3state.intervals[uint(id)].clear()
 
 
-def clearTimeout(id):
-    as3state.intervals[id].stop()
+def clearTimeout(id: uint):
+    as3state.intervals[uint(id)].clear()
 
 
 def describeType(value):
     raise NotImplementedError
 
 
-def escapeMultiByte(value):
+def escapeMultiByte(value: String):
     raise NotImplementedError
 
 
-def getDefinitionByName(name):
+def getDefinitionByName(name: String):
     raise NotImplementedError
 
 
@@ -68,13 +70,12 @@ class _INTERVAL_TIMER:
         self._timer = timedExec(self.delay, self._tick)
         self._timer.start()
 
-    def stop(self):
+    def clear(self):
         self._timer.cancel()
         del as3state.intervals[self.id]
 
 
-def setInterval(closure: callable, delay, *arguements):
-    # Can't use the python id here because it can be over the limit of a uint
+def setInterval(closure: callable, delay: Number, *arguements):
     id = next(_NEW_INTERVAL_ID)
     _INTERVAL_TIMER(uint(delay), closure, arguements, id)
     return id
@@ -86,13 +87,13 @@ class _TIMEOUT_TIMER(_INTERVAL_TIMER):
         del as3state.intervals[self.id]
 
 
-def setTimeout(closure: callable, delay, *arguements):
+def setTimeout(closure: callable, delay: Number, *arguements):
     id = next(_NEW_INTERVAL_ID)
     _TIMEOUT_TIMER(uint(delay), closure, arguements, id)
     return id
 
 
-def unescapeMultiByte(value):
+def unescapeMultiByte(value: String):
     raise NotImplementedError
 
 
@@ -109,19 +110,26 @@ class ByteArray(_ByteArray):
 
     @property
     def bytesAvailable(self):
-        return self.remaining()
+        return uint(self.remaining())
 
     @property
     def endian(self):
-        return super().endian
+        return String(super().endian)
 
     @endian.setter
-    def endian(self, endian):
+    def endian(self, endian: String):
+        # TODO: Error messages
+        if endian is null:
+            raise TypeError('', 2007)
+        endian = String(endian)
+        # if endian not in Endian:
+        if endian not in {Endian.BIG_ENDIAN, Endian.LITTLE_ENDIAN}:
+            raise ArgumentError('', 2008)
         super().endian = endian
 
     @property
     def length(self):
-        return len(self)
+        return uint(len(self))
 
     @length.setter
     def length(self, value: int):
@@ -137,11 +145,11 @@ class ByteArray(_ByteArray):
 
     @property
     def shareable(self):
-        return self.__sharable
+        return self._sharable
 
     @shareable.setter
-    def shareable(self, value: bool):
-        self.__sharable = value
+    def shareable(self, value: Boolean):
+        self._sharable = Boolean(value)
 
     def __init__(self, data=None):
         super().__init__(data)
@@ -183,48 +191,47 @@ class ByteArray(_ByteArray):
         'Clears the contents of the byte array and resets the length and position properties to 0. Calling this method explicitly frees up the memory used by the ByteArray instance.'
         self.truncate(0)
 
-    def compress(self, algorithm: str):
+    def compress(self, algorithm: String):
+        # TODO: Error messages
+        if algorithm is null:
+            raise TypeError('', 2007)
+        algorithm = String(algorithm)
+        # if algorithm not in CompressionAlgorithm:
+        if algorithm not in {CompressionAlgorithm.DEFLATE, CompressionAlgorithm.LZMA, CompressionAlgorithm.ZLIB}:
+            raise IOError('', 2058)
         if algorithm != 'zlib':
             raise NotImplementedError('The underlying stream currently only supports zlib compression.')
         self.compressed = True
 
-    def deflate():
+    def deflate(self):
         raise NotImplementedError
 
-    def inflate():
+    def inflate(self):
         raise NotImplementedError
 
-    def readBytes(self, bytes: ByteArray, offset=0, length=0):
+    def readBytes(self, bytes: ByteArray, offset: uint = 0, length: uint = 0):
         bytes.seek(offset)
         bytes.write(self.read(length))
 
-    def toJSON(self, k: str):
-        '''
-        Provides an overridable method for customizing the JSON encoding of values in an ByteArray object.
-
-        The JSON.stringify() method looks for a toJSON() method on each object that it traverses. If the toJSON() method is found, JSON.stringify() calls it for each value it encounters, passing in the key that is paired with the value.
-
-        ByteArray provides a default implementation of toJSON() that simply returns the name of the class. Because the content of any ByteArray requires interpretation, clients that wish to export ByteArray objects to JSON must provide their own implementation. You can do so by redefining the toJSON() method on the class prototype.
-
-        The toJSON() method can return a value of any type. If it returns an object, stringify() recurses into that object. If toJSON() returns a string, stringify() does not recurse and continues its traversal.
-
-        Parameters
-            k:String — The key of a key/value pair that JSON.stringify() has encountered in its traversal of this object
-
-        Returns
-            * — The class name string.
-        '''
-        return 'ByteArray'
+    def toJSON(self, k: String):
+        return String('ByteArray')
 
     def toString(self):
         raise NotImplementedError
 
-    def uncompress(self, algorithm: str):
+    def uncompress(self, algorithm: String):
+        # TODO: Error messages
+        if algorithm is null:
+            raise TypeError('', 2007)
+        algorithm = String(algorithm)
+        # if algorithm not in CompressionAlgorithm:
+        if algorithm not in {CompressionAlgorithm.DEFLATE, CompressionAlgorithm.LZMA, CompressionAlgorithm.ZLIB}:
+            raise IOError('', 2058)
         if algorithm != 'zlib':
             raise NotImplementedError('The underlying stream currently only supports zlib compression.')
         self.compressed = False
 
-    def writeBytes(self, bytes: ByteArray, offset=0, length=0):
+    def writeBytes(self, bytes: ByteArray, offset: uint = 0, length: uint = 0):
         startpos = bytes.tell()
         bytes.seek(offset)
         self.write(bytes.read(length))
@@ -232,17 +239,17 @@ class ByteArray(_ByteArray):
 
 
 class CompressionAlgorithm(Object):
-    DEFLATE = 'deflate'
-    LZMA = 'lzma'
-    ZLIB = 'zlib'
+    DEFLATE = String('deflate')
+    LZMA = String('lzma')
+    ZLIB = String('zlib')
 
 
 class Dictionary(Object):
     # TODO: weak keys
-    def __init__(self, weakKeys: Boolean = False):
+    def __init__(self, weakKeys: Boolean = false):
         if weakKeys:
             raise NotImplementedError
-        self._useWeakKeys = weakKeys
+        self._useWeakKeys = Boolean(weakKeys)
         self._dict = {}
         # The weak keys must be in a separate dict because string keys are never
         # weak.
@@ -276,13 +283,13 @@ class Dictionary(Object):
     def __each__(self):
         return self._dict.values()
 
-    def toJSON(self, k: str):
-        return 'Dictionary'
+    def toJSON(self, k: String):
+        return String('Dictionary')
 
 
 class Endian(Object):
-    BIG_ENDIAN = 'bigEndian'
-    LITTLE_ENDIAN = 'littleEndian'
+    BIG_ENDIAN = String('bigEndian')
+    LITTLE_ENDIAN = String('littleEndian')
 
 
 class Timer(EventDispatcher):
@@ -336,11 +343,11 @@ class Timer(EventDispatcher):
         super().__init__()
         self._currentCount = int(0)
         self._running = false
+        delay = Number(delay)
         if delay < 0:
             raise Error()
         self.delay = delay
         self.repeatCount = repeatCount
-
 
     def reset(self):
         self.stop()
