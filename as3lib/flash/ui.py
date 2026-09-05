@@ -1,7 +1,8 @@
 from __future__ import annotations
-from as3lib import Array, Error, Object, uint
-from as3lib.flash.display import NativeMenu, NativeMenuItem, Stage
-from as3lib.flash.events import ContextMenuEvent
+from as3lib import Array, Boolean, Error, false, int, Number, Object, String, true, uint, Vector
+from as3lib.flash.display import BitmapData, NativeMenu, NativeMenuItem, Stage
+from as3lib.flash.events import EventDispatcher
+from as3lib.flash.geom import Point
 from as3lib.helpers import staticproperty
 
 
@@ -63,10 +64,7 @@ class ContextMenu(NativeMenu):
         raise NotImplementedError
 
     def __init__(self):
-        # TODO: Restrict number of custom items to 15
-        super().__init__()
-        self.menuSelect = ContextMenuEvent('menuSelect')
-        ...
+        raise NotImplementedError
 
     def addItemAt(self, item: NativeMenuItem, index):
         raise NotImplementedError
@@ -102,74 +100,75 @@ class ContextMenuBuiltInItems(Object):
         return self._forwardAndBack
 
     @forwardAndBack.setter
-    def forwardAndBack(self, value):
-        self._forwardAndBack = value
+    def forwardAndBack(self, value: Boolean):
+        self._forwardAndBack = Boolean(value)
 
     @property
     def loop(self):
         return self._loop
 
     @loop.setter
-    def loop(self, value):
-        self._loop = value
+    def loop(self, value: Boolean):
+        self._loop = Boolean(value)
 
     @property
     def play(self):
         return self._play
 
     @play.setter
-    def play(self, value):
-        self._play = value
+    def play(self, value: Boolean):
+        self._play = Boolean(value)
 
     @property
     def print(self):
         return self._print
 
     @print.setter
-    def print(self, value):
-        self._print = value
+    def print(self, value: Boolean):
+        self._print = Boolean(value)
 
     @property
     def quality(self):
         return self._quality
 
     @quality.setter
-    def quality(self, value):
-        self._quality = value
+    def quality(self, value: Boolean):
+        self._quality = Boolean(value)
 
     @property
     def rewind(self):
         return self._rewind
 
     @rewind.setter
-    def rewind(self, value):
-        self._rewind = value
+    def rewind(self, value: Boolean):
+        self._rewind = Boolean(value)
 
     @property
     def save(self):
         return self._save
 
     @save.setter
-    def save(self, value):
-        self._save = value
+    def save(self, value: Boolean):
+        self._save = Boolean(value)
 
     @property
     def zoom(self):
         return self._zoom
 
     @zoom.setter
-    def zoom(self, value):
-        self._zoom = value
+    def zoom(self, value: Boolean):
+        self._zoom = Boolean(value)
 
     def __init__(self):
-        self._forwardAndBack = True
-        self._loop = True
-        self._play = True
-        self._print = True
-        self._quality = True
-        self._rewind = True
-        self._save = True
-        self._zoom = True
+        # TODO: Validate these values
+        self.forwardAndBack = true
+        self.loop = true
+        self.play = true
+        self.print = true
+        self.quality = true
+        self.rewind = true
+        self.save = true
+        self.zoom = true
 
 
 class ContextMenuClipboardItems(Object):
@@ -178,47 +177,48 @@ class ContextMenuClipboardItems(Object):
         return self._clear
 
     @clear.setter
-    def clear(self, value):
-        self._clear = value
+    def clear(self, value: Boolean):
+        self._clear = Boolean(value)
 
     @property
     def copy(self):
         return self._copy
 
     @copy.setter
-    def copy(self, value):
-        self._copy = value
+    def copy(self, value: Boolean):
+        self._copy = Boolean(value)
 
     @property
     def cut(self):
         return self._cut
 
     @cut.setter
-    def cut(self, value):
-        self._cutm = value
+    def cut(self, value: Boolean):
+        self._cutm = Boolean(value)
 
     @property
     def paste(self):
         return self._paste
 
     @paste.setter
-    def paste(self, value):
-        self._paste = value
+    def paste(self, value: Boolean):
+        self._paste = Boolean(value)
 
     @property
     def selectAll(self):
         return self._selectAll
 
     @selectAll.setter
-    def selectAll(self, value):
-        self._selectAll = value
+    def selectAll(self, value: Boolean):
+        self._selectAll = Boolean(value)
 
     def __init__(self):
-        self._clear = True
-        self._copy = True
-        self._cut = True
-        self._paste = True
-        self._selectAll = True
+        # TODO: Validate these values
+        self.clear = true
+        self.copy = true
+        self.cut = true
+        self.paste = true
+        self.selectAll = true
 
 
 class ContextMenuItem(NativeMenuItem):
@@ -227,7 +227,7 @@ class ContextMenuItem(NativeMenuItem):
         return self._caption
 
     @caption.setter
-    def caption(self, value):
+    def caption(self, value: String):
         '''
         TODO:
         Each caption must contain at least one visible character.
@@ -235,6 +235,7 @@ class ContextMenuItem(NativeMenuItem):
         Captions that are identical to any built-in menu item, or to another custom item, are ignored, whether the matching item is visible or not. Menu captions are compared to built-in captions or existing custom captions without regard to case, punctuation, or white space.
         '''
         # Captions can not be more than 100 characters long.
+        value = str(String(value))
         if len(value) > 100:
             raise Error('Captions can not be more than 100 characters long.')
         # Restricted captions
@@ -243,32 +244,31 @@ class ContextMenuItem(NativeMenuItem):
         # Restricted phrases
         if value.find('Adobe') != -1 or value.find('Macromedia') != -1 or value.find('Flash Player') != -1 or value.find('Settings') != -1:
             raise Error(f'Caption {value} contains a restricted phrase.')
-        self._caption = value
+        self._caption = String(value)
 
     @property
     def separatorBefore(self):
         return self._separatorBefore
 
     @separatorBefore.setter
-    def separatorBefore(self, value):
-        self._separatorBefore = value
+    def separatorBefore(self, value: Boolean):
+        self._separatorBefore = Boolean(value)
 
     @property
     def visible(self):
         return self._visible
 
     @visible.setter
-    def visible(self, value):
-        self._visible = value
+    def visible(self, value: Boolean):
+        self._visible = Boolean(value)
 
-    def __init__(self, caption, separatorBefore=False, enabled=True, visible=True):
+    def __init__(self, caption: String, separatorBefore: Boolean = false,
+                 enabled: Boolean = true, visible: Boolean = true):
         super().__init__('')
-        self.menuItemSelect = ContextMenuEvent('menuItemSelect')
-        self._caption = None
         self.caption = caption
-        self._separatorBefore = separatorBefore
-        self._enabled = enabled
-        self._visible = visible
+        self.separatorBefore = separatorBefore
+        self.enabled = enabled  # Handled by NativeMenuItem
+        self.visible = visible
 
     def clone(self):
         raise NotImplementedError
@@ -302,15 +302,16 @@ class ContextMenuItem(NativeMenuItem):
         raise NotImplementedError
 
 
-class GameInput:
+class GameInput(EventDispatcher):
     ...
 
 
-class GameInputControl:
+class GameInputControl(EventDispatcher):
     ...
 
 
-class GameInputDevice:
+class GameInputDevice(Object):
+    MAX_BUFFER_SIZE = int(32000)
     ...
 
 
@@ -486,33 +487,103 @@ class Keyboard(Object):
         raise NotImplementedError
 
 
-class KeyboardType:
-    ...
+class KeyboardType(Object):
+    ALPHANUMERIC = String('alphanumeric')
+    KEYPAD = String('keypad')
+    NONE = String('none')
 
 
-class KeyLocation:
-    ...
+class KeyLocation(Object):
+    STANDARD = uint(0)
+    LEFT = uint(1)
+    RIGHT = uint(2)
+    NUM_PAD = uint(3)
+    D_PAD = uint(4)
 
 
-class Mouse:
-    ...
+class MouseCursorData(Object):
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value: Vector[BitmapData]):
+        # TODO: Proper type check
+        if not isinstance(value, Vector):
+            raise
+        self._data = value
+
+    @property
+    def frameRate(self):
+        return self._frameRate
+
+    @frameRate.setter
+    def frameRate(self, value: Number):
+        self._frameRate = Number(value)
+
+    @property
+    def hotSpot(self):
+        return self._hotSpot
+
+    @hotSpot.setter
+    def hotSpot(self, value: Point):
+        if not isinstance(value, Point):
+            raise
+        self._hotSpot = value
+
+    def __init__(self):
+        self._data = null
+        self.frameRate = 0
+        self.hotSpot = Point(0, 0)
+
+
+class Mouse(Object):
+    @staticproperty
+    def cursor(cls):
+        raise NotImplementedError
+
+    @cursor.setter
+    def cursor(cls, value: String):
+        raise NotImplementedError
+
+    @staticproperty
+    def supportsCursor(cls):
+        raise NotImplementedError
+
+    @staticproperty
+    def supportsNativeCursor(cls):
+        raise NotImplementedError
+
+    @staticmethod
+    def hide():
+        raise NotImplementedError
+
+    @staticmethod
+    def registerCursor(name: String, cursor: MouseCursorData):
+        raise NotImplementedError
+
+    @staticmethod
+    def show():
+        raise NotImplementedError
+
+    @staticmethod
+    def unregisterCursor(name: String):
+        raise NotImplementedError
 
 
 class MouseCursor(Object):
-    ARROW = 'arrow'
-    AUTO = 'auto'
-    BUTTON = 'button'
-    HAND = 'hand'
-    IBEAM = 'ibeam'
+    ARROW = String('arrow')
+    AUTO = String('auto')
+    BUTTON = String('button')
+    HAND = String('hand')
+    IBEAM = String('ibeam')
 
 
-class MouseCursorData:
+class Multitouch(Object):
     ...
 
 
-class Multitouch:
-    ...
-
-
-class MultitouchInputMode:
-    ...
+class MultitouchInputMode(Object):
+    GESTURE = String('gesture')
+    NONE = String('none')
+    TOUCH_POINT = String('touchPoint')
