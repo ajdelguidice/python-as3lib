@@ -1,5 +1,5 @@
 from __future__ import annotations
-from as3lib import Array, Boolean, Error, false, int, Number, Object, String, true, uint, Vector
+from as3lib import Array, Boolean, Error, false, int, null, Number, Object, String, true, uint, Vector
 from as3lib.flash.display import BitmapData, NativeMenu, NativeMenuItem, Stage
 from as3lib.flash.events import EventDispatcher
 from as3lib.flash.geom import Point
