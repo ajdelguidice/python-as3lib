@@ -280,7 +280,7 @@ class _TOOLKITEVENT:
 
         if event.type == tkinter.EventType.KeyPress:
             return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
-        if event.type = tkinter.EventType.KeyRelease:
+        if event.type == tkinter.EventType.KeyRelease:
             return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
 
     def MouseButtonToTK(name):
