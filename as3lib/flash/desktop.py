@@ -13,7 +13,7 @@ import platform
 
 
 class _TOOLKITEVENT:
-    def TKGetKeyCode(event):
+    def TkGetKeyCode(event):
         # NOTE: Can't easily use keycode here because keycodes are
         #       platform specific. Using keysym, while incorrect for keyboards
         #       that aren't US_QWERTY, is still better than having a different
@@ -274,16 +274,16 @@ class _TOOLKITEVENT:
         # TODO: Determine what flash player does here
         return 0
 
-    def TKGetKeyboardEvent(event):
+    def TkGetKeyboardEvent(event):
         # TODO
-        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
+        keyCode = _TOOLKITEVENT.TkGetKeyCode(event)
 
         if event.type == tkinter.EventType.KeyPress:
             return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
         if event.type == tkinter.EventType.KeyRelease:
             return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
 
-    def MouseButtonToTK(name):
+    def MouseButtonToTk(name):
         if platform.system() in {'Linux', 'Windows'}:
             if name == MouseEvent.CLICK:
                 return '<Button-1>'
@@ -299,7 +299,7 @@ class _TOOLKITEVENT:
             if name == MouseEvent.RIGHT_CLICK:
                 return '<Button-2>'
 
-    def TKGetMouseButton(event):
+    def TkGetMouseButton(event):
         if platform.system() in {'Linux', 'Windows'}:
             if event.num == 1:
                 return MouseEvent.CLICK
@@ -315,7 +315,7 @@ class _TOOLKITEVENT:
             if event.num == 3:
                 return MouseEvent.MIDDLE_CLICK
 
-    def TKGetMouseEvent(event):
+    def TkGetMouseEvent(event):
         raise NotImplementedError
 
     def QtGetKeyCode(event):
@@ -768,9 +768,9 @@ class _TOOLKITEVENT:
             commandKey = false
 
         if QtEventType == 6:
-            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
+            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, charCode, keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
         if QtEventType == 7:
-            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
+            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, charCode, keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
 
     def QtGetMouseEvent(event):
         raise NotImplementedError
@@ -1072,7 +1072,7 @@ class NativeApplication(EventDispatcher):
         raise NotImplementedError
 
     def _temp_handle_keys(self, event):
-        print(_TOOLKITEVENT.TKGetKeyCode(event))
+        print(_TOOLKITEVENT.TkGetKeyCode(event))
 
     def _guiInit(self):
         # INTERNAL: Creates the base gui object if it does not yet exist.
