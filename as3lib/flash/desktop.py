@@ -5,7 +5,7 @@ from as3lib.flash.display import NativeWindow
 from as3lib.flash.events import (Event, EventDispatcher, InvokeEvent,
                                  KeyboardEvent, MouseEvent)
 from as3lib.flash.filesystem import File
-from as3lib.flash.ui import Keyboard
+from as3lib.flash.ui import Keyboard, KeyLocation
 from as3lib.helpers import staticproperty
 import sys
 import tkinter
@@ -274,6 +274,15 @@ class _TOOLKITEVENT:
         # TODO: Determine what flash player does here
         return 0
 
+    def TKGetKeyboardEvent(event):
+        # TODO
+        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
+
+        if event.type == tkinter.EventType.KeyPress:
+            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
+        if event.type = tkinter.EventType.KeyRelease:
+            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
+
     def MouseButtonToTK(name):
         if platform.system() in {'Linux', 'Windows'}:
             if name == MouseEvent.CLICK:
@@ -305,6 +314,466 @@ class _TOOLKITEVENT:
                 return MouseEvent.RIGHT_CLICK
             if event.num == 3:
                 return MouseEvent.MIDDLE_CLICK
+
+    def TKGetMouseEvent(event):
+        raise NotImplementedError
+
+    def QtGetKeyCode(event):
+        # TODO: If fully switching to PyQt, use PyQt6.QtCore.Qt.Key enum
+        #       and PyQt6.QtCore.Qt.KeyboardModifier enum instead of
+        #       hardcoding key values
+        isDarwin = as3state.platform == 'Darwin'
+        QtKeycode = event.key()
+        QtModifiers = event.modifiers()
+        shiftPressed = QtModifiers % 0x2000000
+        #
+        # KeyboardModifer.KeypadModifier
+        if QtModifiers & 0x20000000:
+            # Key.Key_0, Key.Key_Insert
+            if QtKeycode in {48, 16777222}:
+                return Keyboard.NUMPAD_0
+            # Key.Key_1, Key.Key_End
+            if QtKeycode in {49, 16777233}:
+                return Keyboard.NUMPAD_1
+            # Key.Key_2, Key.Key_Down
+            if QtKeycode in {50, 16777237}:
+                return Keyboard.NUMPAD_2
+            # Key.Key_3, Key.Key_PageDown
+            if QtKeycode in {51, 16777239}:
+                return Keyboard.NUMPAD_3
+            # Key.Key_4, Key.Key_Left
+            if QtKeycode in {52, 16777234}:
+                return Keyboard.NUMPAD_4
+            # Key.Key_5, Key.Key_Clear
+            # TODO: Check darwin, check other keyboards
+            if QtKeycode in {53, 16777227}:
+                return Keyboard.NUMPAD_5
+            # Key.Key_6, Key.Key_Right
+            if QtKeycode in {54, 16777236}:
+                return Keyboard.NUMPAD_6
+            # Key.Key_7, Key.Key_Home
+            if QtKeycode in {55, 16777232}:
+                return Keyboard.NUMPAD_7
+            # Key.Key_8, Key.Key_Up
+            if QtKeycode in {56, 16777235}:
+                return Keyboard.NUMPAD_8
+            # Key.Key_9, Key.Key_PageUp
+            if QtKeycode in {57, 16777238}:
+                return Keyboard.NUMPAD_9
+            # Key.Key_Asterisk
+            if QtKeycode == 42:
+                return Keyboard.NUMPAD_MULTIPLY
+            # Key.Key_Plus
+            if QtKeycode == 43:
+                return Keyboard.NUMPAD_ADD
+            # Key.Key_Enter
+            if QtKeycode == 16777221:
+                return Keyboard.NUMPAD_ENTER
+            # Key.Key_Minus
+            if QtKeycode == 45:
+                return Keyboard.NUMPAD_SUBTRACT
+            # Key.Key_Period, Key.Key_Delete
+            if QtKeycode in {46, 16777223}:
+                return Keyboard.NUMPAD_DECIMAL
+            # Key.Key_Slash
+            if QtKeycode == 47:
+                return Keyboard.NUMPAD_DIVIDE
+
+        # Key.Key_Backspace
+        if QtKeycode == 16777219:
+            return Keyboard.BACKSPACE
+        # Key.Key_Tab
+        if QtKeycode == 16777217:
+            return Keyboard.TAB
+
+        # Key.Key_Enter
+        if QtKeycode == 16777221:
+            return Keyboard.ENTER
+        # Darwin: Key.Key_Control, TODO: Other platforms
+        if isDarwin and QtKeycode == 16777249:
+            return Keyboard.COMMAND
+        # Key.Key_Shift
+        if QtKeycode == 16777248:
+            return Keyboard.SHIFT
+        # Darwin: Key.Key_Meta, Other: Key.Key_Control
+        if isDarwin and QtKeycode == 16777250 or not isDarwin and QtKeycode == 16777249:
+            return Keyboard.CONTROL
+        # Key.Key_Alt
+        if QtKeycode == 16777251:
+            return Keyboard.ALTERNATE
+
+        # Key.Key_CapsLock
+        if QtKeycode == 16777252:
+            return Keyboard.CAPS_LOCK
+        # TODO
+        if False:
+            return Keyboard.NUMPAD
+
+        # Key.Key_Escape
+        if QtKeycode == 16777216:
+            return Keyboard.ESCAPE
+        # Key.Key_Space
+        if QtKeycode == 32:
+            return Keyboard.SPACE
+        # Key.Key_PageUp
+        if QtKeycode == 16777238:
+            return Keyboard.PAGE_UP
+        # Key.Key_PageDown
+        if QtKeycode == 16777239:
+            return Keyboard.PAGE_DOWN
+        # Key.Key_End
+        if QtKeycode == 16777233:
+            return Keyboard.END
+        # Key.Key_Home
+        if QtKeycode == 16777232:
+            return Keyboard.HOME
+        # Key.Key_Left
+        if QtKeycode == 16777234:
+            return Keyboard.LEFT
+        # Key.Key_Up
+        if QtKeycode == 16777235:
+            return Keyboard.UP
+        # Key.Key_Right
+        if QtKeycode == 16777236:
+            return Keyboard.RIGHT
+        # Key.Key_Down
+        if QtKeycode == 16777237:
+            return Keyboard.DOWN
+
+        # Key.Key_Insert
+        if QtKeycode == 16777222:
+            return Keyboard.INSERT
+        # Key.Key_Delete
+        if QtKeycode == 16777223:
+            return Keyboard.DELETE
+
+        # Key.Key_0, shiftPressed: Key.Key_ParenRight
+        if not shiftPressed and QtKeycode == 48 or shiftPressed and QtKeycode == 41:
+            return Keyboard.NUMBER_0
+        # Key.Key_1, shiftPressed: Key.Key_Exclam
+        if not shiftPressed and QtKeycode == 49 or shiftPressed and QtKeycode == 33:
+            return Keyboard.NUMBER_1
+        # Key.Key_2, shiftPressed: Key.Key_At
+        if not shiftPressed and QtKeycode == 50 or shiftPressed and QtKeycode == 64:
+            return Keyboard.NUMBER_2
+        # Key.Key_3, shiftPressed: Key.Key_NumberSign
+        if not shiftPressed and QtKeycode == 51 or shiftPressed and QtKeycode == 35:
+            return Keyboard.NUMBER_3
+        # Key.Key_4, shiftPressed: Key.Key_Dollar
+        if not shiftPressed and QtKeycode == 52 or shiftPressed and QtKeycode == 36:
+            return Keyboard.NUMBER_4
+        # Key.Key_5, shiftPressed: Key.Key_Percent
+        if not shiftPressed and QtKeycode == 53 or shiftPressed and QtKeycode == 37:
+            return Keyboard.NUMBER_5
+        # Key.Key_6, shiftPressed: Key.Key_AsciiCircum
+        if not shiftPressed and QtKeycode == 54 or shiftPressed and QtKeycode == 94:
+            return Keyboard.NUMBER_6
+        # Key.Key_7, shiftPressed: Key.Key_Ampersand
+        if not shiftPressed and QtKeycode == 55 or shiftPressed and QtKeycode == 38:
+            return Keyboard.NUMBER_7
+        # Key.Key_8, shiftPressed: Key.Key_Asterisk
+        if not shiftPressed and QtKeycode == 56 or shiftPressed and QtKeycode == 42:
+            return Keyboard.NUMBER_8
+        # Key.Key_9, shiftPressed: Key.Key_ParenLeft
+        if not shiftPressed and QtKeycode == 57 or shiftPressed and QtKeycode == 40:
+            return Keyboard.NUMBER_9
+
+        # Key.Key_A
+        if QtKeycode == 65:
+            return Keyboard.A
+        # Key.Key_B
+        if QtKeycode == 66:
+            return Keyboard.B
+        # Key.Key_C
+        if QtKeycode == 67:
+            return Keyboard.C
+        # Key.Key_D
+        if QtKeycode -- 68:
+            return Keyboard.D
+        # Key.Key_E
+        if QtKeycode == 69:
+            return Keyboard.E
+        # Key.Key_F
+        if QtKeycode == 70:
+            return Keyboard.F
+        # Key.Key_G
+        if QtKeycode == 71:
+            return Keyboard.G
+        # Key.Key_H
+        if QtKeycode == 72:
+            return Keyboard.H
+        # Key.Key_I
+        if QtKeycode == 73:
+            return Keyboard.I
+        # Key.Key_J
+        if QtKeycode == 74:
+            return Keyboard.J
+        # Key.Key_K
+        if QtKeycode == 75:
+            return Keyboard.K
+        # Key.Key_L
+        if QtKeycode == 76:
+            return Keyboard.L
+        # Key.Key_M
+        if QtKeycode == 77:
+            return Keyboard.M
+        # Key.Key_N
+        if QtKeycode == 78:
+            return Keyboard.N
+        # Key.Key_O
+        if QtKeycode == 79:
+            return Keyboard.O
+        # Key.Key_P
+        if QtKeycode == 80:
+            return Keyboard.P
+        # Key.Key_Q
+        if QtKeycode == 81:
+            return Keyboard.Q
+        # Key.Key_R
+        if QtKeycode == 82:
+            return Keyboard.R
+        # Key.Key_S
+        if QtKeycode == 83:
+            return Keyboard.S
+        # Key.Key_T
+        if QtKeycode == 84:
+            return Keyboard.T
+        # Key.Key_U
+        if QtKeycode == 85:
+            return Keyboard.U
+        # Key.Key_V
+        if QtKeycode == 86:
+            return Keyboard.V
+        # Key.Key_W
+        if QtKeycode == 87:
+            return Keyboard.W
+        # Key.Key_X
+        if QtKeycode == 88:
+            return Keyboard.X
+        # Key.Key_Y
+        if QtKeycode == 89:
+            return Keyboard.Y
+        # Key.Key_Z
+        if QtKeycode == 90:
+            return Keyboard.Z
+
+        # Key.Key_F1
+        if QtKeycode == 16777264:
+            return Keyboard.F1
+        # Key.Key_F2
+        if QtKeycode == 16777265:
+            return Keyboard.F2
+        # Key.Key_F3
+        if QtKeycode == 16777266:
+            return Keyboard.F3
+        # Key.Key_F4
+        if QtKeycode == 16777267:
+            return Keyboard.F4
+        # Key.Key_F5
+        if QtKeycode == 16777268:
+            return Keyboard.F5
+        # Key.Key_F6
+        if QtKeycode == 16777269:
+            return Keyboard.F6
+        # Key.Key_F7
+        if QtKeycode == 16777270:
+            return Keyboard.F7
+        # Key.Key_F8
+        if QtKeycode == 16777271:
+            return Keyboard.F8
+        # Key.Key_F9
+        if QtKeycode == 16777272:
+            return Keyboard.F9
+        # Key.Key_F10
+        if QtKeycode == 16777273:
+            return Keyboard.F10
+        # Key.Key_F11
+        if QtKeycode == 16777274:
+            return Keyboard.F11
+        # Key.Key_F12
+        if QtKeycode == 16777275:
+            return Keyboard.F12
+        # Key.Key_F13
+        if QtKeycode == 16777276:
+            return Keyboard.F13
+        # Key.Key_F14
+        if QtKeycode == 16777277:
+            return Keyboard.F14
+        # Key.Key_F15
+        if QtKeycode == 16777278:
+            return Keyboard.F15
+
+        # Key.Key_NumLock
+        if QtKeycode == 16777253:
+            return uint(144)  # Numlock
+
+        # Key.Key_Semicolon, Key.Key_Colon
+        if QtKeycode in {59, 58}:
+            return Keyboard.SEMICOLON
+        # Key.Key_Equal, Key.Key_Plus
+        if QtKeycode in {61, 43}:
+            return Keyboard.EQUAL
+        # Key.Key_Comma, Key.Key_Less
+        if QtKeycode in {44, 60}:
+            return Keyboard.COMMA
+        # Key.Key_Minus, Key.Key_Underscore
+        if QtKeycode in {45, 95}:
+            return Keyboard.MINUS
+        # Key.Key_Period, Key.Key_Greater
+        if QtKeycode in {46, 62}:
+            return Keyboard.PERIOD
+        # Key.Key_Slash, Key.Key_Question
+        if QtKeycode in {47, 63}:
+            return Keyboard.SLASH
+        # Key.Key_QuoteLeft, Key.Key_AsciiTilde
+        if QtKeycode in {96, 126}:
+            return Keyboard.BACKQUOTE
+
+        # Key.Key_BracketLeft, Key.Key_BraceLeft
+        if QtKeycode in {91, 123}:
+            return Keyboard.LEFTBRACKET
+        # Key.Key_Backslash, Key.Key_Bar
+        if QtKeycode in {92, 124}:
+            return Keyboard.BACKSLASH
+        # Key.Key_BracketRight, Key.Key_BraceRight
+        if QtKeycode in {93, 125}:
+            return Keyboard.RIGHTBRACKET
+        # Key.Key_Apostraphe, Key.Key_QuoteDbl
+        if QtKeycode in {39, 34}:  # ', "
+            return Keyboard.QUOTE
+
+        # Key.Key_Red
+        if QtKeycode == 0x01000114:
+            return Keyboard.RED
+        # Key.Key_Green
+        if QtKeycode == 0x01000115:
+            return Keyboard.GREEN
+        # Key.Key_Yellow
+        if QtKeycode == 0x01000116:
+            return Keyboard.YELLOW
+        # Key.Key_Blue
+        if QtKeycode == 0x01000117:
+            return Keyboard.BLUE
+        # Key.Key_ChannelUp
+        if QtKeycode == 0x01000118:
+            return Keyboard.CHANNEL_UP
+        # Key.Key_ChannelDown
+        if QtKeycode == 0x01000119:
+            return Keyboard.CHANNEL_DOWN
+        # Key.Key_MediaRecord
+        if QtKeycode == 0x01000084:
+            return Keyboard.RECORD
+        # TODO: Should this be Key.Key_Play instead?
+        # Key.Key_MediaPlay
+        if QtKeycode == 0x01000080:
+            return Keyboard.PLAY
+        # Key.Key_MediaPause
+        if QtKeycode == 0x01000085:
+            return Keyboard.PAUSE
+        # TODO: Should this be Key.Key_Stop instead?
+        # Key.Key_MediaStop
+        if QtKeycode == 0x01000081:
+            return Keyboard.STOP
+        # TODO
+        # FAST_FORWARD = uint(0x0100000A)
+        # REWIND = uint(0x0100000B)
+        # SKIP_FORWARD = uint(0x0100000C)
+        # SKIP_BACKWARD = uint(0x0100000D)
+        # NEXT = uint(0x0100000E)
+        # PREVIOUS = uint(0x0100000F)
+        # LIVE = uint(0x01000010)
+        # LAST = uint(0x01000011)
+        # MENU = uint(0x01000012)
+        # Key.Key_Info
+        if QtKeycode == 0x0100011b:
+            return Keyboard.INFO
+        # Key.Key_Guide
+        if QtKeycode == 0x0100011a:
+            return Keyboard.GUIDE
+        # Key.Key_Exit
+        if QtKeycode == 0x0102000a:
+            return Keyboard.EXIT
+        # BACK = uint(0x01000016)
+        # AUDIO = uint(0x01000017)
+        # Key.Key_Subtitle
+        if QtKeycode == 0x01000105:
+            return Keyboard.SUBTITLE
+        # TODO
+        # DVR = uint(0x01000019)
+        # VOD = uint(0x0100001A)
+        # INPUT = uint(0x0100001B)
+        # SETUP = uint(0x0100001C)
+        # HELP = uint(0x0100001D)
+        # MASTER_SHELL = uint(0x0100001E)
+        # Key.Key_Search
+        if QtKeycode == 0x01000092:
+            return Keyboard.SEARCH
+        # Key.Key_MediaTogglePlayPause
+        if QtKeycode == 0x01000086:
+            return Keyboard.PLAY_PAUSE
+
+        # Unknown keys get 0
+        # TODO: Determine what flash player does here
+        return 0
+
+    def QtGetKeyboardEvent(event):
+        QtEventType = event.type()
+        QtModifiers = event.modifiers()
+        isDarwin = as3state.platform == 'Darwin'
+
+        charCode = 0  # TODO
+
+        keyCode = _TOOLKITEVENT.QtGetKeyCode(event)
+
+        if False:  # TODO
+            keyLocation = KeyLocation.LEFT
+        elif False:  # TODO
+            keyLocation = KeyLocation.RIGHT
+        elif QtModifiers & 0x20000000:  # KeyboardModifer.KeypadModifier
+            keyLocation = KeyLocation.NUM_PAD
+        elif False:  # TODO
+            keyLocation = KeyLocation.D_PAD
+        else:
+            keyLocation = KeyLocation.STANDARD
+
+        if keyCode == 0:
+            # TODO
+            return
+
+        # Darwin: Ctrl or Command, Other: Ctrl
+        if isDarwin:
+            # KeyboardModifier.ControlModifier or KeyboardModifier.MetaModifier
+            ctrlKey = Boolean(QtModifiers & 67108864) or Boolean(QtModifiers & 268435456)
+        else:
+            # KeyboardModifier.ControlModifier
+            ctrlKey = Boolean(QtModifiers & 67108864)
+
+        # Not Darwin: Alt
+        if isDarwin:
+            altKey = false
+        else:
+            altKey = Boolean(QtModifiers & 134217728)  # KeyboardModifier.AltModifier
+
+        shiftKey = Boolean(QtModifiers & 33554432)  # KeyboardModifier.ShiftModifier
+
+        if isDarwin:
+            controlKey = Boolean(QtModifiers & 268435456)  # KeyboardModifier.MetaModifier
+        else:
+            controlKey = Boolean(QtModifiers & 67108864)  # KeyboardModifier.ControlModifier
+
+        # Darwin only: Command
+        if isDarwin:
+            commandKey = Boolean(QtModifiers & 67108864)  # KeyboardModifier.ControlModifier
+        else:
+            commandKey = false
+
+        if QtEventType == 6:
+            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
+        if QtEventType == 7:
+            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
+
+    def QtGetMouseEvent(event):
+        raise NotImplementedError
 
 
 # Interfaces
@@ -601,21 +1070,6 @@ class NativeApplication(EventDispatcher):
 
     def setAsDefaultApplication(self, extension):
         raise NotImplementedError
-
-    def _TOOLKITHANDLER_keyDown(self, event):
-        # TODO: Bind function to toolkit key_down event
-        # TODO: Convert toolkit key_down event into flash key_down event
-        # TODO: Fill in the placeholder values
-        # NOTE: cancelable in AIR but not in flash player
-        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
-        self.dispatchEvent(KeyboardEvent('keyDown', true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
-
-    def _TOOLKITHANDLER_keyUp(self, event):
-        # TODO: Bind function to toolkit key_up event
-        # TODO: Convert toolkit key_up event into flash key_up event
-        # TODO: Fill in the placeholder values
-        keyCode = _TOOLKITEVENT.TKGetKeyCode(event)
-        self.dispatchEvent(KeyboardEvent('keyUp', true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey'))
 
     def _temp_handle_keys(self, event):
         print(_TOOLKITEVENT.TKGetKeyCode(event))
