@@ -276,12 +276,26 @@ class _TOOLKITEVENT:
 
     def TkGetKeyboardEvent(event):
         # TODO
+        charCode = 0  # TODO
+
         keyCode = _TOOLKITEVENT.TkGetKeyCode(event)
 
+        keyLocation = KeyLocation.STANDARD  # TODO
+
+        ctrlKey = false  # TODO
+
+        altKey = false  # TODO
+
+        shiftKey = false  # TODO
+
+        controlKey = false  # TODO
+
+        commandKey = false  # TODO
+
         if event.type == tkinter.EventType.KeyPress:
-            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
+            return KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, charCode, keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
         if event.type == tkinter.EventType.KeyRelease:
-            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, 'charCode', keyCode, 'keyLocation', 'ctrlKey', 'altKey', 'shiftKey', 'controlKey', 'commandKey')
+            return KeyboardEvent(KeyboardEvent.KEY_UP, true, false, charCode, keyCode, keyLocation, ctrlKey, altKey, shiftKey, controlKey, commandKey)
 
     def MouseButtonToTk(name):
         if platform.system() in {'Linux', 'Windows'}:
